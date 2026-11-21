@@ -1,5 +1,5 @@
 import type { QueueDataType } from "@hyper-fetch/core";
-import { useShallow } from "zustand/react/shallow";
+import { memo } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
@@ -10,17 +10,12 @@ import { useQueueStatsStore } from "@/store/applications/queue-stats.store";
 import { useQueueStore } from "@/store/applications/queue.store";
 import { getQueueStatus, getQueueStatusColor } from "@/utils/queue.status.utils";
 
-export const Item = ({ queue }: { queue: QueueDataType }) => {
+/** One queue card. Memoized and subscribed only to its own queue, selection and stats. */
+export const Item = memo(({ queue }: { queue: QueueDataType }) => {
   const { application } = useDevtools();
-  const { detailsQueryKey, openDetails } = useQueueStore(
-    useShallow((state) => ({
-      detailsQueryKey: state.applications[application.name].detailsId,
-      openDetails: state.openDetails,
-    })),
-  );
-  const queueStats = useQueueStatsStore(
-    useShallow((state) => state.applications[application.name]?.stats.get(queue.queryKey)),
-  );
+  const openDetails = useQueueStore((state) => state.openDetails);
+  const isSelected = useQueueStore((state) => state.applications[application.name]?.detailsId === queue.queryKey);
+  const queueStats = useQueueStatsStore((state) => state.applications[application.name]?.stats.get(queue.queryKey));
 
   const status = getQueueStatus(queue);
   const statusColor = (
@@ -32,7 +27,7 @@ export const Item = ({ queue }: { queue: QueueDataType }) => {
   )[status];
 
   const total = queueStats?.totalRequests || 0;
-  const isActive = detailsQueryKey === queue.queryKey && !queue.stopped;
+  const isActive = isSelected && !queue.stopped;
   const color = getQueueStatusColor({ queue, active: isActive });
 
   return (
@@ -62,4 +57,4 @@ export const Item = ({ queue }: { queue: QueueDataType }) => {
       </CardContent>
     </Card>
   );
-};
+});

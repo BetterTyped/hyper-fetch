@@ -1,13 +1,11 @@
+import tsParser from "@typescript-eslint/parser";
 import { RuleTester } from "@typescript-eslint/rule-tester";
 import { clientGenericTypes } from "client-generic-types";
 
 const ruleTester = new RuleTester({
-  parser: "@typescript-eslint/parser",
-  parserOptions: { ecmaVersion: 2015 },
+  languageOptions: { parser: tsParser },
 });
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 ruleTester.run("client-generics-types", clientGenericTypes, {
   valid: [
     {
@@ -46,6 +44,13 @@ ruleTester.run("client-generics-types", clientGenericTypes, {
     },
   ],
   invalid: [
+    {
+      // an import named with a string is the same createClient
+      code: `
+      import { "createClient" as makeClient } from "@hyper-fetch/core";
+      const someClient = makeClient<{eror: any}>();`,
+      errors: [{ messageId: "unexpectedGenerics", data: { items: "eror" } }],
+    },
     {
       // imports are hoisted, a call above the import is still a HyperFetch client
       code: `

@@ -1,0 +1,85 @@
+---
+title: Optimistic updates
+sidebar_label: Optimistic updates
+sidebar_position: 2
+description: Toggle and add todos instantly with setOptimistic, and roll the change back when the server rejects it.
+sidebar_custom_props:
+  path: react/optimistic-updates
+  level: intermediate
+  tags: [useSubmit, optimistic, cache, mocking]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/optimistic-updates/src/api.ts";
+import app from "!!raw-loader!@examples/react/optimistic-updates/src/App.tsx";
+
+A todo list where checking a box or adding a todo changes the list at once, while the server takes a full second to
+answer. Turn on **Make requests fail** and the same change is reverted when the error arrives.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`setOptimistic`** on the request describes the change, so components only call `submit()`.
+2. **`optimistic()` helpers**: `.list("todos").patch()` and `.insert()` edit the cached list without hand-written cache
+   code.
+3. **`.rollback()`** puts the old value back after a final error or an abort.
+4. **Mocking on demand**: `setMock` plus `setMockingEnabled` simulate a server error without a special endpoint.
+5. **`useIsSubmitting`** shows how many mutations are still waiting for the server.
+
+:::
+
+---
+
+## How it works
+
+1. `getTodosRequest` is the list on screen. The optimistic changes target this exact request, so they edit the same
+   cache entry that `useFetch` reads.
+2. `toggleTodoRequest.setOptimistic()` returns the change and its undo. `params` and `payload` come from the `submit()`
+   call and are typed:
+
+   ```ts
+   optimistic(getTodosRequest)
+     .list("todos")
+     // highlight-next-line
+     .patch(params.todoId, payload)
+     .rollback(({ data, previous }) => {
+       // Return `data` with the todo from `previous` put back
+     });
+   ```
+
+   The change is applied inside `submit()`, before the request is sent, so the checkbox flips in the same render.
+
+3. `addTodoRequest` inserts a temporary todo with a negative id at the top of the list. Its rollback removes that todo
+   again.
+4. On a final error, core runs every rollback and then calls `onSubmitError`. The component only writes a log line.
+5. Both mutations return `revalidate: false`. By default core refetches the changed list once the mutation settles, to
+   get the server's truth. dummyjson only simulates writes, so that refetch would undo every successful change. With a
+   real API, leave `revalidate` on.
+6. `api.ts` attaches a mock that answers `500` after one second, then disables it. The switch calls
+   `setMockingEnabled(fail)` on both requests, and every `submit()` after that uses the mock instead of the network.
+
+:::note When to use it
+
+- Toggles, likes, reordering and other small changes that almost always succeed.
+- Lists where the user expects to see the new item right away.
+- Avoid it when the server decides the result, for example prices or generated numbers. Use a pessimistic update with a
+  loading state there.
+
+:::
+
+---
+
+## Related
+
+- [Optimistic updates guide](/docs/guides/react/basics/optimistic-approach)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [`useIsFetching` and `useIsSubmitting`](/docs/react/hooks/use-is-fetching)
+- [Mocking](/docs/core/mocking)
+
+:::secondary Summary
+
+The request owns the optimistic change: `optimistic()` helpers describe it and `.rollback()` describes the undo. Core
+applies it on `submit()`, reverts it on failure and keeps the component free of cache code.
+
+:::

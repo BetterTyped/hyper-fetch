@@ -1,5 +1,6 @@
 import type { AppManager } from "@hyper-fetch/core";
 import type { SocketAdapterInstance } from "adapter";
+import type { ReconnectDelayType, ShouldReconnectType } from "connection";
 import type { EmitterInstance } from "emitter";
 import type { Socket } from "socket";
 import type { ExtractAdapterOptionsType, ExtractAdapterQueryParamsType } from "types";
@@ -10,8 +11,29 @@ export type SocketOptionsType<Adapter extends SocketAdapterInstance> = {
   url: string;
   /** How many times to reconnect after the connection was lost. @default Infinity */
   reconnect?: number;
-  /** Delay in milliseconds before the next connection attempt after the connection was lost. @default 5000 */
+  /**
+   * Minimum delay in milliseconds before a reconnection attempt. Delays grow from it with exponential backoff and full
+   * jitter, up to `maxReconnectTime`. @default 1000
+   */
   reconnectTime?: number;
+  /** Maximum delay in milliseconds before a reconnection attempt. @default 30000 */
+  maxReconnectTime?: number;
+  /**
+   * How long in milliseconds a connection must stay up before the reconnection attempt counter resets. A connection
+   * that drops sooner keeps backing off and counts towards `reconnect`. @default 5000
+   */
+  minUptime?: number;
+  /**
+   * Replaces the default backoff. Returns the delay in milliseconds before the next attempt, or `null` to stop
+   * reconnecting. `attempt` counts from 0 within an outage, `elapsed` is the time since the outage began.
+   */
+  reconnectDelay?: ReconnectDelayType;
+  /**
+   * Decides whether a lost connection is retried, from its close `code`, `reason` or `error`. Overrides the adapter's
+   * protocol default. Closes started by the client are never retried.
+   * @default a normal closure (1000) stays closed, every other loss is retried
+   */
+  shouldReconnect?: ShouldReconnectType;
   /**
    * How long in milliseconds one connection attempt may take before it is abandoned and a new attempt starts.
    * Separate from `reconnectTime`, so a short reconnect delay does not cut slow handshakes short. @default 5000

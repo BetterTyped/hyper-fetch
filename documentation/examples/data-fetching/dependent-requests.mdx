@@ -1,0 +1,71 @@
+---
+title: Dependent requests
+sidebar_label: Dependent requests
+sidebar_position: 1
+description: Fetch a user first, then load their posts and todos only once the user id is known.
+sidebar_custom_props:
+  path: react/dependent-requests
+  level: beginner
+  tags: [useFetch, params]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/dependent-requests/src/api.ts";
+import app from "!!raw-loader!@examples/react/dependent-requests/src/App.tsx";
+
+A user profile that is loaded by username. The posts and todos endpoints need the numeric user id, which only the first
+response contains, so those two requests wait for it. A small step list shows each request waiting, loading or done.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`disabled`** keeps a `useFetch` request from being sent until its input is known.
+2. **Automatic start.** When `disabled` turns `false`, the hook sends the request on its own.
+3. **Parallel follow-ups.** Posts and todos both depend on the user and load at the same time.
+4. **`keepPreviousData: "clean"`** clears the previous user when you switch, so the chain starts over visibly.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` defines `findUser`, which searches `/users/filter` by username, and two requests that take `:userId`:
+   `getUserPosts` and `getUserTodos`. The `delay` query param slows dummyjson down so the waiting state is visible.
+2. `App` calls `useFetch(findUser.setQueryParams(...))` and reads `userId` from the first matching user.
+3. The posts and todos hooks pass `{ disabled: !userId }`. While it is `true`, nothing is sent. The params still need a
+   value, so the example passes `userId ?? 0` as a placeholder.
+4. When the user response arrives, `userId` is set, `disabled` turns `false` and both requests start in parallel.
+5. The `ghost` username returns no user, so the two dependent requests stay disabled and never reach the network.
+
+```tsx
+const userId = user.data?.users[0]?.id;
+// highlight-next-line
+const posts = useFetch(getUserPosts.setParams({ userId: userId ?? 0 }), { disabled: !userId });
+```
+
+By default (`keepPreviousData: "auto"`) the hook keeps showing the previous result while only query params change. The
+user lookup sets `"clean"` instead, so switching users drops the old profile and its posts right away.
+
+:::note When to use it
+
+- A request needs an id, token or setting that another request returns.
+- Details that load only after the user picks something, such as a selected row or a form value.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Dependent requests guide](/docs/guides/react/basics/dependent-requests)
+- [Parameters guide](/docs/guides/core/basics/parameters)
+
+:::secondary Summary
+
+You chained requests with the `disabled` option: the follow-up requests wait until the first response provides the user
+id, then start on their own and run in parallel.
+
+:::

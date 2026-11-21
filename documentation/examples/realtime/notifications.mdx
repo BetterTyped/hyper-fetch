@@ -1,0 +1,80 @@
+---
+title: Notifications
+sidebar_label: Notifications
+sidebar_position: 6
+description:
+  Live notifications pushed over server-sent events from a local Hono server, with an unread badge, mark as read and a
+  capped list.
+sidebar_custom_props:
+  path: react/notifications
+  level: intermediate
+  tags: [useListener, realtime, cache, server]
+---
+
+import { Example } from "@site/src/components";
+import app from "!!raw-loader!@examples/react/notifications/src/App.tsx";
+import api from "!!raw-loader!@examples/react/notifications/src/api.ts";
+import server from "!!raw-loader!@examples/react/notifications/server/app.ts";
+
+A notification bell like the one in most web apps. A Hono server in the same Vite project sends a new notification every
+few seconds. The bell, the list and the tab title show the unread count, a click marks one as read, and the list keeps
+only the ten newest.
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api, "server/app.ts": server }} />
+
+:::tip What it shows
+
+1. **`useListener`** receives the `notification` events of a server-sent events stream.
+2. **One cached list** holds the notifications. Pushed events, reads and the first load all write to it.
+3. **Derived state**: the unread count is computed from the list, so the badge and the tab title never disagree with it.
+4. **A capped list**: every write keeps the ten newest entries.
+5. **Mark as read** changes the list at once and puts it back if the server refuses.
+
+:::
+
+---
+
+## How it works
+
+1. `server/app.ts` keeps notifications in memory and creates a new one every 2 to 6 seconds while a tab listens.
+   `GET /api/events` sends each as a named event, `event: notification`.
+2. `api.ts` defines the HTTP requests and `onNotification`, a listener on the `notification` topic of a
+   `ServerSentEventsAdapter` socket.
+3. `updateNotifications(change)` is the only way the list changes. It runs `client.cache.update(getNotifications, ...)`
+   and cuts the result to `MAX_NOTIFICATIONS`:
+
+   ```ts
+   // highlight-next-line
+   cached?.data ? { data: change(cached.data).slice(0, MAX_NOTIFICATIONS) } : {},
+   ```
+
+4. `useNotifications` loads the list with `useFetch(getNotifications)` and adds each pushed notification on top with
+   `onEvent`. The unread count is derived from the cached list on every render.
+5. `read` marks a notification as read in the cache first, then sends `POST /api/notifications/:id/read`. `send()`
+   resolves with `error` instead of throwing, and an error puts the unread state back. **Mark all as read** works the
+   same way, and loads the list again on failure.
+6. A `useEffect` writes the count to `document.title`, so it shows in the browser tab.
+
+:::note When to use it
+
+- Notification bells, inboxes and activity feeds.
+- Any list that grows from pushed events and must not grow without limit.
+- Counters, badges and titles that must match the data they count.
+
+:::
+
+---
+
+## Related
+
+- [Listener](/docs/sockets/listener)
+- [Socket](/docs/sockets/socket)
+- [Cache](/docs/core/cache)
+- [Live cache updates example](/examples/realtime/live-cache-updates)
+
+:::secondary Summary
+
+A server-sent events listener puts each new notification into one cached list, which every write cuts to the newest ten.
+The badge, the list and the tab title all read that list, and mark as read updates it before the server answers.
+
+:::

@@ -35,6 +35,8 @@ describe("Orpc Websocket Adapter [ Lifecycle ]", () => {
 
   beforeEach(async () => {
     vi.useFakeTimers();
+    // The reconnect delay is jittered - the lowest one is exactly the reconnect time
+    vi.spyOn(Math, "random").mockReturnValue(0);
     Controlled = installControlledWebSocket();
     setup = createWebsocketSocket();
     await flushPromises();
@@ -44,6 +46,7 @@ describe("Orpc Websocket Adapter [ Lifecycle ]", () => {
     await setup.socket.disconnect();
     vi.useRealTimers();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   describe("when connecting", () => {
@@ -65,6 +68,18 @@ describe("Orpc Websocket Adapter [ Lifecycle ]", () => {
       const ws = await open();
 
       expect(ws.requests.map(({ p }) => p?.b)).toStrictEqual([{ json: { id: 1 } }, { json: { id: 2 } }]);
+    });
+
+    it("should not send the requests when an onConnected callback disconnects", async () => {
+      subscribe({ id: 1 });
+      setup.socket.onConnected(() => {
+        setup.socket.disconnect();
+      });
+
+      const ws = await open();
+
+      expect(ws.sent).toStrictEqual([]);
+      expect(setup.socket.adapter.connected).toBeFalse();
     });
 
     it("should send the request of a listener added by an onConnected callback once", async () => {
@@ -145,6 +160,9 @@ describe("Orpc Websocket Adapter [ Lifecycle ]", () => {
       subscribe();
 
       await advance(5000);
+      expect(Controlled.instances).toHaveLength(1);
+      // The next attempt waits for the reconnect delay
+      await advance(1000);
       const ws = await open();
 
       expect(Controlled.instances).toHaveLength(2);
@@ -217,6 +235,35 @@ describe("Orpc Websocket Adapter [ Lifecycle ]", () => {
       expect(Controlled.instances).toHaveLength(1);
     });
 
+    it("should report the disconnect before the error that explains it", async () => {
+      const ws = await open();
+      const events: string[] = [];
+      setup.socket.events.onDisconnected(() => events.push("disconnected"));
+      setup.socket.events.onError(() => events.push("error"));
+      setup.socket.events.onReconnecting(({ attempts }) => events.push(`reconnecting:${attempts}`));
+
+      ws.serverClose({ code: 1006 });
+      await advance(1000);
+
+      expect(events).toStrictEqual(["disconnected", "error", "reconnecting:0"]);
+    });
+
+    it("should report the disconnect before the error of the connection timeout", async () => {
+      const events: string[] = [];
+      setup.socket.events.onDisconnected(() => events.push("disconnected"));
+      setup.socket.events.onError(() => events.push("error"));
+      setup.socket.events.onReconnecting(({ attempts }) => events.push(`reconnecting:${attempts}`));
+
+      await advance(5000);
+      expect(events).toStrictEqual(["disconnected", "error"]);
+      expect(setup.errors.map(({ message }) => message)).toStrictEqual([
+        "Connection timeout - no connection within 5000ms",
+      ]);
+
+      await advance(1000);
+      expect(events.at(-1)).toBe("reconnecting:0");
+    });
+
     it("should ignore the frames of a closed connection", async () => {
       const { callback } = subscribe();
       const ws = await open();
@@ -229,7 +276,65 @@ describe("Orpc Websocket Adapter [ Lifecycle ]", () => {
     });
   });
 
+  describe("when the network changes", () => {
+    it("should close the connection offline and start the subscriptions again with the last event ids online", async () => {
+      const { callback } = subscribe();
+      const first = await open();
+      first.serverStartIterator("1");
+      first.serverEvent("1", { data: serialize({ id: 1, name: "a" }), meta: { id: "7" } });
+
+      setup.socket.appManager.setOnline(false);
+      await advance(60_000);
+
+      expect(first.readyState).toBe(Controlled.CLOSED);
+      expect(setup.socket.adapter.connected).toBeFalse();
+      expect(Controlled.instances).toHaveLength(1);
+
+      setup.socket.appManager.setOnline(true);
+      await flushPromises();
+      const second = await open();
+      second.serverStartIterator("2");
+      second.serverEvent("2", { data: serialize({ id: 1, name: "b" }) });
+
+      expect(second.requests.map(({ i, p }) => [i, p?.h])).toStrictEqual([["2", { "last-event-id": "7" }]]);
+      expect(callback.mock.calls.map(([data]) => data.name)).toStrictEqual(["a", "b"]);
+    });
+
+    it("should recover a socket connected by hand without autoConnect", async () => {
+      await recreate({ adapterOptions: { autoConnect: false } });
+      subscribe();
+      const connecting = setup.socket.adapter.connect();
+      await flushPromises();
+      await open();
+      await connecting;
+
+      setup.socket.appManager.setOnline(false);
+      setup.socket.appManager.setOnline(true);
+      await flushPromises();
+      const ws = await open();
+
+      expect(setup.socket.adapter.connected).toBeTrue();
+      expect(ws.requests).toHaveLength(1);
+    });
+  });
+
   describe("when disconnecting", () => {
+    it("should finish disconnecting when closing the transport throws", async () => {
+      const ws = await open();
+      // Some runtimes throw when closing a transport that never connected
+      vi.spyOn(ws, "close").mockImplementation(() => {
+        throw new Error("WebSocket was closed before the connection was established");
+      });
+
+      await setup.socket.disconnect();
+      await advance(60_000);
+
+      expect(setup.socket.adapter.connected).toBeFalse();
+      expect(setup.socket.adapter.forceClosed).toBeTrue();
+      expect(Controlled.instances).toHaveLength(1);
+      expect(setup.errors).toStrictEqual([]);
+    });
+
     it("should close the connection and keep the listeners", async () => {
       subscribe();
       const ws = await open();
@@ -308,6 +413,23 @@ describe("Orpc Websocket Adapter [ Lifecycle ]", () => {
       await open();
 
       expect(setup.socket.adapter.connected).toBeTrue();
+    });
+
+    it("should not be refused by the reconnect attempts of the socket", async () => {
+      await recreate({ reconnect: 0 });
+      subscribe();
+      await open();
+      const failed = vi.fn();
+      setup.socket.events.onReconnectingFailed(failed);
+
+      const reconnecting = setup.socket.reconnect();
+      await flushPromises();
+      const ws = await open();
+      await reconnecting;
+
+      expect(failed).not.toHaveBeenCalled();
+      expect(setup.socket.adapter.connected).toBeTrue();
+      expect(ws.requests).toHaveLength(1);
     });
 
     it("should let disconnect called while reconnecting win", async () => {

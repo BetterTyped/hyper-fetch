@@ -9,6 +9,8 @@ export type MockRequestOptions<Request extends RequestInstance, Status extends n
 > & {
   status?: Status;
   delay?: number;
+  /** The response is sent only after this promise settles, so the request stays in flight for as long as a test needs */
+  until?: Promise<unknown>;
   streamResponse?: boolean;
 };
 

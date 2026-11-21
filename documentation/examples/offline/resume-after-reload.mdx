@@ -1,0 +1,89 @@
+---
+title: Resume after reload
+sidebar_label: Resume after reload
+sidebar_position: 5
+description:
+  Keep offline mutations in a persistent dispatcher queue, so they survive a page reload and are sent once online.
+sidebar_custom_props:
+  path: react/resume-after-reload
+  level: advanced
+  tags: [offline, persistence, useQueue]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/resume-after-reload/src/api.ts";
+import app from "!!raw-loader!@examples/react/resume-after-reload/src/App.tsx";
+
+A todo form whose offline queue lives in `localStorage`. Todos added offline are still waiting after you reload the page
+or close the tab, and they reach the server once the app is online again.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`Dispatcher({ storage })`** keeps the queue of the submit dispatcher in `localStorage` instead of memory.
+2. **`toJSON` and `fromJSON`** turn a request into plain JSON for the storage and back into a request after a reload.
+3. **`offline: true`** keeps the todos in the queue while the app is offline.
+4. **`dispatcher.flush()`** sends what the last session left behind when the app starts online.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` implements `DispatcherStorageType` (`get`, `set`, `keys`, `entries`, `delete`, `clear`) on top of
+   `localStorage`, with a key prefix so it only touches its own entries. The storage must be synchronous, because the
+   dispatcher reads the queue on every change.
+2. The client gets it through the `submitDispatcher` option. `useSubmit` and `send()` on a `POST` request use that
+   dispatcher:
+
+   ```ts
+   // highlight-next-line
+   submitDispatcher: () => new Dispatcher({ storage: localStorageQueue }),
+   ```
+
+3. `set` calls `JSON.stringify`, which calls `request.toJSON()` for every queued request. The saved JSON holds the
+   endpoint, method, payload, query params and options, not the class.
+4. After a reload, `getQueue()` reads the JSON and rebuilds each request with `client.fromJSON()`, so
+   `useQueue(addTodo)` lists the restored todos on the first render.
+5. The dispatcher sends waiting requests when the `AppManager` emits the online event. If the app starts online, there
+   is no such event, so `api.ts` calls `client.submitDispatcher.flush()` once after creating the client.
+6. The original `send()` promise does not survive a reload. `useSentTodos` listens to
+   `client.requestManager.events.onResponse`, which also fires for the restored requests.
+7. The **Online** switch calls `client.appManager.setOnline()` and saves its state, and `initiallyOnline` reads it back,
+   so a reload while "offline" stays offline. In a real app, the browser's `online` and `offline` events drive it.
+
+:::caution Limits
+
+- A request that is already being sent when the page unloads is aborted by the browser and removed from the queue. The
+  server may or may not have received it. Only the requests that were still waiting are kept.
+- Every open tab reads the same `localStorage` queue. Two tabs can send the same request twice. Use a server-side
+  idempotency key, or keep the persistent queue in one tab.
+- Only JSON values survive. Files and `FormData` payloads need to be converted first.
+
+:::
+
+:::note When to use it
+
+- Forms and actions that must not be lost when the user closes the app without a connection.
+- React Native and desktop apps, where only one instance of the app runs.
+
+:::
+
+---
+
+## Related
+
+- [Persistence guide](/docs/guides/core/advanced/persistence)
+- [Offline guide](/docs/guides/core/advanced/offline)
+- [Dispatcher](/docs/core/dispatcher)
+- [`useQueue`](/docs/react/hooks/use-queue)
+- [`useAppManager`](/docs/react/hooks/use-app-manager)
+
+:::secondary Summary
+
+A six-method storage passed to `new Dispatcher({ storage })` saves the queue as request JSON. After a reload the
+dispatcher rebuilds the requests with `fromJSON()` and sends them when the app is online.
+
+:::

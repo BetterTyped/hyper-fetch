@@ -137,6 +137,11 @@ export class Adapter<
   public unstable_endpointMapper: EndpointMapperType = defaultMapper as EndpointMapperType;
   /** Method to get request data and transform them to the required format.  */
   public unstable_queryParamsMapper: QueryParamsMapperType = defaultMapper as QueryParamsMapperType;
+  /**
+   * Turns query params given as a callback into data, at the moment they are set on a request. Unset by default, so
+   * adapters without it store query params as given. See {@link Adapter.setQueryParamsResolver}.
+   */
+  public unstable_queryParamsResolver?: (callback: (...args: any[]) => unknown) => unknown = undefined;
   /** Get default adapter options for the request. */
   public unstable_getAdapterDefaults?: (
     request: ExtendRequest<
@@ -345,6 +350,23 @@ export class Adapter<
     >;
   };
 
+  /**
+   * Let requests take query params as a callback. When a request gets a function as its query params (in
+   * `createRequest`, `setQueryParams` or `send`), the resolver runs right away and the request stores what it returns,
+   * so cache keys, query keys and `toJSON()` only ever see data. The resolver decides what the callback receives.
+   *
+   * Opt-in: adapters without a resolver store query params as given. Declare the callback in the adapter's query params
+   * type so requests accept it.
+   *
+   * @example
+   * // The Firebase adapter passes a constraints builder and stores the constraints it collected
+   * adapter.setQueryParamsResolver((callback) => callback(createConstraints()).toJSON());
+   */
+  setQueryParamsResolver = (resolver: (callback: (...args: any[]) => unknown) => unknown) => {
+    this.unstable_queryParamsResolver = resolver;
+    return this;
+  };
+
   /** Set the configuration object passed as the second argument to the query params mapper. */
   setQueryParamsMapperConfig = <NewQueryParamsMapperConfig extends Parameters<QueryParamsMapperType>[1]>(
     config: NewQueryParamsMapperConfig,
@@ -495,7 +517,8 @@ export class Adapter<
           >(bindings);
         }
 
-        return this.unstable_fetcher(bindings);
+        // Awaited so a rejected async fetcher lands in the catch below and resolves the request with the error
+        return await this.unstable_fetcher(bindings);
       } catch (error) {
         const onError = getAdapterOnError({
           request,

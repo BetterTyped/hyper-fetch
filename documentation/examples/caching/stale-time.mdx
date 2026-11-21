@@ -1,0 +1,86 @@
+---
+title: Stale time
+sidebar_label: Stale time
+sidebar_position: 1
+description:
+  See staleTime, cacheTime and the revalidate option at work, with a live view of what is fresh, stale or removed from
+  the cache.
+sidebar_custom_props:
+  path: react/stale-time
+  level: intermediate
+  tags: [useFetch, cache]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/stale-time/src/api.ts";
+import app from "!!raw-loader!@examples/react/stale-time/src/App.tsx";
+
+A post viewer next to a live table of the cache. Each post stays fresh for 10 seconds and is removed after 30. Switch
+between posts and watch the "Requests" column: fresh posts come from the cache, stale ones are fetched again.
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
+:::tip What it shows
+
+1. **`staleTime`**: how long a response counts as fresh. Fresh data is not fetched again.
+2. **`cacheTime`**: how long a response stays in the cache before it is removed.
+3. **`revalidate`**: a `useFetch` option that refetches on mount even when the data is fresh, while it shows the cached
+   data right away.
+4. **Cache source**: the request counter shows when the data came from the network and when it came from the cache.
+
+:::
+
+---
+
+## How it works
+
+1. `getPostRequest` sets both times on the request, so every post shares them:
+
+   ```ts
+   export const getPostRequest = client.createRequest<{ response: Post }>()({
+     endpoint: "/posts/:postId",
+     // highlight-next-line
+     staleTime: 10 * Time.SEC,
+     cacheTime: 30 * Time.SEC,
+   });
+   ```
+
+   The defaults are 5 minutes for both. `setStaleTime()` and `setCacheTime()` change them on a single request.
+
+2. `PostView` calls `useFetch(getPostRequest.setParams({ postId }), { revalidate })`. Each `postId` has its own cache
+   key, so each post has its own timers, counted from its last response.
+3. With `revalidate` off, switching to a fresh post shows the cached data and sends nothing. Switching to a stale post,
+   or one that was removed, sends a request.
+4. With `revalidate` on, every switch sends a request. The cached post is still shown at once and replaced when the
+   response arrives (stale-while-revalidate). This is the `useFetch` default.
+5. `CacheTable` reads `client.cache.get(cacheKey)` every half second. `responseTimestamp` plus `staleTime` and
+   `cacheTime` give the countdowns. When `cacheTime` runs out, the entry is deleted; a mounted `useFetch` for that key
+   fetches it again.
+6. `onRequestStart` fires only when a request goes to the network, which is what the "Requests" column counts.
+
+Stale data is not refetched on a timer. It is fetched again the next time something asks for it: a mount, a key change,
+`refetch()`, or focus and reconnect events when those options are on.
+
+:::note When to use it
+
+- Set a long `staleTime` with `revalidate: false` for data that rarely changes, such as settings, country lists or
+  profiles. Users switching around the app then trigger no requests.
+- Keep `revalidate` on for data that changes often, so users see cached data at once and the latest data a moment later.
+- Set `cacheTime` longer than `staleTime`. Stale data is still useful as a placeholder while the refetch runs.
+
+:::
+
+---
+
+## Related
+
+- [Cache](/docs/core/cache)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Requests](/docs/core/request)
+
+:::secondary Summary
+
+`staleTime` decides when cached data needs a refetch, `cacheTime` decides when it is thrown away, and `revalidate` asks
+for a background refetch even while the data is fresh.
+
+:::

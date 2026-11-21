@@ -1,0 +1,112 @@
+---
+title: Shop
+sidebar_label: Shop
+sidebar_position: 3
+description:
+  "A small shop with React Router: catalog with categories, search and infinite scroll, an optimistic cart persisted in
+  localStorage, and a validated checkout."
+sidebar_custom_props:
+  path: apps/shop
+  level: advanced
+  tags: [useInfiniteFetch, optimistic, persistence, forms, router]
+---
+
+import { Example } from "@site/src/components";
+import products from "!!raw-loader!@examples/apps/shop/src/api/products.ts";
+import cart from "!!raw-loader!@examples/apps/shop/src/api/cart.ts";
+import useCart from "!!raw-loader!@examples/apps/shop/src/features/cart/use-cart.ts";
+import checkout from "!!raw-loader!@examples/apps/shop/src/api/checkout.ts";
+import checkoutPage from "!!raw-loader!@examples/apps/shop/src/features/checkout/CheckoutPage.tsx";
+
+A shop on the [dummyjson](https://dummyjson.com) products and carts API, with four routes: the catalog, a product page,
+the cart and the checkout. Add a few products and reload the page: the cart is still there, read from `localStorage`
+without a request.
+
+<Example
+  files={{
+    "src/features/cart/use-cart.ts": useCart,
+    "src/api/cart.ts": cart,
+    "src/api/products.ts": products,
+    "src/api/checkout.ts": checkout,
+    "src/features/checkout/CheckoutPage.tsx": checkoutPage,
+  }}
+/>
+
+:::tip What it shows
+
+1. **Infinite catalog**: `useInfiniteFetch` pages through products, a search or a category, with the filters in the URL
+   ([Infinite scroll](/examples/data-fetching/infinite-scroll),
+   [Filters in the URL](/examples/data-fetching/url-filters)).
+2. **Debounced search**: `bounce` starts a new list when typing stops
+   ([Search as you type](/examples/data-fetching/search)).
+3. **Prefetch on hover**: the product page usually opens without a loading state
+   ([Prefetching](/examples/data-fetching/prefetching)).
+4. **Cart in the cache**: every screen reads the cart with `useFetch`, and a `localStorage` cache storage keeps it after
+   a reload ([Cache persistence](/examples/offline/cache-persistence)).
+5. **Optimistic add to cart**: the badge changes at once, the server's prices replace the local ones when it answers
+   ([Optimistic updates](/examples/mutations/optimistic-updates)).
+6. **Validated checkout**: a request mapper checks the form, `useSubmit` returns the field errors
+   ([Payload validation](/examples/request-control/payload-validation), [Forms](/examples/mutations/forms)).
+
+:::
+
+---
+
+## How it works
+
+1. `api/client.ts` creates the client with a synchronous `localStorage` cache storage. Every cached response is saved
+   there, so the cart and the pages you visited are back on the first render after a reload.
+2. `api/products.ts` has three list endpoints: all products, a search and a category. `catalogRequest()` picks one from
+   the filters, and `catalogPagination` describes how all three page with `skip` and `limit`. `CatalogPage` passes both
+   to `useInfiniteFetch`, and an `IntersectionObserver` calls `fetchNextPage()` near the end of the list.
+3. `api/cart.ts` defines `getCart` and `saveCart`. dummyjson prices the products it receives, so every save sends the
+   whole cart with `merge: false`, and the answer has the totals for exactly that cart. `queued: true` sends the saves
+   one by one.
+4. `useCart()` is the one hook every screen uses. Its `change()` passes the optimistic update per call, because adding a
+   new line needs the product's title and price, which the payload does not carry:
+
+   ```ts
+   optimistic(getCart)
+     .set((data) => changeQuantity(data, product, delta))
+     // highlight-next-line
+     .commit(({ data, response }) => ({ ...data, discountedTotal: response.data.discountedTotal }))
+     .rollback(({ data }) => changeQuantity(data, product, -delta));
+   ```
+
+   The lines change at once. The totals come from the server on commit, and a failed save undoes only its own change.
+
+5. dummyjson does not store carts. `getCart` has a one-week `staleTime` and the hook reads it with `revalidate: false`,
+   so the saved cart is never replaced by the server's original. The update returns `revalidate: false` for the same
+   reason. With a real API, use a short `staleTime` and let it refetch.
+6. `api/checkout.ts` validates the shipping fields in `setRequestMapper`. A throw ends the request with that error and
+   nothing reaches the network. `CheckoutPage` checks `error instanceof ValidationError` to show the field messages.
+   Server errors, such as `400` for an empty cart, show as one message.
+7. After a successful order, `client.cache.update(getCart, ...)` empties the cart. The header badge, the cart page and
+   `localStorage` all update from that one write.
+8. `Layout` shows a global loading indicator with `useIsFetching(client)` and the cart badge from `useCart()`.
+
+:::note When to use it
+
+- Stores, booking flows and any app with a cart, a basket or a draft that must survive a reload.
+- Catalogs with filters, where users expect the URL to keep the search and the category.
+- Forms whose rules belong to the request, so every caller gets the same validation.
+
+:::
+
+---
+
+## Related
+
+- [`useInfiniteFetch`](/docs/react/hooks/use-infinite-fetch)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [Optimistic updates guide](/docs/guides/react/basics/optimistic-approach)
+- [Cache](/docs/core/cache)
+- [Requests](/docs/core/request)
+
+:::secondary Summary
+
+The cart is one cache entry: persisted by the cache storage, changed optimistically by `useCart()` and emptied with
+`cache.update()`. The catalog is one `useInfiniteFetch` over three endpoints, and the checkout gets its field errors
+from a request mapper.
+
+:::

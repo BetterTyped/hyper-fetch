@@ -27,6 +27,7 @@ import type {
   PayloadType,
   RequestJSON,
   RequestOptionsType,
+  RetryTimeType,
   RequestConfigurationType,
   PayloadMapperType,
   RequestInstance,
@@ -36,7 +37,7 @@ import type {
   RetryOnErrorCallbackType,
   OptimisticCallback,
 } from "./request.types";
-import { mapResponseForSend, sendRequest, scopeKey } from "./request.utils";
+import { mapResponseForSend, resolveQueryParams, sendRequest, scopeKey } from "./request.utils";
 
 type ClientAdapterOptions<C extends ClientInstance> = ExtractAdapterOptionsType<ExtractClientAdapterType<C>>;
 type ClientAdapterMethod<C extends ClientInstance> = ExtractAdapterMethodType<ExtractClientAdapterType<C>>;
@@ -86,7 +87,7 @@ export class Request<
   options?: ClientAdapterOptions<Client> | undefined = undefined;
   cancelable: boolean;
   retry: number;
-  retryTime: number;
+  retryTime: RetryTimeType;
   cacheTime: number;
   cache: boolean;
   staleTime: number;
@@ -199,7 +200,7 @@ export class Request<
     this.method = method as ExtractAdapterMethodType<ExtractClientAdapterType<Client>>;
     this.params = initialRequestConfiguration?.params;
     this.payload = initialRequestConfiguration?.payload;
-    this.queryParams = initialRequestConfiguration?.queryParams;
+    this.queryParams = resolveQueryParams(client, initialRequestConfiguration?.queryParams);
     this.options = initialRequestConfiguration?.options ?? options;
     this.cancelable = initialRequestConfiguration?.cancelable ?? cancelable;
     this.retry = initialRequestConfiguration?.retry ?? retry;
@@ -276,7 +277,7 @@ export class Request<
     return this.clone({ retry });
   };
 
-  /** Set the delay in milliseconds between retry attempts. */
+  /** Set the delay in milliseconds between retry attempts, or a function that returns it for each attempt. */
   public setRetryTime = (retryTime: ClientRequestOptions<Endpoint, Client>["retryTime"]) => {
     return this.clone({ retryTime });
   };

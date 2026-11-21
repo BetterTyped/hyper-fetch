@@ -1,5 +1,5 @@
 import type { AppManagerOptionsType } from "managers";
-import { appManagerInitialOptions, getAppManagerEvents, hasDocument } from "managers";
+import { appManagerInitialOptions, getAppManagerEvents, hasDocument, onWindowEvent } from "managers";
 import { EventEmitter } from "utils";
 
 /**
@@ -18,6 +18,11 @@ export class AppManager {
   isBrowser: boolean;
   isOnline: boolean;
   isFocused: boolean;
+  /**
+   * True while the browser page is being unloaded (closed, reloaded or navigated away). The browser cancels the
+   * requests in flight then - their failures are not real answers, so the dispatcher keeps them for the next start.
+   */
+  isUnloading = false;
 
   private unmountCallbacks: VoidFunction[] = [];
   private hasFocusUpdate = false;
@@ -46,7 +51,17 @@ export class AppManager {
 
     this.unmount();
 
-    [focusEvent(this.setFocused), onlineEvent(this.setOnline)].forEach((unmount) => {
+    [
+      focusEvent(this.setFocused),
+      onlineEvent(this.setOnline),
+      onWindowEvent("pagehide", () => {
+        this.isUnloading = true;
+      }),
+      // The page can come back from the back-forward cache
+      onWindowEvent("pageshow", () => {
+        this.isUnloading = false;
+      }),
+    ].forEach((unmount) => {
       if (typeof unmount === "function") {
         this.unmountCallbacks.push(unmount);
       }

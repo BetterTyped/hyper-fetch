@@ -1,0 +1,104 @@
+---
+title: TodoMVC
+sidebar_label: TodoMVC
+sidebar_position: 5
+description:
+  "TodoMVC with a Hono API in the same Vite app: filters in the URL, optimistic toggles and edits, clear completed, and
+  todos stored on the server."
+sidebar_custom_props:
+  path: apps/todomvc
+  level: intermediate
+  tags: [optimistic, useSubmit, hono, server]
+---
+
+import { Example } from "@site/src/components";
+import server from "!!raw-loader!@examples/apps/todomvc/server/app.ts";
+import todos from "!!raw-loader!@examples/apps/todomvc/src/api/todos.ts";
+import todoApp from "!!raw-loader!@examples/apps/todomvc/src/features/todos/TodoApp.tsx";
+import todoItem from "!!raw-loader!@examples/apps/todomvc/src/features/todos/TodoItem.tsx";
+import useFilter from "!!raw-loader!@examples/apps/todomvc/src/features/todos/use-filter.ts";
+
+[TodoMVC](https://todomvc.com) as a full-stack app: a [Hono](https://hono.dev) API and the React client run in one Vite
+dev server. The server keeps the todos in memory and answers after 400 ms, so you can see every change show up before it
+is saved.
+
+<Example
+  files={{
+    "src/api/todos.ts": todos,
+    "server/app.ts": server,
+    "src/features/todos/TodoApp.tsx": todoApp,
+    "src/features/todos/TodoItem.tsx": todoItem,
+    "src/features/todos/use-filter.ts": useFilter,
+  }}
+/>
+
+:::tip What it shows
+
+1. **One project, two sides**: Hono serves `/api` inside the Vite dev server, the client imports only the server's types
+   ([Hono fullstack](/examples/integrations/hono)).
+2. **Optimistic writes**: add, toggle, rename, delete, toggle all and clear completed change the list at once
+   ([Optimistic updates](/examples/mutations/optimistic-updates)).
+3. **Rollback on failure**: a rejected write puts the todo back, then core refetches the list from the server
+   ([Undo delete](/examples/mutations/undo-delete)).
+4. **Filters in the URL**: `#/active` and `#/completed` filter the cached list, so switching costs no request
+   ([Filters in the URL](/examples/data-fetching/url-filters)).
+5. **Save status**: `useIsSubmitting` and request events report every write in one place
+   ([CRUD](/examples/mutations/crud)).
+
+:::
+
+---
+
+## How it works
+
+1. `server/app.ts` is a Hono app with the TodoMVC routes under `/api`. `vite.config.ts` adds `@hono/vite-dev-server`,
+   which sends every `/api` request to that app while `vite` runs. Errors go out as `{ message }`.
+2. `src/api/todos.ts` imports the `Todo` type from the server with `import type`, so both sides share it and no server
+   code reaches the browser. The requests are typed by hand. `HonoAppToHyperFetch` from `@hyper-fetch/hono` can derive
+   them from the routes instead, see [Hono fullstack](/examples/integrations/hono).
+3. Every write owns its optimistic change. `updateTodo` covers both the checkbox and the rename, and its rollback puts
+   the old todo back where it was:
+
+   ```ts
+   optimistic(getTodos)
+     // highlight-next-line
+     .patch(params.todoId, payload)
+     .rollback(({ data, previous }) => restore(data, previous, Number(params.todoId)));
+   ```
+
+4. `createTodo` inserts a todo with a temporary negative id and swaps it for the saved one in `.commit()`. While the id
+   is negative, `TodoItem` disables the todo.
+5. `toggleAllTodos` and `clearCompletedTodos` change the whole list with `.set()` and have no rollback. If they fail,
+   core refetches the list and the server's state replaces the change.
+6. The server stores every write, so core refetches `getTodos` after the last write settles. Delete a todo with
+   `curl -X DELETE localhost:5173/api/todos/2`, then toggle it in the app: the toggle fails with `404`, is undone, and
+   the refetch removes the todo.
+7. `useFilter()` reads the filter from the URL hash with `useSyncExternalStore`. `TodoApp` filters the one cached list,
+   so the counter and **Clear completed** always see every todo.
+8. `SaveStatus` shows `useIsSubmitting(client)` while writes are running, and the last error from
+   `client.requestManager.events.onResponse`.
+
+:::note When to use it
+
+- Small full-stack apps and prototypes where the API lives next to the client.
+- Lists of small changes that almost always succeed, such as todos, checklists and settings.
+- As a starting point for a TypeScript monorepo that shares types between server and client.
+
+:::
+
+---
+
+## Related
+
+- [Hono integration](/docs/integrations/hono/overview)
+- [Optimistic updates guide](/docs/guides/react/basics/optimistic-approach)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [`useIsFetching` and `useIsSubmitting`](/docs/react/hooks/use-is-fetching)
+
+:::secondary Summary
+
+Hono runs inside Vite, and the client shares its `Todo` type through a type-only import. Every write carries its
+optimistic change, core rolls back failures and refetches the list from the server, and the hash-based filters only
+change what is rendered.
+
+:::

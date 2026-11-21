@@ -28,7 +28,7 @@ const request = client.createRequest<{
   structuralSharing: true,
   disableRequestInterceptors: false, // skip onRequest and onAuth
   disableResponseInterceptors: false, // skip onResponse, onSuccess and onError
-  options: { timeout: 10_000 }, // adapter options (HTTP: RequestInit fields + timeout + streaming)
+  options: { timeout: 10_000 }, // adapter options (HTTP: RequestInit fields + timeout + streaming + responseType)
   cacheKey: undefined, // overrides; generated when omitted
   queryKey: undefined,
   abortKey: undefined,
@@ -169,6 +169,8 @@ type ResponseType<Data, Error, Adapter> = {
 It is not a discriminated union (GraphQL can return data and error together), so check `success` or `data` before use.
 The body is parsed as JSON when possible, otherwise returned as text; an empty 2xx gives a falsy `data`.
 `options: { streaming: true }` on the HTTP adapter gives `data` as the raw `ReadableStream<Uint8Array>`.
+`options: { responseType: "blob" | "arrayBuffer" | "text" | "json" }` picks the shape of a successful body - use `"blob"`
+or `"arrayBuffer"` for files, the default text decoding corrupts binary data. Error bodies are always parsed.
 
 ## Instance hooks ($hooks)
 

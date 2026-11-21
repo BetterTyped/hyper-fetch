@@ -85,15 +85,14 @@ describe("Trpc Socket Adapters [ Environment ]", () => {
         const alive = new Socket({ url, adapter: createAdapter(), appManager: () => appManager });
         await flushPromises();
         await destroyed.destroy();
-        await alive.disconnect();
-        // Dropped by the network, not closed on purpose - the online event brings it back
-        alive.adapter.setForceClosed(false);
         alive.createListener<number>()({ topic: "onTick" }).listen(vi.fn());
         const before = transports();
 
+        // Going offline drops the connection of the socket that is alive, the online event brings it back
         await goOnlineAgain();
 
         expect(transports()).toBe(before + 1);
+        expect(alive.adapter.connecting || alive.adapter.connected).toBeTrue();
         await alive.destroy();
       });
     });

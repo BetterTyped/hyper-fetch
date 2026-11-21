@@ -1,0 +1,76 @@
+---
+title: WebSocket chat
+sidebar_label: WebSocket chat
+sidebar_position: 1
+description: A chat over WebSocket with useListener and useEmitter, connection state and reconnects.
+sidebar_custom_props:
+  path: react/websocket-chat
+  level: intermediate
+  tags: [realtime, useListener, useEmitter]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/websocket-chat/src/api.ts";
+import app from "!!raw-loader!@examples/react/websocket-chat/src/App.tsx";
+
+A chat room connected to a public WebSocket echo server. The server sends every message back, so what you see in the
+list has made the full trip: emitter, server, listener.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`createSocketClient`** with the `WebsocketAdapter` opens one connection that every listener and emitter shares.
+2. **Typed listeners and emitters** describe a topic and the shape of its messages once.
+3. **`useListener`** subscribes while the component is mounted and reports `connected` and `connecting`.
+4. **Reconnects** happen on their own after a dropped connection, and `disconnect()` / `reconnect()` control them by
+   hand.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` creates the socket with `createSocketClient({ url, adapter: WebsocketAdapter(), reconnectTime })`. It
+   connects as soon as it is created.
+2. `onChatMessage` and `sendChatMessage` use the same `topic`. The adapter sends `{ topic, data }` as JSON and passes
+   each incoming frame to the listeners of its `topic`. Servers with another message format can use the `encode` and
+   `decode` adapter options.
+3. `App` calls `useListener(onChatMessage)` and appends every message in `onEvent`:
+
+   ```ts
+   const { connected, connecting, onEvent } = useListener(onChatMessage);
+   // highlight-next-line
+   onEvent(({ data }) => setMessages((prev) => [...prev, data]));
+   ```
+
+4. `useEmitter(sendChatMessage)` returns `emit`, which sends the typed payload: `emit({ payload: message })`.
+5. `onConnected`, `onDisconnected` and `onReconnecting` fill the connection log. **Disconnect** calls
+   `socket.disconnect()`, which keeps the socket closed. **Reconnect** calls `socket.reconnect()`. When the server drops
+   the connection instead, the adapter tries again every `reconnectTime` milliseconds.
+
+:::note When to use it
+
+- Chats, comments and presence that update for everyone at once.
+- Collaborative tools and live dashboards with a WebSocket backend.
+- Any server that pushes messages and also accepts them from the client.
+
+:::
+
+---
+
+## Related
+
+- [Socket](/docs/sockets/socket)
+- [Listener](/docs/sockets/listener)
+- [Emitter](/docs/sockets/emitter)
+- [`useListener`](/docs/react/sockets/use-listener)
+- [`useEmitter`](/docs/react/sockets/use-emitter)
+
+:::secondary Summary
+
+One socket client, a listener and an emitter for the same topic make a chat. `useListener` and `useEmitter` bind them to
+React and expose the connection state, while the adapter handles reconnects.
+
+:::

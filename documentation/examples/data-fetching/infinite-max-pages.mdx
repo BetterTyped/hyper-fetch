@@ -1,0 +1,81 @@
+---
+title: Infinite list with max pages
+sidebar_label: Max pages
+sidebar_position: 14
+description:
+  An infinite list that keeps only three pages with useInfiniteFetch maxPages and loads dropped pages again when you
+  scroll back.
+sidebar_custom_props:
+  path: react/infinite-max-pages
+  level: advanced
+  tags: [useInfiniteFetch, pagination]
+---
+
+import { Example } from "@site/src/components";
+import app from "!!raw-loader!@examples/react/infinite-max-pages/src/App.tsx";
+import api from "!!raw-loader!@examples/react/infinite-max-pages/src/api.ts";
+import useInView from "!!raw-loader!@examples/react/infinite-max-pages/src/use-in-view.ts";
+
+A product list that loads more as you scroll, but never holds more than three pages. Scroll down and the top pages are
+dropped. Scroll back up and they are fetched again. The bar at the top shows which pages are loaded and how many
+requests were sent.
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api, "src/use-in-view.ts": useInView }} />
+
+:::tip What it shows
+
+1. **`maxPages: 3`** on `useInfiniteFetch` keeps the list at three pages. Loading one at one end drops one at the other.
+2. **`fetchPreviousPage`** loads the page before the first loaded one, so the list works in both directions.
+3. **A spacer** keeps the scroll position steady while pages above are dropped and loaded again.
+4. **Live status**: loaded page numbers, the visible item range and a request counter.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` sets 20 products per page and describes the dummyjson paging: `offset: "skip"`, `limit: "limit"`,
+   `items: "products"` and `total: "total"`. With an offset, the hook can compute both the next and the previous page.
+2. `App.tsx` passes `maxPages` to the hook:
+
+   ```ts
+   // highlight-next-line
+   const list = useInfiniteFetch(getProductsRequest, { pagination: productsPagination, maxPages: 3 });
+   ```
+
+   When `fetchNextPage()` adds a fourth page, the first one is dropped and `hasPreviousPage` becomes `true`. When
+   `fetchPreviousPage()` brings it back, the last page is dropped instead.
+
+3. `pageParams` holds the `skip` of every loaded page. `pageParams[0]` is the index of the first item on screen.
+4. Dropping pages at the top would move the rest of the list up. A spacer with the height of the dropped rows
+   (`firstIndex * rowHeight`) takes their place, so what you are looking at stays where it is. The rows have a fixed
+   height for this reason.
+5. `useInView` watches the spacer and a sentinel below the list. When the spacer comes into view, the page before is
+   fetched. When the sentinel comes into view, the next page is fetched. After a failed page, a **Try again** button
+   calls the same function.
+6. A dropped page is fetched from the network again. The request counter goes up when you scroll back. `maxPages` trades
+   requests for a smaller list, so pick a page size that is taller than the screen.
+
+:::note When to use it
+
+- Long feeds, logs or tables where people scroll far and memory or render time starts to matter.
+- Combine it with a virtualized list when rows have different heights. Then the virtualizer gives you the offsets
+  instead of a fixed row height.
+
+:::
+
+---
+
+## Related
+
+- [`useInfiniteFetch`](/docs/react/hooks/use-infinite-fetch)
+- [Infinite scroll guide](/docs/guides/react/basics/infinite-scroll)
+- [Pagination guide](/docs/guides/react/basics/pagination)
+
+:::secondary Summary
+
+`maxPages` caps how many pages `useInfiniteFetch` keeps, and `fetchPreviousPage` loads the dropped ones back. A spacer
+with the height of the dropped rows keeps scrolling smooth in both directions.
+
+:::

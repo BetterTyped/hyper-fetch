@@ -1,0 +1,88 @@
+---
+title: oRPC event iterators
+sidebar_label: oRPC event iterators
+sidebar_position: 8
+description:
+  Stream job progress from an oRPC async generator into useListener over an HTTP event stream, with event ids and typed
+  events.
+sidebar_custom_props:
+  path: orpc/event-iterator
+  level: advanced
+  tags: [orpc, streaming, useListener, realtime]
+---
+
+import { Example } from "@site/src/components";
+import router from "!!raw-loader!@examples/orpc/event-iterator/server/router.ts";
+import api from "!!raw-loader!@examples/orpc/event-iterator/src/api.ts";
+import app from "!!raw-loader!@examples/orpc/event-iterator/src/App.tsx";
+
+A job runner. Each button starts a job with a regular oRPC call, and every job card streams its progress from an oRPC
+event iterator: an async generator on the server that yields one event per step and then returns. Start a few jobs at
+once to see the streams run side by side.
+
+<Example files={{ "server/router.ts": router, "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`OrpcStreamAdapter`** connects a HyperFetch `Socket` to oRPC event iterator procedures over an HTTP event stream.
+2. **`OrpcSocketSchema<typeof router>`** turns every event iterator into a typed `$listener`.
+3. **`useListener` status** follows the stream: `starting`, `listening`, and `ended` when the generator returns.
+4. **Event meta**: `withEventMeta(event, { id })` on the server becomes `extra.id` on the client.
+5. **Rich types in events**: `at` is a `Date` in every event, encoded by the oRPC serializer.
+
+:::
+
+---
+
+## How it works
+
+1. `server/router.ts` has two procedures. `job.start` is a regular procedure that returns `{ id, steps }`.
+   `job.onProgress` uses an async generator as its handler, which makes it an event iterator: each `yield` sends one
+   event, and the end of the function ends the stream.
+2. Every event is wrapped in `withEventMeta(event, { id: String(step) })`. After a reconnect the adapter sends that id
+   back, oRPC passes it to the handler as `lastEventId`, and the loop continues from the next step.
+3. `server/app.ts` mounts the router with the fetch `RPCHandler` in Hono. The same handler answers the regular call and
+   the event stream.
+4. `src/api.ts` creates a client with `OrpcAdapter()` for `job.start` and a socket with `OrpcStreamAdapter()` for
+   `job.onProgress`. `OrpcSchema` leaves event iterators out and `OrpcSocketSchema` keeps only them, so each SDK shows
+   only what its transport can call.
+
+   ```ts
+   export const socket = new Socket({ url, adapter: OrpcStreamAdapter() });
+   // highlight-next-line
+   export const realtime = createSocketSdk<typeof socket, OrpcSocketSchema<typeof router>>(socket, {
+     camelCaseToKebabCase: false,
+   });
+   ```
+
+5. `App` starts a job with `useSubmit(sdk.job.start.$mutation)` and renders a `JobCard` for it. The card calls
+   `useListener(realtime.job.onProgress.$listener.setPayload({ id: job.id }))`, which sends
+   `POST /api/rpc/job/onProgress` and reads the `text/event-stream` answer.
+6. `data` holds the latest event, so `<progress value={data?.step}>` moves with the stream. `onEvent` keeps a short log,
+   formatting `event.at` with `toLocaleTimeString()` because it is already a `Date`. When the generator returns,
+   `status` becomes `ended` and the card shows "Done".
+
+:::note When to use it
+
+- Progress of long jobs: builds, imports, exports, AI responses.
+- Live data on an oRPC API that already runs over HTTP, behind proxies or in serverless functions.
+- For many streams per client over one connection, switch the socket to `OrpcWebsocketAdapter` with the WebSocket
+  `RPCHandler`; the listeners stay the same.
+
+:::
+
+---
+
+## Related
+
+- [oRPC event iterators](/docs/integrations/adapter-orpc/event-iterators)
+- [oRPC adapter](/docs/integrations/adapter-orpc/overview)
+- [Listener](/docs/sockets/listener)
+- [`useListener`](/docs/react/sockets/use-listener)
+
+:::secondary Summary
+
+An async generator on the oRPC server is a stream of typed events. `OrpcStreamAdapter` and `OrpcSocketSchema` turn it
+into a listener, and `useListener` shows each event, the event id and the end of the stream.
+
+:::

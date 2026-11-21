@@ -14,8 +14,11 @@ import {
  */
 describe("Trpc Websocket Adapter [ Handshake error without close ]", () => {
   let socket: Socket<ReturnType<typeof TrpcWebsocketAdapter>>;
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
 
   beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
     installControlledWebSocket();
     socket = new Socket({
@@ -31,6 +34,7 @@ describe("Trpc Websocket Adapter [ Handshake error without close ]", () => {
     vi.clearAllTimers();
     vi.useRealTimers();
     uninstallControlledWebSocket();
+    random.mockRestore();
   });
 
   it("should start the next attempt after the reconnect delay", async () => {

@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="./.github/assets/readme.png" alt="Hyper Fetch. From REST to realtime. Fully typed. Works with OpenAPI, GraphQL, tRPC, oRPC, Hono, Firebase, Axios, WebSockets and React." />
+  <img src="./.github/assets/readme.png" alt="Hyper Fetch. From REST to realtime. Fully typed. Works with OpenAPI, GraphQL, tRPC, oRPC, Hono, Elysia, Node.js, Bun, Firebase, Axios, WebSockets and React." />
 </p>
 
 <p align="center">
   <a href="https://hyperfetch.bettertyped.com/docs/getting-started/quick-start"><b>Quick Start</b></a> ·
   <a href="https://hyperfetch.bettertyped.com/">Documentation</a> ·
-  <a href="https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup">Guides</a> ·
+  <a href="https://hyperfetch.bettertyped.com/docs/guides/core/basics/setup">Guides</a> ·
   <a href="https://discord.gg/7upC2kVmyM">Discord</a>
 </p>
 
@@ -256,7 +256,7 @@ const UserList = () => {
 - [React Integration](https://hyperfetch.bettertyped.com/docs/react/overview/)
 - [CLI & SDK Generation](https://hyperfetch.bettertyped.com/docs/cli/commands/generate/)
 - [API Reference](https://hyperfetch.bettertyped.com/docs/api/getting-started/)
-- [Guides](https://hyperfetch.bettertyped.com/docs/guides/getting-started/)
+- [Guides](https://hyperfetch.bettertyped.com/docs/guides/core/basics/setup/)
 
 ## Our sponsors
 

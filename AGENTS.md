@@ -30,7 +30,9 @@ dependents.
 | `packages/testing`                | internal, never published      | `testing`         |
 | `packages/hyper-flow`             | desktop app, not on npm        | `hyper-flow`      |
 
-`documentation/` is the docs site. `examples/` holds sample apps.
+`documentation/` is the docs site. `examples/<group>/<name>` are the docs examples: standalone apps that StackBlitz and
+CodeSandbox open from GitHub, each with a page in `documentation/examples`. `examples/README.md` explains how to add
+one; `pnpm test:examples` and `pnpm examples` check them. The other folders in `examples/` are development apps.
 
 ## Verification
 
@@ -55,6 +57,20 @@ pnpm exec vitest run __tests__/features/cache/cache.base.spec.ts
 
 ```bash
 pnpm --filter @hyper-fetch/elysia test:bun
+```
+
+- `firebase` and `firebase-admin` specs run against the Firebase emulators, so the affected command skips them. When
+  those packages, `core` or `sockets` change, run them too. They need Java 11 or newer, and CI runs them in the
+  `firebase-tests` job:
+
+```bash
+pnpm test:firebase
+```
+
+- To run one Firebase spec, wrap vitest in the emulators from the package directory:
+
+```bash
+pnpm exec firebase emulators:exec "npx vitest run __tests__/features/constraints/constraints.base.spec.ts"
 ```
 
 - Fix every error you introduced before reporting the work as complete. Never report a check you did not run.
@@ -103,7 +119,8 @@ Workflows in `.claude/skills/`:
 - `publish-new-package`: first npm publish and trusted publishing for a package that is not on npm yet.
 
 These are for working on this repo. Every `SKILL.md` outside `skills/` sets `metadata.internal: true` so the
-[skills](https://skills.sh) CLI never installs it for users.
+[skills](https://skills.sh) CLI never installs it for users and skills.sh never lists it. `pnpm test:skills` checks it
+in CI.
 
 `skills/` holds the public skills, one per package, installed with `npx skills add BetterTyped/hyper-fetch/skills`.
 Their readers build apps with HyperFetch. Verify every API name, option, default and type claim in them against

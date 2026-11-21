@@ -1,0 +1,35 @@
+{
+  "name": "@hyper-fetch-examples/trpc-subscriptions",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "A live chat on tRPC subscriptions, streamed over Server-Sent Events into useListener with typed events and resume support.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/react": "latest",
+    "@hyper-fetch/sockets": "latest",
+    "@hyper-fetch/trpc": "latest",
+    "@picocss/pico": "^2.1.1",
+    "@trpc/server": "^11.29.5",
+    "hono": "^4.13.19",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "ws": "^8.23.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@hono/vite-dev-server": "^0.26.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/ws": "^8.18.1",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8"
+  }
+}

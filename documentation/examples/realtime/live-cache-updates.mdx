@@ -1,0 +1,82 @@
+---
+title: Live cache updates
+sidebar_label: Live cache updates
+sidebar_position: 4
+description: Load a list once with useFetch and keep its cache current with server-sent events from a local Hono server.
+sidebar_custom_props:
+  path: react/live-cache-updates
+  level: intermediate
+  tags: [useFetch, useListener, realtime, cache, server]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/live-cache-updates/src/api.ts";
+import app from "!!raw-loader!@examples/react/live-cache-updates/src/App.tsx";
+import server from "!!raw-loader!@examples/react/live-cache-updates/server/app.ts";
+
+An orders table that is fetched once and then stays current. A small Hono server in the same Vite app creates and moves
+orders every few seconds and pushes each change as a server-sent event. The client writes every event into the cached
+list, so no refetch is needed. Press **Advance** in a second tab and watch the first one update.
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api, "server/app.ts": server }} />
+
+:::tip What it shows
+
+1. **`useFetch`** loads the list once and reads it from the cache from then on.
+2. **`ServerSentEventsAdapter`** opens one `EventSource`, and **`useListener`** receives its `order` events.
+3. **`client.cache.update()`** applies each event to the cached list, so every hook reading it re-renders.
+4. **Writes without local updates**: the **Advance** button only sends a `POST`. The change comes back as an event.
+
+:::
+
+---
+
+## How it works
+
+1. `server/app.ts` is a Hono app that `@hono/vite-dev-server` runs for every `/api` request. `GET /api/orders` returns
+   the list, `POST /api/orders/:orderId/advance` moves an order to the next status, and `GET /api/events` keeps a
+   `streamSSE` response open per tab.
+2. Every change goes through `publish()`, which writes a named event to each open stream: `event: order` with
+   `{ type, order }` as data.
+3. `api.ts` creates an HTTP client and a socket client. With `ServerSentEventsAdapter`, a named event is delivered to
+   the listener whose topic has the same name:
+
+   ```ts
+   // highlight-next-line
+   export const onOrderEvent = socket.createListener<OrderEvent>()({ topic: "order" });
+   ```
+
+4. `useLiveOrders` combines both: `useFetch(getOrders)` for the first load, and `useListener(onOrderEvent).onEvent()`
+   for the changes. `applyEvent` replaces the order with the same id, or puts a new one on top, with
+   `client.cache.update(getOrders, ...)`.
+5. The cache update emits a cache event, and `useFetch` re-renders with the new list. A new `updatedAt` gives the row a
+   new key, so its highlight replays.
+6. `AdvanceButton` calls `useSubmit(advanceOrder...)` and ignores the response. The server publishes the change, and
+   every tab, this one too, applies it through the same path.
+
+The network panel shows one `GET /api/orders` and one long `GET /api/events`, however many changes arrive.
+
+:::note When to use it
+
+- Dashboards, order boards, feeds and admin lists that other people change while you watch.
+- Replacing polling: one open stream instead of a request every few seconds.
+- Collaborative screens, where your own writes should arrive the same way as everyone else's.
+
+:::
+
+---
+
+## Related
+
+- [Server-sent events example](/examples/realtime/server-sent-events)
+- [Socket](/docs/sockets/socket)
+- [Listener](/docs/sockets/listener)
+- [Cache](/docs/core/cache)
+- [Hono integration](/docs/integrations/hono/overview)
+
+:::secondary Summary
+
+`useFetch` loads the list, a server-sent events listener receives every change, and `client.cache.update()` writes the
+change into the cached list. The list stays live without refetching.
+
+:::

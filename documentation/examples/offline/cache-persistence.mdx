@@ -1,0 +1,76 @@
+---
+title: Cache persistence
+sidebar_label: Cache persistence
+sidebar_position: 2
+description: Persist the cache to localStorage so a reload shows data at once, without a request.
+sidebar_custom_props:
+  path: react/cache-persistence
+  level: intermediate
+  tags: [persistence, cache, useFetch]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/cache-persistence/src/api.ts";
+import app from "!!raw-loader!@examples/react/cache-persistence/src/App.tsx";
+
+A paged recipe list whose cache lives in `localStorage`. The API answers slowly on purpose; after a reload, every page
+you have already opened appears at once.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`Cache({ storage })`** replaces the in-memory `Map` with a storage backed by `localStorage`.
+2. **`staleTime` and `cacheTime`** decide how long persisted data is used without a request and how long it is kept.
+3. **`revalidate: false`** lets `useFetch` trust fresh cached data instead of fetching on every mount.
+4. **`cache.clear()`** removes the entries from memory and from the storage.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` implements `CacheStorageType` (`get`, `set`, `keys`, `delete`, `clear`) on top of `localStorage`, with a key
+   prefix so it only touches its own entries. Values go through `JSON.stringify`, so cached data must be
+   JSON-serializable.
+2. The client receives it through the `cache` option:
+
+   ```ts
+   // highlight-next-line
+   cache: () => new Cache({ storage: localStorageCache, version: "1" }),
+   ```
+
+   Entries saved under another `version` are ignored and removed, so changing it is a safe way to drop old data after a
+   release.
+
+3. The storage is synchronous, so the first render after a reload already reads the saved response from it. Async
+   storages such as IndexedDB go in `lazyStorage` instead and update the hooks once the read finishes.
+4. `getRecipes` sets `staleTime: Time.MIN` and `cacheTime: Time.DAY`. With the default `cacheTime` of 5 minutes, the
+   garbage collector would remove persisted entries soon after the app starts.
+5. `useFetch(..., { revalidate: false })` sends no request while the data is fresh. The label compares
+   `responseTimestamp` with the page load time to show whether the data came from storage or from the network.
+6. **Clear persisted cache** calls `client.cache.clear()` and reloads, so every page is fetched again.
+
+:::note When to use it
+
+- Apps that people open often, where the last data is better than a spinner.
+- Slow or metered networks.
+- Together with the offline queue, for apps that start without a connection.
+
+:::
+
+---
+
+## Related
+
+- [Persistence guide](/docs/guides/core/advanced/persistence)
+- [Cache](/docs/core/cache)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+A five-method storage object passed to `new Cache({ storage })` persists every cached response. `staleTime`, `cacheTime`
+and `revalidate` decide when that data is shown as is and when it is fetched again.
+
+:::

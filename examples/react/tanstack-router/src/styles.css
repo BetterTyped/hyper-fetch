@@ -1,0 +1,31 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.products {
+  padding: 0;
+  columns: 2;
+}
+
+.products li {
+  list-style: none;
+  padding-block: 0.25rem;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.error {
+  color: var(--pico-del-color);
+}
+
+.log {
+  padding: 0;
+  font-size: 0.8rem;
+}
+
+.log li {
+  list-style: none;
+}

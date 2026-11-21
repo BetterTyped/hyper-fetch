@@ -1,93 +1,217 @@
-/* eslint-disable react/no-array-index-key */
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import { Particles } from "@site/src/components/particles";
-import { Description, Title } from "@site/src/components";
 import Link from "@docusaurus/Link";
-import { ArrowRight, Sparkles } from "lucide-react";
-import { useWindowSize } from "@site/src/hooks/use-window-size";
+import { cn } from "@site/src/lib/utils";
+import { ArrowRight } from "lucide-react";
+import { motion } from "motion/react";
+import React from "react";
 
-import { Paths } from "./paths/paths";
-import { Ecosystem } from "./ecosystem";
-import { AnimatedShinyText } from "../../ui/animated-shiny-text";
+import { CtaButtons } from "../shared/skills-command";
+import { DevtoolsDownload } from "./devtools-download";
+import { backends } from "./ecosystem";
+import { FramedVideo } from "./framed-video";
+import { HeroPaths } from "./hero-paths";
+
+/*
+ * The hero: release badge, "Fetch anything. Type everything." with the red type-error squiggle,
+ * one line on what is built in, the agent skills command and Get Started, the colour logo row,
+ * then the product video and the HyperFlow download. Behind it the request paths run quietly.
+ */
+
+const quick = (i: number) => ({
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  transition: {
+    duration: 0.35,
+    delay: i * 0.05,
+    ease: [0.21, 0.47, 0.32, 0.98] as const,
+  },
+});
+
+const HeroBadge = ({ className }: { className?: string }) => (
+  <Link
+    to="/docs/integrations/adapter-graphql/overview"
+    className={cn(
+      "group inline-flex h-8 items-center gap-2.5 rounded-full bg-white/[0.04] pl-1 pr-3 !no-underline ring-1 ring-inset ring-white/10 backdrop-blur-md transition-colors duration-200 hover:bg-white/[0.07] hover:ring-white/20",
+      className,
+    )}
+  >
+    <span className="rounded-full bg-[#fbc646]/10 px-2 py-0.5 text-[11px] font-semibold !text-[#fbc646] ring-1 ring-inset ring-[#fbc646]/25">
+      New
+    </span>
+    <span className="text-[13px] font-medium !text-zinc-300">
+      GraphQL subscriptions over WebSocket
+    </span>
+    <ArrowRight className="size-3.5 text-zinc-500 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-zinc-200" />
+  </Link>
+);
+
+const titleBase =
+  "!m-0 [font-family:Figtree] font-extrabold !leading-[1.02] tracking-[-0.045em] text-[2.4rem] sm:text-[4rem] md:text-[5rem] lg:text-[6rem]";
+const white = "bg-none !text-zinc-50";
+/* The accent, the same solid colour as the Get Started button */
+const accent = "bg-none !text-[#f9b233]";
+/* A shade under white, so the typed word reads a touch quieter */
+const soft = "bg-none !text-zinc-300";
+
+const Line = ({
+  className,
+  children,
+}: {
+  className: string;
+  children: React.ReactNode;
+}) => (
+  <span
+    className={cn(
+      "block pb-[0.06em] [font-size:inherit] [font-weight:inherit]",
+      className,
+    )}
+  >
+    {children}
+  </span>
+);
+
+const Word = ({
+  className,
+  children,
+}: {
+  className: string;
+  children: React.ReactNode;
+}) => (
+  <span className={cn("[font-size:inherit] [font-weight:inherit]", className)}>
+    {children}
+  </span>
+);
+
+/* The red squiggle TypeScript draws under an error, drawn in once under the word */
+const SQUIGGLE =
+  "M0 6 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0 q 3.4 -6 6.8 0 t 6.8 0";
+
+const Squiggle = ({
+  children,
+  className = white,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <span className="relative isolate inline-block [font-size:inherit] [font-weight:inherit]">
+    <Word className={className}>{children}</Word>
+    <svg
+      viewBox="0 0 299.2 12"
+      preserveAspectRatio="none"
+      className="pointer-events-none absolute -z-10 bottom-[0.04em] -left-[0.06em] h-[0.14em] w-[calc(100%+0.12em)] overflow-visible"
+      aria-hidden
+    >
+      <motion.path
+        d={SQUIGGLE}
+        fill="none"
+        stroke="#f43f5e"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ duration: 0.8, delay: 0.5, ease: [0.65, 0, 0.35, 1] }}
+        style={{ filter: "drop-shadow(0 0 6px rgba(244,63,94,0.45))" }}
+      />
+    </svg>
+  </span>
+);
+
+const HeroTitle = () => (
+  <h1 className={titleBase}>
+    <Line className="">
+      <Word className={white}>Fetch </Word>
+      <Word className={accent}>anything.</Word>
+    </Line>
+    <Line className="">
+      <Word className={white}>Type </Word>
+      <Squiggle className={soft}>everything.</Squiggle>
+    </Line>
+  </h1>
+);
+
+const Lead = ({ className }: { className?: string }) => (
+  <p
+    className={cn(
+      "!m-0 max-w-[560px] text-lg leading-relaxed !text-zinc-400 md:text-xl",
+      className,
+    )}
+  >
+    Cache, retries, dedupe, offline and realtime, built in. Every protocol
+    through one typed{" "}
+    <code className="!border-white/10 !bg-white/5 !text-[0.85em] !text-zinc-200">
+      createRequest()
+    </code>
+    .
+  </p>
+);
+
+/* Colour logos with their names, no label and no divider */
+const Logos = ({ className }: { className?: string }) => (
+  <div className={cn("flex flex-wrap items-center gap-x-6 gap-y-3", className)}>
+    {backends.map((b) => (
+      <Link
+        key={b.name}
+        to={b.to}
+        className="group flex items-center gap-2 !no-underline"
+      >
+        <img
+          src={b.src}
+          alt=""
+          className="size-5 object-contain transition-transform duration-200 group-hover:-translate-y-0.5"
+          style={b.scale ? { transform: `scale(${b.scale})` } : undefined}
+        />
+        <span className="text-[14px] font-medium !text-zinc-400 transition-colors duration-200 group-hover:!text-zinc-100">
+          {b.name}
+        </span>
+      </Link>
+    ))}
+  </div>
+);
+
+const Glow = ({ opacity = 1 }: { opacity?: number }) => (
+  <div
+    className="pointer-events-none absolute inset-x-0 top-0 -z-10 flex justify-center"
+    style={{ opacity }}
+    aria-hidden
+  >
+    <img src="/img/glow-main.svg" className="max-w-none" width={2546} alt="" />
+  </div>
+);
+
+const CalmBg = () => (
+  <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
+    <div className="absolute inset-0 opacity-50">
+      <HeroPaths />
+    </div>
+    <Glow opacity={0.75} />
+  </div>
+);
 
 export const Hero = () => {
-  const [width] = useWindowSize();
-
   return (
-    <section className="relative w-[100vw] h-fit max-w-[100vw] text-center pt-[158px] pb-[68px]">
-      {/* Illustrations */}
-      <Paths key={width} />
-
-      <div className="absolute w-[100vw] min-w-[1200px] h-full pointer-events-none p-10 inset-0" aria-hidden="true">
-        <div className="absolute left-1/2 -translate-x-1/2 top-0 -z-10">
-          <img src="/img/glow-main.svg" className="max-w-none min-w-full" width={2546} alt="glow" />
+    <>
+      <section className="landing-scope relative w-[100vw] max-w-[100vw] pb-12 pt-[150px] text-center md:pb-16 md:pt-[180px]">
+        <CalmBg />
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6">
+          <motion.div {...quick(0)}>
+            <HeroBadge />
+          </motion.div>
+          <motion.div {...quick(1)} className="mt-7">
+            <HeroTitle />
+          </motion.div>
+          <motion.div {...quick(2)} className="mt-7">
+            <Lead className="mx-auto text-center" />
+          </motion.div>
+          <motion.div {...quick(3)} className="mt-9 w-full max-w-[400px] sm:w-auto sm:max-w-none">
+            <CtaButtons />
+          </motion.div>
+          <motion.div {...quick(4)} className="mt-14">
+            <Logos className="justify-center gap-x-5" />
+          </motion.div>
         </div>
-      </div>
-
-      {/* Particles animation */}
-      <Particles className="absolute inset-0 -z-10" quantity={width > 767 ? 40 : 30} />
-
-      {/* Hero content */}
-      <div className="relative max-w-6xl mx-auto flex flex-col justify-center items-center px-6 mt-12 mb-12">
-        <div className="mb-5">
-          <Link
-            to="/docs/cli/commands/generate"
-            className="shiny-label flex items-center !no-underline py-0.5 hover:brightness-125 transition-all duration-150 ease-in-out"
-          >
-            <Sparkles className="w-[14px] h-[14px] text-yellow-600/80 dark:text-yellow-500 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out" />
-            <AnimatedShinyText className="text-sm">Generate SDK from Swagger</AnimatedShinyText>
-            <span className="w-[14px] h-[1px] leading-[0.2] tracking-normal text-yellow-600/90 dark:text-white group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out mr-0.5">
-              →
-            </span>
-          </Link>
-        </div>
-        <Title
-          as="h1"
-          className="font-extrabold text-4xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:!leading-[1.3] mt-3 md:mb-4 mb-0 md:mt-6 max-w-[90vw] text-center"
-        >
-          From REST to realtime. <br />
-          <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem]">
-            Fully{" "}
-            <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem] relative">
-              Typed
-              <span
-                aria-hidden="true"
-                className="absolute text-3xl md:text-5xl lg:text-[3.9rem] -z-[1] inset-0 underline decoration-rose-500 decoration-wavy decoration-from-font underline-offset-2 !text-transparent disable-shadow pointer-events-none"
-                style={{
-                  textShadow: "none",
-                }}
-              >
-                Typed
-              </span>
-            </span>
-            .
-          </span>
-        </Title>
-        <Description
-          size="none"
-          className="mb-3 md:mb-8 text-lg md:text-lg lg:text-xl text-zinc-300 dark:text-[#ababab] text-center !leading-[1.28] w-[660px] max-w-[90vw]"
-        >
-          Caching, retries, deduplication, offline replay and live subscriptions. All built in. Pick the adapter for
-          your backend and keep the same{" "}
-          <code className="!text-[0.85em] !bg-white/5 !border-white/10 !text-zinc-200">createRequest()</code>{" "}
-          everywhere.
-        </Description>
-        <Ecosystem />
-        <div className="flex gap-4 mt-8 md:mt-10 flex-col md:flex-row justify-center mb-8">
-          <Link
-            to="docs/getting-started"
-            className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-8 flex items-center !no-underline bg-gradient-to-br justify-center from-yellow-400 via-yellow-500 to-yellow-500 text-white dark:text-zinc-800 font-semibold rounded-xl max-w-full text-left hover:from-yellow-500 hover:to-yellow-400 dark:hover:from-yellow-500 dark:hover:to-yellow-400 hover:text-white hover:dark:text-zinc-900 transition-all"
-          >
-            Get Started <ArrowRight className="w-[16px] ml-2" />
-          </Link>
-          <Link
-            to="/docs/cli/commands/generate"
-            className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-4 group inline-flex items-center shiny-btn !rounded-xl"
-          >
-            <Sparkles className="w-[16px] mr-2" /> Generate SDK
-          </Link>
-        </div>
-      </div>
-    </section>
+      </section>
+      <FramedVideo className="mb-6" />
+      <DevtoolsDownload />
+    </>
   );
 };

@@ -1,0 +1,46 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.narrow {
+  max-width: 44rem;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.todos {
+  padding: 0;
+}
+
+.todos li {
+  list-style: none;
+  margin-bottom: 0.75rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.row input:not([type="checkbox"]) {
+  margin: 0;
+}
+
+.row button {
+  width: auto;
+  margin: 0;
+  padding: 0.25rem 0.75rem;
+}
+
+.grow {
+  flex: 1;
+}
+
+.error {
+  color: var(--pico-del-color);
+}

@@ -32,6 +32,44 @@ describe("AppManager [ Events ]", () => {
     vi.restoreAllMocks();
   });
 
+  describe("When the page unloads", () => {
+    it("should start without unloading", () => {
+      const manager = createManager();
+      manager.initialize();
+
+      expect(manager.isUnloading).toBeFalse();
+    });
+
+    it("should be unloading once the page gets hidden for good", () => {
+      const manager = createManager();
+      manager.initialize();
+
+      window.dispatchEvent(new Event("pagehide"));
+
+      expect(manager.isUnloading).toBeTrue();
+    });
+
+    it("should stop unloading when the page comes back from the back-forward cache", () => {
+      const manager = createManager();
+      manager.initialize();
+
+      window.dispatchEvent(new Event("pagehide"));
+      window.dispatchEvent(new Event("pageshow"));
+
+      expect(manager.isUnloading).toBeFalse();
+    });
+
+    it("should not track the page after unmount", () => {
+      const manager = createManager();
+      manager.initialize();
+      manager.unmount();
+
+      window.dispatchEvent(new Event("pagehide"));
+
+      expect(manager.isUnloading).toBeFalse();
+    });
+  });
+
   describe("When the document visibility changes", () => {
     it("should lose the focus when the document gets hidden", () => {
       const manager = createManager();
@@ -181,7 +219,14 @@ describe("AppManager [ Events ]", () => {
       manager.initialize();
       manager.unmount();
 
-      expect(windowAdd.mock.calls.map(([name]) => name)).toIncludeSameMembers(["blur", "focus", "offline", "online"]);
+      expect(windowAdd.mock.calls.map(([name]) => name)).toIncludeSameMembers([
+        "blur",
+        "focus",
+        "offline",
+        "online",
+        "pagehide",
+        "pageshow",
+      ]);
       expect(documentAdd.mock.calls.map(([name]) => name)).toStrictEqual(["visibilitychange"]);
       expect(windowRemove.mock.calls).toStrictEqual(windowAdd.mock.calls);
       expect(documentRemove.mock.calls).toStrictEqual(documentAdd.mock.calls);

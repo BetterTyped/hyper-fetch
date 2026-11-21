@@ -1,0 +1,84 @@
+---
+title: Undo delete
+sidebar_label: Undo delete
+sidebar_position: 6
+description:
+  Delete a todo optimistically, offer Undo for five seconds and send the request only if nobody undoes it, with rollback
+  on failure.
+sidebar_custom_props:
+  path: react/undo-delete
+  level: advanced
+  tags: [optimistic, send, mocking]
+---
+
+import { Example } from "@site/src/components";
+import hook from "!!raw-loader!@examples/react/undo-delete/src/use-undo-delete.ts";
+import api from "!!raw-loader!@examples/react/undo-delete/src/api.ts";
+import app from "!!raw-loader!@examples/react/undo-delete/src/App.tsx";
+
+A todo list where **Delete** removes the todo at once and shows a toast with **Undo**. For five seconds the request
+waits. Undo puts the todo back and nothing is sent. When the time runs out, the delete is sent, and if the server fails,
+the todo comes back.
+
+<Example files={{ "src/use-undo-delete.ts": hook, "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`setOptimistic`** on the delete request removes the todo from the cached list as soon as it is sent.
+2. **A stopped queue** holds the request: `submitDispatcher.stop(queryKey)` before `send()`, `start(queryKey)` later.
+3. **Undo without a request**: `clearQueue(queryKey)` removes the waiting request, and core rolls back with the reason
+   `"removed"`.
+4. **Rollback on failure**: turn on **Make deletes fail** and the todo returns after the error.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` gives `deleteTodoRequest` an optimistic update. `.remove(params.todoId)` takes the todo out of the cached
+   list, and `.rollback()` puts it back at its old index using `previous`, the list from just before the change.
+2. `useUndoDelete` stops the queue of this one delete before sending it:
+
+   ```ts
+   const { queryKey } = deleteTodoRequest.setParams({ todoId: todo.id });
+   // highlight-next-line
+   client.submitDispatcher.stop(queryKey);
+   const response = await request.send();
+   ```
+
+   `send()` applies the optimistic change and adds the request to the queue, but a stopped queue does not run it. The
+   endpoint contains the todo id, so every todo has its own queue and deletes do not wait for each other.
+
+3. A timer calls `submitDispatcher.start(queryKey)` after five seconds. The request runs, and `send()` resolves with the
+   server's answer.
+4. **Undo** clears the timer and calls `submitDispatcher.clearQueue(queryKey)`. The request is removed before it was
+   sent, core runs the rollback with the reason `"removed"`, and `send()` resolves with `success: false`. The queue is
+   started again so a later delete of the same todo is not stuck.
+5. A failed delete runs the same rollback with the reason `"error"`. The hook shows a message for a few seconds.
+6. The request returns `revalidate: false`, because dummyjson does not store deletes and a refetch would bring the todo
+   back. With a real API, leave revalidation on.
+
+:::note When to use it
+
+- Destructive actions where a confirm dialog is too much friction: archive, delete, remove from a list.
+- Keep the waiting time short and do not hold requests that other parts of the app depend on. A request that already
+  reached the server cannot be undone by the client.
+
+:::
+
+---
+
+## Related
+
+- [Optimistic updates guide](/docs/guides/react/basics/optimistic-approach)
+- [Dispatcher](/docs/core/dispatcher)
+- [Queueing guide](/docs/guides/core/advanced/queueing)
+- [Mocking](/docs/core/mocking)
+
+:::secondary Summary
+
+The delete is sent right away into a stopped queue, so the optimistic removal shows at once while the request waits.
+Clearing the queue is the undo, and core rolls the list back for an undo, an abort or a failed response.
+
+:::

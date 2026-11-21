@@ -50,9 +50,7 @@ function hexToRgb(hex: string): number[] {
   hex = hex.replace("#", "");
 
   if (hex.length === 3) {
-    hex = [...hex]
-      .map((char) => char + char)
-      .join("");
+    hex = [...hex].map((char) => char + char).join("");
   }
 
   const hexInt = parseInt(hex, 16);
@@ -128,19 +126,17 @@ export const Particles: React.FC<ParticlesProps> = ({
       }
       window.removeEventListener("resize", handleResize);
     };
-  }, [color]);
+    // Changing the color or `refresh` sets the canvas up again
+  }, [color, refresh]);
 
   useEffect(() => {
     onMouseMove();
   }, [mousePosition.x, mousePosition.y]);
 
-  useEffect(() => {
-    initCanvas();
-  }, [refresh]);
-
+  /** Sizes the canvas and creates `quantity` new particles */
   const initCanvas = () => {
+    clearContext();
     resizeCanvas();
-    drawParticles();
   };
 
   const onMouseMove = () => {
@@ -226,15 +222,6 @@ export const Particles: React.FC<ParticlesProps> = ({
     }
   };
 
-  const drawParticles = () => {
-    clearContext();
-    const particleCount = quantity;
-    for (let i = 0; i < particleCount; i += 1) {
-      const circle = circleParams();
-      drawCircle(circle);
-    }
-  };
-
   // eslint-disable-next-line max-params
   const remapValue = (value: number, start1: number, end1: number, start2: number, end2: number): number => {
     const remapped = ((value - start1) * (end2 - start2)) / (end1 - start1) + start2;
@@ -266,21 +253,20 @@ export const Particles: React.FC<ParticlesProps> = ({
       circle.translateX += (mouse.current.x / (staticity / circle.magnetism) - circle.translateX) / ease;
       circle.translateY += (mouse.current.y / (staticity / circle.magnetism) - circle.translateY) / ease;
 
-      drawCircle(circle, true);
-
-      // circle gets out of the canvas
+      // A circle out of the canvas is replaced in place - removing it while iterating would skip the next one
       if (
         circle.x < -circle.size ||
         circle.x > canvasSize.current.w + circle.size ||
         circle.y < -circle.size ||
         circle.y > canvasSize.current.h + circle.size
       ) {
-        // remove the circle from the array
-        circles.current.splice(i, 1);
-        // create a new circle
         const newCircle = circleParams();
-        drawCircle(newCircle);
+        circles.current[i] = newCircle;
+        drawCircle(newCircle, true);
+        return;
       }
+
+      drawCircle(circle, true);
     });
     rafID.current = window.requestAnimationFrame(animate);
   };

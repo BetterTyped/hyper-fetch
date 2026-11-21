@@ -9,17 +9,14 @@ export type Connection = {
   client: ClientInstance;
   environment: string;
   clientOptions: { url?: string };
+  /** `client.adapter.options` of the user's client, as JSON. */
   adapterOptions: {
     name?: string;
     defaultMethod?: string;
-    // TODO - change to Record (transform with json.parse)
-    defaultExtra?: string;
-    // TODO - change to Record (transform with json.parse)
-    systemErrorStatus?: string;
-    // TODO - change to Record (transform with json.parse)
-    systemErrorExtra?: string;
-    // TODO - change to Record (transform with json.parse)
-    defaultRequestOptions?: string;
+    defaultExtra?: Record<string, unknown>;
+    systemErrorStatus?: string | number;
+    systemErrorExtra?: Record<string, unknown>;
+    defaultRequestOptions?: Record<string, unknown>;
   };
   connected: boolean;
   eventListener: ExtendListener<ListenerInstance, { response: HFEventMessage["data"] }>;
@@ -31,29 +28,35 @@ type ConnectionStore = {
   addConnection: (connection: Connection) => void;
   removeConnection: (connectionName: string) => void;
   updateConnection: (name: string, connection: Partial<Omit<Connection, "name">>) => void;
+  /** Mark every application as disconnected, e.g. when HyperFlow loses its own server connection. */
+  disconnectAll: () => void;
 };
 
+// Every update creates a new `connections` object, so selectors on it re-render.
 export const useConnectionStore = create<ConnectionStore>((set) => ({
   connections: {},
   addConnection: (connection: Connection) => {
-    set((state) => {
-      const newState = { ...state };
-      newState.connections[connection.name] = connection;
-      return newState;
-    });
+    set((state) => ({ connections: { ...state.connections, [connection.name]: connection } }));
   },
   removeConnection: (connectionName: string) => {
     set((state) => {
-      const newState = { ...state };
-      delete newState.connections[connectionName];
-      return newState;
+      const { [connectionName]: _removed, ...connections } = state.connections;
+      return { connections };
     });
   },
   updateConnection: (name: string, connection: Partial<Omit<Connection, "name">>) => {
     set((state) => {
-      const newState = { ...state };
-      newState.connections[name] = { ...newState.connections[name], ...connection };
-      return newState;
+      if (!state.connections[name]) {
+        return state;
+      }
+      return { connections: { ...state.connections, [name]: { ...state.connections[name], ...connection } } };
     });
+  },
+  disconnectAll: () => {
+    set((state) => ({
+      connections: Object.fromEntries(
+        Object.entries(state.connections).map(([name, connection]) => [name, { ...connection, connected: false }]),
+      ),
+    }));
   },
 }));

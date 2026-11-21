@@ -1,0 +1,82 @@
+---
+title: Data table
+sidebar_label: Data table
+sidebar_position: 16
+description:
+  A product table with server-side sorting, search and pagination that keeps the previous rows on screen while the next
+  ones load.
+sidebar_custom_props:
+  path: react/data-table
+  level: intermediate
+  tags: [useFetch, pagination, params, debounce]
+---
+
+import { Example } from "@site/src/components";
+import app from "!!raw-loader!@examples/react/data-table/src/App.tsx";
+import api from "!!raw-loader!@examples/react/data-table/src/api.ts";
+
+A table of products. Click a column header to sort, type to search, change the page size or move between pages. The
+server does the work; the table sends its state as query params and keeps the old rows, dimmed, until the new ones
+arrive.
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
+:::tip What it shows
+
+1. **Server-side table state**: `sortBy`, `order`, `q`, `limit` and `skip` are typed query params of one request.
+2. **`keepPreviousData: "preserve"`** keeps the current rows on screen while the next sort or page loads.
+3. **`bounce`** waits until you stop typing before the search request is sent.
+4. **Accessible sorting** with `aria-sort` on the sorted column header.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` types the query params of `/products/search`. `sortBy` only accepts the column keys, so the headers and the
+   request cannot drift apart.
+2. `App.tsx` keeps the table state in `useState` and builds the request from it on every render. Each combination has
+   its own cache key, so a page you already saw is shown at once.
+3. The hook options:
+
+   ```ts
+   useFetch(searchProductsRequest.setQueryParams({ ... }), {
+     // highlight-next-line
+     keepPreviousData: "preserve",
+     bounce: true,
+     bounceTime: 300,
+   });
+   ```
+
+   `"preserve"` keeps `data` from the previous request until the new response arrives. The default, `"auto"`, does the
+   same when only query params change; `"preserve"` states it and also covers changes of endpoint params. While
+   `loading` is `true` and old data is shown, the rows are dimmed.
+
+4. `bounce: true` debounces changes of the request. Typing "lap" sends one request for `q=lap`, not three. The first
+   request on mount is not delayed.
+5. Sorting by a new column starts in ascending order, clicking the same column again flips it. Changing the search, sort
+   or page size goes back to the first page.
+
+:::note When to use it
+
+- Admin tables, reports and catalogs that are too large to load at once.
+- If you need to share or bookmark the table state, keep it in the URL instead. See the URL filters example.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Query params guide](/docs/guides/core/basics/query-params)
+- [Pagination guide](/docs/guides/react/basics/pagination)
+- [Filters in the URL example](/examples/data-fetching/url-filters)
+
+:::secondary Summary
+
+The table sends its sort, search and page as typed query params. `keepPreviousData` keeps the rows steady between
+requests and `bounce` keeps typing from flooding the server.
+
+:::

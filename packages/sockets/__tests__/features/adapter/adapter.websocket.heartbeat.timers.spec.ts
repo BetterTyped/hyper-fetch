@@ -15,6 +15,15 @@ const pongTimeout = 1000;
 const reconnectTime = 500;
 
 describe("Websocket Adapter [ Heartbeat Timers ]", () => {
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
+  beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
+  });
+  afterEach(() => {
+    random.mockRestore();
+  });
+
   const sockets: Socket[] = [];
 
   const createConnectedSocket = async (adapterOptions: WebsocketAdapterOptionsType = {}) => {
@@ -309,6 +318,21 @@ describe("Websocket Adapter [ Heartbeat Timers ]", () => {
 
       expect(reconnecting).not.toHaveBeenCalled();
       expect(vi.getTimerCount()).toBe(0);
+    });
+
+    it("should not start the heartbeat when a connected callback disconnects", async () => {
+      const socket = new Socket({ url, reconnectTime, adapterOptions: { heartbeat: true, pingTimeout, pongTimeout } });
+      sockets.push(socket);
+      socket.onConnected(() => {
+        socket.disconnect();
+      });
+
+      const websocket = await openWebSocket();
+
+      // Nothing armed for a socket that is closed already - no ping, no minUptime
+      expect(vi.getTimerCount()).toBe(0);
+      await vi.advanceTimersByTimeAsync(pingTimeout * 3);
+      expect(websocket.sent).toStrictEqual([]);
     });
 
     it("should stop pinging when the server closes the connection", async () => {

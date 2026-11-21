@@ -16,7 +16,7 @@ export type ListenerLifecycleType = {
   onEnd: (data: { error: Error | null }) => void;
 };
 
-export type SocketAdapterInstance = SocketAdapter<any, any, any, any, any, any>;
+export type SocketAdapterInstance = SocketAdapter<any, any, any, any, any, any, any>;
 
 export type Connector<A extends SocketAdapterInstance = SocketAdapterInstance> = {
   connect: () => void;

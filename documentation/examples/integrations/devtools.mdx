@@ -1,0 +1,80 @@
+---
+title: Devtools
+sidebar_label: Devtools
+sidebar_position: 3
+description: Connect a client to the HyperFlow devtools with the devtools plugin and inspect requests, cache and queues.
+sidebar_custom_props:
+  path: react/devtools
+  level: beginner
+  tags: [devtools, useFetch, send]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/devtools/src/api.ts";
+import app from "!!raw-loader!@examples/react/devtools/src/App.tsx";
+
+A small app with a few buttons that each produce something worth inspecting: a cached list, a mutation, a failed
+request, a slow request you can cancel. The devtools plugin streams all of it to [HyperFlow](/docs/hyper-flow), the
+HyperFetch desktop devtools.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`DevtoolsPlugin`** connects a client to HyperFlow with one `addPlugin()` call.
+2. **Development only**: the plugin is added when `import.meta.env.DEV` is true, so production builds do not connect.
+3. **Network**: every request with its payload, headers, response, status and timings.
+4. **Cache and queues**: the cached responses and the requests waiting or in flight, updated live.
+
+:::
+
+---
+
+## How it works
+
+1. [Download HyperFlow](/docs/hyper-flow/download) and start it. It listens on `ws://localhost:2137`.
+2. `api.ts` adds the plugin to the client:
+
+   ```ts
+   // highlight-next-line
+   client.addPlugin(DevtoolsPlugin({ appName: "HyperFetch devtools example", environment: import.meta.env.MODE }));
+   ```
+
+   `appName` is the name HyperFlow lists the app under, and `environment` tells apart several builds of the same app.
+   Set `url` only if you changed the HyperFlow port.
+
+3. Run the example with `npm run dev` and open it. The app appears in HyperFlow and the plugin starts sending events.
+   Without HyperFlow running, the plugin keeps trying to connect in the background and the browser console shows failed
+   WebSocket connections; requests are not affected.
+4. What to look at in HyperFlow:
+   - **Refetch** in the users list: a `GET` in the network view, and its entry in the cache view.
+   - **Add a user**: a `POST` with its JSON payload and the `201` response.
+   - **Fail with 500**: a failed request with the error body.
+   - **Slow request** and **Cancel it**: the request sits in its queue for four seconds; cancelling ends it with an
+     abort error.
+   - **Clear cache**: the cache view empties.
+
+:::note When to use it
+
+- Debugging why a request was sent twice, not sent at all or served from the cache.
+- Checking payloads, headers and timings without the browser network tab.
+- Watching queues in offline-first apps and cancelling or retrying requests by hand.
+
+:::
+
+---
+
+## Related
+
+- [Devtools plugin](/docs/integrations/plugin-devtools)
+- [Connecting HyperFlow](/docs/hyper-flow/connecting)
+- [Network inspector](/docs/hyper-flow/features/network)
+- [Cache management](/docs/hyper-flow/features/cache)
+- [Queue management](/docs/hyper-flow/features/queues)
+
+:::secondary Summary
+
+`client.addPlugin(DevtoolsPlugin({ appName }))` in development mode is all the setup. HyperFlow then shows every
+request, cache entry and queue of the client while you use the app.
+
+:::

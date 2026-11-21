@@ -1,4 +1,4 @@
-import { getTsConfigAliasPrefix } from "config/get-ts-alias";
+import { getDefaultAliases } from "config/get-ts-alias";
 import type { Config } from "config/schema";
 import { configSchema } from "config/schema";
 import * as fs from "fs-extra";
@@ -20,16 +20,8 @@ export async function autoInit(cwd: string): Promise<void> {
   const fullPath = path.join(cwd, mainPath, apiDir);
   const configPath = path.join(cwd, "api.json");
 
-  const aliasPrefix = (await getTsConfigAliasPrefix(cwd)) || "";
-  const alias = aliasPrefix ? `${aliasPrefix}/` : "";
-
-  const defaultAliases: Config["aliases"] = {
-    api: `${alias}${apiDir}`,
-    hooks: `${alias}hooks`,
-    ui: `${alias}components/ui`,
-    components: `${alias}components`,
-    lib: `${alias}lib`,
-  };
+  // Every alias has to resolve to the directory created here, whatever the paths and base url of the project
+  const defaultAliases = await getDefaultAliases(cwd, mainPath, apiDir);
 
   const defaultConfig: Omit<Config, "resolvedPaths"> = {
     tsx: true,

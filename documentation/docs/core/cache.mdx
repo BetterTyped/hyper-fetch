@@ -288,6 +288,9 @@ Update existing cache entries with the `update` method. The cache will **not** u
 
 Cache will **NOT** update if the initial data is not present in the cache.
 
+The update sets `responseTimestamp` to the time of the update, so `staleTime` and `cacheTime` count from the update.
+Locally updated data stays fresh for the whole `staleTime` and is not removed earlier because of the original fetch time.
+
 :::
 
 ```tsx

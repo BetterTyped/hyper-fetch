@@ -200,6 +200,52 @@ describe("Http Adapter [ Fetch ]", () => {
     });
   });
 
+  describe("When response.body has no getReader and a binary response type is set", () => {
+    const createBinaryResponse = (ok: boolean) => {
+      const blob = new Blob(["binary"], { type: "application/octet-stream" });
+      return {
+        ok,
+        status: ok ? 200 : 404,
+        headers: new Headers({ "content-type": "application/octet-stream" }),
+        body: null,
+        blob: vi.fn().mockResolvedValue(blob),
+        arrayBuffer: vi.fn().mockResolvedValue(new TextEncoder().encode("binary").buffer),
+        text: vi.fn().mockResolvedValue(JSON.stringify({ message: "Not found" })),
+      };
+    };
+
+    it.each(["blob", "arrayBuffer"] as const)("should read the body with the %s method", async (responseType) => {
+      const originalFetch = globalThis.fetch;
+      const response = createBinaryResponse(true);
+      globalThis.fetch = vi.fn().mockResolvedValue(response);
+
+      try {
+        const adapter = HttpAdapter().initialize(client);
+        const result = await adapter.fetch(request.setOptions({ responseType }), requestId);
+
+        expect(result.data).toBe(await response[responseType].mock.results[0].value);
+        expect(response.text).not.toHaveBeenCalled();
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it("should parse the error body as text", async () => {
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = vi.fn().mockResolvedValue(createBinaryResponse(false));
+
+      try {
+        const adapter = HttpAdapter().initialize(client);
+        const result = await adapter.fetch(request.setOptions({ responseType: "blob" }), requestId);
+
+        expect(result.data).toBeNull();
+        expect(result.error).toStrictEqual({ message: "Not found" });
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+  });
+
   describe("When non-timeout, non-abort error occurs", () => {
     it("should call onError with the error", async () => {
       const originalFetch = globalThis.fetch;

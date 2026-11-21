@@ -12,6 +12,7 @@ describe("Firestore Admin [ Constraints ]", () => {
   const client = new Client({ url: "teas/" }).setAdapter(FirebaseAdminAdapter(firestoreDbAdmin));
 
   beforeEach(async () => {
+    await firestoreDbAdmin.recursiveDelete(firestoreDbAdmin.collection("teas"));
     await seedFirestoreDatabaseAdmin(firestoreDbAdmin);
   });
 

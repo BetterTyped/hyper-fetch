@@ -1,6 +1,6 @@
-import type { OrderByDirection } from "@firebase/firestore";
 import type { FirestorePermittedMethods } from "constraints";
 import { FirestoreQueryConstraints, SharedQueryConstraints } from "constraints";
+import type { OrderByDirection } from "firebase/firestore";
 import { endAt, endBefore, limit, orderBy, startAfter, startAt, where } from "firebase/firestore";
 
 export const mapConstraint = ({ type, values }: FirestorePermittedMethods) => {
@@ -19,19 +19,19 @@ export const mapConstraint = ({ type, values }: FirestorePermittedMethods) => {
     }
     case SharedQueryConstraints.START_AT: {
       const [docOrFields] = values;
-      return startAt(docOrFields);
+      return startAt(...docOrFields);
     }
     case SharedQueryConstraints.START_AFTER: {
       const [docOrFields] = values;
-      return startAfter(docOrFields);
+      return startAfter(...docOrFields);
     }
     case SharedQueryConstraints.END_AT: {
       const [docOrFields] = values;
-      return endAt(docOrFields);
+      return endAt(...docOrFields);
     }
     case SharedQueryConstraints.END_BEFORE: {
       const [docOrFields] = values;
-      return endBefore(docOrFields);
+      return endBefore(...docOrFields);
     }
     default:
       throw new Error(`Unknown method ${type}`);

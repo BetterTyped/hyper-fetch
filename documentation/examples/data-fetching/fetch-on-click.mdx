@@ -1,0 +1,78 @@
+---
+title: Fetch on click
+sidebar_label: Fetch on click
+sidebar_position: 13
+description: "Send a request only when the user asks: useFetch with disabled, or request.send() for a one-off call."
+sidebar_custom_props:
+  path: react/fetch-on-click
+  level: beginner
+  tags: [useFetch, send]
+---
+
+import { Example } from "@site/src/components";
+import app from "!!raw-loader!@examples/react/fetch-on-click/src/App.tsx";
+import api from "!!raw-loader!@examples/react/fetch-on-click/src/api.ts";
+import requestLog from "!!raw-loader!@examples/react/fetch-on-click/src/RequestLog.tsx";
+
+A page that sends no request when it opens. The left card loads comments when you click **Show comments**, the right
+card fetches a quote on every click. The log at the bottom lists each request the moment it starts. This is what other
+libraries call a lazy query.
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api, "src/RequestLog.tsx": requestLog }} />
+
+:::tip What it shows
+
+1. **`useFetch` with `disabled`**: the hook is mounted, but holds the request until a state flag allows it.
+2. **`request.send()`**: an imperative call from an event handler that resolves with the response.
+3. **The difference**: the hook owns `data`, `loading`, refreshing and the cache link; `send()` gives you one response
+   to handle yourself.
+
+:::
+
+---
+
+## How it works
+
+1. `Comments` keeps a `requested` flag and passes it to the hook:
+
+   ```ts
+   const [requested, setRequested] = useState(false);
+   // highlight-next-line
+   const { data, error, loading, refetch } = useFetch(getPostCommentsRequest, { disabled: !requested });
+   ```
+
+   While `disabled` is `true`, `useFetch` sends nothing. When the flag flips, the hook fetches, and from then on it
+   behaves like any `useFetch`: `refetch()` works, other options such as `refetchOnFocus` apply, and the data is read
+   from and written to the cache.
+
+2. `QuoteButton` calls `getRandomQuoteRequest.send()` in the click handler. `send()` resolves with `data`, `error`,
+   `status` and `success`, and it does not throw for a failed request, so there is no `try/catch`. The component keeps
+   `loading` and the result in its own state.
+3. A response from `send()` is also saved in the cache, so a `useFetch` with the same request elsewhere would show it.
+4. `RequestLog` subscribes to `client.requestManager.events.onRequestStart` and shows that the page loads with zero
+   requests.
+
+:::note When to use it
+
+- `disabled`: data that is shown on screen but expensive or rarely needed, such as comments, details or a report. Also
+  for requests that wait for input, like a search that needs a term first.
+- `send()`: one-off actions whose result you use once, such as checking availability, exporting a file or prefetching
+  before navigation.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Requests](/docs/core/request)
+- [Dependent requests guide](/docs/guides/react/basics/dependent-requests)
+- [Fetching guide](/docs/guides/core/basics/fetching)
+
+:::secondary Summary
+
+Use `useFetch` with `disabled` when the result belongs on screen and should stay fresh, and `request.send()` when a
+handler needs one response. Both send nothing until the user asks.
+
+:::

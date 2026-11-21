@@ -19,7 +19,12 @@
     "release": "node ./scripts/release.mjs",
     "nx:upgrade": "npx nx migrate latest",
     "update-version": "node ./scripts/update-package-version.js",
-    "test:release": "node --test scripts/release.test.mjs scripts/version-docs.test.mjs"
+    "test:firebase": "nx run-many --target=test --parallel=1 --skip-nx-cache --projects=firebase,firebase-admin",
+    "test:release": "node --test scripts/release.test.mjs scripts/version-docs.test.mjs",
+    "readme:banners": "node ./scripts/readme-banners/render.mjs",
+    "examples": "nx run-many --target=typecheck,build --parallel=3 --projects='@hyper-fetch-examples/*'",
+    "test:examples": "node --test scripts/examples.test.mjs",
+    "test:skills": "node --test scripts/skills.test.mjs"
   },
   "dependencies": {
     "@nx/js": "22.6.5",
@@ -116,11 +121,22 @@
       "@hyper-fetch/firebase-admin": "workspace:*",
       "@hyper-fetch/axios": "workspace:*",
       "@hyper-fetch/graphql": "workspace:*",
+      "@hyper-fetch/hono": "workspace:*",
+      "@hyper-fetch/elysia": "workspace:*",
+      "@hyper-fetch/cli": "workspace:*",
+      "eslint-plugin-hyper-fetch": "workspace:*",
       "@hyper-fetch/orpc": "workspace:*",
       "@hyper-fetch/trpc": "workspace:*",
       "@hyper-fetch/plugin-devtools": "workspace:*",
       "@hyper-fetch/testing": "workspace:*",
       "@swc/core": "^1.15.30"
+    },
+    "packageExtensions": {
+      "@firebase/database-compat@0.3": {
+        "peerDependencies": {
+          "@firebase/app-compat": "0.x"
+        }
+      }
     }
   },
   "keywords": [
@@ -154,7 +170,6 @@
     "firebase-tools": "*",
     "graphql": "*",
     "graphql-tag": "^2.12.6",
-    "http": "*",
     "stream": "*"
   },
   "packageManager": "pnpm@10.11.0"

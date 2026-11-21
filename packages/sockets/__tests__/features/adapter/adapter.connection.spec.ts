@@ -112,7 +112,10 @@ describe("Socket Adapter [ Connection ]", () => {
     await vi.advanceTimersByTimeAsync(0);
     expect(spy).toHaveBeenCalledTimes(0);
 
+    // The attempt times out after 1ms, the next one starts after the reconnect delay (1-2ms with the jitter)
     await vi.advanceTimersByTimeAsync(1);
+    expect(spy).toHaveBeenCalledTimes(0);
+    await vi.advanceTimersByTimeAsync(2);
     expect(spy).toHaveBeenCalledTimes(1);
   });
 

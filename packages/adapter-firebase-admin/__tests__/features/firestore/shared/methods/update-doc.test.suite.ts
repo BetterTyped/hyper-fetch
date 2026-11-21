@@ -32,6 +32,7 @@ export const updateDocTestSuite = (adapterFunction: () => ReturnType<typeof Fire
           endpoint: ":teaId",
           method: "updateDoc",
         })
+        .setParams({ teaId: 1 })
         .setPayload(newData);
 
       await testLifecycleEvents(request);

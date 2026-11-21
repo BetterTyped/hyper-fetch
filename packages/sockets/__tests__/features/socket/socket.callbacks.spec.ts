@@ -79,14 +79,30 @@ describe("Socket Client  [ Callbacks ]", () => {
     });
   });
 
-  it("should trigger onReconnectFailed callbacks", async () => {
+  it("should trigger onReconnectFailed callbacks when the automatic attempts run out", async () => {
     const spy = vi.fn();
-    const socket = createSocket({ reconnect: 0 }).onReconnectFailed(spy);
-    socket.adapter.reconnect();
+    const socket = createSocket({ reconnect: 0, reconnectTime: 10 }).onReconnectFailed(spy);
+    socket.onError(() => null);
+    await waitForConnection(socket);
+
+    getServer().close({ code: 1006, reason: "gone", wasClean: false });
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("should not refuse a reconnection by hand, also with no automatic attempts", async () => {
+    const failed = vi.fn();
+    const reconnecting = vi.fn();
+    const socket = createSocket({ reconnect: 0 }).onReconnectFailed(failed).onReconnect(reconnecting);
+
+    socket.adapter.reconnect();
+
+    await waitFor(() => {
+      expect(reconnecting).toHaveBeenCalledTimes(1);
+    });
+    expect(failed).not.toHaveBeenCalled();
   });
 
   it("should register onConnect callbacks and allow chaining", () => {

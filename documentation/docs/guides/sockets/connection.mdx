@@ -119,7 +119,8 @@ function Component() {
 }
 ```
 
-The `reconnect` method will attempt to connect again, respecting the retry policies configured on the socket instance.
+`reconnect()` replaces the connection with a new one right away. A reconnection by hand is a fresh start: it is never
+refused by the `reconnect` attempt limit, also after the automatic attempts ran out.
 
 ---
 
@@ -194,28 +195,50 @@ handle connection states.
 
 ## Retries
 
-Hyper-fetch automatically handles reconnection attempts when a connection is lost. You can customize the retry behavior
-using the `reconnect` and `reconnectTime` options in the `Socket` constructor.
+When a connection is lost, the socket gets it back on its own. Every adapter - WebSocket, SSE, tRPC, oRPC - shares the
+same reconnection rules:
 
-- `reconnect`: The maximum number of reconnection attempts. Set to `Infinity` by default for endless retries.
-- `reconnectTime`: The time in milliseconds before the next attempt after the connection was lost. Defaults to `5000`
-  (5 seconds).
-- `connectionTimeout`: How long in milliseconds one connection attempt may take before it is abandoned and a new
-  attempt starts. Defaults to `5000`. It is separate from `reconnectTime`, so a short retry delay does not cut slow
-  handshakes short.
+- **Backoff with jitter.** The first retry comes after `reconnectTime` to twice that, and the window doubles with every
+  attempt up to `maxReconnectTime`. Each client picks a random moment in the window, so the clients of a restarted
+  server don't all come back at once.
+- **Stable connections reset the counter.** The attempt counter resets only once a connection stays up for `minUptime`.
+  A connection that drops right after opening - for example a server that accepts and then closes over an expired
+  token - keeps backing off and counts towards `reconnect`.
+- **Every loss is retried** unless `shouldReconnect` says otherwise - except a normal closure (1000) of the server,
+  which means it finished on purpose. That one stays closed until `connect()`, `reconnect()` or the network coming
+  back. Closing the socket yourself is never retried.
+- **One timeout to be connected.** `connectionTimeout` limits how long an attempt may take until the connection can
+  carry messages, including protocol handshakes. A timed out attempt is a failed attempt and the next one follows the
+  backoff.
+
+| Option              | Default    | Description                                                                         |
+| ------------------- | ---------- | ----------------------------------------------------------------------------------- |
+| `reconnect`         | `Infinity` | How many reconnection attempts run before the socket gives up                       |
+| `reconnectTime`     | `1000`     | Minimum delay in ms before an attempt                                               |
+| `maxReconnectTime`  | `30000`    | Maximum delay in ms before an attempt                                               |
+| `minUptime`         | `5000`     | How long in ms a connection stays up before the attempt counter resets              |
+| `connectionTimeout` | `5000`     | How long in ms one attempt may take until the connection is ready                   |
+| `reconnectDelay`    | jitter     | `({ attempt, elapsed, reason }) => number \| null` - replaces the backoff           |
+| `shouldReconnect`   | 1000 stays | `({ code, reason, error }) => boolean` - decides which lost connections are retried |
 
 ### Customizing Retry Logic
 
-Here's how you can configure a custom retry policy. In this example, the socket will attempt to reconnect up to 5 times,
-with a 3-second delay between each attempt.
+Change the limits with the options above, or take over the timing with `reconnectDelay`. It receives the attempt number
+of the outage (from 0), the time since the outage began and why the connection was lost. Return the delay in
+milliseconds, or `null` to stop reconnecting.
 
 ```ts
-import { Socket } from "@hyper-fetch/sockets";
+import { Socket, defaultShouldReconnect } from "@hyper-fetch/sockets";
 
 const socket = new Socket({
   url: "ws://localhost:8080",
-  reconnect: 5,
-  reconnectTime: 3000,
+  // Retry quickly a few times, then every 10 seconds, and give up after 5 minutes
+  reconnectDelay: ({ attempt, elapsed }) => {
+    if (elapsed > 5 * 60_000) return null;
+    return attempt < 3 ? 500 : 10_000;
+  },
+  // A rejected token won't get better by retrying - and a normal closure (1000) stays closed, like by default
+  shouldReconnect: (loss) => defaultShouldReconnect(loss) && loss.code !== 4401,
 });
 ```
 
@@ -254,11 +277,17 @@ function Component() {
 
 ## Offline handling
 
-Every socket tracks the network state with its own `AppManager` (`socket.appManager`). In the browser it starts from
-`navigator.onLine` and listens to the window `online` / `offline` events:
+Every socket tracks the network and the focus of the app with its own `AppManager` (`socket.appManager`). In the browser
+it listens to the window `online` / `offline` events and to the page visibility:
 
-- While offline, connection attempts are skipped.
-- When the browser comes back online, a socket with `autoConnect` enabled connects again on its own.
+- **Going offline** closes the connection right away - a connection on a network that is gone can hang for minutes
+  before the transport notices. No attempts run while offline, and none are counted.
+- **Coming back online** connects at once, without waiting for the backoff.
+- **Getting the focus back** skips the rest of a pending reconnection delay, so a user returning to the tab doesn't
+  wait. Attempts still run in the background.
+
+This applies to every socket that should be connected - from the first connection, automatic with `autoConnect` or by
+hand with `connect()`, until `disconnect()`. `autoConnect` only decides the first connection.
 
 In environments without these browser events, like React Native or Node.js, pass your own app manager with the
 `appManager` option. Return a cleanup function from `onlineEvent` so that `socket.appManager.unmount()` can remove the

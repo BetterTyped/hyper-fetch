@@ -1,0 +1,116 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.list {
+  padding: 0;
+  list-style: none;
+}
+
+.list li {
+  list-style: none;
+}
+
+.list button {
+  width: 100%;
+  text-align: left;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.toolbar button {
+  width: auto;
+  padding: 0.25rem 0.75rem;
+}
+
+.error {
+  color: var(--pico-del-color);
+}
+
+.bell {
+  position: relative;
+  display: inline-flex;
+}
+
+.badge {
+  position: absolute;
+  top: -0.4rem;
+  right: -0.6rem;
+  min-width: 1.2rem;
+  padding: 0 0.3rem;
+  border-radius: 1rem;
+  background: var(--pico-del-color);
+  color: #fff;
+  font-size: 0.7rem;
+  line-height: 1.2rem;
+  text-align: center;
+}
+
+.toolbar {
+  margin: 0;
+}
+
+.notifications {
+  padding: 0;
+  margin: 0;
+}
+
+.notifications li {
+  list-style: none;
+}
+
+.notifications button {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  width: 100%;
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.notifications button span {
+  grid-column: 1;
+  color: var(--pico-muted-color);
+}
+
+.notifications button small {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.notifications .unread button {
+  border-left: 3px solid var(--pico-primary);
+}
+
+.notifications .read strong {
+  font-weight: normal;
+}

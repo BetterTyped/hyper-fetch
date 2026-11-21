@@ -11,22 +11,24 @@ type Notification = { id: string; message: string };
 
 export const onNotification = socket.createListener<Notification>()({
   topic: "notifications",
-  // options: adapter-specific listener options (none for WebSocket/SSE; Firebase uses constraints etc.)
+  // options: adapter-specific listener options (none for WebSocket/SSE; Firebase: groupByChangeType, onlyOnce)
+  // queryParams: what the listener asks for, only on adapters that support it (Firebase constraints)
   // delivery: see below
 });
 ```
 
 Listener members:
 
-| Member                                            | What it does                                                                            |
-| ------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `topic`                                           | Resolved topic string (params filled in). Template literal type stays the declared one. |
-| `params`                                          | Params set with `setParams`.                                                            |
-| `options` / `setOptions(options)`                 | Adapter-specific listener options. Returns a clone.                                     |
-| `setParams(params)`                               | Fill `:param` segments. Typed from the topic. Returns a clone.                          |
-| `delivery` / `setDelivery(delivery \| undefined)` | Delivery strategy. Returns a clone; the callback data type follows it.                  |
-| `clone(config?)`                                  | Copy with overrides.                                                                    |
-| `listen(callback)`                                | Subscribe. Returns `() => void` remover.                                                |
+| Member                                            | What it does                                                                                                                              |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `topic`                                           | Resolved topic string (params filled in). Template literal type stays the declared one.                                                   |
+| `params`                                          | Params set with `setParams`.                                                                                                              |
+| `options` / `setOptions(options)`                 | Adapter-specific listener options. Returns a clone.                                                                                       |
+| `queryParams` / `setQueryParams(queryParams)`     | What the listener asks for (Firebase: `(c) => c.where(...)`). Adapter opt-in; a callback is resolved to data right away. Returns a clone. |
+| `setParams(params)`                               | Fill `:param` segments. Typed from the topic. Returns a clone.                                                                            |
+| `delivery` / `setDelivery(delivery \| undefined)` | Delivery strategy. Returns a clone; the callback data type follows it.                                                                    |
+| `clone(config?)`                                  | Copy with overrides.                                                                                                                      |
+| `listen(callback)`                                | Subscribe. Returns `() => void` remover.                                                                                                  |
 
 `listen` callback receives `{ data, extra }`. `extra` is adapter-specific: the raw `MessageEvent` for WebSocket and SSE,
 `{ ref, snapshot, ... }` for Firebase.

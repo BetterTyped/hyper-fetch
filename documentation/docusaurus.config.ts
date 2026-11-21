@@ -7,6 +7,8 @@ import { convertNpmToPackageManagers } from "@sapphire/docusaurus-plugin-npm2yar
 import fs from "fs";
 import path from "path";
 
+import examplesPlugin from "./plugins/examples";
+import hyperFlowReleasesPlugin from "./src/plugins/hyperflow-releases";
 import docsVersions from "./versions.json";
 
 /**
@@ -157,6 +159,7 @@ const config: Config = {
 
   plugins: [
     "@docsearch/docusaurus-adapter",
+    hyperFlowReleasesPlugin,
     "docusaurus-plugin-sass",
     async function tailwindPlugin() {
       return {
@@ -173,6 +176,7 @@ const config: Config = {
         },
       };
     },
+    examplesPlugin,
     [
       "@docusaurus/plugin-content-docs",
       {
@@ -260,7 +264,7 @@ const config: Config = {
           activeBaseRegex: `/docs/api/`,
         },
         {
-          to: "/examples/playground/",
+          to: "/examples/",
           label: "Examples",
           position: "left",
         },

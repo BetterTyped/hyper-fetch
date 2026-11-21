@@ -1,0 +1,75 @@
+---
+title: Invalidation
+sidebar_label: Invalidation
+sidebar_position: 3
+description: Invalidate cached lists after a mutation so every useFetch that shows them fetches fresh data.
+sidebar_custom_props:
+  path: react/invalidation
+  level: beginner
+  tags: [useSubmit, useFetch, invalidation, cache]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/invalidation/src/api.ts";
+import app from "!!raw-loader!@examples/react/invalidation/src/App.tsx";
+
+A form that creates a post and three lists below it. After the post is created, the app invalidates the cache keys you
+pick, and the matching lists fetch again. Each list counts its fetches, so you can see which ones reacted.
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
+:::tip What it shows
+
+1. **`client.cache.invalidate()`** marks cached data stale after a mutation.
+2. **Automatic refetch**: every mounted `useFetch` that reads an invalidated key fetches it again right away.
+3. **Targeting**: pass one request for an exact key, or a `RegExp` to hit every key that matches, such as all post
+   lists.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` defines three lists with their params and query params already set: latest posts, posts of user 1 and users.
+   Their cache keys look like `GET_/posts_{"limit":3,...}` and `GET_/posts/user/1_{...}`.
+2. `App` sends `createPostRequest` with `useSubmit`. When it succeeds, `onSubmitSuccess` invalidates the chosen target:
+
+   ```tsx
+   onSubmitSuccess(() => {
+     // highlight-next-line
+     client.cache.invalidate(targets[target].keys);
+   });
+   ```
+
+3. `invalidate()` accepts a request (its exact cache key), a cache key string, a `RegExp` or an array of these. The
+   `/\/posts/` pattern matches both post lists and leaves users alone.
+4. Invalidation sets the entry's `staleTime` to `0` and emits an event. Mounted `useFetch` hooks for that key refetch at
+   once. Components that are not mounted find stale data next time they mount and fetch then.
+5. `Panel` registers `onSuccess` to count fetches and shows `responseTimestamp`, which makes each refetch visible.
+
+dummyjson does not store the new post, so the refetched lists contain the same posts. With a real API, they would
+include it.
+
+:::note When to use it
+
+- After a create, update or delete, when you would rather refetch than edit the cached data by hand.
+- When one change affects many lists, filters or pages: one `RegExp` covers all of them.
+- With optimistic updates, return `invalidate: [request]` from `setOptimistic` to do the same declaratively.
+
+:::
+
+---
+
+## Related
+
+- [Cache](/docs/core/cache)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+After a mutation, `client.cache.invalidate()` marks the affected keys stale, and every `useFetch` showing them fetches
+fresh data. A request targets one key, a `RegExp` targets a whole group.
+
+:::

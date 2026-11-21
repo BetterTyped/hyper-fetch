@@ -13,6 +13,15 @@ import {
  * CONNECTING. The adapter must treat it as a failed attempt instead of waiting for the connection timeout.
  */
 describe("Websocket Adapter [ Handshake error without close ]", () => {
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
+  beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
+  });
+  afterEach(() => {
+    random.mockRestore();
+  });
+
   let socket: Socket;
 
   beforeEach(() => {

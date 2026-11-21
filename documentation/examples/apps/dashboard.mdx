@@ -1,0 +1,115 @@
+---
+title: Dashboard
+sidebar_label: Dashboard
+sidebar_position: 4
+description:
+  An admin dashboard with KPI cards from parallel requests, a polled live number, a server-sorted table, an offline
+  banner and errors kept inside each widget.
+sidebar_custom_props:
+  path: apps/dashboard
+  level: intermediate
+  tags: [useFetch, polling, offline, errors, pagination]
+---
+
+import { Example } from "@site/src/components";
+import stats from "!!raw-loader!@examples/apps/dashboard/src/api/stats.ts";
+import kpiCards from "!!raw-loader!@examples/apps/dashboard/src/features/kpis/KpiCards.tsx";
+import widget from "!!raw-loader!@examples/apps/dashboard/src/components/Widget.tsx";
+import onlineNow from "!!raw-loader!@examples/apps/dashboard/src/features/live/OnlineNow.tsx";
+import usersTable from "!!raw-loader!@examples/apps/dashboard/src/features/users/UsersTable.tsx";
+import statusBar from "!!raw-loader!@examples/apps/dashboard/src/components/StatusBar.tsx";
+
+An admin dashboard on [dummyjson](https://dummyjson.com): four KPI cards, a live "online now" number and a customers
+table sorted and paged by the server. Turn on **Break the revenue service** and only the revenue card fails. Turn on
+**Go offline** and a banner appears while polling pauses.
+
+<Example
+  files={{
+    "src/api/stats.ts": stats,
+    "src/features/kpis/KpiCards.tsx": kpiCards,
+    "src/components/Widget.tsx": widget,
+    "src/features/live/OnlineNow.tsx": onlineNow,
+    "src/features/users/UsersTable.tsx": usersTable,
+    "src/components/StatusBar.tsx": statusBar,
+  }}
+/>
+
+:::tip What it shows
+
+1. **Parallel requests**: each KPI card has its own `useFetch`, so they load at the same time
+   ([Parallel requests](/examples/data-fetching/parallel-requests)).
+2. **Polling**: `refresh` and `refreshTime` fetch the live number every 3 seconds
+   ([Polling](/examples/data-fetching/polling)).
+3. **Server-side sort and pagination**: the query params are the whole table state
+   ([Data table](/examples/data-fetching/data-table), [Pagination](/examples/data-fetching/pagination)).
+4. **Offline banner**: `useAppManager` follows the online state of the browser
+   ([Offline first](/examples/offline/offline-first)).
+5. **Global fetching indicator**: `useIsFetching(client)` drives a bar at the top of the page.
+6. **Errors per widget**: a failure stays in its card, next to the last good data, with a retry button
+   ([Error handling](/examples/getting-started/error-handling)).
+7. **Derived values**: the `select` option sums the revenue without changing the cached response
+   ([Select](/examples/data-fetching/select)).
+
+:::
+
+---
+
+## How it works
+
+1. `api/stats.ts` has one request for the three counters. `:resource` in the endpoint is a param, so `countOf("users")`,
+   `countOf("products")` and `countOf("carts")` each get their own cache key. `limit: 1` and `select: "id"` keep the
+   answers small, because the cards only need `total`.
+2. `KpiCards` renders one component per card, and each calls `useFetch`. The four requests run in parallel and every
+   card shows its own loading state. `refetchOnFocus` and `refetchOnReconnect` refresh the numbers when you come back.
+3. `RevenueCard` loads every cart and adds up the totals in the `select` option. The cache keeps the full response, and
+   the card re-renders only when the sum changes.
+4. `Widget` is the shared frame. It shows a spinner before the first response, the data after it, and an error with a
+   **Retry** button that calls `refetch()`. When an error follows a good response, the old value stays visible.
+5. `OnlineNow` polls:
+
+   ```tsx
+   useFetch(getOnlineNow, {
+     // highlight-next-line
+     refresh: true,
+     refreshTime: 3000,
+     refetchBlurred: false,
+   });
+   ```
+
+   `refetchBlurred: false` pauses polling while the tab is in the background, and requests wait while the app is
+   offline. dummyjson numbers never change, so this request is answered by a `setMock` that returns a new number every
+   time. With a real API, delete the mock.
+
+6. `UsersTable` keeps the page and the sort in state and builds the request with `usersPage(page, sortBy, order)`.
+   dummyjson sorts and pages with `sortBy`, `order`, `limit` and `skip`. Only query params change, so the old rows stay
+   on screen until the new ones arrive, and pages you visited render from the cache.
+7. `StatusBar.tsx` has the two global parts. `FetchingBar` reads `useIsFetching(client)`, the number of running fetches
+   of the whole client. `OfflineBanner` reads `isOnline` from `useAppManager(client)`.
+8. The demo switches call `setMockingEnabled` on the revenue request and `setOnline` on the app manager. The broken
+   revenue request answers `503`, and `client.cache.invalidate(getRevenue)` makes the card fetch it again at once.
+
+:::note When to use it
+
+- Admin panels and dashboards that combine many independent widgets.
+- Screens with numbers that change on the server, such as sales, queues or monitoring.
+- Tables with many rows, where sorting and paging must happen on the server.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [`useIsFetching` and `useIsSubmitting`](/docs/react/hooks/use-is-fetching)
+- [`useAppManager`](/docs/react/hooks/use-app-manager)
+- [Managers](/docs/core/managers)
+- [Mocking](/docs/core/mocking)
+
+:::secondary Summary
+
+Each widget owns its request, so cards load in parallel and fail alone. `refresh` polls the live number, query params
+drive the server-sorted table, and two hooks read client-wide state: `useIsFetching` for the loading bar and
+`useAppManager` for the offline banner.
+
+:::

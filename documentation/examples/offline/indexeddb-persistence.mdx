@@ -1,0 +1,87 @@
+---
+title: IndexedDB persistence
+sidebar_label: IndexedDB persistence
+sidebar_position: 3
+description:
+  Persist large responses in IndexedDB with the cache lazyStorage, and show them from disk while the API is asked again.
+sidebar_custom_props:
+  path: react/indexeddb-persistence
+  level: intermediate
+  tags: [persistence, cache, useFetch]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/indexeddb-persistence/src/api.ts";
+import app from "!!raw-loader!@examples/react/indexeddb-persistence/src/App.tsx";
+
+A product catalog of up to 300 KB per page, cached in IndexedDB. The API answers after two seconds on purpose. After a
+reload the saved copy appears in a few milliseconds, and the fresh answer replaces it when it arrives.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`Cache({ lazyStorage })`** writes every cached response to IndexedDB and reads it back when memory has no copy.
+2. **`CacheAsyncStorageType`** is four async methods: `get`, `set`, `keys` and `delete`.
+3. **`staleTime`** decides whether a saved entry is still used. Stale entries are not loaded.
+4. **A timeline** shows where each version of the data came from: IndexedDB, memory or the network.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` implements `CacheAsyncStorageType` with [`idb-keyval`](https://github.com/jakearchibald/idb-keyval) in its
+   own database, so `clear()` touches only this cache. IndexedDB stores structured clones, so there is no
+   `JSON.stringify` on every write.
+2. The client passes it as `lazyStorage`. The main `storage` stays the default in-memory `Map`:
+
+   ```ts
+   // highlight-next-line
+   cache: () => new Cache({ lazyStorage: indexedDbStorage }),
+   ```
+
+3. When `useFetch` reads a key that memory does not have, the cache starts an IndexedDB read. If the saved entry has the
+   same `version`, is fresh and has not expired, it is copied to memory and emitted to the hooks.
+4. The hook can't wait for that read before deciding, so with an empty memory it also sends the request. The result is
+   stale-while-revalidate across reloads: the saved copy first, then the network answer, which is saved again.
+5. `getProducts` sets `staleTime: Time.DAY` and `cacheTime: Time.WEEK`. The defaults are 5 minutes, after which a saved
+   entry would be skipped or removed.
+6. `Products` compares `responseTimestamp` with the page load and mount time to label each step. `SavedEntries` reads
+   IndexedDB on every cache change and shows the size of each entry next to the storage quota from
+   `navigator.storage.estimate()`.
+
+### `storage` or `lazyStorage`
+
+|                    | [`localStorage` in `storage`](/examples/offline/cache-persistence) | IndexedDB in `lazyStorage`             |
+| ------------------ | ------------------------------------------------------------------ | -------------------------------------- |
+| Size               | About 5 MB for the whole site                                      | A share of the disk, often gigabytes   |
+| Format             | Strings, so `JSON.stringify` and `JSON.parse`                      | Structured clones                      |
+| First render       | Has the data, no request needed                                    | Empty, the data arrives a moment later |
+| Blocks main thread | On every read and write                                            | No                                     |
+
+To get both the size of IndexedDB and data on the first render, read the entries once before rendering and pass them as
+`storage`, as the [offline first](/examples/offline/offline-first) example does.
+
+:::note When to use it
+
+- Large lists, catalogs and documents that do not fit in `localStorage`.
+- Apps that show the last data at once and refresh it in the background.
+
+:::
+
+---
+
+## Related
+
+- [Persistence guide](/docs/guides/core/advanced/persistence)
+- [Cache](/docs/core/cache)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+An async storage passed as `lazyStorage` saves every cached response to IndexedDB. After a reload the cache reads it
+back on demand, shows it right away, and the hook refreshes it from the network.
+
+:::

@@ -80,6 +80,34 @@ describe("Request [ Type inference ]", () => {
       expect(true).toBe(true);
     });
 
+    it("should not read the colons of a GraphQL document as params", () => {
+      expectTypeOf<ExtractUrlParams<"mutation D($id: ID!) { del(id: $id) }">>().toEqualTypeOf<null | undefined>();
+      expectTypeOf<ExtractUrlParams<"query { user(id: 1) { name } }">>().toEqualTypeOf<null | undefined>();
+      expectTypeOf<ExtractUrlParams<"query U($id: ID!) {\n  user(id: $id) { name }\n}">>().toEqualTypeOf<
+        null | undefined
+      >();
+      expect(true).toBe(true);
+    });
+
+    it("should read only the params of an absolute url", () => {
+      expectTypeOf<ExtractUrlParams<"http://localhost:3000/users/:userId">>().toEqualTypeOf<{
+        userId: ParamType;
+      }>();
+      expectTypeOf<ExtractUrlParams<"https://api.test/:_version/items">>().toEqualTypeOf<{ _version: ParamType }>();
+      expect(true).toBe(true);
+    });
+
+    it("should send a request with a GraphQL string document without params", () => {
+      const deleteUser = client.createRequest<{ response: User; payload: { id: string } }>()({
+        endpoint: "mutation D($id: ID!) { del(id: $id) }",
+        method: "POST",
+      });
+
+      expectTypeOf<ExtractParamsType<typeof deleteUser>>().toEqualTypeOf<null | undefined>();
+      expectTypeOf(deleteUser.send).toBeCallableWith({ payload: { id: "1" } });
+      expect(deleteUser.endpoint).toBe("mutation D($id: ID!) { del(id: $id) }");
+    });
+
     it("should keep the literal type of the endpoint", () => {
       expectTypeOf(getUser.requestOptions.endpoint).toEqualTypeOf<"/users/:userId">();
       expect(getUser.requestOptions.endpoint).toBe("/users/:userId");
@@ -264,6 +292,56 @@ describe("Request [ Type inference ]", () => {
       });
 
       expect(withCallback.retryOnError).toBeDefined();
+    });
+  });
+
+  describe("When the endpoint carries its types", () => {
+    /** The decoration graphql-codegen and gql.tada put on documents, here on a REST path */
+    type TypedEndpoint<Response, Payload> = string & { __apiType?: (payload: Payload) => Response };
+
+    const createUser = "/users" as TypedEndpoint<User, { name: string }>;
+    const listUsers = "/users" as TypedEndpoint<User[], { [key: string]: never }>;
+
+    it("should take the response and the payload from the endpoint", () => {
+      const request = client.createRequest()({ endpoint: createUser, method: "POST" });
+
+      expectTypeOf<ExtractResponseType<typeof request>>().toEqualTypeOf<User>();
+      expectTypeOf<ExtractPayloadType<typeof request>>().toEqualTypeOf<{ name: string }>();
+      request.send({ payload: { name: "Ann" } });
+      // @ts-expect-error the payload comes from the endpoint
+      request.send({ payload: { name: 1 } });
+    });
+
+    it("should not need a payload for an endpoint without one", () => {
+      const request = client.createRequest()({ endpoint: listUsers });
+
+      expectTypeOf<ExtractPayloadType<typeof request>>().toEqualTypeOf<undefined>();
+      expectTypeOf(request.send).toBeCallableWith();
+    });
+
+    it("should let the declared generics win over the endpoint", () => {
+      const request = client.createRequest<{ response: { id: number } }>()({ endpoint: createUser, method: "POST" });
+
+      expectTypeOf<ExtractResponseType<typeof request>>().toEqualTypeOf<{ id: number }>();
+      expectTypeOf<ExtractPayloadType<typeof request>>().toEqualTypeOf<{ name: string }>();
+    });
+
+    it("should combine the endpoint types with the other declared generics", () => {
+      const request = client.createRequest<{ error: ApiError; queryParams: { page: number } }>()({
+        endpoint: createUser,
+        method: "POST",
+      });
+
+      expectTypeOf<ExtractResponseType<typeof request>>().toEqualTypeOf<User>();
+      expectTypeOf<ExtractErrorType<typeof request>>().toEqualTypeOf<ApiError | GlobalError>();
+      expectTypeOf<ExtractQueryParamsType<typeof request>>().toEqualTypeOf<{ page: number }>();
+    });
+
+    it("should keep undefined types for endpoints without the decoration", () => {
+      const request = client.createRequest()({ endpoint: "/users" });
+
+      expectTypeOf<ExtractResponseType<typeof request>>().toEqualTypeOf<undefined>();
+      expectTypeOf<ExtractPayloadType<typeof request>>().toEqualTypeOf<undefined>();
     });
   });
 });

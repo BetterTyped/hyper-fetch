@@ -1,0 +1,81 @@
+---
+title: Chat history
+sidebar_label: Chat history
+sidebar_position: 15
+description:
+  A chat that opens at the newest messages and loads older ones with fetchPreviousPage as you scroll up, keeping your
+  place.
+sidebar_custom_props:
+  path: react/chat-history
+  level: advanced
+  tags: [useInfiniteFetch, pagination, useFetch]
+---
+
+import { Example } from "@site/src/components";
+import chat from "!!raw-loader!@examples/react/chat-history/src/ChatHistory.tsx";
+import api from "!!raw-loader!@examples/react/chat-history/src/api.ts";
+import app from "!!raw-loader!@examples/react/chat-history/src/App.tsx";
+
+A chat channel with the newest message at the bottom. Scroll up and older messages load above, while the message you
+were reading stays where it was. The messages are dummyjson comments.
+
+<Example files={{ "src/ChatHistory.tsx": chat, "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **Start at the end**: `useInfiniteFetch` starts at the last page by setting `skip` on the request.
+2. **`fetchPreviousPage`** loads the page before the first loaded one when you get near the top.
+3. **Scroll position**: a layout effect keeps the same distance from the bottom after older messages are added.
+4. **`uniqueBy: "id"`** removes messages repeated by overlapping pages.
+
+:::
+
+---
+
+## How it works
+
+1. dummyjson lists comments from the oldest. `App.tsx` first asks for the total with `getMessageCountRequest` (one item,
+   only the `id` field) and renders `ChatHistory` with `startAt = total - pageSize`.
+2. `ChatHistory` passes that offset as the starting `skip`. With `offset: "skip"` pagination, the first loaded page is
+   the newest one, `hasNextPage` is `false` and `hasPreviousPage` is `true`:
+
+   ```ts
+   useInfiniteFetch(
+     // `select` is a dummyjson query param: the API returns only these fields.
+     // highlight-next-line
+     getMessagesRequest.setQueryParams({ limit: pageSize, skip: startAt, select: "body,user" }),
+     { pagination: messagesPagination, uniqueBy: "id" },
+   );
+   ```
+
+3. The scroll handler stores the distance from the bottom and calls `fetchPreviousPage()` when the top is less than 120
+   pixels away. Calls made while a page is loading share one request.
+4. When the first page param changes, `useLayoutEffect` sets `scrollTop` so the distance from the bottom is the same as
+   before. It runs before the browser paints, so the messages do not jump. On the first page that distance is 0, so the
+   chat opens at the newest message. `overflow-anchor: none` stops the browser from adjusting the scroll a second time.
+5. Near the start, the offset cannot go below 0. If the total is not a multiple of the page size, the first page
+   overlaps the second, and `uniqueBy: "id"` drops the repeated messages.
+6. A failed page shows a **Try again** button that calls `fetchPreviousPage()` again.
+
+:::note When to use it
+
+- Chats, comment threads, activity logs and any list read from the bottom up.
+- If your API returns the newest messages first with a "before" cursor, use cursor pagination instead: older messages
+  are then the next page (`fetchNextPage`), and you reverse `items` for display.
+
+:::
+
+---
+
+## Related
+
+- [`useInfiniteFetch`](/docs/react/hooks/use-infinite-fetch)
+- [Infinite scroll guide](/docs/guides/react/basics/infinite-scroll)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+The list starts at the newest page and `fetchPreviousPage` walks back in time. Keeping the distance from the bottom in a
+layout effect holds your place while older messages are added above.
+
+:::

@@ -21,6 +21,7 @@ export class SocketAdapter<
   EmitterOptions extends Record<string, any> | EmptyTypes = undefined,
   QueryParams extends QueryParamsType | string | EmptyTypes = undefined,
   QueryParamsMapperType extends QueryParamsMapper<any> | DefaultMapperType = DefaultMapperType,
+  ListenerQueryParams = undefined,
 > {
   public name: string;
   public socket: SocketInstance;
@@ -33,6 +34,13 @@ export class SocketAdapter<
   public unstable_queryParamsMapperConfig: Parameters<QueryParamsMapperType>[1];
   /** Method to get request data and transform them to the required format.  */
   public unstable_queryParamsMapper: QueryParamsMapperType = defaultMapper as QueryParamsMapperType;
+  /**
+   * Turns listener query params given as a callback into data, at the moment they are set on a listener. Unset by
+   * default, so adapters without it store them as given. See {@link SocketAdapter.setListenerQueryParamsResolver}.
+   */
+  public unstable_listenerQueryParamsResolver?: (callback: (...args: any[]) => unknown) => unknown = undefined;
+  /** Type-only marker for the query params listeners of this adapter accept. */
+  declare readonly __listenerQueryParams?: ListenerQueryParams;
 
   public adapterOptions: AdapterOptions | EmptyTypes;
   public listenerOptions: ListenerOptions | EmptyTypes;
@@ -183,8 +191,25 @@ export class SocketAdapter<
       ListenerOptions,
       EmitterOptions,
       QueryParams,
-      NewQueryParamsMapper
+      NewQueryParamsMapper,
+      ListenerQueryParams
     >;
+  };
+
+  /**
+   * Let listeners take query params as a callback. When a listener gets a function as its query params (in
+   * `createListener` or `setQueryParams`), the resolver runs right away and the listener stores what it returns, so a
+   * listener never holds a function. The resolver decides what the callback receives.
+   *
+   * Opt-in: adapters without a resolver store listener query params as given.
+   *
+   * @example
+   * // The Firebase socket adapter passes a constraints builder and stores the constraints it collected
+   * adapter.setListenerQueryParamsResolver((callback) => callback(createConstraints()).toJSON());
+   */
+  public setListenerQueryParamsResolver = (resolver: (callback: (...args: any[]) => unknown) => unknown) => {
+    this.unstable_listenerQueryParamsResolver = resolver;
+    return this;
   };
 
   // Listeners
@@ -197,7 +222,15 @@ export class SocketAdapter<
   }: {
     topic: string;
     callback: ListenerCallbackType<
-      SocketAdapter<Extra, AdapterOptions, ListenerOptions, EmitterOptions, QueryParams, QueryParamsMapperType>,
+      SocketAdapter<
+        Extra,
+        AdapterOptions,
+        ListenerOptions,
+        EmitterOptions,
+        QueryParams,
+        QueryParamsMapperType,
+        ListenerQueryParams
+      >,
       any
     >;
     lifecycle: ListenerLifecycleType;
@@ -213,7 +246,15 @@ export class SocketAdapter<
   }: {
     topic: string;
     callback: ListenerCallbackType<
-      SocketAdapter<Extra, AdapterOptions, ListenerOptions, EmitterOptions, QueryParams, QueryParamsMapperType>,
+      SocketAdapter<
+        Extra,
+        AdapterOptions,
+        ListenerOptions,
+        EmitterOptions,
+        QueryParams,
+        QueryParamsMapperType,
+        ListenerQueryParams
+      >,
       any
     >;
   }) => {
@@ -230,7 +271,15 @@ export class SocketAdapter<
   }: {
     topic: string;
     callback: ListenerCallbackType<
-      SocketAdapter<Extra, AdapterOptions, ListenerOptions, EmitterOptions, QueryParams, QueryParamsMapperType>,
+      SocketAdapter<
+        Extra,
+        AdapterOptions,
+        ListenerOptions,
+        EmitterOptions,
+        QueryParams,
+        QueryParamsMapperType,
+        ListenerQueryParams
+      >,
       any
     >;
   }): boolean => {
@@ -260,7 +309,15 @@ export class SocketAdapter<
     topic: string;
     data: any;
     extra: ExtractAdapterExtraType<
-      SocketAdapter<Extra, AdapterOptions, ListenerOptions, EmitterOptions, QueryParams, QueryParamsMapperType>
+      SocketAdapter<
+        Extra,
+        AdapterOptions,
+        ListenerOptions,
+        EmitterOptions,
+        QueryParams,
+        QueryParamsMapperType,
+        ListenerQueryParams
+      >
     >;
     callbacks?: ReadonlySet<ListenerCallbackType<any, any>>;
   }) => {

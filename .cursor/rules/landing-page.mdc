@@ -6,65 +6,50 @@ alwaysApply: false
 
 # Landing Page Guidelines
 
+`documentation/src/components/landing/landing.tsx` composes the page. Each section lives in its own folder.
+
 ## Section Order (strict)
 
-1. **Hero** — "From REST to realtime. Fully typed." + built-in features subtitle + backend logo row + Get Started / Generate SDK CTAs
-2. **CodePreview** — Video showing the SDK in action
-3. **Clients** — Company logo carousel (Swiper auto-scroll)
-4. **About ("Works everywhere")** — Three cards: Every Framework, Every API Protocol, Every Environment
-5. **Features ("How it works")** — Three feature rows: Any API One Interface / Best Type Safety / Generate from OpenAPI
-6. **Modules** — Auto-scrolling Swiper carousel of all packages (no static grid)
-7. **Blocks ("Faster. Better.")** — HyperFlow, Type Safety, Open Source highlight blocks
-8. **Preview ("Meet HyperFlow Devtools")** — Devtools screenshot + CTA (near the end, NOT prominent)
-9. **Sponsors** — Sponsor logos
-10. **CallToAction** — Final CTA
+1. **Hero** (`hero/`): release badge, title, one line, agent skills command + Get Started, colour logo row,
+   product video, HyperFlow download
+2. **Clients** (`clients/`): eyebrow line, company logo carousel
+3. **What is HyperFetch** (`what-is/`): "One framework, three parts", title left, Core / Sockets / DB tabs right,
+   bento cards per tab (DB is "Soon")
+4. **Platforms** (`platforms/`): "Runs on every platform", technical card titles (Frontend, Runtime, Realtime,
+   Mobile, AI agents, Backend), logos only, no descriptions
+5. **SDK** (`sdk/`): "Your backend, as a typed SDK", three story cards (Get your SDK, Plug in any protocol,
+   Ship it), then the six features
+6. **BetterTyped** (`bettertyped/`): "Built by BetterTyped" and the three numbers
+7. **Hub** (`hub/`): "One typed client for every API", photon beam, live typed feed
+8. **Production** (`production/`): "Ready for production" bento
+9. **Problems** (`problems/`): "Same bugs, different projects" issue tracker, loops
+10. **Sponsors** (`sponsors/`)
+11. **CallToAction** (`call-to-action/`): standard head, the hero actions, MIT / stars / live downloads
 
 ## Hero Rules
 
-- H1 must be: "From REST to realtime." with second line "Fully Typed." (wavy underline on "Typed")
-- Subtitle: what is built in (caching, retries, deduplication, offline replay, live subscriptions) and that the same
-  `createRequest()` works with every adapter
-- Backend logo row (`hero/ecosystem.tsx`) sits between the subtitle and the CTAs. Add a logo there when a new adapter
-  or transport ships. Logos live in `static/img/integration-*.svg`
-- Primary CTA: "Get Started" → docs/getting-started
-- Secondary CTA: "Generate SDK" → docs/cli/commands/generate
-- Badge link above title: "Generate SDK from Swagger" → CLI docs
-
-## Section Content Rules
-
-### About — "Works everywhere"
-- Eyebrow: "Universal by design"
-- Three cards with lucide icons: Every Framework, Every API Protocol, Every Environment
-- Keep descriptions focused on WHAT the user gets, not technical details
-
-### Features — "How it works"
-- Eyebrow: "One interface for everything."
-- Three feature rows with alternating graphic/text layout:
-  1. Any API, One Interface — CLI SDK demo graphic
-  2. Best Type Safety in the Ecosystem — Scan animation graphic
-  3. Generate from OpenAPI — AnimatedBeam graphic
-- Each has: title, description, "Learn more" link
-
-### Modules
-- MUST be an auto-scrolling Swiper carousel, NOT a static grid
-- Shows all packages except ESLint
-- Continuous loop, no manual swiping needed
-- Fade edges with gradient overlays
-- "View all integrations" link below
-
-### Preview (Devtools)
-- This is NOT a primary selling point — keep it near the end
-- Eyebrow: "Power up your development workflow"
-- Title: "Meet HyperFlow Devtools"
-- Screenshot + CTA to download
+- H1: "Fetch anything." / "Type everything.". Only "anything." uses the accent, "everything." is a shade under
+  white with the red type-error squiggle behind it.
+- Accent is solid honey `#f9b233`, shared by the title word and the Get Started button. No gradients on the
+  title or the button.
+- Actions: the agent skills install command (click to copy) on the left, Get Started as the primary on the right.
+- Logo row: colour logos with names, no label and no divider. Logos live in `static/img/integration-*.svg`.
+  Add one when a new adapter or transport ships (`hero/ecosystem.tsx`).
+- Under the video: one line of text, then "Download for {platform}" (direct installer from the HyperFlow
+  release data) and "Other platforms".
+- Background: the request paths at half strength, dots without labels. No particles.
 
 ## Style Rules
 
-- All section headers use gradient text: `bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60`
-- Eyebrow labels use yellow-orange gradient: `from-yellow-500 to-orange-500`
-- Use `motion` from `motion/react` for scroll animations (not framer-motion directly)
-- All animations should have `viewport={{ once: true }}` to only trigger once
-- Primary buttons use yellow gradient, secondary use `shiny-btn` class
+- Every section head uses `SectionHeader` from `shared/section-header.tsx`: optional eyebrow, title, optional
+  one-line description, fixed spacing. Pass `align="left"` or `className="mb-0"` instead of custom heads.
+- Eyebrows use the yellow-orange gradient, titles the zinc gradient (`SectionTitle`).
+- Cards use `BentoCard` / `BentoGrid` from `shared/bento-card.tsx`: solid `#1f1f21`, the Highlighter spotlight on
+  the edge, raised `#2a2a2d` elements inside. No left borders, no translucent cards.
+- Little text: short titles, one line per card, concrete gains. No "Learn more" links inside cards.
+- Wrap sections that size their own text in `.landing-scope` (resets the global 17px rule from `custom.css`).
+- Use `motion` from `motion/react` for animations. Entrance reveals run once; illustrations may loop while on screen.
+- Never mention `@hyper-fetch/testing`.
 
 ## Formatting Rules
 

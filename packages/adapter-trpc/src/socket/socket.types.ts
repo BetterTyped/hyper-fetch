@@ -46,7 +46,8 @@ export type TrpcKeepAliveOptionsType = {
  */
 export type TrpcWebsocketAdapterOptionsType = {
   /**
-   * Connect when the socket is created and when the app goes back online.
+   * Connect when the socket is created. Only the first connection depends on it - a socket connected by hand also
+   * reconnects after a lost connection and when the app goes back online.
    * @default true
    */
   autoConnect?: boolean;
@@ -72,7 +73,8 @@ export type TrpcWebsocketAdapterOptionsType = {
  */
 export type TrpcSseAdapterOptionsType = {
   /**
-   * Open the streams when the socket is created and when the app goes back online.
+   * Open the streams when the socket is created. Only the first connection depends on it - a socket connected by
+   * hand also opens them again when the app goes back online.
    * @default true
    */
   autoConnect?: boolean;

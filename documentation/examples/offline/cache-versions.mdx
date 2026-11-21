@@ -1,0 +1,76 @@
+---
+title: Cache versions
+sidebar_label: Cache versions
+sidebar_position: 4
+description:
+  Bump the cache version with a release, so persisted data in an old shape is dropped instead of breaking the new code.
+sidebar_custom_props:
+  path: react/cache-versions
+  level: intermediate
+  tags: [persistence, cache, useFetch]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/cache-versions/src/api.ts";
+import app from "!!raw-loader!@examples/react/cache-versions/src/App.tsx";
+
+A profile card with a persisted cache and two "releases". Release 2 also shows the email and avatar. Switch to it
+without a version bump and it reads the user saved by release 1, which has no email. Turn the bump on and the old entry
+is dropped and fetched again.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`Cache({ version })`** tags every saved entry with the version it was written under.
+2. **Entries from another version** are never returned, and are deleted when the cache reads them.
+3. **A version per release** keeps old persisted data from reaching code that expects a new shape.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` persists the cache in `localStorage`, as in the [cache persistence](/examples/offline/cache-persistence)
+   example, and passes a `version`:
+
+   ```ts
+   // highlight-next-line
+   cache: () => new Cache({ storage: localStorageCache, version: cacheVersion }),
+   ```
+
+2. `release` and `bumpWithRelease` come from `localStorage` only to simulate a deploy in the browser. In a real app the
+   version is a constant in the code, changed in the same commit as the data shape, or taken from the build.
+3. `getUser` uses a fixed `cacheKey: "current-user"`, so both releases share one entry. Release 2 asks for more fields
+   with `select`, like an API that returns more fields under the same URL.
+4. `Profile` reads it cache first with `useFetch(getUser, { revalidate: false })`, so a saved entry is used without a
+   request. That is when an old shape would reach the new code.
+5. When the cache reads an entry whose `version` differs from its own, it returns nothing, deletes the entry, and the
+   hook fetches it again. `Persisted` shows `localStorage` at page load, before any read, and now.
+
+Entries that are never read again stay in the storage until the garbage collector removes them after their `cacheTime`,
+or until `cache.clear()` runs.
+
+:::note When to use it
+
+- Every app with a persisted cache: change the version whenever a cached response changes shape.
+- After a fix to a response mapper, so data mapped by the old code is not reused.
+- When cached data depends on the user or the locale, as one part of the version.
+
+:::
+
+---
+
+## Related
+
+- [Cache](/docs/core/cache)
+- [Persistence guide](/docs/guides/core/advanced/persistence)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+`new Cache({ version })` stamps every saved entry. After a deploy with a new version, entries in the old shape are
+ignored and removed when they are read, and the hooks fetch fresh data.
+
+:::

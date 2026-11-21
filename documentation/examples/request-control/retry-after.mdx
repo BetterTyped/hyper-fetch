@@ -1,0 +1,78 @@
+---
+title: Retry-After
+sidebar_label: Retry-After
+sidebar_position: 9
+description:
+  Handle 429 Too Many Requests in one client interceptor that waits as long as the Retry-After header says and sends the
+  request again.
+sidebar_custom_props:
+  path: react/retry-after
+  level: advanced
+  tags: [retries, errors, mocking, send]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/retry-after/src/api.ts";
+import app from "!!raw-loader!@examples/react/retry-after/src/App.tsx";
+
+A server that allows three requests per five seconds. Press **Send 5 at once**: three calls succeed, two get
+`429 Too Many Requests`, wait for the time in the `Retry-After` header, and then succeed. The callers only see the final
+`200`.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`client.onError`** handles `429` for every request of the client, in one place.
+2. **`response.extra.headers`** gives the response headers, so the interceptor can read `Retry-After`.
+3. **Returning `request.send()`** from the interceptor makes the caller's `send()` resolve with the retried response.
+4. **`setUsed(true)`** marks the resend, so it is never deduplicated into the request that waits for it.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` adds an error interceptor with `client.onError(async (response, request) => ...)`. Any other status is
+   returned unchanged.
+2. The fetch adapter stores the response headers, with lowercase names, in `extra.headers`. `parseRetryAfter` accepts
+   both forms of the header: a number of seconds, or an HTTP date.
+3. The interceptor waits and returns a new attempt. While it waits, the original request is still in progress, so hooks
+   such as `useFetch` keep `loading: true`:
+
+   ```ts
+   await sleep(seconds * 1000);
+   // highlight-next-line
+   return request.setUsed(true).send();
+   ```
+
+4. A second `429` goes through the same interceptor again. A wait longer than `MAX_WAIT_SECONDS`, or a missing header,
+   returns the `429` to the caller instead of blocking it.
+5. `getQuote` sets `deduplicate: false`, because each click in this demo is a separate call. GET requests are
+   deduplicated by default.
+6. DummyJSON has no rate limit, so `server.ts` and `getQuote.setMock()` play one. The mock answers `429` with a
+   `retry-after` header in `extra`, the same place where the fetch adapter puts real headers.
+
+:::note When to use it
+
+- Public APIs with rate limits, such as GitHub, Stripe or OpenAI, which send `Retry-After` with `429` or `503`.
+- Bulk actions and imports that send many requests in a row.
+- Together with `queued: true`, to send fewer requests at once in the first place.
+
+:::
+
+---
+
+## Related
+
+- [Client](/docs/core/client)
+- [Retries guide](/docs/guides/core/basics/retries)
+- [Mocking](/docs/core/mocking)
+
+:::secondary Summary
+
+One `client.onError` interceptor reads `Retry-After` from `extra.headers`, waits, and resends the request with
+`setUsed(true)`. Every request of the client respects the server's rate limit without any change at the call site.
+
+:::

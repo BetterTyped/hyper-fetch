@@ -54,7 +54,6 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
   const { settings } = application;
 
   const invalidate = () => {
-    if (!item) {return;}
     client.cache.events.emitInvalidation(item.cacheKey, true);
   };
 
@@ -67,11 +66,11 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
   };
 
   const simulateError = (simulatedError: SimulatedError) => {
-    if (!item) {return;}
     const data: CacheValueType<unknown, unknown, any> = {
       ...item.cacheData,
       data: null,
       error: simulatedError.body,
+      status: simulatedError.status,
       responseTimestamp: Date.now(),
       extra: client.adapter.defaultExtra,
       success: false,
@@ -128,15 +127,12 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
               </DialogHeader>
               <div className="grid grid-cols-1 gap-4">
                 <RadioGroup
-                  value={selectedError?.body ? JSON.stringify(selectedError.body) : undefined}
-                  onValueChange={(value) => {
-                    const error = Object.values(settings.simulatedErrors).find((e) => JSON.stringify(e.body) === value);
-                    setSelectedError(error || null);
-                  }}
+                  value={selectedError?.name}
+                  onValueChange={(name) => setSelectedError(settings.simulatedErrors[name])}
                 >
                   {Object.entries(settings.simulatedErrors).map(([name, errorData]) => (
                     <div key={name}>
-                      <RadioGroupItem value={JSON.stringify(errorData.body)} id={name} className="peer sr-only" />
+                      <RadioGroupItem value={name} id={name} className="peer sr-only" />
                       <label
                         htmlFor={name}
                         className={cn(
@@ -148,9 +144,7 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
                           <span className="font-medium">{name}</span>
                           <span className="text-sm text-muted-foreground">Status: {errorData.status}</span>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          {errorData.body instanceof Error ? errorData.body.message : JSON.stringify(errorData.body)}
-                        </p>
+                        <p className="text-sm text-muted-foreground">{JSON.stringify(errorData.body)}</p>
                       </label>
                     </div>
                   ))}
@@ -164,7 +158,9 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
                   <Button
                     variant="default"
                     onClick={() => {
-                      if (!selectedError) {return;}
+                      if (!selectedError) {
+                        return;
+                      }
                       simulateError(selectedError);
                     }}
                   >

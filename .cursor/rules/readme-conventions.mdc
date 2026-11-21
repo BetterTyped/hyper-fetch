@@ -9,59 +9,81 @@ alwaysApply: false
 > **`@hyper-fetch/testing` is internal.** Never mention, recommend or list it here. It is not published and not part of
 > the public API. Mocking for users is `request.setMock()`.
 
+## Package README Layout (strict)
+
+Every package README follows the root README: a banner, a links row, badges, then the sections. The banner carries the
+name, headline and features, so there is no `#` title and no bold subtitle under it.
+
+1. **Banner** - `<p align="center">` with the package banner, linked to its docs. Use the absolute URL
+   `https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/.github/assets/packages/<id>.png`, never a relative
+   path: npm renders the README outside the repo. The alt text names the package and repeats the headline
+2. **Links row** - `<b>Quick Start</b> · Documentation · API Reference · GitHub · Discord`, centered
+3. **Badges** - centered, see Badge Rules
+4. `## 📖 About` - 2-3 sentences: what it does, who it's for, what problem it solves
+5. `## 🎯 Key Capabilities` - persuasive feature list (see rules below)
+6. `## 🚀 Quick Start` - install command + a working snippet
+7. Optional reference sections a tool needs, such as `## 📋 Commands` or `## ⚙️ Configuration` (CLI only so far)
+8. `## 📚 Documentation` - bullets of `**[Page](url)** - what it covers`, ending with the API Reference
+9. `## 💡 Examples` - rich, package-specific code examples
+10. `## 🧩 Hyper Fetch Ecosystem` - the shared logo table linking every package folder
+11. `## 💖 Sponsors` - the sponsorkit image
+12. `## License` - Apache-2.0 (GPL-3.0-or-later for HyperFlow)
+
+Docs links use the live routes: guides under `/docs/guides/...` with the number prefixes dropped
+(`/docs/guides/core/basics/setup`), the API reference under `/docs/api/...` (`/docs/api/core/Classes/Client`). The site
+answers 200 for unknown routes, so check the page title, not the status, when verifying a link.
+
+## Banners
+
+Each package banner lives in `.github/assets/packages/<id>.png` and is rendered by `scripts/readme-banners/render.mjs`
+from the content in `scripts/readme-banners/packages.mjs` (headline, accent color, logo, chips, code or screenshot).
+
+- Never edit a banner by hand. Change `packages.mjs` and run `node scripts/readme-banners/render.mjs <id>`
+- Re-render a banner when its package's headline, features or snippet API changes, and keep the README alt text in sync
+- The code in a banner must compile against the package. Keep lines under 60 characters and chips to one row; the
+  script refuses to write a banner whose text overflows
+- A new package gets a `packages.mjs` entry, a banner and a cell in the Ecosystem table when it is user-facing
+
 ## Badge Rules
 
-- Always use `img.shields.io` for badges — NEVER `custom-icon-badges.demolab.com` (unreliable, frequently down)
-- Every package README must include: GitHub stars, npm version, npm downloads, bundle size, license, TypeScript badge
-- Badges go in a centered `<p align="center">` block right after the title
-- Adapter packages should add a technology badge (Firebase, GraphQL, Axios, OpenAPI, etc.)
+- Use `img.shields.io` for static and npm version badges. NEVER `custom-icon-badges.demolab.com` (unreliable)
+- Downloads and bundle size use the cached badges on `api.maciejpyrc.com/portfolio/npm/` (`downloads.svg?packages=` and
+  `size.svg?package=&external=`), never shields bundlephobia or bundlejs. List core and each SDK in `external`
+- Order: GitHub stars (`color=333`), npm version (`color=e76f51`), downloads (`color=fbc646`), bundle size,
+  `TypeScript-strict-3178C6`, the technology badge, license (`color=blue`)
+- Adapter and integration packages add a technology badge with the supported range (React 18 | 19, tRPC v11, Hono 4+)
 
-## Title & Visual Identity
+## Visual Identity
 
-- Titles use emoji + human-friendly name: `# ⚡ Hyper Fetch`, NOT `# @hyper-fetch/core`
-- Each package has its own emoji (keep them consistent):
-  - ⚡ core, ⚛️ react, 🛰️ sockets, 🪄 cli, 🏛️ axios, 🔥 firebase/firebase-admin, 🎡 graphql, 🛸 orpc, 🔧 devtools plugin, ⚛️ hyper-flow, 🧹 eslint, 🐂 oxlint, 🧪 testing, 🏯 hono, 🦊 elysia
-- Subtitle goes in a centered `<p align="center"><b>...</b></p>` right after the title
-- READMEs must look visually appealing — emojis in section headers, bold key terms in capabilities
-
-## Section Order (strict)
-
-Every package README follows this exact section order:
-
-1. `# {emoji} {Name}` — Title with emoji
-2. `<p align="center"><b>...</b></p>` — One-line value proposition
-3. Badges block (centered)
-4. `## 📖 About` — 2-3 sentences: what it does, who it's for, what problem it solves
-5. `## 🎯 Key Capabilities` — Persuasive feature list (see rules below)
-6. `## 🚀 Quick Start` — Install command + 3-8 lines of working code
-7. `## 📚 Documentation` — Links to docs, guides, API reference
-8. `## 💡 Examples` — Rich, package-specific code examples (ALWAYS last content section)
-9. `## License` — MIT link
+- Each package keeps its emoji for the docs and social posts:
+  - ⚡ core, ⚛️ react, 🛰️ sockets, 🪄 cli, 🏛️ axios, 🔥 firebase/firebase-admin, 🎡 graphql, 🛸 orpc, 🔧 devtools plugin, ⚛️ hyper-flow, 🧹 eslint, 🐂 oxlint, 🏯 hono, 🦊 elysia
+- Section headers carry emojis and capabilities use bold key terms
 
 ## Key Capabilities Rules (CRITICAL)
 
 Key capabilities are the MOST IMPORTANT part of the README. They sell the package.
 
 ### Tone & Style
-- Write from the USER's perspective — what problems do THEY stop having?
-- Short, punchy, benefit-first — not technical descriptions
-- Use emoji + **bold label** + dash + benefit: `- 🔮 **Zero guesswork** — Full autocompletion for every request, response, param, and error`
+- Write from the USER's perspective. What problems do THEY stop having?
+- Short, punchy, benefit-first. Not technical descriptions
+- Use emoji + **bold label** + dash + benefit: `- 🔮 **Zero guesswork** - Full autocompletion for every request, response, param, and error`
 - Each bullet should make someone think "I need this"
-- NO generic filler like "Simple setup", "Easy to use", "Flexible" — these say nothing
+- NO generic filler like "Simple setup", "Easy to use", "Flexible". These say nothing
 
 ### Content Rules
 - List 4-10 capabilities per package (more for core, fewer for small adapters)
 - Lead with the most impressive/unique capability
 - Focus on pain points solved: broken types? manual clients? debugging hell? offline crashes?
 - Include the specific HyperFetch feature name when relevant (e.g. `useFetch`, `createRequest`)
-- Keep each bullet to ONE line — if it wraps, it's too long
+- Keep each bullet to ONE line. If it wraps, it is too long
 
 ### What NOT to write
-- ❌ "Simple setup" — everyone claims this
-- ❌ "Easy to use" — means nothing
-- ❌ "Flexible" — too vague
-- ❌ "Built-in adapter" — not a user benefit
-- ❌ Feature lists copied from other packages — each README must have UNIQUE capabilities
+- ❌ "Simple setup" - everyone claims this
+- ❌ "Easy to use" - means nothing
+- ❌ "Flexible" - too vague
+- ❌ "Built-in adapter" - not a user benefit
+- ❌ Feature lists copied from other packages - each README must have UNIQUE capabilities
+- ❌ Claims the source does not back. Verify every API name, option and behavior in `packages/*/src`
 
 ## About Section Rules
 
@@ -80,11 +102,11 @@ Key capabilities are the MOST IMPORTANT part of the README. They sell the packag
 
 ## Examples Rules
 
-- Examples section is ALWAYS the last content section (before License)
+- Examples come right after Documentation, before the Ecosystem table
 - Each example must be a real, practical use case — not toy code
 - Show things users actually do: auth, forms, pagination, error handling
 - Use descriptive `### Sub-heading` for each example
-- At least 2 examples per package (except testing/eslint which can have 1)
+- At least 2 examples per package
 
 ## Root README Special Rules
 

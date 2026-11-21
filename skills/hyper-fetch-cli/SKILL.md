@@ -221,7 +221,8 @@ export function Posts({ userId }: { userId: string }) {
   `createSdk`: `$configure` keys are type-checked against `SdkSchema` (typos fail to compile), the generated `options`
   parameter is typed loosely and accepts any key.
 - Every property access (`sdk.users.$get`) creates a new request. Store it in a variable if you need the same instance
-  (for example to attach a mock); see `hyper-fetch-testing` for mocking SDK endpoints with `$configure`.
+  (for example to attach a mock); see the [testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing) for
+  mocking SDK endpoints with `$configure`.
 - Auth, base URL per environment, interceptors and plugins belong on the client, never in the generated file.
 
 ## Golden rules
@@ -295,7 +296,6 @@ it("matches the API contract", () => {
 
 - `hyper-fetch-core`: `createSdk`, `$configure`, requests and the client.
 - `hyper-fetch-react`: `useFetch`, `useSubmit` with SDK requests.
-- `hyper-fetch-testing`: mocking SDK endpoints and type-level tests.
 
 Docs: https://hyperfetch.bettertyped.com/docs/cli/overview, https://hyperfetch.bettertyped.com/docs/cli/commands/init,
 https://hyperfetch.bettertyped.com/docs/cli/commands/generate, https://hyperfetch.bettertyped.com/docs/core/sdk

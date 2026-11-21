@@ -1,0 +1,29 @@
+{
+  "name": "@hyper-fetch-examples/react-firebase",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "A Firestore guestbook where every read and write is a HyperFetch request, with query constraints, typed documents and errors in the response.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/firebase": "latest",
+    "@hyper-fetch/react": "latest",
+    "@picocss/pico": "^2.1.1",
+    "firebase": "^13.4.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8"
+  }
+}

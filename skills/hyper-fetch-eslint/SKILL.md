@@ -3,8 +3,8 @@ name: hyper-fetch-eslint
 description:
   Setup and rules of eslint-plugin-hyper-fetch, the ESLint plugin that guards HyperFetch type safety by validating the
   generics passed to createClient and client.createRequest. Covers installation with the TypeScript parser
-  (typescript-eslint), flat config (eslint.config.js / eslint.config.mjs) and legacy .eslintrc with
-  plugin:hyper-fetch/recommended, and the two rules hyper-fetch/request-generic-types and
+  (typescript-eslint), flat config (eslint.config.js / eslint.config.mjs) with configs.recommended and legacy .eslintrc
+  with plugin:hyper-fetch/recommended-legacy, and the two rules hyper-fetch/request-generic-types and
   hyper-fetch/client-generic-types - what each rejects (typos like rsponse or eror, unknown keys, empty {} or non-object
   generics), what they accept, messages, fixes and limits. Use when adding linting to a HyperFetch project, configuring
   eslint-plugin-hyper-fetch, fixing "Unexpected generic type(s) found", "Generic type provided to createRequest is
@@ -27,12 +27,14 @@ npm install -D eslint eslint-plugin-hyper-fetch typescript-eslint
 ```
 
 The rules inspect TypeScript generics, so files must be parsed by the typescript-eslint parser. The plugin needs ESLint
-8 or newer. No type information (`parserOptions.project`) is required; the rules are syntactic and fast.
+8.57 or newer and works on ESLint 10. No type information (`parserOptions.project`) is required; the rules are syntactic
+and fast.
 
 ## Flat config (`eslint.config.mjs`)
 
-The package exports `rules` and `configs.recommended`. The recommended preset is in the legacy shape (`plugins` as a
-string array), so in flat config register the plugin object yourself and reuse the preset's `rules`:
+The default export is the plugin (`meta`, `rules`, `configs`). `configs.recommended` is a flat config object: it
+registers the plugin under `hyper-fetch` and sets both rules to `"error"`. It has no `files` and no parser, so add a
+block that parses TypeScript files:
 
 ```js
 // eslint.config.mjs
@@ -43,32 +45,35 @@ export default [
   {
     files: ["**/*.{ts,tsx,mts,cts}"],
     languageOptions: { parser: tseslint.parser },
-    plugins: { "hyper-fetch": hyperFetch },
-    rules: {
-      ...hyperFetch.configs.recommended.rules,
-    },
   },
+  hyperFetch.configs.recommended,
 ];
 ```
 
-Or list the rules explicitly:
+Or register the plugin and list the rules explicitly:
 
 ```js
-rules: {
-  "hyper-fetch/request-generic-types": "error",
-  "hyper-fetch/client-generic-types": "error",
+{
+  plugins: { "hyper-fetch": hyperFetch },
+  rules: {
+    "hyper-fetch/request-generic-types": "error",
+    "hyper-fetch/client-generic-types": "error",
+  },
 },
 ```
 
-Do not spread `hyperFetch.configs.recommended` itself into the flat config array; its `plugins: ["hyper-fetch"]` is
-invalid there.
+Both can be combined: the preset and the default export are the same object, so registering `hyper-fetch` again does not
+throw `Cannot redefine plugin`. The named exports `rules`, `configs` and `meta` are the same objects as well.
 
 ## Legacy config (`.eslintrc.*`)
+
+ESLint 8 only. `plugin:hyper-fetch/recommended` is the flat preset and cannot be extended from `.eslintrc`; use the
+legacy one:
 
 ```json
 {
   "parser": "@typescript-eslint/parser",
-  "extends": ["plugin:hyper-fetch/recommended"]
+  "extends": ["plugin:hyper-fetch/recommended-legacy"]
 }
 ```
 
@@ -88,10 +93,9 @@ const getUser = client.createRequest<{ response: { id: number }; rsponse: { id: 
 ```
 
 Expected: `Unexpected generic type(s) found: eror` (client-generic-types) and
-`Unexpected generic type(s) found: rsponse` (request-generic-types). The rules read the call's type arguments through
-the `typeParameters` AST property, which `@typescript-eslint/parser` v7 provides as an alias of `typeArguments`. If the
-check file reports nothing with your parser version, the rules are not seeing generics; switch to
-`oxlint-plugin-hyper-fetch` (it reads `typeArguments`) or pin a parser that still exposes the alias.
+`Unexpected generic type(s) found: rsponse` (request-generic-types). The rules read the call's generics from
+`typeArguments` (typescript-eslint 6 and newer) and fall back to the older `typeParameters`. If the check file reports
+nothing, the `.ts` files are not parsed by typescript-eslint or not matched by the block that enables the rules.
 
 ## Rules
 
@@ -159,7 +163,8 @@ Fix: use `{ error: YourErrorType }`. The adapter is not a generic key; set it wi
   constraint, but the same typo problem applies inside it: prefer inline generics, or keep the referenced type small and
   covered by a type test.
 - SDK schemas built with `RequestModel<{ ... }>` and `createSdk`. Cover those with type tests
-  (`expectTypeOf<ExtractResponseType<typeof sdk.users.$get>>()`, see `hyper-fetch-testing`).
+  (`expectTypeOf<ExtractResponseType<typeof sdk.users.$get>>()`, see the
+  [testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing)).
 - Computed access (`client["createRequest"]<...>()`) and a bare `createRequest<...>()` function call.
 
 ## Pitfalls
@@ -175,9 +180,8 @@ Fix: use `{ error: YourErrorType }`. The adapter is not a generic key; set it wi
 
 ## Related
 
-- `hyper-fetch-oxlint`: the same two rules for Oxlint (faster, reads `typeArguments`).
+- `hyper-fetch-oxlint`: the same two rules for Oxlint (faster).
 - `hyper-fetch-core`: request generics and `createClient`.
-- `hyper-fetch-testing`: type-level tests for requests and SDKs.
 
 Docs: https://hyperfetch.bettertyped.com/docs/integrations/plugin-eslint,
 https://hyperfetch.bettertyped.com/docs/integrations/plugin-eslint/configuration,

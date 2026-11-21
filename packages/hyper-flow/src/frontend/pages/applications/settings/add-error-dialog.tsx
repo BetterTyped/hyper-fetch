@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parseResponse } from "@hyper-fetch/core";
 import { Plus, Pencil } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -24,7 +24,8 @@ import type { SimulatedError } from "@/store/applications/apps.store";
 
 const errorFormSchema = z.object({
   name: z.string().min(1, "Error name is required"),
-  status: z.union([z.string(), z.number()]),
+  // An emptied field holds "", which only the string option accepts, so its message is the one shown
+  status: z.union([z.number(), z.string().trim().min(1, "Status is required")]),
   body: z.string().min(1, "Error body is required"),
 });
 
@@ -36,13 +37,20 @@ interface AddErrorDialogProps {
   isEdit?: boolean;
 }
 
-const stringifyBody = (body: any) => {
+const stringifyBody = (body: unknown) => {
   try {
     const data = typeof body === "string" ? JSON.parse(body) : body;
     return JSON.stringify(data, null, 2);
   } catch {
-    return body;
+    return body as string;
   }
+};
+
+const getFormValues = (error?: SimulatedError): ErrorFormValues => {
+  if (!error) {
+    return { name: "", status: 400, body: "{}" };
+  }
+  return { name: error.name, status: error.status, body: stringifyBody(error.body) };
 };
 
 export const AddErrorDialog = ({ onAddError, initialError, isEdit }: AddErrorDialogProps) => {
@@ -51,23 +59,18 @@ export const AddErrorDialog = ({ onAddError, initialError, isEdit }: AddErrorDia
 
   const form = useForm<ErrorFormValues>({
     resolver: zodResolver(errorFormSchema),
-    defaultValues: {
-      name: "",
-      status: "400",
-      body: "{}",
-    },
+    defaultValues: getFormValues(initialError),
   });
 
-  useEffect(() => {
-    if (initialError) {
-      form.reset({
-        name: initialError.name,
-        status: initialError.status,
-        body: stringifyBody(initialError.body),
-      });
-      setIsNumericStatus(typeof initialError.status === "number");
+  // Every opening starts from the saved error, so a canceled draft never shows up again
+  const handleOpenChange = (isOpen: boolean) => {
+    if (isOpen) {
+      const values = getFormValues(initialError);
+      form.reset(values);
+      setIsNumericStatus(typeof values.status === "number");
     }
-  }, [initialError, form]);
+    setOpen(isOpen);
+  };
 
   const onSubmit = (values: ErrorFormValues) => {
     onAddError({
@@ -77,11 +80,10 @@ export const AddErrorDialog = ({ onAddError, initialError, isEdit }: AddErrorDia
       body: parseResponse(values.body),
     });
     setOpen(false);
-    form.reset();
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {isEdit ? (
           <Button size="sm" variant="secondary">
@@ -160,8 +162,8 @@ export const AddErrorDialog = ({ onAddError, initialError, isEdit }: AddErrorDia
                       {...(isNumericStatus ? { min: "400", max: "599" } : {})}
                       {...field}
                       onChange={(e) => {
-                        const value = isNumericStatus ? parseInt(e.target.value, 10) : e.target.value;
-                        field.onChange(value);
+                        const { value } = e.target;
+                        field.onChange(isNumericStatus && value !== "" ? parseInt(value, 10) : value);
                       }}
                     />
                   </FormControl>

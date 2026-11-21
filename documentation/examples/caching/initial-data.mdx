@@ -1,0 +1,73 @@
+---
+title: Initial data
+sidebar_label: Initial data
+sidebar_position: 3
+description:
+  Show a product's details at once with initialResponse taken from the list, then replace them with the server response.
+sidebar_custom_props:
+  path: react/initial-data
+  level: beginner
+  tags: [useFetch, cache]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/initial-data/src/api.ts";
+import app from "!!raw-loader!@examples/react/initial-data/src/App.tsx";
+
+A product list with a details panel. The details request is slow on purpose, but the panel does not wait for it: it
+shows the product from the list right away and swaps in the server response when it arrives. A product that is not in
+the list has nothing to start from, so it shows a spinner instead.
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
+:::tip What it shows
+
+1. **`initialResponse`**: data a `useFetch` hook shows while the cache is still empty.
+2. **The request still runs**: the response replaces the initial data and goes into the cache.
+3. **Reusing data you already have**: the list response is used as the starting point for the details.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` selects the same fields for the list and the details, so a list item has the full `Product` shape. The
+   details request adds `delay: 1500` to make the wait visible.
+2. `App` finds the selected product in the list data and passes it to `ProductDetails` as `placeholder`.
+3. `ProductDetails` hands it to `useFetch` as the initial response:
+
+   ```tsx
+   const { data, loading } = useFetch(getProductRequest.setParams({ productId }), {
+     // highlight-next-line
+     initialResponse: placeholder ? { data: placeholder } : null,
+   });
+   ```
+
+   `data` is available on the first render, and `loading` stays `true` until the server answers.
+
+4. The initial response is not written to the cache. It is used only when the cache has no entry for the key; once the
+   product was fetched, the cached response is shown instead.
+5. `key={selected}` remounts the panel for every product, so each one starts from its own initial data.
+
+:::note When to use it
+
+- A details view opened from a list that already has the needed fields.
+- Data rendered on the server or bundled with the app, shown before the client request finishes.
+- Not for data that is only partly known: `initialResponse.data` must match the response type.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Cache](/docs/core/cache)
+
+:::secondary Summary
+
+`initialResponse` gives `useFetch` something to show before the first response. The request still runs, and its response
+replaces the initial data and fills the cache.
+
+:::

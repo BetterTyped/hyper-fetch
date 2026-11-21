@@ -91,6 +91,10 @@ export const client = new Client({
 });
 ```
 
+With `revalidate: false`, `useFetch` waits for the lazy storage before it decides to fetch. Fresh persisted data is
+shown without a request, and only missing or stale data is fetched. With the default `revalidate: true` the request
+starts right away, and the persisted data is shown as soon as it is read.
+
 Clearing the cache with `client.cache.clear()` or `client.clear()` also removes every element from the lazy storage,
 using its `keys` and `delete` methods. Call it on logout, so the persisted data of one user is never loaded for the
 next one.
@@ -100,8 +104,13 @@ next one.
 ## Queue Persistence
 
 Queue persistence ensures that requests are not lost if the application closes or loses internet connection. When the
-application restarts, the dispatcher will attempt to resend any queued requests. To enable it, you need to provide a
-synchronous storage implementation to the `Dispatcher`.
+application restarts, the dispatcher will attempt to resend any queued requests. To enable it, provide a synchronous
+`storage` (localStorage, MMKV) or an asynchronous `lazyStorage` (IndexedDB, AsyncStorage) to the `Dispatcher`.
+
+The restored queue is sent right after the client is created, once the current task ends. The adapter, interceptors
+and plugins you chain after `new Client()` apply to the restored requests too. When the app starts offline, requests
+with the `offline` option wait for the connection. In the browser, a request canceled because the page is closing or
+reloading stays in the queue, so the next page load sends it again.
 
 When requests are stored in a JSON-serializing storage (e.g. MMKV, AsyncStorage), they are automatically reconstructed
 back into proper `Request` class instances when read from the queue. This means you can use any JSON-based storage
@@ -192,6 +201,38 @@ export const client = new Client({
     }),
 });
 ```
+
+### Async Queue Storage
+
+Asynchronous storages like IndexedDB go to the `lazyStorage` option. The queue in memory stays the source of truth:
+every change is written to the lazy storage as JSON, in the order it happened. On start, the dispatcher reads the
+persisted queues, puts their requests in front of the ones added in the meantime, and sends them. A failing lazy
+storage is logged and never breaks the requests.
+
+```typescript
+import { get, set, del, keys } from "idb-keyval";
+import { Client, Dispatcher, DispatcherAsyncStorageType } from "@hyper-fetch/core";
+
+const queueStorage: DispatcherAsyncStorageType = {
+  set: (key, data) => set(`queue:${key}`, data),
+  get: (key) => get(`queue:${key}`),
+  keys: async () =>
+    (await keys())
+      .map(String)
+      .filter((key) => key.startsWith("queue:"))
+      .map((key) => key.slice("queue:".length)),
+  delete: (key) => del(`queue:${key}`),
+};
+
+export const client = new Client({
+  url: "https://api.my-app.com",
+  // highlight-next-line
+  submitDispatcher: () => new Dispatcher({ lazyStorage: queueStorage }),
+});
+```
+
+Requests are saved with `request.toJSON()`, so their functions (mappers, a function `retryTime`, `retryOnError`) are
+not kept. Use a separate store or key prefix for each dispatcher.
 
 ---
 

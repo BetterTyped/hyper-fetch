@@ -16,6 +16,13 @@ export default defineConfig({
     rollupOptions: {
       // ESLint and typescript-eslint come from the user's install. Bundling them also swaps Node built-ins for browser stubs.
       external: [...getRollupExternalsFromPackageJson(__dirname), /^eslint(\/|$)/, /^@typescript-eslint\//],
+      output: {
+        exports: "named",
+        // `require()` and `import plugin from` must both return the object `configs.recommended` registers, or flat
+        // config throws "Cannot redefine plugin" when a user also registers the plugin. The `exports.x =` lines above
+        // keep the named exports visible to Node's ESM import of this CommonJS file.
+        footer: "module.exports = Object.assign(exports.default, exports);",
+      },
     },
     sourcemap: true,
   },

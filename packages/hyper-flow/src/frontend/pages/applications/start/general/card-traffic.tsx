@@ -30,7 +30,7 @@ export const CardTraffic = ({ className }: { className?: string }) => {
       <CardContent>
         <div className="space-y-6">
           {trafficByEndpoint.map((item) => (
-            <div key={item.endpoint} className="space-y-2">
+            <div key={`${item.method}-${item.endpoint}`} className="space-y-2">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <Method method={item.method} />

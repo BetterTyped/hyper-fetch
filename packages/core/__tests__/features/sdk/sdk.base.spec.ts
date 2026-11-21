@@ -124,4 +124,43 @@ describe("SDK [ Base ]", () => {
     expect(request.method).toBe("POST");
     expect(request.endpoint).toBe("/acceptInvitation");
   });
+
+  describe("when keys are mapped to path segments", () => {
+    it("should use the mapped segment over the kebab-case conversion", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client, { pathSegments: { acceptInvitation: "acceptInvitation" } });
+
+      expect(sdk.acceptInvitation.$post.endpoint).toBe("/acceptInvitation");
+    });
+
+    it("should convert the keys which are not mapped", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client, { pathSegments: { other: "other-segment" } });
+
+      expect(sdk.acceptInvitation.$post.endpoint).toBe("/accept-invitation");
+    });
+
+    it("should map nested keys and keep the params", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client, { pathSegments: { posts: "blog_posts" } });
+
+      const request = sdk.users.$userId.posts.$postId.$delete.setParams({ userId: "1", postId: "2" });
+
+      expect(request.endpoint).toBe("/users/1/blog_posts/2");
+    });
+
+    it("should not read the segments from the object prototype", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client, { pathSegments: {} });
+      // A key named like an Object.prototype member - its segment is not read from the prototype of the map
+      const prototypeKey = (sdk as unknown as Record<string, unknown>)["constructor"] as { $get: { endpoint: string } };
+
+      expect(prototypeKey.$get.endpoint).toBe("/constructor");
+    });
+
+    it("should keep the mapped segments in the configured sdk", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client, {
+        pathSegments: { acceptInvitation: "acceptInvitation" },
+      }).$configure({ "*": { retry: 2 } });
+
+      expect(sdk.acceptInvitation.$post.endpoint).toBe("/acceptInvitation");
+      expect(sdk.acceptInvitation.$post.retry).toBe(2);
+    });
+  });
 });

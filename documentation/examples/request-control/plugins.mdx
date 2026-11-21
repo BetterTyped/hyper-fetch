@@ -1,0 +1,81 @@
+---
+title: Plugins
+sidebar_label: Plugins
+sidebar_position: 11
+description:
+  Write a logging plugin and a metrics plugin that see every request of the client, and show their output live.
+sidebar_custom_props:
+  path: react/plugins
+  level: intermediate
+  tags: [plugins, send, errors]
+---
+
+import { Example } from "@site/src/components";
+import plugins from "!!raw-loader!@examples/react/plugins/src/plugins.ts";
+import api from "!!raw-loader!@examples/react/plugins/src/api.ts";
+import app from "!!raw-loader!@examples/react/plugins/src/App.tsx";
+
+Two small plugins on one client. The logger writes a line when a request starts and when it ends. The metrics plugin
+counts calls, errors and durations per endpoint, like an APM agent. Send a few requests and watch both fill in.
+
+<Example files={{ "src/plugins.ts": plugins, "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`new Plugin({ name })`** with chained hooks, wrapped in a function like `loggerPlugin()`.
+2. **`onRequestStart` and `onRequestFinished`** run for every request of the client, successful or not.
+3. **`requestTimestamp` and `responseTimestamp`** on the response give the duration of each call.
+4. **`addPlugin` and `removePlugin`** turn a plugin on and off at runtime.
+
+:::
+
+---
+
+## How it works
+
+1. `plugins.ts` defines both plugins as functions that return a `Plugin`. Each hook method registers one callback and
+   returns the plugin, so the hooks chain:
+
+   ```ts
+   new Plugin({ name: "logger" })
+     .onRequestStart(({ request }) => writeLog(`→ ${request.method} ${request.endpoint}`, "start"))
+     // highlight-next-line
+     .onRequestFinished(({ request, response }) => { ... });
+   ```
+
+2. `onRequestFinished` gets the request and the response, whatever the outcome. The duration is
+   `response.responseTimestamp - response.requestTimestamp`.
+3. The metrics plugin groups by `request.requestOptions.endpoint`, the template such as `/posts/:postId`, so every id
+   lands in one row. `request.endpoint` would be `/posts/26`.
+4. `api.ts` adds both plugins with `client.addPlugin()`. The requests themselves have no logging or metrics code.
+5. The **Logger plugin** switch calls `client.removePlugin(logger)` and `client.addPlugin(logger)`. The metrics keep
+   counting while the logger is off.
+6. The plugins write to two tiny stores, and `App.tsx` reads them with `useSyncExternalStore`. A real plugin would send
+   the same data to a logging or analytics service instead.
+
+Plugins only observe. A plugin that throws does not break the request. Calls that were deduplicated never reach the
+adapter, so they are not counted: GET requests are deduplicated by default, which is why two quick **500 error** clicks
+count once.
+
+:::note When to use it
+
+- Logging, tracing and analytics that must cover every request without touching each one.
+- Performance budgets: alert when an endpoint gets slower or fails more often.
+- Debug tools that you add in development and leave out in production.
+
+:::
+
+---
+
+## Related
+
+- [Plugins](/docs/core/plugin)
+- [Client](/docs/core/client)
+- [Devtools example](/examples/integrations/devtools)
+
+:::secondary Summary
+
+A plugin is a named object with lifecycle hooks. Added to the client with `addPlugin`, it sees the start and the end of
+every request, which is enough for logs, durations and error rates.
+
+:::

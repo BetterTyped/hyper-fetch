@@ -2,12 +2,29 @@ import { createWebsocketMockingServer, waitForConnection } from "@hyper-fetch/te
 import { waitFor } from "@testing-library/dom";
 
 import { WebsocketAdapter } from "../../../src/adapter-websockets/websocket-adapter";
-import { createSocket } from "../../utils/socket.utils";
+import { createSocket as createTestSocket } from "../../utils/socket.utils";
 
 type ConstructedWebsocket = { url: string; protocols: string | string[] | undefined };
 
 describe("Websocket Adapter [ Connect ]", () => {
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
+  beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
+  });
+  afterEach(() => {
+    random.mockRestore();
+  });
+
   const { url, getServer, startServer, stopServer } = createWebsocketMockingServer();
+
+  // Sockets are closed after every test - a socket left open would reconnect to the server of the next test
+  const sockets: ReturnType<typeof createTestSocket>[] = [];
+  const createSocket: typeof createTestSocket = (config) => {
+    const socket = createTestSocket(config);
+    sockets.push(socket);
+    return socket;
+  };
   let constructed: ConstructedWebsocket[] = [];
 
   // The mocking server swaps the global WebSocket every time it (re)starts,
@@ -30,7 +47,9 @@ describe("Websocket Adapter [ Connect ]", () => {
     installWebSocketSpy();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await Promise.all(sockets.map((socket) => socket.destroy()));
+    sockets.length = 0;
     stopServer();
   });
 

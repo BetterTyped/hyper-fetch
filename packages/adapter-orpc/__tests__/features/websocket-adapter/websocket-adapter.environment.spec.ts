@@ -23,6 +23,8 @@ describe("Orpc Websocket Adapter [ Environment ]", () => {
 
   beforeEach(async () => {
     vi.useFakeTimers();
+    // The reconnect delay is jittered - the lowest one is exactly the reconnect time
+    vi.spyOn(Math, "random").mockReturnValue(0);
     Controlled = installControlledWebSocket();
     setup = createWebsocketSocket({ adapterOptions: { autoConnect: false } });
     await flushPromises();
@@ -32,6 +34,7 @@ describe("Orpc Websocket Adapter [ Environment ]", () => {
     await setup.socket.disconnect();
     vi.useRealTimers();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   describe("when the server answers slowly", () => {
@@ -51,6 +54,9 @@ describe("Orpc Websocket Adapter [ Environment ]", () => {
       const created = Controlled.instances.length;
 
       await advance(100);
+      expect(Controlled.instances).toHaveLength(created);
+      // The connection timeout is followed by the reconnect delay
+      await advance(10_000);
       expect(Controlled.instances).toHaveLength(created + 1);
       Controlled.last.serverOpen();
       await flushPromises();

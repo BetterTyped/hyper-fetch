@@ -30,7 +30,20 @@ export type FetchAdapterOptionsType = Omit<RequestInit, "method" | "headers" | "
    * or real-time text generation from LLMs).
    */
   streaming?: boolean;
+  /**
+   * How the body of a successful response is read. The error body is always parsed like the default.
+   * - not set: decoded as text and parsed as JSON when it is valid JSON
+   * - `"json"`: the same as not set
+   * - `"text"`: decoded as text, never parsed
+   * - `"blob"`: a `Blob` with the content type of the response - for images, files and other binary data
+   * - `"arrayBuffer"`: the raw bytes as an `ArrayBuffer`
+   *
+   * Ignored when `streaming` is true.
+   */
+  responseType?: FetchResponseType;
 };
+
+export type FetchResponseType = "json" | "text" | "blob" | "arrayBuffer";
 
 export type HttpAdapterExtraType = {
   headers: Record<string, string>;

@@ -78,3 +78,26 @@ describe("SDK [ Request fields ]", () => {
     });
   });
 });
+
+describe("SDK [ Keys taken by the request properties ]", () => {
+  type Schema = {
+    messages: {
+      $get: RequestModel<{ response: { id: string }[]; endpoint: "/messages" }>;
+      // Procedure style key - the key is the method
+      list: RequestModel<{ response: { id: string }[]; endpoint: "/messages" }>;
+    };
+  };
+
+  it("should give the request property for a nested key with its name, so such a key can't be a path", () => {
+    const client = createClient<{ error: Error }>({ url: "http://localhost:3000" });
+    const sdk = createSdk<TestClient, Schema>(client);
+    const messages: unknown = sdk.messages;
+
+    const { send } = messages as { send: { endpoint?: string } };
+
+    // The `send` method of the request, not a request for "/messages/send"
+    expect(send).toBeInstanceOf(Function);
+    expect(send.endpoint).toBeUndefined();
+    expect(sdk.messages.list.method).toBe("LIST");
+  });
+});

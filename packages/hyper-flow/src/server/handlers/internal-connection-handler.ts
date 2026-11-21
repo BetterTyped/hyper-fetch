@@ -12,10 +12,8 @@ type ConnectionState = {
 };
 
 export class InternalConnectionHandler {
-  connectionState: ConnectionState = {
-    connections: {},
-    appConnection: null,
-  };
+  connectionState: ConnectionState;
+
   constructor(connectionState: ConnectionState) {
     this.connectionState = connectionState;
   }
@@ -46,7 +44,15 @@ export class InternalConnectionHandler {
 
   sendPluginHandshakeToApp = (connectionName: string, message: PluginInternalMessage) => {
     if (!this.connectionState.connections[connectionName]) {
-      throw new Error(`No open connection exists for the connectionName ${connectionName}`);
+      serverLogger.error("Failed to forward plugin handshake", {
+        context: "ConnectionHandler",
+        details: {
+          reason: "No open connection exists for this connectionName",
+          connectionName,
+          activeConnections: Object.keys(this.connectionState.connections),
+        },
+      });
+      return;
     }
 
     if (!this.connectionState.appConnection) {
@@ -64,29 +70,11 @@ export class InternalConnectionHandler {
       return;
     }
 
-    if (!message) {
-      /**
-       * This error can happen when the devtools plugin connects to the fake server
-       * We found this case being triggered with msw setup, which caused websocket to open
-       * We early return here to avoid the error on the startup of the devtools app
-       */
-      serverLogger.error("Failed to send connected apps info to devtools frontend", {
-        context: "ConnectionHandler",
-        details: {
-          reason: "Missing frontend connection or message data",
-          connectionName,
-          hasFrontendConnection: !!this.connectionState.appConnection,
-          hasMessage: !!message,
-          activeConnections: Object.keys(this.connectionState.connections),
-        },
-      });
-      return;
-    }
-    this.connectionState.appConnection?.send(
-      JSON.stringify(({
-	topic: SocketTopics.APP_MAIN_LISTENER,
-	data: message.data
-})),
+    this.connectionState.appConnection.send(
+      JSON.stringify({
+        topic: SocketTopics.APP_MAIN_LISTENER,
+        data: message.data,
+      }),
     );
     this.connectionState.connections[connectionName].appStatus = AppConnectionStatus.IN_PROGRESS;
     this.connectionState.connections[connectionName].clientMetaData = message;

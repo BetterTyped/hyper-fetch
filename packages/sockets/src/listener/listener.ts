@@ -3,7 +3,11 @@ import type { DeliveryStrategyContextType, ListenerDeliveryType, ResolveDelivere
 import { assertDelivery, createDeliveryController } from "delivery";
 import type { ListenMethodOptionsType, ListenType, ListenerConfigurationType, ListenerOptionsType } from "listener";
 import type { SocketInstance } from "socket";
-import type { ExtractAdapterListenerOptionsType, ExtractSocketAdapterType } from "types";
+import type {
+  ExtractAdapterListenerOptionsType,
+  ExtractAdapterListenerQueryParamsType,
+  ExtractSocketAdapterType,
+} from "types";
 
 import { mapTopicParams } from "../utils/topic.utils";
 
@@ -32,6 +36,8 @@ export class Listener<
   /** Subscription payload set with `setPayload()` or passed to `listen()` */
   payload?: Payload = undefined;
   options?: ExtractAdapterListenerOptionsType<ExtractSocketAdapterType<Socket>> = undefined;
+  /** What the listener asks for (filters, limits...), for adapters that support it. Always data, never a callback. */
+  queryParams?: ExtractAdapterListenerQueryParamsType<ExtractSocketAdapterType<Socket>> = undefined;
   /**
    * How messages reach `listen` callbacks. Typed with `any` input on purpose - it keeps `Response`
    * covariant so partial `ListenerInstance<{ response: ... }>` constraints keep matching wider listeners.
@@ -46,14 +52,21 @@ export class Listener<
     readonly socket: Socket,
     listenerOptions: ListenerOptionsType<Topic, ExtractSocketAdapterType<Socket>, Response>,
   ) {
-    this.listenerOptions = listenerOptions;
-    const { topic, options, delivery, params, payload } = listenerOptions as typeof listenerOptions & {
+    const { topic, options, delivery, params, payload, queryParams } = listenerOptions as typeof listenerOptions & {
       params?: ParamsType;
       payload?: Payload;
     };
     this.topic = topic;
     this.topicTemplate = topic;
     this.options = options;
+    // A callback is resolved by the adapter right away, so the listener only ever stores data
+    const resolver = socket.adapter.unstable_listenerQueryParamsResolver;
+    const resolvedQueryParams =
+      typeof queryParams === "function" && resolver
+        ? resolver(queryParams as (...args: any[]) => unknown)
+        : queryParams;
+    this.queryParams = resolvedQueryParams as typeof this.queryParams;
+    this.listenerOptions = { ...listenerOptions, queryParams: this.queryParams };
     this.params = params;
     this.payload = payload;
     this.delivery = delivery;
@@ -65,6 +78,14 @@ export class Listener<
   /** Set adapter-specific listener options. */
   setOptions(options: ExtractAdapterListenerOptionsType<ExtractSocketAdapterType<Socket>>) {
     return this.clone({ options });
+  }
+
+  /**
+   * Set what the listener asks for, such as filters or limits. Only for adapters that support listener query params
+   * (Firebase); a callback is turned into data by the adapter right away. Returns a clone.
+   */
+  setQueryParams(queryParams: ExtractAdapterListenerQueryParamsType<ExtractSocketAdapterType<Socket>>) {
+    return this.clone({ queryParams });
   }
 
   /** Set the URL path parameters for the topic (e.g., `:channelId`). */

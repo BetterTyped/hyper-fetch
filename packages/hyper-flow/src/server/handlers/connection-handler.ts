@@ -15,7 +15,8 @@ type ConnectionState = {
 
 export class ConnectionHandler {
   connectionState: ConnectionState = {
-    connections: {},
+    // Applications name their connections, so names like "constructor" must not resolve to Object.prototype
+    connections: Object.create(null),
     appConnection: null,
   };
 
@@ -44,7 +45,15 @@ export class ConnectionHandler {
   sendToPlugin = (message: { data: BaseMessagePayload }) => {
     const pluginConnectionName = message.data.connectionName;
     if (!this.connectionState.connections[pluginConnectionName]) {
-      throw new Error(`No connection exists for the connectionName ${pluginConnectionName}`);
+      serverLogger.error("Failed to send message to devtools plugin", {
+        context: "ConnectionHandler",
+        details: {
+          reason: "No connection exists for this connectionName",
+          connectionName: pluginConnectionName,
+          activeConnections: Object.keys(this.connectionState.connections),
+        },
+      });
+      return;
     }
     if (!this.connectionState.connections[pluginConnectionName].ws) {
       serverLogger.error("Failed to send message to devtools plugin", {
@@ -73,6 +82,7 @@ export class ConnectionHandler {
       };
     } else {
       this.connectionState.connections[connectionName].ws = connection;
+      this.connectionState.connections[connectionName].pluginStatus = PluginConnectionStatus.CONNECTED;
     }
   };
 
@@ -91,7 +101,10 @@ export class ConnectionHandler {
         break;
       }
       default: {
-        throw new Error(`Unknown messageType: ${message.data.messageType}`);
+        serverLogger.warning("Unknown message type received", {
+          context: "ConnectionHandler",
+          details: { messageType: message.data.messageType, connectionName: message.data.connectionName },
+        });
       }
     }
   };
@@ -107,7 +120,10 @@ export class ConnectionHandler {
         break;
       }
       default: {
-        throw new Error(`Unknown origin: ${message.data.origin}`);
+        serverLogger.warning("Event with unknown origin received", {
+          context: "ConnectionHandler",
+          details: { origin: message.data.origin, connectionName: message.data.connectionName },
+        });
       }
     }
   };
@@ -135,18 +151,33 @@ export class ConnectionHandler {
         break;
       }
       default: {
-        throw new Error(`Unknown origin: ${origin} for ${connectionName}`);
+        serverLogger.warning("Connection with unknown origin rejected", {
+          context: "ConnectionHandler",
+          details: { origin, connectionName },
+        });
+        conn.close(1008, "Unknown origin");
       }
     }
   };
 
-  handleClosedConnection = (connectionName: string) => {
-    if (connectionName === ConnectionName.HF_DEVTOOLS_FRONTEND) {
-      this.setAppConnection(null);
+  handleClosedConnection = (
+    { connectionName, origin }: { connectionName: string; origin: MessageOrigin },
+    conn: WebSocket,
+  ) => {
+    if (origin === MessageOrigin.APP || connectionName === ConnectionName.HF_DEVTOOLS_FRONTEND) {
+      // A reloaded renderer can open its new socket before the old one finishes closing
+      if (this.connectionState.appConnection === conn) {
+        this.setAppConnection(null);
+      }
+      return;
     }
 
     if (this.connectionState.connections[connectionName]) {
       const hangupConnection = this.connectionState.connections[connectionName];
+      // The plugin may already be back on a new socket
+      if (hangupConnection.ws !== conn) {
+        return;
+      }
       hangupConnection.ws = null;
       hangupConnection.pluginStatus = PluginConnectionStatus.HANGUP;
 
@@ -165,14 +196,14 @@ export class ConnectionHandler {
       }
 
       this.connectionState.appConnection.send(
-        JSON.stringify(({
-	topic: SocketTopics.APP_MAIN_LISTENER,
-	data: {
-		messageType: MessageType.INTERNAL,
-		eventType: InternalEvents.PLUGIN_HANGUP,
-		connectionName
-	}
-})),
+        JSON.stringify({
+          topic: SocketTopics.APP_MAIN_LISTENER,
+          data: {
+            messageType: MessageType.INTERNAL,
+            eventType: InternalEvents.PLUGIN_HANGUP,
+            connectionName,
+          },
+        }),
       );
     }
   };

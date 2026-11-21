@@ -129,6 +129,26 @@ describe("useFetch [ Initial State ]", () => {
     });
   });
 
+  describe("when the cache data got updated locally", () => {
+    beforeEach(() => {
+      request = createRequest<User>({ staleTime: 1000 });
+      calls = gateRequest(request);
+      setCacheResponse(request, user);
+      vi.advanceTimersByTime(800);
+      client.cache.update(request, { data: { id: 1, name: "Updated locally" } });
+      // Stale when counted from the response, fresh when counted from the update
+      vi.advanceTimersByTime(800);
+    });
+
+    it("should count the stale time from the update and not refetch", async () => {
+      const { result } = renderWithHistory(request, { revalidate: false });
+      await advance();
+
+      expect(calls).toHaveLength(0);
+      expect(result.current.data).toStrictEqual({ id: 1, name: "Updated locally" });
+    });
+  });
+
   describe("when cache holds stale data", () => {
     beforeEach(() => {
       request = createRequest<User>({ staleTime: 1000 });

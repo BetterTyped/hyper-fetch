@@ -4,6 +4,7 @@
 import { Client } from "@hyper-fetch/core";
 import http from "http";
 import type { AddressInfo } from "net";
+import { gzipSync } from "zlib";
 
 import { createDeferred } from "../../utils/controlled-adapter.utils";
 
@@ -20,6 +21,8 @@ type Echo = {
  * teardown) releases them, so nothing here depends on how fast the machine is.
  */
 describe("E2E [ Fetch adapter ]", () => {
+  const binaryData = Buffer.from(Array.from({ length: 256 }, (_, index) => index));
+  const gzipData = Array.from({ length: 5000 }, (_, index) => ({ id: index, name: "compressible user name" }));
   let server: http.Server;
   let baseUrl = "";
   let hits: string[] = [];
@@ -90,6 +93,26 @@ describe("E2E [ Fetch adapter ]", () => {
       res.write('{"partial":');
       heldResponses.push(res);
       return received.resolve(res);
+    }
+    // Every byte value - not valid UTF-8, so decoding it as text corrupts it
+    if (pathname === "/binary") {
+      res.writeHead(200, { "Content-Type": "application/octet-stream", "Content-Length": String(binaryData.length) });
+      return res.end(binaryData);
+    }
+    if (pathname === "/binary-error") {
+      return sendJson(res, 404, { message: "File not found" });
+    }
+    // Compressed body - Content-Length tells the size of the compressed bytes, fetch reads the decompressed ones
+    if (pathname === "/gzip") {
+      const compressed = gzipSync(JSON.stringify(gzipData));
+      res.writeHead(200, {
+        "Content-Type": "application/json",
+        "Content-Encoding": "gzip",
+        "Content-Length": String(compressed.length),
+      });
+      const half = Math.floor(compressed.length / 2);
+      res.write(compressed.subarray(0, half));
+      return setImmediate(() => res.end(compressed.subarray(half)));
     }
     if (pathname === "/chunks") {
       res.writeHead(200, { "Content-Type": "text/plain", "Content-Length": "9" });
@@ -473,6 +496,97 @@ describe("E2E [ Fetch adapter ]", () => {
       const response = await get("/status/404").exec({});
 
       expect(response).toMatchObject({ success: false, status: 404, error: { status: 404 } });
+    });
+  });
+
+  describe("When choosing the response type", () => {
+    const getBinary = <Response>(endpoint: string, responseType: "blob" | "arrayBuffer" | "text" | "json") =>
+      createClient().createRequest<{ response: Response; error: { message: string } }>()({
+        endpoint,
+        options: { responseType },
+      });
+
+    it("should give the body as an ArrayBuffer without changing the bytes", async () => {
+      const { data } = await getBinary<ArrayBuffer>("/binary", "arrayBuffer").send();
+
+      expect(data).toBeInstanceOf(ArrayBuffer);
+      expect(Buffer.from(data!)).toStrictEqual(binaryData);
+    });
+
+    it("should give the body as a Blob with the content type of the response", async () => {
+      const { data } = await getBinary<Blob>("/binary", "blob").send();
+
+      expect(data).toBeInstanceOf(Blob);
+      expect(data!.type).toBe("application/octet-stream");
+      expect(Buffer.from(await data!.arrayBuffer())).toStrictEqual(binaryData);
+    });
+
+    it("should give a JSON body as text without parsing it", async () => {
+      const { data } = await getBinary<string>("/status/200", "text").send();
+
+      expect(data).toBe(JSON.stringify({ status: 200 }));
+    });
+
+    it("should parse a JSON body with the json response type", async () => {
+      const { data } = await getBinary<{ status: number }>("/status/200", "json").send();
+
+      expect(data).toStrictEqual({ status: 200 });
+    });
+
+    it("should parse the error body of a binary request", async () => {
+      const { data, error, status } = await getBinary<Blob>("/binary-error", "blob").send();
+
+      expect(data).toBeNull();
+      expect(status).toBe(404);
+      expect(error).toStrictEqual({ message: "File not found" });
+    });
+
+    it("should report the download progress of a binary body", async () => {
+      const progress: number[] = [];
+
+      await getBinary<ArrayBuffer>("/binary", "arrayBuffer").send({
+        onDownloadProgress: (event) => progress.push(event.progress),
+      });
+
+      expect(progress.at(-1)).toBe(100);
+    });
+
+    it("should not pass the response type to fetch", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+      await getBinary<ArrayBuffer>("/binary", "arrayBuffer").send();
+
+      expect(fetchSpy.mock.calls[0][1]).not.toHaveProperty("responseType");
+    });
+  });
+
+  describe("When the response is compressed", () => {
+    it("should decompress the body", async () => {
+      const request = createClient().createRequest<{ response: typeof gzipData }>()({ endpoint: "/gzip" });
+
+      const { data } = await request.send();
+
+      expect(data).toStrictEqual(gzipData);
+    });
+
+    it("should never report the download progress above 100%", async () => {
+      const request = createClient().createRequest<{ response: typeof gzipData }>()({ endpoint: "/gzip" });
+      const progress: number[] = [];
+
+      await request.send({ onDownloadProgress: (event) => progress.push(event.progress) });
+
+      expect(progress.length).toBeGreaterThan(1);
+      expect(Math.max(...progress)).toBe(100);
+      expect(progress.at(-1)).toBe(100);
+    });
+
+    it("should report the size of the decompressed body as the total", async () => {
+      const request = createClient().createRequest<{ response: typeof gzipData }>()({ endpoint: "/gzip" });
+      const totals: number[] = [];
+
+      await request.send({ onDownloadProgress: (event) => totals.push(event.total) });
+
+      expect(totals.at(-1)).toBe(Buffer.byteLength(JSON.stringify(gzipData)));
     });
   });
 
@@ -865,6 +979,38 @@ describe("E2E [ Fetch adapter ]", () => {
         onUploadProgress: ({ loaded, total }) => progress.push({ loaded, total }),
       });
 
+      expect(progress.at(-1)).toEqual({ loaded: size, total: size });
+    });
+
+    it("should report the finished upload only once the server has the body", async () => {
+      // Fetch has no upload events - the response is the first sign that the whole body was sent
+      const finishedAfterServerGotBody: boolean[] = [];
+
+      await createEcho().send({
+        payload: { text: "x".repeat(10_000) },
+        onUploadProgress: ({ loaded, total }) => {
+          if (loaded === total) finishedAfterServerGotBody.push(hits.includes("/echo"));
+        },
+      });
+
+      expect(finishedAfterServerGotBody).toEqual([true]);
+    });
+
+    it.each([
+      ["Blob", () => new Blob(["a".repeat(2048)]), 2048],
+      ["ArrayBuffer", () => new Uint8Array(1024).buffer, 1024],
+      ["typed array", () => new Uint8Array(512), 512],
+      ["URLSearchParams", () => new URLSearchParams({ name: "żółw" }), Buffer.byteLength("name=%C5%BC%C3%B3%C5%82w")],
+    ])("should report the size of a %s payload as the upload total", async (_, createPayload, size) => {
+      const progress: { loaded: number; total: number }[] = [];
+
+      const { data } = await createEcho().send({
+        payload: createPayload(),
+        onUploadProgress: ({ loaded, total }) => progress.push({ loaded, total }),
+      });
+
+      expect(data?.bodyLength).toBe(size);
+      expect(progress[0]).toEqual({ loaded: 0, total: size });
       expect(progress.at(-1)).toEqual({ loaded: size, total: size });
     });
 

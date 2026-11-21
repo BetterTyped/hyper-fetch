@@ -1,0 +1,108 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18rem;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.error {
+  color: var(--pico-del-color);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 1rem;
+  padding: 0;
+}
+
+.cards li {
+  list-style: none;
+  margin: 0;
+}
+
+.cards a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  height: 100%;
+  padding: 0.5rem;
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color);
+  text-decoration: none;
+}
+
+.cards img,
+.profile img {
+  border-radius: var(--pico-border-radius);
+}
+
+.status {
+  font-size: 0.8rem;
+}
+
+.status::before {
+  content: "●";
+  margin-right: 0.3rem;
+}
+
+.status-alive::before {
+  color: var(--pico-ins-color);
+}
+
+.status-dead::before {
+  color: var(--pico-del-color);
+}
+
+.status-unknown::before {
+  color: var(--pico-muted-color);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pagination button {
+  width: auto;
+  padding: 0.25rem 0.75rem;
+}
+
+.profile {
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 560px) {
+  .profile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.network-log ol {
+  padding: 0;
+  font-size: 0.8rem;
+}
+
+.network-log li {
+  list-style: none;
+  margin-bottom: 0.25rem;
+  overflow-wrap: anywhere;
+}

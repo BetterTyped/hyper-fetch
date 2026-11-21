@@ -20,7 +20,7 @@ what a good retry policy looks like, how people do it with `fetch` and Axios, an
 2.  How a **fetch retry** and **axios-retry** setup usually look.
 3.  How to **enable and configure retries** for a request in Hyper Fetch.
 4.  How to set a **custom delay** and a **retry condition**.
-5.  How to build **exponential backoff** on top of a request.
+5.  How to add **exponential backoff** with `exponentialBackoff` or your own delay function.
 
 :::
 
@@ -122,6 +122,41 @@ original `failingRequest`.
 
 ---
 
+## Backoff
+
+`retryTime` also takes a function that returns the delay of each attempt. It receives the `attempt` (`0` for the first
+retry) and the failed `response`. `exponentialBackoff` builds one that doubles the delay with every attempt, up to a
+maximum. By default it adds random jitter, so many clients that failed at the same time don't all retry together.
+
+```ts
+import { exponentialBackoff } from "@hyper-fetch/core";
+
+const getUsers = client.createRequest()({
+  endpoint: "/users",
+  retry: 5,
+  // highlight-next-line
+  retryTime: exponentialBackoff({ min: 500, max: 10_000 }),
+});
+
+// Or your own function - honor the Retry-After header of a 429 response
+const getReports = getUsers.setRetryTime(({ attempt, response }) => {
+  const retryAfter = Number(response.extra?.headers?.["retry-after"]);
+  return Number.isFinite(retryAfter) ? retryAfter * 1000 : 1000 * (attempt + 1);
+});
+```
+
+| `exponentialBackoff` option | Default       | Description                                                         |
+| --------------------------- | ------------- | ------------------------------------------------------------------- |
+| `min`                       | `500`         | Delay of the first retry in milliseconds                            |
+| `max`                       | `30000`       | Longest delay in milliseconds                                       |
+| `jitter`                    | `true`        | Pick a random delay from `min` up to `min * 2 ** attempt`           |
+| `random`                    | `Math.random` | Source of the randomness, for deterministic tests                   |
+
+When the function throws, the request is not retried. A delay that is not a positive number retries right away. A
+function can't be stored as JSON, so a request restored from a persistent queue uses the default delay of 500 ms.
+
+---
+
 ## Conditional retries
 
 By default, Hyper Fetch retries on any error. You can use `setRetryOnError` to add a condition. For example, only retry
@@ -165,41 +200,15 @@ while the request is still going. See [useFetch](../../../react/04-hooks/use-fet
 
 ---
 
-## Exponential backoff
+## When backoff matters
 
-Exponential backoff doubles the wait after every failure: 500 ms, 1 s, 2 s, 4 s. Adding a little random jitter stops
-many clients from retrying at the same instant after an outage.
+Exponential backoff doubles the wait after every failure: 500 ms, 1 s, 2 s, 4 s. Random jitter on top stops many
+clients from retrying at the same instant after an outage, which is why `exponentialBackoff` adds it by default (see
+[Backoff](#backoff) above).
 
-`retryTime` in Hyper Fetch is a fixed delay. If you need a growing delay, turn off the built-in retries for that request
-and write the loop yourself. The request stays the same, you only control when `send()` is called again:
-
-```ts
-type Report = { id: string; total: number };
-
-const getReport = client.createRequest<{ response: Report }>()({
-  endpoint: "/reports/:id",
-  retry: 0,
-});
-
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-export async function getReportWithBackoff(id: string, attempts = 4) {
-  for (let attempt = 0; ; attempt += 1) {
-    const response = await getReport.send({ params: { id } });
-
-    const retryable = response.status >= 500 || response.status === 429;
-    if (response.success || !retryable || attempt === attempts - 1) {
-      return response;
-    }
-
-    // highlight-next-line
-    await wait(2 ** attempt * 500 + Math.random() * 100);
-  }
-}
-```
-
-For most screens a fixed `retryTime` of one or two seconds with `retry: 2` or `3` is enough. Reach for backoff when
-many clients hit the same endpoint, or when the server tells you to slow down.
+For most screens a fixed `retryTime` of one or two seconds with `retry: 2` or `3` is enough. Reach for
+`exponentialBackoff` when many clients hit the same endpoint, or when the server tells you to slow down with a `429`
+and a `Retry-After` header.
 
 ---
 
@@ -210,6 +219,6 @@ You've learned how to retry failed requests with Hyper Fetch.
 - You know which failures are **worth retrying** and which are not.
 - You can set **retry attempts** and **delay** with `retry` and `retryTime`, or `.setRetry()` and `.setRetryTime()`.
 - You can limit retries to specific errors with **`setRetryOnError`**.
-- You can build **exponential backoff** on top of `send()` when a fixed delay is not enough.
+- You can add **exponential backoff** with `exponentialBackoff`, or honor `Retry-After` with your own delay function.
 
 :::

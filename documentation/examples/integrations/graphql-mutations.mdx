@@ -1,0 +1,86 @@
+---
+title: GraphQL mutations
+sidebar_label: GraphQL mutations
+sidebar_position: 11
+description:
+  Create, update and delete with GraphQL mutations and write each result into the cached query instead of fetching it
+  again.
+sidebar_custom_props:
+  path: react/graphql-mutations
+  level: intermediate
+  tags: [graphql, useSubmit, send, cache]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/graphql-mutations/src/api.ts";
+import app from "!!raw-loader!@examples/react/graphql-mutations/src/App.tsx";
+
+A todo list on the public [GraphQLZero](https://graphqlzero.almansi.me) API. Adding, checking and deleting a todo each
+send a GraphQL mutation, and the result of the mutation is written into the cached `todos` query. The list updates
+without a second request, and a log shows every cache write.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **Mutations are requests**: the operation goes in `document`, the variables in the payload, and the response is typed
+   with the usual generics.
+2. **`useSubmit`** for the create form, **`request.send()`** for actions on a single row.
+3. **`client.cache.update()`** writes mutation results into the cached query, and every `useFetch` that reads it
+   re-renders.
+4. **Variables in the cache key**: the list query is created once with its variables, so the hook and the cache updates
+   point at the same entry.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` sets `GraphqlAdapter()` on the client. Every request has `endpoint: "/api"`, the URL path of the GraphQL
+   server, and the operation in `document`. The mutations declare their variables in `payload`, for example
+   `{ id: string; input: { completed: boolean } }` for `updateTodo`.
+2. `todosQuery` is `getTodos.setPayload({ options: { paginate: { page: 1, limit: 6 } } })`. The variables are a part of
+   the cache key, so `useFetch(todosQuery)` and `updateCachedTodos()` must use this exact request.
+3. `updateCachedTodos(change)` calls `client.cache.update(todosQuery, ...)` with a function that gets the cached
+   response and returns the new data:
+
+   ```ts
+   client.cache.update(todosQuery, (cached) =>
+     // highlight-next-line
+     cached?.data ? { data: { todos: { data: change(cached.data.todos.data) } } } : {},
+   );
+   ```
+
+4. `App` adds a todo with `useSubmit(createTodo)`. In `onSubmitSuccess` it puts `response.data.createTodo` at the top of
+   the cached list.
+5. Checking a todo calls `updateTodo.send({ payload })` and merges the `completed` value the server returned. Deleting
+   calls `deleteTodo.send()` and removes the row when the server answers `true`. A failed mutation leaves the cache
+   alone and logs the first GraphQL error.
+
+GraphQLZero answers mutations like a real server but does not store them, so a refetch would bring back the original
+list. That is also why the app gives each new todo a local id: the API returns `201` for all of them.
+
+:::note When to use it
+
+- The mutation returns the changed object, so you already have the data the list needs.
+- Lists where a full refetch is slow or expensive, such as long or paginated queries.
+- When a mutation affects many queries, invalidate them instead with `client.cache.invalidate()`.
+
+:::
+
+---
+
+## Related
+
+- [GraphQL mutations](/docs/integrations/adapter-graphql/mutations)
+- [GraphQL adapter](/docs/integrations/adapter-graphql/overview)
+- [Cache](/docs/core/cache)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+
+:::secondary Summary
+
+GraphQL mutations are regular HyperFetch requests with the operation in `document` and variables in the payload. Write
+their results into the cached query with `client.cache.update()` and every component showing it updates at once.
+
+:::

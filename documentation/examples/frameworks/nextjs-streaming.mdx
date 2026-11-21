@@ -1,0 +1,93 @@
+---
+title: Next.js streaming
+sidebar_label: Next.js streaming
+sidebar_position: 2
+description:
+  Stream slow server data into a Next.js App Router page section by section with Suspense, and hydrate each section into
+  HyperFetch hooks.
+sidebar_custom_props:
+  path: nextjs/streaming
+  level: advanced
+  tags: [nextjs, ssr, suspense, streaming, useFetch]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/nextjs/streaming/lib/api.ts";
+import page from "!!raw-loader!@examples/nextjs/streaming/app/page.tsx";
+import hydrateClient from "!!raw-loader!@examples/nextjs/streaming/app/hydrate-client.tsx";
+import sections from "!!raw-loader!@examples/nextjs/streaming/app/sections.tsx";
+
+A dashboard with three sections whose data takes 0.3, 1.5 and 3 seconds to load. The page shell reaches the browser at
+once, and each section streams in on its own as soon as its request finishes on the server. In the browser, every
+section's hooks start with the streamed data and send no request.
+
+<Example
+  files={{
+    "lib/api.ts": api,
+    "app/page.tsx": page,
+    "app/hydrate-client.tsx": hydrateClient,
+    "app/sections.tsx": sections,
+  }}
+/>
+
+:::tip What it shows
+
+1. **One Suspense boundary per section**: a slow request only delays its own section.
+2. **Async server components** send the request with `send()` and pack the response with `dehydrate()`.
+3. **`Hydrate` per section** puts each response into the client cache when that section arrives.
+4. **Live hooks after streaming**: `useFetch` renders the server data, and `refetch()` still works in the browser.
+
+:::
+
+---
+
+## How it works
+
+1. `lib/api.ts` creates one client for both sides and exports three prepared requests. Their query params include a
+   `delay` that makes dummyjson answer slowly. The server and the browser import the same request objects, so their
+   cache keys match.
+2. `app/page.tsx` renders the heading right away and wraps each section in its own `<Suspense>` with a fallback. Next.js
+   sends the shell with the three fallbacks first, then each section as it resolves. The header of every section shows
+   how long after the start it was streamed.
+3. `Section` is an async server component. It awaits `request.send()` and passes the dehydrated response down:
+
+   ```tsx
+   const hydration = [response.success ? request.dehydrate({ response }) : null];
+   // highlight-next-line
+   <HydrateClient data={hydration}>{children}</HydrateClient>;
+   ```
+
+   Only successful responses are passed, because an `Error` cannot cross into a client component. When a request fails,
+   the hook fetches it in the browser instead.
+
+4. `app/hydrate-client.tsx` is a small client component around `<Hydrate client={client}>`. A server component can't
+   pass the client instance, so this file imports it on the client side.
+5. `app/sections.tsx` holds the client components. Each calls `useFetch(request, { revalidate: false })` and renders the
+   streamed data on its first render, with no loading state. "Refetch in the browser" calls `refetch()` to show that the
+   hook works normally after hydration.
+6. On the server the client runs in server mode, which caches nothing for unscoped requests, so parallel renders for
+   different users never share data.
+
+:::note When to use it
+
+- Pages that combine fast and slow data, where the fast parts should not wait for the slowest request.
+- Dashboards, product pages and feeds that need content in the first HTML and interactive hooks after it.
+- Without streaming, see [Next.js App Router](/examples/frameworks/nextjs-app-router), which renders everything in one
+  response.
+
+:::
+
+---
+
+## Related
+
+- [Hydrate](/docs/react/hydrate)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Client](/docs/core/client)
+
+:::secondary Summary
+
+Each Suspense boundary awaits one HyperFetch request on the server and streams its section when it is ready. `Hydrate`
+fills the client cache section by section, so the hooks start with data and stay fully interactive.
+
+:::

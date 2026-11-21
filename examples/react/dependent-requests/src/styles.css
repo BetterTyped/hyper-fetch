@@ -1,0 +1,45 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.steps {
+  margin-block: 1.5rem;
+}
+
+.step.waiting {
+  background: transparent;
+  color: var(--pico-muted-color);
+}
+
+.step.loading {
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+}
+
+.step.done {
+  background: var(--pico-ins-color);
+  color: var(--pico-primary-inverse);
+}
+
+.step.failed {
+  background: var(--pico-del-color);
+  color: var(--pico-primary-inverse);
+}

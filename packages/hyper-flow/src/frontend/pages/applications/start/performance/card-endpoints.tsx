@@ -8,19 +8,20 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { cn } from "@/lib/utils";
-import { useMethodStatsStore } from "@/store/applications/method-stats.store";
+import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
+import { toNumber } from "@/store/applications/utils";
 import { formatBytes, formatTime } from "@/utils/format";
 
 export const CardEndpoints = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
 
-  const methodsStats = useMethodStatsStore((state) => state.applications[application.name].methodsStats);
+  const networkEntries = useNetworkStatsStore((state) => state.applications[application.name].networkEntries);
 
   const slowestEndpoints = useMemo(() => {
-    return [...methodsStats.values()]
-      .toSorted((a, b) => b.methodStats.avgResponseTime - a.methodStats.avgResponseTime)
+    return [...networkEntries.values()]
+      .toSorted((a, b) => b.stats.avgResponseTime - a.stats.avgResponseTime)
       .slice(0, 10);
-  }, [methodsStats]);
+  }, [networkEntries]);
 
   return (
     <Card className={cn(className)}>
@@ -41,27 +42,30 @@ export const CardEndpoints = ({ className }: { className?: string }) => {
           {slowestEndpoints.length > 0 && (
             <TableBody>
               {slowestEndpoints.map((req) => (
-                <TableRow key={req.method}>
+                <TableRow key={`${req.method}-${req.endpoint}`}>
                   <TableCell className="font-medium">
-                    <Method method={req.method} />
+                    <div className="flex items-center gap-2">
+                      <Method method={req.method} />
+                      {req.endpoint}
+                    </div>
                   </TableCell>
-                  <TableCell>{formatTime(req.methodStats.avgResponseTime)}</TableCell>
+                  <TableCell>{formatTime(req.stats.avgResponseTime)}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Progress
-                        value={(req.methodStats.avgProcessingTime / req.methodStats.highestProcessingTime) * 100}
+                        value={toNumber((req.stats.avgProcessingTime / req.stats.highestProcessingTime) * 100)}
                         className="h-2 w-24"
                       />
-                      <span>{formatTime(req.methodStats.avgProcessingTime)}</span>
+                      <span>{formatTime(req.stats.avgProcessingTime)}</span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Progress
-                        value={(req.methodStats.avgResponseSize / req.methodStats.highestResponseSize) * 100}
+                        value={toNumber((req.stats.avgResponseSize / req.stats.highestResponseSize) * 100)}
                         className="h-2 w-24"
                       />
-                      <span>{formatBytes(req.methodStats.avgResponseSize)}</span>
+                      <span>{formatBytes(req.stats.avgResponseSize)}</span>
                     </div>
                   </TableCell>
                 </TableRow>

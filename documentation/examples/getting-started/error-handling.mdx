@@ -1,0 +1,74 @@
+---
+title: Error handling
+sidebar_label: Error handling
+sidebar_position: 3
+description: Type endpoint and global errors, render a state per status and retry failed requests.
+sidebar_custom_props:
+  path: react/error-handling
+  level: beginner
+  tags: [useFetch, errors, typescript]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/error-handling/src/api.ts";
+import app from "!!raw-loader!@examples/react/error-handling/src/App.tsx";
+
+A status picker that makes the server answer with 200, 401, 404, 422, 500 or 503. Each failure renders its own state,
+server errors get a retry button, and every error is written to a log through the `onError` callback.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **A global error type** set once on the client with `createClient<{ error: ApiError }>()`.
+2. **An endpoint error type** added with the `error` generic. The hook's `error` is the union of both.
+3. **Errors in the response.** `useFetch` returns `error` and `status`; nothing throws and nothing needs `try/catch`.
+4. **A retry button** that calls `refetch()` for errors that can pass on the next attempt.
+5. **`onError`** runs once per failed response, which is where toasts and error reporting go.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` passes `{ error: ApiError }` to `createClient`. Every request of this client can now fail with `ApiError`.
+   HyperFetch returns an `Error` for network failures and timeouts, which also has a `message`, so the type holds.
+2. `getStatus` adds `error: ProblemDetails`, the body dummyjson sends from `/http/:status`. The request's error type
+   becomes `ProblemDetails | ApiError`.
+3. `App` calls `useFetch(getStatus.setParams({ status: code }))`. Picking another code changes the params, so the hook
+   sends a new request and clears the previous result.
+4. `ErrorState` narrows the union with `"detail" in error` before reading the problem details, then picks the UI from
+   `status`: 401 asks to sign in, 404 says nothing is there, other 4xx errors explain the rejection, and 5xx or status
+   `0` (no response at all) show a "Try again" button wired to `refetch`.
+5. `onError` from the hook receives the typed error response. The example keeps the last eight entries in a log.
+
+```tsx
+const { error, status, refetch, onError } = useFetch(getStatus.setParams({ status: code }));
+
+// highlight-next-line
+onError(({ response }) => report(response.status, response.error.message));
+```
+
+:::note When to use it
+
+- Any screen where the API can answer with more than one kind of error.
+- Apps that report errors to a toast, a log or an error tracker from one place.
+
+:::
+
+---
+
+## Related
+
+- [Error handling guide](/docs/guides/core/basics/error-handling)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Client](/docs/core/client)
+- [Retries guide](/docs/guides/core/basics/retries)
+
+:::secondary Summary
+
+You typed a global error on the client and an endpoint error on one request, rendered a state for each status from the
+`error` the hook returns, retried server errors with `refetch()` and logged every failure with `onError`.
+
+:::

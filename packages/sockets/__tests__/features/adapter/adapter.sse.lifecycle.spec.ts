@@ -17,6 +17,15 @@ const reconnectTime = 1000;
 type SseSocket = Socket<ServerSentEventsAdapterType>;
 
 describe("SSE Adapter [ Lifecycle ]", () => {
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
+  beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
+  });
+  afterEach(() => {
+    random.mockRestore();
+  });
+
   const sockets: SseSocket[] = [];
 
   const createSocket = (options?: Partial<ConstructorParameters<typeof Socket<ServerSentEventsAdapterType>>[0]>) => {
@@ -113,7 +122,8 @@ describe("SSE Adapter [ Lifecycle ]", () => {
       await connecting;
 
       expect(events).toStrictEqual(["connecting:true", "connecting:false", "connected"]);
-      expect(vi.getTimerCount()).toBe(0);
+      // Only the minUptime timer that resets the attempt counter
+      expect(vi.getTimerCount()).toBe(1);
     });
 
     it("should wait for the automatic connection when connect is called right after creating the socket", async () => {
@@ -158,11 +168,14 @@ describe("SSE Adapter [ Lifecycle ]", () => {
       const events = trackEvents(socket);
       const hanging = await waitForEventSource();
 
+      // The connection timeout ends the attempt, the next one follows after the reconnection delay
+      await vi.advanceTimersByTimeAsync(reconnectTime);
       const next = await waitForReconnectAttempt();
 
       expect(hanging.readyState).toBe(ControlledEventSource.CLOSED);
       expect(next).not.toBe(hanging);
-      expect(events).toStrictEqual(["reconnecting:0", "connecting:false", "disconnected", "connecting:true"]);
+      // Disconnected with the timeout error first, the next attempt starts after the reconnection delay
+      expect(events).toStrictEqual(["connecting:false", "disconnected", "error", "reconnecting:0", "connecting:true"]);
       expect(ControlledEventSource.active).toStrictEqual([next]);
     });
 
@@ -310,7 +323,8 @@ describe("SSE Adapter [ Lifecycle ]", () => {
       expect(events).toStrictEqual(["connecting:false", "connected"]);
       expect(socket.adapter.connected).toBeTrue();
       expect(ControlledEventSource.instances).toHaveLength(1);
-      expect(vi.getTimerCount()).toBe(0);
+      // Only the minUptime timer that resets the attempt counter
+      expect(vi.getTimerCount()).toBe(1);
     });
 
     it("should keep delivering to the same listeners after the browser retry", async () => {
@@ -333,14 +347,17 @@ describe("SSE Adapter [ Lifecycle ]", () => {
       source.serverDrop();
       const events = trackEvents(socket);
 
+      // The connection timeout ends the browser retry, the next attempt follows after the reconnection delay
+      await vi.advanceTimersByTimeAsync(reconnectTime);
       const next = await waitForReconnectAttempt();
       next.serverOpen();
 
       expect(source.readyState).toBe(ControlledEventSource.CLOSED);
       expect(events).toStrictEqual([
-        "reconnecting:0",
         "connecting:false",
         "disconnected",
+        "error",
+        "reconnecting:0",
         "connecting:true",
         "connecting:false",
         "connected",
@@ -389,6 +406,9 @@ describe("SSE Adapter [ Lifecycle ]", () => {
         "reconnecting:0",
         "reconnecting:1",
       ]);
+      // The counter resets once the stream stayed up for minUptime
+      expect(socket.adapter.reconnectionAttempts).toBe(2);
+      await vi.advanceTimersByTimeAsync(5000);
       expect(socket.adapter.reconnectionAttempts).toBe(0);
     });
   });

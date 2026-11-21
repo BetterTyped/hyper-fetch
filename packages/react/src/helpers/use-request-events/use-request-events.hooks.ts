@@ -40,6 +40,7 @@ export const useRequestEvents = <R extends RequestInstance>({
   actions,
   setCacheData,
   getIsDataProcessing,
+  getIsWaitingForRetry,
 }: UseRequestEventsPropsType<R>): UseRequestEventsReturnType<R> => {
   const { cache, requestManager } = request.client;
 
@@ -152,9 +153,11 @@ export const useRequestEvents = <R extends RequestInstance>({
         return;
       }
 
+      const queryKey = scopeKey(req.queryKey, req.scope);
       const canDisableLoading =
         !loading &&
-        !dispatcher.hasRunningRequests(scopeKey(req.queryKey, req.scope)) &&
+        !dispatcher.hasRunningRequests(queryKey) &&
+        !getIsWaitingForRetry?.(queryKey) &&
         pendingRequests.current.size === 0;
       if (loading || canDisableLoading) {
         actions.setLoading(loading);
@@ -409,6 +412,21 @@ export const useRequestEvents = <R extends RequestInstance>({
         currentDispatcher.delete(qk, requestData.requestId, reqAk);
       }
     });
+
+    // A failed attempt waiting for its retry is not running, but it is still in flight for the user - remove it so
+    // the retry does not start after the abort
+    const queryKey = scopeKey(currentRequest.queryKey, currentRequest.scope);
+    const waitingForRetry = currentDispatcher.getQueue(queryKey).requests.filter((item) => {
+      const reqAk = scopeKey(item.request.abortKey, item.request.scope);
+      return reqAk === ak && item.retries > 0 && !currentDispatcher.hasRunningRequest(queryKey, item.requestId);
+    });
+    waitingForRetry.forEach((item) => {
+      currentDispatcher.delete(queryKey, item.requestId, scopeKey(item.request.abortKey, item.request.scope));
+    });
+    // They were not running, so no loading event is going to end the loading state they kept
+    if (waitingForRetry.length && !currentDispatcher.hasRunningRequests(queryKey) && !pendingRequests.current.size) {
+      actions.setLoading(false);
+    }
   };
 
   // ******************

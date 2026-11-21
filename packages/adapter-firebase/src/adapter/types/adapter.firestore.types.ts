@@ -1,13 +1,14 @@
-import type { DocumentData } from "@firebase/firestore";
 /* eslint-disable @typescript-eslint/naming-convention */
-import type { Adapter } from "@hyper-fetch/core";
+import type { Adapter, DefaultMapperType } from "@hyper-fetch/core";
 import type { SocketAdapter } from "@hyper-fetch/sockets";
 import type {
+  FirestoreConstraints,
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
   PermittedConstraints,
   SharedQueryConstraints,
 } from "constraints";
+import type { DocumentData } from "firebase/firestore";
 import type {
   Unsubscribe as FirestoreUnsubscribe,
   CollectionReference,
@@ -19,7 +20,11 @@ import type {
 export type FirestoreSocketAdapterType = SocketAdapter<
   FirestoreOnSnapshotExtra,
   undefined,
-  { groupByChangeType?: boolean } & FirestoreQueryParams
+  FirestoreListenerOptions,
+  undefined,
+  undefined,
+  DefaultMapperType,
+  FirestoreListenerQueryParams
 >;
 
 export type FirestoreAdapterType =
@@ -49,8 +54,44 @@ export type FirestoreAdapterType =
       undefined
     >;
 
-export type FirestoreQueryParams = {
-  constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
+/** One Firestore query constraint, built with `$where`, `$orderBy`, `$limit` or a cursor helper such as `$startAfter`. */
+export type FirestoreConstraint = PermittedConstraints<
+  FirestorePermittedMethods,
+  FirestoreConstraintsUnion | SharedQueryConstraints
+>;
+
+/**
+ * Query params of a Firestore request: a callback that builds typed constraints, or the constraints array it
+ * resolves to. Pass the document type to check field names and values: `queryParams?: FirestoreQueryParams<Tea>`.
+ *
+ * @example
+ * getTeas.send({ queryParams: (c) => c.where("type", "==", "Green").orderBy("year", "desc").limit(20) });
+ */
+export type FirestoreQueryParams<Doc = any> =
+  | FirestoreConstraint[]
+  | ((constraints: FirestoreConstraints<Doc>) => FirestoreConstraints<Doc, any>)
+  | FirestoreDeprecatedQueryParams;
+
+/** @deprecated Pass the constraints directly: `queryParams: (c) => c.where(...)` or `queryParams: [$where(...)]`. */
+export type FirestoreDeprecatedQueryParams = {
+  /** @deprecated Pass the constraints directly: `queryParams: (c) => c.where(...)` or `queryParams: [$where(...)]`. */
+  constraints?: FirestoreConstraint[];
+};
+
+/** Query params of a Firestore listener: a callback that builds typed constraints, or the constraints array. */
+export type FirestoreListenerQueryParams<Doc = any> =
+  | FirestoreConstraint[]
+  | ((constraints: FirestoreConstraints<Doc>) => FirestoreConstraints<Doc, any>);
+
+/** Options of a Firestore `onSnapshot` listener. Constraints go in the listener's `queryParams`. */
+export type FirestoreListenerOptions = {
+  /** @deprecated Use the listener's query params: `setQueryParams((c) => c.where(...))`. */
+  constraints?: FirestoreConstraint[];
+  /**
+   * On collection listeners, adds `extra.groupedResult` with the `added`, `modified` and `removed` documents of each
+   * snapshot. Document listeners get `null`.
+   */
+  groupByChangeType?: boolean;
 };
 
 export enum FirestoreMethods {
@@ -79,7 +120,10 @@ export type FirestoreOnSnapshotExtra = {
   ref?: DocumentReference | CollectionReference;
   snapshot?: DocumentSnapshot | QuerySnapshot;
   unsubscribe?: FirestoreUnsubscribe;
+  /** Grouped document changes when the listener has `groupByChangeType`, otherwise `null`. Collection listeners only. */
   groupedResult: { added: DocumentData[]; modified: DocumentData[]; removed: DocumentData[] } | null;
+  /** `"emptyResource"` when the document is missing or the result list is empty. */
+  status: FirestoreStatuses;
 };
 
 export type FirestoreGetDocsExtra = {

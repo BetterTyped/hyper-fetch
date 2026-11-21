@@ -1,0 +1,34 @@
+{
+  "name": "@hyper-fetch-examples/orpc-basic",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "A contract-first oRPC API on Hono and a React client typed from the contract, with Dates and typed errors kept end to end.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/orpc": "latest",
+    "@hyper-fetch/react": "latest",
+    "@orpc/client": "^1.16.4",
+    "@orpc/contract": "^1.16.4",
+    "@orpc/server": "^1.16.4",
+    "@picocss/pico": "^2.1.1",
+    "hono": "^4.13.19",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@hono/vite-dev-server": "^0.26.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8"
+  }
+}

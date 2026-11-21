@@ -4,8 +4,8 @@ import superjson, { serialize } from "superjson";
 
 import type { TrpcSocketExtraType, TrpcWebsocketAdapterOptionsType, TrpcWebsocketAdapterType } from "../../../src";
 import { TrpcSocketError, TrpcWebsocketAdapter } from "../../../src";
-import type { ControlledWebSocket } from "../../utils/controlled-websocket";
 import {
+  ControlledWebSocket,
   flushPromises,
   installControlledWebSocket,
   openWebSocket,
@@ -38,6 +38,8 @@ const createSocket = ({
 };
 
 describe("Trpc Websocket Adapter [ Subscriptions ]", () => {
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
   let setup = createSocket({ adapterOptions: { autoConnect: false } });
 
   const connect = async (current = setup) => {
@@ -46,6 +48,7 @@ describe("Trpc Websocket Adapter [ Subscriptions ]", () => {
   };
 
   beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
     installControlledWebSocket();
     setup = createSocket({ adapterOptions: { autoConnect: false } });
   });
@@ -54,6 +57,7 @@ describe("Trpc Websocket Adapter [ Subscriptions ]", () => {
     await setup.socket.disconnect();
     vi.useRealTimers();
     uninstallControlledWebSocket();
+    random.mockRestore();
   });
 
   describe("when starting a subscription", () => {
@@ -757,6 +761,82 @@ describe("Trpc Websocket Adapter [ Subscriptions ]", () => {
       expect(setup.errors).toHaveLength(0);
     });
 
+    it("should move to a new connection when the server asks to, also after the reconnect attempts ran out", async () => {
+      setup.socket = new Socket({
+        url,
+        adapter: TrpcWebsocketAdapter(),
+        adapterOptions: { autoConnect: false },
+        reconnect: 0,
+        reconnectTime: 100,
+      });
+      const reconnecting = vi.fn();
+      setup.socket.events.onReconnecting(reconnecting);
+      const ws = await connect();
+      setup.socket.createListener<number>()({ topic: "onTick" }).listen(vi.fn());
+      ws.serverResult(1, { type: "data", id: "3", data: { id: "3", data: 1 } });
+
+      // The server asks for it - a fresh start that the attempt limit does not refuse
+      ws.serverMessage({ id: null, method: "reconnect" });
+      const next = await openWebSocket(2);
+
+      expect(reconnecting).toHaveBeenCalledExactlyOnceWith({ attempts: 0 });
+      expect(setup.socket.adapter.reconnectionAttempts).toBe(0);
+      expect(setup.socket.adapter.connected).toBeTrue();
+      expect(next.subscriptions.map(({ params }) => params)).toStrictEqual([{ path: "onTick", lastEventId: "3" }]);
+    });
+
+    it("should restart the subscriptions when the network is back", async () => {
+      vi.useFakeTimers();
+      const ws = await connect();
+      setup.onUpdate.setPayload({ id: 1 }).listen(vi.fn());
+      ws.serverResult(1, { type: "data", id: "7", data: { id: "7", data: { id: 1, name: "John" } } });
+
+      // A connection on a network that is gone is dropped right away
+      setup.socket.appManager.setOnline(false);
+      expect(ws.readyState).toBe(ws.CLOSED);
+      expect(setup.socket.adapter.connected).toBeFalse();
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(ControlledWebSocket.instances).toHaveLength(1);
+
+      // Connected by hand without autoConnect - it comes back as soon as the network does, without a delay
+      setup.socket.appManager.setOnline(true);
+      const next = await openWebSocket(2);
+
+      expect(next.subscriptions.map(({ params }) => params)).toStrictEqual([
+        { path: "user.onUpdate", input: { id: 1 }, lastEventId: "7" },
+      ]);
+      expect(setup.errors).toHaveLength(0);
+    });
+
+    it("should restart the subscriptions after the focus skipped the reconnect delay", async () => {
+      vi.useFakeTimers();
+      const ws = await connect();
+      setup.onTick.listen(vi.fn());
+
+      ws.serverClose({ code: 1006 });
+      setup.socket.appManager.setFocused(true);
+      const next = await openWebSocket(2);
+
+      expect(next.subscriptions.map(({ params }) => params)).toStrictEqual([{ path: "onTick" }]);
+    });
+
+    it("should not start the subscriptions or the keep-alive when a connected callback disconnects", async () => {
+      vi.useFakeTimers();
+      setup = createSocket({ adapterOptions: { autoConnect: false, keepAlive: { enabled: true } } });
+      setup.onTick.listen(vi.fn());
+      setup.socket.onConnected(() => {
+        setup.socket.disconnect();
+      });
+
+      const ws = await connect();
+      await vi.advanceTimersByTimeAsync(60_000);
+
+      expect(ws.readyState).toBe(ws.CLOSED);
+      expect(ws.sent).toStrictEqual([]);
+      expect(setup.errors).toHaveLength(0);
+      expect(ControlledWebSocket.instances).toHaveLength(1);
+    });
+
     it("should not stop the subscriptions of the closed connection", async () => {
       const ws = await connect();
       setup.onTick.listen(vi.fn());
@@ -843,6 +923,8 @@ describe("Trpc Websocket Adapter [ Subscriptions ]", () => {
 });
 
 describe("Trpc Websocket Adapter [ Keep Alive ]", () => {
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
   let socket: Socket<TrpcWebsocketAdapterType>;
   let errors: Error[] = [];
 
@@ -863,6 +945,7 @@ describe("Trpc Websocket Adapter [ Keep Alive ]", () => {
   const pings = (ws: ControlledWebSocket) => ws.sent.filter((frame) => frame === "PING").length;
 
   beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
     installControlledWebSocket();
     vi.useFakeTimers();
   });
@@ -871,6 +954,7 @@ describe("Trpc Websocket Adapter [ Keep Alive ]", () => {
     await socket.disconnect();
     vi.useRealTimers();
     uninstallControlledWebSocket();
+    random.mockRestore();
   });
 
   it("should answer the ping of the server", async () => {

@@ -51,7 +51,6 @@ export type ApplicationStore = {
   applications: { [key: string]: Application };
   addApplication: (application: Application) => void;
   removeApplication: (applicationName: string) => void;
-  updateApplication: (application: Application) => void;
   setSettings: (applicationName: string, settings: Partial<Application["settings"]>) => void;
   setSimulatedErrors: (applicationName: string, simulatedErrors: Record<string, SimulatedError>) => void;
 };
@@ -85,13 +84,6 @@ export const useApplications = create<ApplicationStore>()(
         set((state) =>
           produce(state, (draft) => {
             delete draft.applications[applicationName];
-          }),
-        );
-      },
-      updateApplication: (application: Application) => {
-        set((state) =>
-          produce(state, (draft) => {
-            draft.applications[application.name] = application;
           }),
         );
       },

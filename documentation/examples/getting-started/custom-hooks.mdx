@@ -1,0 +1,81 @@
+---
+title: Custom hooks
+sidebar_label: Custom hooks
+sidebar_position: 7
+description: Wrap requests in your own typed hooks, usePosts, usePost and useRenamePost, so components stay small.
+sidebar_custom_props:
+  path: react/custom-hooks
+  level: beginner
+  tags: [useFetch, useSubmit, cache, typescript]
+---
+
+import { Example } from "@site/src/components";
+import hooks from "!!raw-loader!@examples/react/custom-hooks/src/hooks.ts";
+import app from "!!raw-loader!@examples/react/custom-hooks/src/App.tsx";
+import api from "!!raw-loader!@examples/react/custom-hooks/src/api.ts";
+
+A list of posts with a details panel where you can rename a post. The components never touch a request, a query param or
+the cache. They call three hooks from `hooks.ts`: `usePosts()`, `usePost(id)` and `useRenamePost(id)`.
+
+<Example files={{ "src/hooks.ts": hooks, "src/App.tsx": app, "src/api.ts": api }} />
+
+:::tip What it shows
+
+1. **Custom hooks** wrap `useFetch` and `useSubmit`, so components ask for data in the words of the app.
+2. **Shared options** live in one object next to the hooks, not in every component.
+3. **Inferred types**: the hooks return the typed `useFetch` result, so `data.posts` is typed with no type in the
+   component.
+4. **Side effects in one place**: `useRenamePost` updates both cached copies of a post after a successful save.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` defines the client and three plain requests. It has no React code.
+2. `hooks.ts` fixes the details a component should not repeat. `usePosts()` always reads the same list, so the query
+   params are set once:
+
+   ```ts
+   // `select` is a dummyjson query param: the API returns only these fields.
+   const postsListRequest = getPostsRequest.setQueryParams({ limit: 5, select: "title,body,userId" });
+   // highlight-next-line
+   export const usePosts = () => useFetch(postsListRequest, sharedOptions);
+   ```
+
+   Every component that calls `usePosts()` uses the same cache key, so they share one response.
+
+3. `usePost(postId)` sets the endpoint param. The hook returns the `useFetch` result as it is, so `data`, `error`,
+   `loading` and the callbacks keep their types.
+4. `useRenamePost(postId)` returns `{ renamePost, submitting, error }`. `renamePost(title)` builds the payload and
+   resolves with the response, so the form can check `success`. In `onSubmitSuccess` the hook writes the new title into
+   the cached post and the cached list with `client.cache.update()`, and both panels update.
+5. `App.tsx` imports only from `hooks.ts`. To change the page size, the options or the endpoint, you edit one file.
+
+dummyjson does not store changes, so the new title lives only in the cache. With a real API you could call
+`client.cache.invalidate()` in the hook instead and let the hooks refetch.
+
+:::note When to use it
+
+- A request used in more than one component.
+- A mutation that has to update or invalidate other data after it succeeds.
+- Keep a plain `useFetch` call for a one-off request on a single screen.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [Cache](/docs/core/cache)
+- [Requests](/docs/core/request)
+
+:::secondary Summary
+
+Custom hooks put the request details, shared options and cache updates in one file. Components call `usePosts()` or
+`useRenamePost(id)` and get fully typed results back.
+
+:::

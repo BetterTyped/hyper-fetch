@@ -25,7 +25,7 @@ jobs:
         uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "22.21.1"
+          node-version: "24.15.0"
           cache: "pnpm"
         env:
           FORCE_COLOR: 0
@@ -55,7 +55,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.21.1"
+          node-version: "24.15.0"
           cache: "pnpm"
       - name: Restore node_modules
         uses: actions/cache/restore@v3
@@ -77,6 +77,10 @@ jobs:
         run: pnpm test --coverage
       - name: Test release script
         run: pnpm test:release
+      - name: Check agent skills
+        run: pnpm test:skills
+      - name: Check examples
+        run: pnpm test:examples && pnpm examples
       - name: Send Report
         uses: qltysh/qlty-action/coverage@v1
         with:
@@ -109,7 +113,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.21.1"
+          node-version: "24.15.0"
           cache: "pnpm"
       - name: Restore node_modules
         uses: actions/cache/restore@v3
@@ -131,11 +135,53 @@ jobs:
       - name: Test on Bun
         run: pnpm --filter @hyper-fetch/elysia test:bun
 
+  firebase-tests:
+    name: Run Firebase emulator tests
+    runs-on: ubuntu-latest
+    needs: prepare-environment
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.15.0"
+          cache: "pnpm"
+      - name: Restore node_modules
+        uses: actions/cache/restore@v3
+        id: cache-node-modules
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+      - name: Install node_modules on cache miss
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
+      # The Firestore and Realtime Database emulators run on Java
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+      - name: Cache Firebase emulators
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: ${{ runner.os }}-firebase-emulators-${{ hashFiles('**/pnpm-lock.yaml') }}
+      # Each package starts the emulators on fixed ports, so the packages run one after the other
+      - name: Test on the Firebase emulators
+        run: pnpm test:firebase
+
   release:
     name: Release
     if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha' }}
     runs-on: ubuntu-latest
-    needs: [tests, bun-tests]
+    needs: [tests, bun-tests, firebase-tests]
     # Releases of one branch run one at a time, and a running release is never cancelled.
     concurrency:
       group: release-${{ github.ref }}
@@ -158,7 +204,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.21.1"
+          node-version: "24.15.0"
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
       - name: Restore node_modules

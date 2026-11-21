@@ -156,7 +156,7 @@ export const postUser = client
   .setRequestMapper((request) => {
     const formData = new FormData();
 
-    Object.entries(request.data).forEach(([key, value]) => {
+    Object.entries(request.payload).forEach(([key, value]) => {
       formData.append(key, value);
     });
 

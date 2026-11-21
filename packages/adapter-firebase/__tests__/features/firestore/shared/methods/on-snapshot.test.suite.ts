@@ -1,13 +1,13 @@
 import { Client } from "@hyper-fetch/core";
 import { Socket } from "@hyper-fetch/sockets";
-import type { FirebaseAdapterTypes, FirebaseSocketAdapterTypes } from "adapter";
+import type { FirebaseAdapterTypes, FirebaseSocketAdapterTypes, FirestoreSocketAdapterType } from "adapter";
 import { $where } from "constraints";
 import waitForExpect from "wait-for-expect";
 
 import type { Tea } from "../../../../utils";
 
 export const onSnapshotTestSuite = (
-  adapter: FirebaseSocketAdapterTypes<any>,
+  socketsAdapter: () => FirebaseSocketAdapterTypes<any>,
   coreAdapter: () => FirebaseAdapterTypes<any>,
 ) => {
   const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
@@ -19,14 +19,14 @@ export const onSnapshotTestSuite = (
   });
   const initialize = async () => {
     const client = new Client({ url: "teas/" }).setAdapter(coreAdapter());
-    const socket = new Socket({ url: "teas/", adapter });
+    const socket = new Socket({ url: "teas/", adapter: socketsAdapter() as FirestoreSocketAdapterType });
     const pushReq = client
       .createRequest<{ response: Tea; payload: Tea }>()({
         endpoint: "",
         method: "addDoc",
       })
       .setPayload(newData);
-    const socketBees = new Socket({ url: "bees/", adapter });
+    const socketBees = new Socket({ url: "bees/", adapter: socketsAdapter() });
 
     return { client, socket, socketBees, pushReq };
   };
@@ -38,6 +38,33 @@ export const onSnapshotTestSuite = (
       });
       const unmount = onSnapshotReq.listen(spy);
       expect(typeof unmount).toBe("function");
+      unmount();
+    });
+
+    it("should deliver each snapshot to the listener once", async () => {
+      const { socket, pushReq } = await initialize();
+      const onSnapshotReq = socket.createListener<Tea[]>()({
+        topic: "",
+      });
+
+      const received: (Tea[] | null)[] = [];
+      const unmount = onSnapshotReq.listen(({ data }) => {
+        received.push(data);
+      });
+
+      await waitForExpect(async () => {
+        expect(received.length).toBeGreaterThan(0);
+      });
+      expect(received).toHaveLength(1);
+
+      const { data: added } = await pushReq.send();
+
+      await waitForExpect(async () => {
+        expect(received.at(-1)).toEqual(expect.arrayContaining([{ ...newData, __key: added?.__key }]));
+      });
+      expect(received).toHaveLength(2);
+
+      unmount();
     });
     it("should unmount listeners", async () => {
       const { socket, pushReq } = await initialize();
@@ -60,6 +87,49 @@ export const onSnapshotTestSuite = (
 
       expect(socket.adapter.listeners.get(onSnapshotReq.topic)?.size).toBe(0);
     });
+    it("should deliver a document listener with groupByChangeType", async () => {
+      const { socket } = await initialize();
+      const onTea = socket
+        .createListener<Tea>()({
+          topic: ":teaId",
+          options: { groupByChangeType: true },
+        })
+        .setParams({ teaId: 1 });
+
+      const received: { data: Tea | null; groupedResult: unknown }[] = [];
+      const unmount = onTea.listen(({ data, extra }) => {
+        received.push({ data, groupedResult: "groupedResult" in extra ? extra.groupedResult : undefined });
+      });
+
+      await waitForExpect(async () => {
+        expect(received).toHaveLength(1);
+      });
+      expect(received[0].data).toMatchObject({ name: "Taiping Hou Kui", __key: "1" });
+      expect(received[0].groupedResult).toBeNull();
+
+      unmount();
+    });
+
+    it("should filter with the listener's query params", async () => {
+      const { socket } = await initialize();
+      const onGreenTeas = socket
+        .createListener<Tea[]>()({ topic: "" })
+        .setQueryParams((c) => c.where("type", "==", "Green").limit(2));
+
+      const received: Tea[][] = [];
+      const unmount = onGreenTeas.listen(({ data }) => {
+        received.push(data);
+      });
+
+      await waitForExpect(async () => {
+        expect(received).toHaveLength(1);
+      });
+      expect(received[0]).toHaveLength(2);
+      expect(received[0].map((tea) => tea.type)).toStrictEqual(["Green", "Green"]);
+
+      unmount();
+    });
+
     it("should return emptyResource status", async () => {
       const { socketBees } = await initialize();
       const onSnapshotReq = socketBees.createListener<Tea[]>()({
@@ -80,7 +150,7 @@ export const onSnapshotTestSuite = (
       await waitForExpect(async () => {
         expect(spy).toHaveBeenCalled();
         expect(ref).toBeDefined();
-        expect(receivedData).toBeNull();
+        expect(receivedData).toStrictEqual([]);
         expect(receivedExtra.status).toBe("emptyResource");
       });
 

@@ -45,6 +45,21 @@ export const getDocTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
       expect(success).toBe(true);
       expect(error).toBe(null);
     });
+    it("should resolve with an error for a method Firestore does not have", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
+      const request = client
+        .createRequest<{ response: Tea }>()({
+          endpoint: ":teaId",
+          method: "push",
+        })
+        .setParams({ teaId: 1 });
+
+      const { data, error, status, success } = await request.send();
+      expect(data).toBeNull();
+      expect(error).toBeInstanceOf(Error);
+      expect(status).toBe("error");
+      expect(success).toBe(false);
+    });
     it("should emit lifecycle events", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const request = client

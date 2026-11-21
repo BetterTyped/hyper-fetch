@@ -1,0 +1,80 @@
+---
+title: Response mapping
+sidebar_label: Response mapping
+sidebar_position: 6
+description: Validate API responses with zod and map them to the app shape with setResponseMapper.
+sidebar_custom_props:
+  path: react/response-mapping
+  level: intermediate
+  tags: [validation, useFetch, errors, typescript]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/response-mapping/src/api.ts";
+import app from "!!raw-loader!@examples/react/response-mapping/src/App.tsx";
+
+A product grid that never renders data it does not understand. Every response goes through a zod schema that checks it
+and turns the API fields into the fields the components use.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`setResponseMapper`** runs on every response, before `send()` resolves and before a hook gets the data.
+2. **zod `transform`** renames and computes fields, so components read `name`, `salePrice` and `inStock`.
+3. **Typed output** flows from the mapper into `useFetch`: `data` has the app shape without any extra generics.
+4. **Invalid data becomes an error**: the mapper returns a failed response with the `ZodError`, and the UI lists the
+   issues.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` describes the API with `apiProductSchema` and wraps it in `productsSchema`, whose `transform` builds the app
+   shape. `z.input` types the raw response for `createRequest`, `z.output` types what the app gets.
+2. `getProducts.setResponseMapper()` receives the full response. Failed responses pass through untouched. Successful
+   ones are parsed with `safeParse`:
+
+   ```ts
+   const result = productsSchema.safeParse(response.data);
+   // highlight-next-line
+   if (!result.success) return { ...response, data: null, error: result.error, success: false as const };
+   return { ...response, data: result.data };
+   ```
+
+3. The request type is rebuilt from the mapper's return type, so `useFetch(getProducts)` returns `data` of type
+   `Products` and the components never see `title` or `discountPercentage`.
+4. The switch drops fields with `?select=title,thumbnail`, like a backend release that renamed them. The mapper turns
+   that response into an error, and `ValidationError` checks `error instanceof z.ZodError` to show the issues instead of
+   a broken grid.
+5. The cache keeps the raw response and the mapper runs when it is read, so every consumer of the request gets the same
+   mapped result.
+
+The opposite direction works the same way: `setPayloadMapper()` maps the payload before it is sent, and
+`setRequestMapper()` can validate or change the whole request.
+
+:::note When to use it
+
+- APIs you do not control, where a field can change without notice.
+- Backends that use different names or units than your UI.
+- Values computed from the response that several components need.
+
+:::
+
+---
+
+## Related
+
+- [Validation guide](/docs/guides/core/advanced/validation)
+- [Mapping guide](/docs/guides/core/advanced/mapping)
+- [Requests](/docs/core/request)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+One `setResponseMapper` call validates the response with zod, maps it to the app shape and types it for every hook. Data
+that fails the schema reaches the UI as an error, never as broken props.
+
+:::

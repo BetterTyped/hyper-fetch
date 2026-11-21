@@ -8,16 +8,14 @@ import type { DevtoolsCacheEvent } from "@/context/applications/types";
 
 export const SectionOverview = ({
   item,
-  listeners,
+  observers,
   setStale,
 }: {
   item: DevtoolsCacheEvent;
-  listeners: number;
+  /** Subscriptions of the user's application to the data of the cache key */
+  observers: number;
   setStale: (stale: boolean) => void;
 }) => {
-  const isValidResponseTimestampType =
-    typeof item.cacheData.responseTimestamp === "number" || typeof item.cacheData.responseTimestamp === "string";
-
   return (
     <div>
       <Table>
@@ -25,10 +23,10 @@ export const SectionOverview = ({
           <TableRow>
             <TableCell className="flex items-center gap-2 h-11 text-muted-foreground">
               <ScanEye className="w-5 h-5" />
-              Cache Listeners:
+              Observers:
             </TableCell>
             <TableCell>
-              <div className="flex items-center gap-2">{listeners}</div>
+              <div className="flex items-center gap-2">{observers}</div>
             </TableCell>
           </TableRow>
           <TableRow>
@@ -37,16 +35,11 @@ export const SectionOverview = ({
               Last Updated:
             </TableCell>
             <TableCell>
-              {isValidResponseTimestampType ? (
-                <>
-                  <span className="text-muted-foreground">
-                    {format(new Date(item.cacheData.responseTimestamp ?? 0), "yyyy-MM-dd")}
-                  </span>
-                  <span className="ml-2">{format(new Date(item.cacheData.responseTimestamp ?? 0), "HH:mm:ss")}</span>
-                </>
-              ) : (
-                <Badge variant="secondary">Unknown</Badge>
-              )}
+              {/* Cache entries are written with the time of their response, edits keep it a number */}
+              <span className="text-muted-foreground">
+                {format(new Date(item.cacheData.responseTimestamp), "yyyy-MM-dd")}
+              </span>
+              <span className="ml-2">{format(new Date(item.cacheData.responseTimestamp), "HH:mm:ss")}</span>
             </TableCell>
           </TableRow>
           <TableRow>

@@ -1,0 +1,77 @@
+---
+title: Payload validation
+sidebar_label: Payload validation
+sidebar_position: 12
+description:
+  Validate the payload with zod in a request mapper, show field errors in the form, and send nothing when the data is
+  invalid.
+sidebar_custom_props:
+  path: react/payload-validation
+  level: intermediate
+  tags: [validation, forms, useSubmit, errors]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/payload-validation/src/api.ts";
+import app from "!!raw-loader!@examples/react/payload-validation/src/App.tsx";
+
+A sign-up form whose request validates its own payload with [zod](https://zod.dev). Submit it half filled: the fields
+show their errors and the counter of sent requests stays at zero. Fix the fields and the user is created.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **`setRequestMapper`** runs the schema right before the request is sent.
+2. **A throw ends the request**: the `ZodError` comes back as `error`, and the fetch never starts.
+3. **The parsed payload is sent**, so zod transforms such as `trim()` apply to the body.
+4. **The `error` generic** types the `ZodError`, and `instanceof` narrows it for field errors.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` defines `NewUserSchema` and derives the payload type from it with `z.infer`, so the rules and the type can't
+   drift apart.
+2. `addUser` validates in a request mapper. The adapter runs it after the interceptors and before the fetch. It returns
+   the request with the parsed payload:
+
+   ```ts
+   // highlight-next-line
+   .setRequestMapper((request) => request.setPayload(NewUserSchema.parse(request.payload)));
+   ```
+
+3. When `parse` throws, the adapter catches it and resolves the request with the error. `send()` and `useSubmit` do not
+   throw, and nothing reaches the network.
+4. `error: z.ZodError<NewUser>` in the request generics adds the zod error to the global error type. `App.tsx` checks
+   `error instanceof z.ZodError` and turns it into `fieldErrors` with `z.flattenError()`. Other failures, such as a
+   network error, show as one message.
+5. The form has no checks of its own. Any caller of `addUser`, a script or another form, gets the same validation.
+6. `useSentCount` listens to `client.requestManager.events.onRequestStart`, which fires only when the adapter really
+   starts a request. Invalid submits never move it.
+
+:::note When to use it
+
+- Forms whose payload must follow rules that the server checks again.
+- Requests sent from many places, where each caller would otherwise repeat the checks.
+- Expensive or rate-limited endpoints, where an invalid call costs money or quota.
+
+:::
+
+---
+
+## Related
+
+- [Validation guide](/docs/guides/core/advanced/validation)
+- [Requests](/docs/core/request)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [Forms example](/examples/mutations/forms)
+
+:::secondary Summary
+
+A request mapper that calls `schema.parse()` keeps invalid payloads from being sent. The `ZodError` comes back as a
+typed `error`, ready to show next to each field.
+
+:::

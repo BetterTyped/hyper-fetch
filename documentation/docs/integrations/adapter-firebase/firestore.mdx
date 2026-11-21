@@ -4,148 +4,221 @@ title: Working with Firestore
 sidebar_label: Firestore
 ---
 
-# Working with Firestore
+Firestore operations are HyperFetch requests with a Firestore `method`. This page covers every method, what each one
+returns, and how to query and paginate collections.
 
-This guide will walk you through using the Hyper-Fetch Firestore adapter to interact with your Firestore database.
-You'll learn how to perform fundamental data operations like creating, reading, updating, and deleting documents.
+---
 
-:::secondary What you'll learn
+:::tip Purpose
 
-1.  **CRUD Operations**: How to use methods like `getDocs`, `getDoc`, `setDoc`, `addDoc`, and `deleteDoc`.
-2.  **Realtime Updates**: Understand the separation of standard requests and realtime listeners.
-3.  **Handling Data**: How to work with the data and `extra` metadata returned from Firestore.
+1.  **Read** documents and collections with `getDoc` and `getDocs`.
+2.  **Write** with `addDoc`, `setDoc`, `updateDoc` and `deleteDoc`, with the payload typed per request.
+3.  **Query** collections with constraints and page through them with cursors.
 
 :::
 
-The Firestore adapter maps familiar Firestore SDK methods to Hyper-Fetch requests. Here's a quick overview of the
-available methods:
+---
+
+## Setup
 
 ```tsx
-const getReq = client.createRequest<{ response: Tea[] }>()({
-  endpoint: "teas",
-  method: "getDocs", // "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc"
-});
+import { Client } from "@hyper-fetch/core";
+import { FirebaseAdapter } from "@hyper-fetch/firebase";
+import { getFirestore } from "firebase/firestore";
+
+export const client = new Client({ url: "" }).setAdapter(FirebaseAdapter(getFirestore(app)));
+
+type Tea = { name: string; type: "Green" | "Black" | "Oolong"; year: number };
+type TeaDoc = Tea & { __key: string }; // __key is the document id, added by the adapter
 ```
 
-For the `onSnapshot`-like usage, please check how to
-**[listen to queries](/docs/integrations/adapter-firebase/realtime-queries)**.
+The examples below use this client, so every endpoint is the full Firestore path.
 
 ---
 
 ## Methods
 
-All examples are based on this `Tea` type:
+| Method      | Path       | `data`                                  | `extra`                                 |
+| ----------- | ---------- | --------------------------------------- | --------------------------------------- |
+| `getDocs`   | collection | documents with `__key`, `[]` when empty | `ref` (CollectionReference), `snapshot` |
+| `getDoc`    | document   | the document with `__key`, or `null`    | `ref` (DocumentReference), `snapshot`   |
+| `addDoc`    | collection | the payload plus the new `__key`        | `ref` of the new document               |
+| `setDoc`    | document   | the payload                             | `ref`                                   |
+| `updateDoc` | document   | the payload                             | `ref`                                   |
+| `deleteDoc` | document   | `null`                                  | `ref`                                   |
 
-```ts
-type Tea = {
-  __key?: string; // This is how hyper-fetch returns the document id
-  origin: string;
-  type: string;
-  year: number;
-  name: string;
-  amount: number;
-};
-```
-
----
+`getDoc` is the default, so a request without `method` reads one document.
 
 ### `getDocs`
 
-Fetches all documents from a collection.
-
 ```tsx
-const getReq = client.createRequest<{ response: Tea[] }>()({
+const getTeas = client.createRequest<{ response: TeaDoc[] }>()({
   endpoint: "teas",
   method: "getDocs",
 });
 
-const { data } = await getReq.send();
-// data: Array of document data. Each object includes a `__key` property with the document ID.
+const { data, status } = await getTeas.send();
+// data: [{ __key: "abc", name: "Sencha", ... }], status: "emptyResource" when the collection is empty
 ```
-
-**Extra values:**
-
-- `ref`: The `CollectionReference` used for the query.
-- `snapshot`: The raw `QuerySnapshot` from Firestore.
-
----
 
 ### `getDoc`
 
-Fetches a single document by its ID.
-
 ```tsx
-const req = client
-  .createRequest<{ response: Tea }>()({
-    endpoint: "teas/:teaId",
-    method: "getDoc",
-  })
-  .setParams({ teaId: "some-id-1" });
+const getTea = client.createRequest<{ response: TeaDoc | null }>()({
+  endpoint: "teas/:teaId",
+  method: "getDoc",
+});
 
-const { data } = await req.send();
-// data: The document data, or `null` if it doesn't exist.
+const { data } = await getTea.setParams({ teaId: "abc" }).send();
+// data: { __key: "abc", name: "Sencha", ... } or null with status "emptyResource"
 ```
-
-**Extra values:**
-
-- `ref`: The `DocumentReference` for the requested document.
-- `snapshot`: The raw `DocumentSnapshot` from Firestore.
-
----
-
-### `setDoc`
-
-Creates or overwrites a single document. To merge data with an existing document, you can pass `{ merge: true }` in the
-request options.
-
-```tsx
-const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 };
-const setReq = client
-  .createRequest<{ response: Tea; payload: Tea }>()({
-    endpoint: "teas/:teaId",
-    method: "setDoc",
-    // options: { merge: true } // Use to merge data with an existing document
-  })
-  .setParams({ teaId: "some-id-1" })
-  .setPayload(newData);
-
-const { data } = await setReq.send();
-// data: The same data that was sent in the request.
-```
-
----
 
 ### `addDoc`
 
-Adds a new document to a collection with a randomly generated ID.
+Creates a document with a generated id in a collection.
 
 ```tsx
-const newData = { origin: "China", type: "Oolong", year: 2022, name: "Tie Guan Yin", amount: 50 };
-const addDocReq = client
-  .createRequest<{ response: Tea; payload: Tea }>()({
-    endpoint: "teas",
-    method: "addDoc",
-  })
-  .setPayload(newData);
+const addTea = client.createRequest<{ response: TeaDoc; payload: Tea }>()({
+  endpoint: "teas",
+  method: "addDoc",
+});
 
-const { data } = await addDocReq.send();
-// data: The sent data, with the addition of a `__key` property containing the new document ID.
+const { data } = await addTea.send({ payload: { name: "Sencha", type: "Green", year: 2024 } });
+// data.__key is the id of the new document
+```
+
+### `setDoc`
+
+Creates or replaces a document at a known id. With `options: { merge: true }` it merges the payload into the existing
+document instead.
+
+```tsx
+const saveTea = client.createRequest<{ response: Tea; payload: Tea }>()({
+  endpoint: "teas/:teaId",
+  method: "setDoc",
+});
+
+const mergeTea = client.createRequest<{ response: Partial<Tea>; payload: Partial<Tea> }>()({
+  endpoint: "teas/:teaId",
+  method: "setDoc",
+  options: { merge: true },
+});
+
+await saveTea.setParams({ teaId: "sencha" }).send({ payload: { name: "Sencha", type: "Green", year: 2024 } });
+await mergeTea.setParams({ teaId: "sencha" }).send({ payload: { year: 2025 } });
+```
+
+### `updateDoc`
+
+Changes the given fields of an existing document. Updating a document that does not exist resolves with
+`status: "error"` and Firestore's `not-found` error.
+
+```tsx
+const updateTea = client.createRequest<{ response: Partial<Tea>; payload: Partial<Tea> }>()({
+  endpoint: "teas/:teaId",
+  method: "updateDoc",
+});
+
+const { error } = await updateTea.setParams({ teaId: "sencha" }).send({ payload: { year: 2025 } });
+```
+
+### `deleteDoc`
+
+```tsx
+const deleteTea = client.createRequest<{ response: null }>()({
+  endpoint: "teas/:teaId",
+  method: "deleteDoc",
+});
+
+await deleteTea.setParams({ teaId: "sencha" }).send();
 ```
 
 ---
 
-### `deleteDoc`
+## Querying
 
-Deletes a single document.
+Pass `queryParams` a callback that builds the constraints. With the document type on the request, fields and values are
+checked.
 
 ```tsx
-const deleteDocReq = client
-  .createRequest()({
-    endpoint: "teas/:teaId",
-    method: "deleteDoc",
-  })
-  .setParams({ teaId: "some-id-1" });
+import type { FirestoreQueryParams } from "@hyper-fetch/firebase";
 
-const { data } = await deleteDocReq.send();
-// data: null
+const getTeas = client.createRequest<{ response: TeaDoc[]; queryParams?: FirestoreQueryParams<Tea> }>()({
+  endpoint: "teas",
+  method: "getDocs",
+});
+
+const { data } = await getTeas.send({
+  queryParams: (c) => c.where("type", "==", "Green").where("year", ">=", 2020).orderBy("year", "desc").limit(20),
+});
 ```
+
+| Chain method                               | Firestore equivalent        | Typed by the document                                    |
+| ------------------------------------------ | --------------------------- | -------------------------------------------------------- |
+| `where(field, op, value)`                  | `where(field, op, value)`   | `field` exists; `value` matches it (an array for `"in"`) |
+| `orderBy(field, direction?)`               | `orderBy(field, direction)` | `field` exists                                           |
+| `limit(n)`                                 | `limit(n)`                  |                                                          |
+| `startAt`, `startAfter`, `endAt`, `endBefore` | the same cursors         | one value per `orderBy`, in order                        |
+
+Nested fields use dots (`"origin.country"`). `__key` is the document id, not a field, so it cannot be filtered on.
+
+:::caution Firestore rules still apply
+
+Range filters on one field combined with `orderBy` on another need a composite index. Firestore reports a missing index
+in `response.error`, with a link that creates it.
+
+:::
+
+### Pagination
+
+Cursors take one value per `orderBy`, in the same order. To load the next page, start after the values of the last
+document you have.
+
+```tsx
+const page1 = await getTeas.send({ queryParams: (c) => c.orderBy("year", "desc").orderBy("name").limit(20) });
+const last = page1.data?.at(-1);
+
+const page2 = await getTeas.send({
+  queryParams: (c) => c.orderBy("year", "desc").orderBy("name").startAfter(last!.year, last!.name).limit(20),
+});
+```
+
+Each page has its own cache entry, because the constraints are part of the cache key.
+
+### Constraints as data
+
+`queryParams` also takes the constraints array the callback resolves to, built with `$where`, `$orderBy`, `$limit` and
+the `$`-cursors. Use it to build a query step by step:
+
+```tsx
+import { $orderBy, $where } from "@hyper-fetch/firebase";
+import type { FirestoreConstraint } from "@hyper-fetch/firebase";
+
+const constraints: FirestoreConstraint[] = [];
+if (onlyGreen) constraints.push($where("type", "==", "Green"));
+constraints.push($orderBy("year", "desc"));
+
+getTeas.setQueryParams(constraints);
+```
+
+---
+
+:::note When it's helpful
+
+- Lists with filters that change on screen: each filter combination is cached and deduplicated on its own.
+- Forms that create or edit documents: the payload is typed, and errors such as permission denied arrive in
+  `response.error`.
+- Paginated feeds: cursors from the last document keep pages stable while you keep the query in one array.
+
+:::
+
+---
+
+:::secondary Summary
+
+1.  `getDocs` and `getDoc` read; `addDoc`, `setDoc`, `updateDoc` and `deleteDoc` write.
+2.  Documents and list items come with `__key`, their document id.
+3.  `setDoc` replaces unless the request has `options: { merge: true }`.
+4.  Queries are a `queryParams` callback checked against the document; cursors take one value per `orderBy`.
+
+:::

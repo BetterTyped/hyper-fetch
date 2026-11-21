@@ -1,0 +1,108 @@
+---
+title: Kanban board
+sidebar_label: Kanban board
+sidebar_position: 2
+description:
+  A kanban board with native drag and drop, optimistic moves with rollback, a sync status and changes shared between
+  tabs.
+sidebar_custom_props:
+  path: apps/kanban
+  level: advanced
+  tags: [optimistic, useSubmit, sync, mocking, cache]
+---
+
+import { Example } from "@site/src/components";
+import cards from "!!raw-loader!@examples/apps/kanban/src/api/cards.ts";
+import mockServer from "!!raw-loader!@examples/apps/kanban/src/api/mock-server.ts";
+import tabSync from "!!raw-loader!@examples/apps/kanban/src/api/tab-sync.ts";
+import column from "!!raw-loader!@examples/apps/kanban/src/features/board/Column.tsx";
+import syncStatus from "!!raw-loader!@examples/apps/kanban/src/components/SyncStatus.tsx";
+
+A three-column board. Drag a card to another column, add, rename or delete one: the board changes at once and saves in
+the background. Turn on **Make the server fail** to see every change undone, and open a second tab to see both tabs stay
+in sync.
+
+The backend is a mock built with HyperFetch mocking. It keeps the board in `localStorage`, so the data survives a reload
+and every tab reads the same cards, like a real database. Swap the client `url` for your API, delete `mock-server.ts`,
+and the rest of the app stays the same.
+
+<Example
+  files={{
+    "src/api/cards.ts": cards,
+    "src/features/board/Column.tsx": column,
+    "src/components/SyncStatus.tsx": syncStatus,
+    "src/api/tab-sync.ts": tabSync,
+    "src/api/mock-server.ts": mockServer,
+  }}
+/>
+
+:::tip What it shows
+
+1. **Optimistic updates on the request**: `setOptimistic` with `insert`, `patch` and `remove` moves, adds and deletes
+   cards before the server answers ([Optimistic updates](/examples/mutations/optimistic-updates)).
+2. **Rollback and commit**: a failed write puts the card back where it was, a saved card gets its real id
+   ([Undo delete](/examples/mutations/undo-delete), [Drag to reorder](/examples/mutations/drag-reorder)).
+3. **Queued writes**: `queued: true` sends the writes to one card in order ([Queue](/examples/request-control/queue)).
+4. **Sync status**: `useIsSubmitting` counts the writes in flight, request events fill the activity log
+   ([CRUD](/examples/mutations/crud)).
+5. **Tab sync**: cache changes travel to the other tabs over a `BroadcastChannel`
+   ([Tab sync](/examples/caching/tab-sync)).
+6. **A mock backend**: `setMock` answers every request, with latency and failures on demand
+   ([Mocking](/examples/request-control/mocking)).
+
+:::
+
+---
+
+## How it works
+
+1. `api/cards.ts` defines the board request `getCards` and three writes: `createCard`, `updateCard` and `deleteCard`.
+   The writes carry their optimistic changes, so the components only call `submit()`. Moving a card and renaming it are
+   the same `updateCard` request with a different payload.
+2. `updateCard` patches the card in the cached board and describes its undo. `restore()` puts the old card back at its
+   old index and keeps every other change made in the meantime:
+
+   ```ts
+   optimistic(getCards)
+     // highlight-next-line
+     .patch(params.cardId, payload)
+     .rollback(({ data, previous }) => restore(data, previous, Number(params.cardId)));
+   ```
+
+3. `createCard` inserts a card with a temporary negative id. `.commit()` swaps it for the card from the response, and
+   `.rollback()` removes it. While the id is negative, `CardItem` shows the card as busy and disables its buttons.
+4. After the last write to the board settles, core refetches `getCards` to get the server's truth. The mock stores every
+   write, so that refetch confirms the change.
+5. `Column` uses the native drag and drop API. `onDragStart` puts the card id into `dataTransfer`, and `onDrop` sends
+   `updateCard` with the column's status. No drag and drop library is needed.
+6. `SyncStatus` combines `useIsSubmitting(client)` with the activity log from `api/activity.ts`, which listens to
+   `client.requestManager.events.onResponse`. Every write, from any component, ends up in one place.
+7. `api/tab-sync.ts` posts every cache write (responses, optimistic changes and rollbacks) to a `BroadcastChannel`. The
+   other tabs save the same entry with `client.cache.set()`, and their `useFetch` re-renders without a request.
+8. `api/mock-server.ts` attaches a mock to each request with `setMock`, and answers after 700 ms. The **Make the server
+   fail** switch makes the writes answer `500`.
+
+:::note When to use it
+
+- Boards, lists and editors where users expect every change to show up at once.
+- Apps that are often open in several tabs, such as dashboards and admin panels.
+- Prototypes: build the frontend against a mock backend first, then switch the client `url`.
+
+:::
+
+---
+
+## Related
+
+- [Optimistic updates guide](/docs/guides/react/basics/optimistic-approach)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [`useIsFetching` and `useIsSubmitting`](/docs/react/hooks/use-is-fetching)
+- [Cache](/docs/core/cache)
+- [Mocking](/docs/core/mocking)
+
+:::secondary Summary
+
+Each request owns its optimistic change and its undo, so drag and drop, add, rename and delete are one `submit()` call
+each. Request events feed the sync status, cache events feed the other tabs, and `setMock` stands in for the backend.
+
+:::

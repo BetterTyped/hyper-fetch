@@ -1,0 +1,80 @@
+---
+title: Infinite scroll
+sidebar_label: Infinite scroll
+sidebar_position: 3
+description: Load the next page of products as you scroll, with useInfiniteFetch and an IntersectionObserver.
+sidebar_custom_props:
+  path: react/infinite-scroll
+  level: intermediate
+  tags: [useInfiniteFetch, pagination]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/infinite-scroll/src/api.ts";
+import app from "!!raw-loader!@examples/react/infinite-scroll/src/App.tsx";
+import inView from "!!raw-loader!@examples/react/infinite-scroll/src/use-in-view.ts";
+
+A product list that grows as you scroll. `useInfiniteFetch` keeps track of the pages, and a small `IntersectionObserver`
+in the app decides when to ask for the next one. A badge in the corner counts the loaded items and pages.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app, "src/use-in-view.ts": inView }} />
+
+:::tip What it shows
+
+1. **Typed pagination.** `{ offset: "skip", limit: "limit", items: "products", total: "total" }` is checked against the
+   request and its response.
+2. **`useInfiniteFetch`** returns one flat `items` array, so there are no pages to merge by hand.
+3. **The end of the list** is detected from `total`, and `hasNextPage` turns `false`.
+4. **The trigger lives in app code.** HyperFetch has no DOM helpers, so the observer is a short hook you own.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` defines `getProducts` with `limit`, `skip` and `select` query params, and `productsPagination` with
+   `satisfies Pagination<typeof getProducts>`. A wrong field name is a compile error.
+2. `App` calls `useInfiniteFetch(getProducts.setQueryParams({ limit: 12, ... }), { pagination })`. The first page starts
+   at offset `0`, and each next page adds `limit` to `skip`.
+3. `useInView` in `use-in-view.ts` observes an empty `div` under the list with a `300px` margin and calls
+   `fetchNextPage()` when it comes close to the viewport. It is turned off while a page loads, after a failed page and
+   at the end of the list.
+4. The observer is re-created after every page. A new observer reports the current state at once, so if the list is
+   still too short to fill the screen, the next page loads without any scrolling.
+5. `isFetchingNextPage` shows the spinner under the list, `isFetchNextPageError` offers a retry, and `!hasNextPage`
+   shows the end of the list.
+
+```tsx
+const sentinel = useInView<HTMLDivElement>(() => fetchNextPage(), {
+  // highlight-next-line
+  enabled: hasNextPage && !isFetchingNextPage && !isFetchNextPageError,
+  watch: pages.length,
+});
+```
+
+Calls to `fetchNextPage()` made while a page is loading share one request, so a fast scroll never loads the same page
+twice.
+
+:::note When to use it
+
+- Feeds, search results and catalogs that users browse rather than page through.
+- Mobile layouts, where a "next page" button is easy to miss. For an explicit control, see
+  [Load more](/examples/data-fetching/load-more).
+
+:::
+
+---
+
+## Related
+
+- [`useInfiniteFetch`](/docs/react/hooks/use-infinite-fetch)
+- [Infinite scroll guide](/docs/guides/react/basics/infinite-scroll)
+- [Pagination example](/examples/data-fetching/pagination)
+
+:::secondary Summary
+
+You described the paging fields once, let `useInfiniteFetch` merge the pages and detect the end, and loaded each next
+page from an `IntersectionObserver` written in app code.
+
+:::

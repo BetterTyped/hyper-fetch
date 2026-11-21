@@ -1,0 +1,112 @@
+---
+title: HyperFetch on the server
+sidebar_label: Server runtimes
+sidebar_position: 14
+description:
+  A Node.js script that sends typed requests, runs them in parallel and retries failures, with code that also runs in
+  Bun, Deno and Workers.
+sidebar_custom_props:
+  path: node/server
+  level: beginner
+  tags: [server, send, retries, typescript]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/node/server/src/api.ts";
+import index from "!!raw-loader!@examples/node/server/src/index.ts";
+
+A Node.js script with no framework and no UI. It loads users from [dummyjson](https://dummyjson.com), fetches their
+posts in parallel and shows how retries treat a server error and a client error. `npm run dev` runs it with `tsx`, and
+the preview is the terminal output.
+
+<Example files={{ "src/api.ts": api, "src/index.ts": index }} />
+
+:::tip What it shows
+
+1. **Server mode**: outside the browser the client caches nothing unless a request sets a scope, so data of one user
+   never leaks to another.
+2. **Typed `send()`**: responses, endpoint params and query params are typed, and `send()` resolves with `data` or
+   `error` instead of throwing.
+3. **Parallel requests** with `Promise.all`, one request per user.
+4. **Conditional retries**: `setRetryOnError` retries a `503` and gives up on a `404` right away.
+
+:::
+
+---
+
+## What the terminal shows
+
+```text
+HyperFetch on node v22.x, client mode: server
+
+  229ms  GET /users -> 200, Emily Johnson, Michael Williams, Sophia Brown
+  229ms  Fetching the posts of 3 users in parallel
+  307ms    Emily: 1 posts, "The trees, therefore, must be such old"
+  307ms    Michael: 2 posts, "The bustling marketplace", "The bustling city street was a feast for the senses"
+  307ms    Sophia: 0 posts, none
+  307ms  GET /http/503, attempt 1
+  691ms  GET /http/503, attempt 2
+ 1048ms  GET /http/503, attempt 3
+ 1091ms    -> 503 "Service Unavailable" after 3 attempt(s)
+ 1091ms  GET /http/404, attempt 1
+ 1126ms    -> 404 "Not Found" after 1 attempt(s)
+```
+
+The three post requests finish at the same moment because they ran at the same time. The `503` is sent three times, 300
+ms apart, and the `404` once.
+
+---
+
+## How it works
+
+1. `src/api.ts` creates the client with `mode: "server"`. The default `"auto"` already picks it outside the browser;
+   writing it out documents the cache rule: nothing is cached unless the request calls `setScope(sessionId)`.
+2. `getUsers` and `getUserPosts` declare the response and the query params in the generics. `getUserPosts` has a
+   `:userId` endpoint param, so `setParams({ userId })` is required before sending.
+3. `src/index.ts` uses top-level `await`. `getUsers.send()` returns `{ data, error, status }`. The script checks `data`,
+   and TypeScript narrows it to the response type.
+4. The posts are fetched with `Promise.all(users.map(...))`. Each call builds its own request with `setParams()`, and
+   all of them are in flight together.
+5. `getStatus` sets `setRetry(2)`, `setRetryTime(300)` and a `setRetryOnError` callback:
+
+   ```ts
+   // highlight-next-line
+   .setRetryOnError((response) => response.status === null || Number(response.status) >= 500);
+   ```
+
+   The `onRequestStart` callback of `send()` runs for every attempt, which is how the script counts them.
+
+6. `npm run build` compiles to `dist` with `tsc` and `npm start` runs it with plain `node`.
+
+## Bun, Deno and Workers
+
+`@hyper-fetch/core` uses the standard `fetch`, `AbortController` and timers, so the same code runs on other runtimes:
+
+- **Bun**: `bun src/index.ts`. Bun runs TypeScript without a build step.
+- **Deno**: import the package as `npm:@hyper-fetch/core`, or let Deno 2 read `package.json`, and import local files by
+  their `.ts` name. Run with `--allow-net`.
+- **Cloudflare Workers** and other edge runtimes: create the client at module level and call `send()` inside the `fetch`
+  handler. Without a top-level script, use `setScope()` for anything you want cached per request.
+
+:::note When to use it
+
+- Backend services, cron jobs, CLIs and scripts that call other APIs.
+- Server-side rendering, where the same requests the UI uses run on the server first.
+- Workers that need retries, timeouts and typed responses without a framework.
+
+:::
+
+---
+
+## Related
+
+- [Client](/docs/core/client)
+- [Requests](/docs/core/request)
+- [Cache](/docs/core/cache)
+
+:::secondary Summary
+
+HyperFetch runs on the server with the same requests as in the browser. Server mode keeps the cache safe by default,
+`send()` gives typed results without throwing, and retries are configured on the request.
+
+:::

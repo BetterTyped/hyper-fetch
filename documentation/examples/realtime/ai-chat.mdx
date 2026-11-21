@@ -1,0 +1,81 @@
+---
+title: AI chat
+sidebar_label: AI chat
+sidebar_position: 5
+description: Stream a model answer token by token from a local Hono server with useStream, with stop and regenerate.
+sidebar_custom_props:
+  path: react/ai-chat
+  level: intermediate
+  tags: [useStream, streaming, cancellation, server]
+---
+
+import { Example } from "@site/src/components";
+import app from "!!raw-loader!@examples/react/ai-chat/src/App.tsx";
+import api from "!!raw-loader!@examples/react/ai-chat/src/api.ts";
+import server from "!!raw-loader!@examples/react/ai-chat/server/app.ts";
+
+A chat window in the style of an LLM app. A Hono route in the same Vite project plays the model: it writes its answer
+one word at a time, and the client shows the text while it grows. **Stop** cancels the answer halfway, and
+**Regenerate** asks again with the same history.
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api, "server/app.ts": server }} />
+
+:::tip What it shows
+
+1. **`useStream`** sends a request in streaming mode and returns `text` that grows with every chunk.
+2. **`autoStart`** starts the stream on mount, so each answer is one component with its own stream.
+3. **`abort()`** cancels the request, or the body once it is being read. The server sees the abort and stops writing.
+4. **Regenerate** mounts a new answer with the same history, which starts a fresh stream.
+
+:::
+
+---
+
+## How it works
+
+1. `server/app.ts` handles `POST /api/chat`. It picks a canned answer by keyword and writes it word by word with Hono's
+   `stream()`, sleeping 30 to 100 ms between words like a model that produces tokens at an uneven pace.
+2. `sendChat` in `api.ts` is an ordinary `POST` request with the chat history as payload and `string` as the response
+   type. Nothing in it is specific to streaming.
+3. `StreamingAnswer` builds the request with `setPayload({ messages: history })` and passes it to `useStream`:
+
+   ```ts
+   // highlight-next-line
+   const { text, streaming, done, error, abort } = useStream(request, { autoStart: true });
+   ```
+
+   `useStream` sends it with the fetch adapter's `streaming` option. The response body comes back as a `ReadableStream`,
+   and each chunk is decoded and appended to `text`.
+
+4. When `done` or `error` turns true, `StreamingAnswer` reports the final text to `App`, which stores it as a finished
+   message and unmounts the streaming one.
+5. **Stop** calls `abort()` and keeps the text received so far. The body is canceled, the connection closes, and the
+   server's `onAbort` logs how many words it sent. You can see it in the terminal that runs `npm run dev`.
+6. **Regenerate** removes the last answer and mounts a new `StreamingAnswer` with a new `key`, so it starts a new stream
+   with its own state.
+
+The adapter timeout covers the wait for the response headers. Once the body is streaming it can take as long as it
+needs.
+
+:::note When to use it
+
+- Chat and assistant UIs that call an LLM through your own API.
+- Any long text response, such as logs, reports or code generation, that people can start reading early.
+- Answers people may want to cancel to save tokens or time.
+
+:::
+
+---
+
+## Related
+
+- [`useStream`](/docs/react/hooks/use-stream)
+- [Streaming example](/examples/realtime/streaming)
+- [Hono integration](/docs/integrations/hono/overview)
+
+:::secondary Summary
+
+A plain `POST` request and `useStream` render an answer while the server writes it. `abort()` cancels the body and ends
+the server's work, and a new component with the same history regenerates the answer.
+
+:::

@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import type { Adapter } from "@hyper-fetch/core";
+import type { Adapter, DefaultMapperType } from "@hyper-fetch/core";
 import type { SocketAdapter } from "@hyper-fetch/sockets";
 import type {
+  OrderedRealtimeConstraints,
   PermittedConstraints,
+  RealtimeConstraints,
   RealtimeConstraintsUnion,
   RealtimePermittedMethods,
   SharedQueryConstraints,
@@ -12,7 +14,11 @@ import type { DatabaseReference, DataSnapshot } from "firebase/database";
 export type RealtimeSocketAdapterType = SocketAdapter<
   RealtimeDbOnValueMethodExtra,
   undefined,
-  { onlyOnce?: boolean } & RealtimeDBQueryParams
+  RealtimeDBListenerOptions,
+  undefined,
+  undefined,
+  DefaultMapperType,
+  RealtimeDBListenerQueryParams
 >;
 
 export type RealtimeDbAdapterType =
@@ -64,6 +70,8 @@ export type RealtimeDBStatuses = "success" | "error" | "emptyResource";
 export type RealtimeDbOnValueMethodExtra = {
   ref: DatabaseReference;
   snapshot: DataSnapshot;
+  /** `"emptyResource"` when the value is missing or the list is empty. */
+  status: RealtimeDBStatuses;
 };
 
 export type RealtimeDbGetMethodExtra = {
@@ -80,6 +88,40 @@ export type RealtimeDbPushMethodExtra = {
   key: string;
 };
 
-export type RealtimeDBQueryParams = {
-  constraints?: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
+/** One Realtime Database query constraint, built with `$orderByChild`, `$limitToFirst`, `$equalTo` or a cursor helper. */
+export type RealtimeDBConstraint = PermittedConstraints<
+  RealtimePermittedMethods,
+  RealtimeConstraintsUnion | SharedQueryConstraints
+>;
+
+/**
+ * Query params of a Realtime Database request: a callback that builds typed constraints, or the constraints array it
+ * resolves to. Pass the type of the list's children to check paths and values:
+ * `queryParams?: RealtimeDBQueryParams<Message>`.
+ *
+ * @example
+ * getMessages.send({ queryParams: (c) => c.orderByChild("sentAt").limitToLast(50) });
+ */
+export type RealtimeDBQueryParams<Doc = any> =
+  | RealtimeDBConstraint[]
+  | ((constraints: RealtimeConstraints<Doc>) => RealtimeConstraints<Doc> | OrderedRealtimeConstraints<Doc, any>)
+  | RealtimeDBDeprecatedQueryParams;
+
+/** @deprecated Pass the constraints directly: `queryParams: (c) => c.orderByChild(...)` or an array. */
+export type RealtimeDBDeprecatedQueryParams = {
+  /** @deprecated Pass the constraints directly: `queryParams: (c) => c.orderByChild(...)` or an array. */
+  constraints?: RealtimeDBConstraint[];
+};
+
+/** Query params of a Realtime Database listener: a callback that builds typed constraints, or the array. */
+export type RealtimeDBListenerQueryParams<Doc = any> =
+  | RealtimeDBConstraint[]
+  | ((constraints: RealtimeConstraints<Doc>) => RealtimeConstraints<Doc> | OrderedRealtimeConstraints<Doc, any>);
+
+/** Options of a Realtime Database `onValue` listener. Constraints go in the listener's `queryParams`. */
+export type RealtimeDBListenerOptions = {
+  /** @deprecated Use the listener's query params: `setQueryParams((c) => c.orderByChild(...))`. */
+  constraints?: RealtimeDBConstraint[];
+  /** Receive only the first value, then stop listening. */
+  onlyOnce?: boolean;
 };

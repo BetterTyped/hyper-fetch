@@ -1,0 +1,88 @@
+---
+title: Next.js Pages Router
+sidebar_label: Next.js Pages Router
+sidebar_position: 3
+description:
+  Fetch in getServerSideProps, dehydrate the responses and hydrate them into HyperFetch hooks with one Hydrate in _app.
+sidebar_custom_props:
+  path: nextjs/pages-router
+  level: intermediate
+  tags: [nextjs, ssr, useFetch, params]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/nextjs/pages-router/lib/api.ts";
+import appFile from "!!raw-loader!@examples/nextjs/pages-router/pages/_app.tsx";
+import index from "!!raw-loader!@examples/nextjs/pages-router/pages/index.tsx";
+import post from "!!raw-loader!@examples/nextjs/pages-router/pages/posts/[postId].tsx";
+
+A list of posts and a page for each post, built with the Next.js Pages Router. Both pages fetch in `getServerSideProps`,
+so the HTML already contains the data, and the HyperFetch hooks in the browser start with the same responses. Clicking a
+post navigates on the client, and the post still comes from the server.
+
+<Example
+  files={{
+    "lib/api.ts": api,
+    "pages/_app.tsx": appFile,
+    "pages/index.tsx": index,
+    "pages/posts/[postId].tsx": post,
+  }}
+/>
+
+:::tip What it shows
+
+1. **`getServerSideProps`** sends the request with `send()` and returns `request.dehydrate({ response })` as props.
+2. **One `Hydrate` in `_app`** writes the `hydration` prop of every page into the client cache.
+3. **`useFetch`** renders the server data on the first render, with no loading state and no request.
+4. **Client navigation**: a `Link` runs `getServerSideProps` on the server and hydrates the new page the same way.
+
+:::
+
+---
+
+## How it works
+
+1. `lib/api.ts` creates one client and exports the requests. `latestPosts` has its query params set, so the server and
+   the page build the same cache key.
+2. `pages/index.tsx` awaits `latestPosts.send()` in `getServerSideProps` and returns the dehydrated response:
+
+   ```ts
+   // highlight-next-line
+   hydration: response.success ? [latestPosts.dehydrate({ response })] : [],
+   ```
+
+   A failed response is left out, and `useFetch` fetches it in the browser instead.
+
+3. `pages/_app.tsx` renders `<Hydrate client={client} data={pageProps.hydration}>` around every page. The exported
+   `HydrationProps` type keeps the prop name the same in all pages.
+4. The page calls `useFetch(latestPosts, { revalidate: false })`. The hydrated data is fresh for the request's
+   `staleTime`, so the hook sends nothing. With the default `revalidate: true` it would show the server data and refresh
+   it in the background.
+5. `pages/posts/[postId].tsx` reads `params.postId`, sends `getPost.setParams({ postId })` and returns
+   `{ notFound: true }` for a `404`. The component builds the same request from the `postId` prop, so it finds the
+   hydrated post. "Refetch in the browser" calls `refetch()` to show the hook is live after hydration.
+6. On a `Link` click, Next.js calls `getServerSideProps` through `/_next/data/...json`, and `_app` hydrates the new
+   props. The browser never calls the API for these pages.
+
+:::note When to use it
+
+- Apps on the Pages Router that need data in the first HTML, for SEO or a fast first paint.
+- Moving a Pages Router app to HyperFetch without changing how pages load their data.
+- For the App Router, see [Next.js App Router](/examples/frameworks/nextjs-app-router).
+
+:::
+
+---
+
+## Related
+
+- [Hydrate](/docs/react/hydrate)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Requests](/docs/core/request)
+
+:::secondary Summary
+
+`getServerSideProps` sends the request and returns `dehydrate()` as props. One `Hydrate` in `_app` puts every page's
+responses into the client cache, so `useFetch` starts with the server data on first load and after client navigation.
+
+:::

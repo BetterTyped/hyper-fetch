@@ -1,0 +1,75 @@
+---
+title: Queue
+sidebar_label: Queue
+sidebar_position: 4
+description: Send messages one at a time with queued requests, and start, pause, stop or remove them with useQueue.
+sidebar_custom_props:
+  path: react/queue
+  level: advanced
+  tags: [useQueue, useSubmit]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/queue/src/api.ts";
+import app from "!!raw-loader!@examples/react/queue/src/App.tsx";
+
+An outbox that sends messages one at a time, in the order you queued them. Each send takes 1.5 seconds, so you have time
+to pause the queue, stop it, start it again or remove a message that has not been sent yet.
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
+:::tip What it shows
+
+1. **`queued: true`**: requests in the same queue run one after another instead of in parallel.
+2. **`useQueue`** lists the queued requests and returns `start`, `pause` and `stop` for the whole queue.
+3. **Per-request control**: each item has `deleteRequest`, `stopRequest` and `startRequest`.
+4. **`keepFinishedRequests`** keeps sent messages in the list as a history.
+
+:::
+
+---
+
+## How it works
+
+1. `sendMessageRequest` is a `POST` with `queued: true` and a fixed `queryKey: "outbox"`. The dispatcher keeps one queue
+   per `queryKey`, and the fixed key makes sure every message and the `useQueue` hook use the same queue.
+2. `queueMessage()` calls `submit({ payload })` from `useSubmit`. Each call adds a request at the end of the queue. The
+   dispatcher sends the next one only when the previous one is finished.
+3. `useQueue(sendMessageRequest, { keepFinishedRequests: true })` returns the queue as `requests`, its `stopped` state
+   and the controls:
+
+   ```tsx
+   const { requests, stopped, start, pause, stop } = useQueue(sendMessageRequest, {
+     // highlight-next-line
+     keepFinishedRequests: true,
+   });
+   ```
+
+4. **Pause** stops the queue but lets the message being sent finish. **Stop** also aborts it; the aborted message stays
+   in the queue, marked `canceled`, and is sent again after **Start**.
+5. Each item carries flags (`success`, `failed`, `canceled`, `removed`, `stopped`) that `getStatus()` turns into a
+   label. `dispatcher.hasRunningRequest()` tells which message is being sent right now.
+6. **Remove** calls `item.deleteRequest()`, which takes the message out of the queue and aborts it if it is running.
+
+:::note When to use it
+
+- Chat messages, comments or form steps that must reach the server in order.
+- Several uploads that should not compete for bandwidth.
+- Work the user should be able to hold back, for example while editing an item that is still waiting.
+
+:::
+
+---
+
+## Related
+
+- [`useQueue`](/docs/react/hooks/use-queue)
+- [Dispatcher](/docs/core/dispatcher)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+
+:::secondary Summary
+
+`queued: true` makes requests with the same `queryKey` run one at a time. `useQueue` shows that queue and lets you
+start, pause and stop it, or remove single requests.
+
+:::

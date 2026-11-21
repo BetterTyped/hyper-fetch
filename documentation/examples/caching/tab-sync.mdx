@@ -1,0 +1,78 @@
+---
+title: Tab sync
+sidebar_label: Tab sync
+sidebar_position: 5
+description:
+  Send cache changes to every open tab with a BroadcastChannel, so all tabs show the same data without refetching.
+sidebar_custom_props:
+  path: react/tab-sync
+  level: intermediate
+  tags: [cache, sync, useFetch]
+---
+
+import { Example } from "@site/src/components";
+import sync from "!!raw-loader!@examples/react/tab-sync/src/tab-sync.ts";
+import app from "!!raw-loader!@examples/react/tab-sync/src/App.tsx";
+import api from "!!raw-loader!@examples/react/tab-sync/src/api.ts";
+
+A todo list that stays the same in every open tab. **Open the preview in two browser tabs** and put them side by side.
+Check a todo in one tab and the other one updates at once, with no request of its own.
+
+<Example files={{ "src/tab-sync.ts": sync, "src/App.tsx": app, "src/api.ts": api }} />
+
+:::tip What it shows
+
+1. **`cache.events.onData`** reports every write to the cache: responses, `cache.update()` and `cache.set()`.
+2. **`BroadcastChannel`** carries the cache entry to the other tabs of the same site.
+3. **`cache.set()`** in the receiving tab stores the entry and re-renders every `useFetch` that reads it.
+4. **A guard flag** keeps a received change from being sent back, so tabs never loop.
+
+:::
+
+---
+
+## How it works
+
+1. `tab-sync.ts` opens `new BroadcastChannel("hyper-fetch-cache")`. Every tab that opens the same name receives the
+   messages of the others, but not its own.
+2. `client.cache.events.onData` fires for each cache write in this tab. Entries with `cached: true` are posted to the
+   channel as they are: a cache entry is plain data, so it passes the structured clone of `postMessage`.
+3. The receiving tab calls `client.cache.set()`. Its first argument normally is a request, but it only needs `cacheKey`,
+   `cache`, `staleTime`, `cacheTime` and `scope`, and the entry has all of them:
+
+   ```ts
+   // highlight-next-line
+   client.cache.set({ ...data, cache: true }, data);
+   ```
+
+4. `cache.set()` emits `onData` again. `applyingRemoteChange` is `true` while it runs, so the listener from step 2 does
+   not post the change back.
+5. In `App.tsx`, checking a todo sends `PATCH /todos/:todoId` and writes the answer to the list with
+   `client.cache.update(getTodos, ...)`. That one write reaches every tab.
+6. `SyncLog` reads the messages with `useSyncExternalStore`, so you can see what each tab sent and received.
+
+DummyJSON does not store the change. Reloading any tab fetches the original list, and that response is sent to the other
+tabs too.
+
+:::note When to use it
+
+- Apps that people keep open in several tabs, like dashboards, mail and admin panels.
+- After login, logout or a settings change that every tab has to show.
+- Together with a persisted cache, so tabs agree on what they save.
+
+:::
+
+---
+
+## Related
+
+- [Cache](/docs/core/cache)
+- [Cache updates example](/examples/caching/cache-updates)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+Twenty lines connect the cache to a `BroadcastChannel`: `onData` sends each local write, and `cache.set()` applies the
+writes of other tabs. Every `useFetch` reading that key updates in all tabs.
+
+:::

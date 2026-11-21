@@ -12,6 +12,7 @@ using Hyper Fetch.
 - How to create a GraphQL mutation.
 - How to pass variables to a mutation.
 - How to handle mutation responses.
+- How to refetch the queries a mutation changed.
 
 :::
 
@@ -63,3 +64,30 @@ const { data, error } = await login
   })
   .send();
 ```
+
+---
+
+## Refetching queries after a mutation
+
+A mutation often changes data that queries already hold in the cache. `matchGqlOperation` matches the cache keys of
+every request of a query document - with any variables, params, query params and method. Pass it to
+`client.cache.invalidate()`, and the active queries of the operation refetch, like `refetchQueries` in Apollo.
+
+```ts
+import { matchGqlOperation } from "@hyper-fetch/graphql";
+
+const updateUser = client.createRequest()({ endpoint: UpdateUserDocument });
+
+const { success } = await updateUser.send({ payload: { id: "1", name: "Ann" } });
+
+if (success) {
+  // GetUser(id: 1), GetUser(id: 2)... are all marked stale and refetched where they are used
+  client.cache.invalidate(matchGqlOperation(GetUserDocument));
+}
+```
+
+- Pass a document to match its requests on every url path of the `document` option, or a request to match only its
+  own path.
+- Documents with the same operation name but other fields are other operations, so they are not matched.
+- `invalidate` takes a list, so one mutation can refetch many operations:
+  `client.cache.invalidate([matchGqlOperation(GetUserDocument), matchGqlOperation(GetUsersDocument)])`.

@@ -169,6 +169,15 @@ await uploadAvatar.send({
 The same pattern covers downloads. This example uses two `useSubmit` hooks, one for an upload and one for a download,
 and renders a bar for each.
 
+:::caution Upload progress with the default adapter
+
+The default HTTP adapter uses `fetch`, which has no upload events. It reports `0%` when the request starts and `100%`
+once the response arrives, with the body size as the total for strings, `Blob`, `ArrayBuffer` and `URLSearchParams`
+payloads. For a live upload percentage, use the [Axios adapter](/docs/integrations/adapter-axios/overview), which reads
+the browser upload events. Download progress works with every adapter.
+
+:::
+
 {/* Here is a live example demonstrating both upload and download progress bars. */}
 
 ```tsx

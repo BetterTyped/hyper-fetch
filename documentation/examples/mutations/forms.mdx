@@ -1,0 +1,82 @@
+---
+title: Forms
+sidebar_label: Forms
+sidebar_position: 1
+description:
+  Submit a form with useSubmit, a typed payload, a submitting state and the validation errors the server sends back.
+sidebar_custom_props:
+  path: react/forms
+  level: beginner
+  tags: [useSubmit, forms, errors, validation]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/forms/src/api.ts";
+import app from "!!raw-loader!@examples/react/forms/src/App.tsx";
+
+A "new post" form that sends a `POST` request to dummyjson. The server checks the author: leave it empty and it answers
+`400`, pick an unknown id and it answers `404`. Both messages show up next to the field.
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
+:::tip What it shows
+
+1. **`useSubmit`** sends nothing on mount. The request runs when you call `submit({ payload })`.
+2. **Typed payload**: the `payload` generic makes `submit()` reject a body with the wrong shape.
+3. **`submitting`** disables the form and marks the button busy while the request is in flight.
+4. **Server errors**: the `error` generic types the JSON body of a failed response, so `error.message` is safe to read.
+5. **Lifecycle callbacks**: `onSubmitSuccess` resets the form and `onSubmitError` explains the failure.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` defines `createPostRequest` with `method: "POST"` and three generics: `response`, `payload` and `error`.
+   dummyjson replies to bad input with a 4xx status and `{ "message": "..." }`, which is what `ApiError` describes.
+2. `handleSubmit` stops the browser's own submit, reads the fields with `FormData` and calls
+   `submit({ payload: readPayload(form) })`. The default adapter sends the payload as JSON.
+3. `submitting` is `true` until the response arrives. A disabled `<fieldset>` blocks every input at once.
+4. A failed request does not throw. `submit()` resolves with the response, and the hook stores `error` and `status`. The
+   form reads `error.message` and sets `aria-invalid` on the author field.
+
+   ```tsx
+   {
+     error && <small>{error.message}</small>;
+   }
+   ```
+
+5. `onSubmitSuccess` and `onSubmitError` run once per finished submission. Put side effects there, such as resetting the
+   form, showing a toast or navigating away.
+
+   ```tsx
+   onSubmitSuccess(({ response }) => {
+     // highlight-next-line
+     setNotice({ ok: true, text: `Created post #${response.data.id}` });
+     formRef.current?.reset();
+   });
+   ```
+
+dummyjson simulates writes: the post gets an id, but it is not saved.
+
+:::note When to use it
+
+- Create and edit forms that send data to an API.
+- Forms where the server has the final say on validation, such as unique emails or existing ids.
+
+:::
+
+---
+
+## Related
+
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [Requests](/docs/core/request)
+
+:::secondary Summary
+
+`useSubmit` turns a typed request into a `submit()` function with `submitting`, `data` and `error` state. Server
+validation errors arrive as typed data in `error`, and the lifecycle callbacks handle what happens next.
+
+:::

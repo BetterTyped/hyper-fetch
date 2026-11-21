@@ -1,0 +1,90 @@
+---
+title: oRPC
+sidebar_label: oRPC
+sidebar_position: 7
+description:
+  A contract-first oRPC API on Hono and a React client typed from the contract, with Dates and typed errors kept end to
+  end.
+sidebar_custom_props:
+  path: orpc/basic
+  level: intermediate
+  tags: [orpc, createSdk, typescript, useFetch, useSubmit]
+---
+
+import { Example } from "@site/src/components";
+import contract from "!!raw-loader!@examples/orpc/basic/server/contract.ts";
+import router from "!!raw-loader!@examples/orpc/basic/server/router.ts";
+import api from "!!raw-loader!@examples/orpc/basic/src/api.ts";
+import app from "!!raw-loader!@examples/orpc/basic/src/App.tsx";
+
+A list of planets with a form to add one. The API is described by an oRPC contract first, the server implements it, and
+the React client gets its types from the contract alone. Dates travel as real `Date` objects, and a duplicate name comes
+back as a typed error.
+
+<Example
+  files={{
+    "server/contract.ts": contract,
+    "server/router.ts": router,
+    "src/api.ts": api,
+    "src/App.tsx": app,
+  }}
+/>
+
+:::tip What it shows
+
+1. **Contract-first**: `OrpcSchema<ContractRouterClient<typeof contract>>` types the SDK without importing the server.
+2. **`OrpcAdapter`** sends every procedure in the oRPC RPC format, so the server's `RPCHandler` understands it.
+3. **Rich types**: `discoveredAt` is a `Date` in the input and in the output, encoded by the oRPC serializer.
+4. **Defined errors**: the `CONFLICT` error from the contract keeps its code and `data` type on the client.
+
+:::
+
+---
+
+## How it works
+
+1. `server/contract.ts` declares `planet.list` and `planet.create` with `oc` from `@orpc/contract`: zod schemas for the
+   input and output, and an `.errors()` map with `CONFLICT`.
+2. `server/router.ts` implements the contract with `implement(contract)`. A handler that returns the wrong shape or
+   throws an undeclared error does not compile.
+3. `server/app.ts` mounts the router with the fetch `RPCHandler` under `/api/rpc` in Hono. `vite.config.ts` runs that
+   app for `/api` requests, so one `npm run dev` starts both sides.
+4. `src/api.ts` sets `OrpcAdapter()` on the client and builds the SDK from the contract type:
+
+   ```ts
+   // highlight-next-line
+   createSdk<typeof client, OrpcSchema<ContractRouterClient<typeof contract>>>(client, { camelCaseToKebabCase: false });
+   ```
+
+   oRPC procedures have no query or mutation kind, so each one offers both `$query` and `$mutation`. `App` uses `$query`
+   for the list, which is deduplicated like a `GET`, and `$mutation` for the create, which never is.
+
+5. `App` reads the list with `useFetch(sdk.planet.list.$query)` and renders `planet.discoveredAt.toLocaleDateString()`
+   with no parsing. The form sends `discoveredAt: new Date(date)` through `useSubmit`.
+6. Add a planet that is already listed. The server throws `errors.CONFLICT({ data: { name } })`. On the client,
+   `"defined" in error` rules out network failures, and `error.defined && error.code === "CONFLICT"` narrows
+   `error.data` to `{ name: string }`.
+
+:::note When to use it
+
+- You design the API as a contract first and want the frontend to start before the backend is done.
+- You need `Date`, `BigInt`, `Map`, `Set` or files to survive the trip without manual parsing.
+- With a router instead of a contract, use `OrpcSchema<typeof router>`. The rest of the code stays the same.
+
+:::
+
+---
+
+## Related
+
+- [oRPC adapter](/docs/integrations/adapter-orpc/overview)
+- [SDK](/docs/core/sdk)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+
+:::secondary Summary
+
+`OrpcAdapter` speaks the oRPC protocol and `OrpcSchema` reads a contract or router type, so `createSdk` gives you typed
+requests for every procedure. Dates and defined errors keep their types from the server to the component.
+
+:::

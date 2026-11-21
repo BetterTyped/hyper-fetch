@@ -1,98 +1,116 @@
-import type { DocumentSnapshot } from "@firebase/firestore";
+import type { DefaultMapperType } from "@hyper-fetch/core";
 import { SocketAdapter } from "@hyper-fetch/sockets";
-import type { FirestoreOnSnapshotExtra, FirestoreQueryParams, FirestoreSocketAdapterType } from "adapter";
+import type {
+  FirestoreListenerOptions,
+  FirestoreListenerQueryParams,
+  FirestoreOnSnapshotExtra,
+  FirestoreSocketAdapterType,
+} from "adapter";
+import type { DocumentSnapshot } from "firebase/firestore";
 import type { Firestore, QuerySnapshot } from "firebase/firestore";
 import { collection, disableNetwork, doc, enableNetwork, onSnapshot, query } from "firebase/firestore";
 import { getStatus, isDocOrQuery } from "utils";
 
 import type { FirestorePermittedMethods } from "../constraints";
+import { createFirestoreConstraints, getConstraints, resolveConstraints } from "../constraints";
 import type { FirestoreSnapshotType } from "./firestore.types";
 import { FirestoreDocOrQuery } from "./firestore.types";
 import { getGroupedResultFirestore, getOrderedResultFirestore, mapConstraint } from "./utils";
 
 export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterType => {
-  return new SocketAdapter<FirestoreOnSnapshotExtra, undefined, { groupByChangeType?: boolean } & FirestoreQueryParams>(
-    {
-      name: "firebase-firestore",
-      defaultConnected: true,
-    },
-  ).setConnector(
-    ({ socket, onConnect, onReconnect, onDisconnect, onListen, onConnected, onDisconnected, onEvent, onError }) => {
-      const connect = async () => {
-        const connection = await onConnect();
+  return new SocketAdapter<
+    FirestoreOnSnapshotExtra,
+    undefined,
+    FirestoreListenerOptions,
+    undefined,
+    undefined,
+    DefaultMapperType,
+    FirestoreListenerQueryParams
+  >({
+    name: "firebase-firestore",
+    defaultConnected: true,
+  })
+    .setListenerQueryParamsResolver(resolveConstraints(createFirestoreConstraints))
+    .setConnector(
+      ({ socket, onConnect, onReconnect, onDisconnect, onListen, onConnected, onDisconnected, onEvent, onError }) => {
+        const connect = async () => {
+          const connection = await onConnect();
 
-        if (connection) {
-          enableNetwork(database);
-          onConnected();
-        }
-      };
-
-      const disconnect = async () => {
-        disableNetwork(database);
-        onDisconnect();
-        onDisconnected();
-      };
-
-      const reconnect = () => {
-        onReconnect({ disconnect, connect });
-      };
-
-      const listen: FirestoreSocketAdapterType["listen"] = (listener, callback) => {
-        const fullUrl = socket.url + listener.topic;
-        const { options } = listener;
-
-        let path: any;
-        const queryType = isDocOrQuery(fullUrl);
-        if (queryType === FirestoreDocOrQuery.DOC) {
-          path = doc(database, fullUrl);
-        } else {
-          const constraints = options?.constraints || [];
-          const queryConstraints = constraints.map((constr: FirestorePermittedMethods) => mapConstraint(constr)) || [];
-          path = query(collection(database, fullUrl), ...queryConstraints);
-        }
-        let unsubscribe = () => {};
-        let unmount = () => {};
-        let clearListeners = () => {};
-
-        unsubscribe = onSnapshot(
-          path,
-          (snapshot: FirestoreSnapshotType<typeof queryType>) => {
-            const getDocData = (s: DocumentSnapshot) => (s.data() ? { ...s.data(), __key: s.id } : null);
-            const response =
-              queryType === FirestoreDocOrQuery.DOC
-                ? getDocData(snapshot as DocumentSnapshot)
-                : getOrderedResultFirestore(snapshot as QuerySnapshot);
-            const status = getStatus(response);
-            const groupedResult =
-              options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot as QuerySnapshot) : null;
-            const extra = { ref: path, snapshot, groupedResult, status };
-            callback({ data: response, extra });
-            onEvent({ topic: listener.topic, data: response, extra });
-          },
-          (error) => {
-            onError({ error });
-          },
-        );
-        unmount = onListen({ listener, callback, onUnmount: unsubscribe });
-        clearListeners = () => {
-          unsubscribe();
-          unmount();
+          if (connection) {
+            enableNetwork(database);
+            onConnected();
+          }
         };
 
-        return clearListeners;
-      };
+        const disconnect = async () => {
+          disableNetwork(database);
+          onDisconnect();
+          onDisconnected();
+        };
 
-      const emit = async () => {
-        throw new Error("Cannot emit from Firestore database socket.");
-      };
+        const reconnect = () => {
+          onReconnect({ disconnect, connect });
+        };
 
-      return {
-        connect,
-        reconnect,
-        disconnect,
-        listen,
-        emit,
-      };
-    },
-  );
+        const listen: FirestoreSocketAdapterType["listen"] = (listener, callback) => {
+          const fullUrl = socket.url + listener.topic;
+          const { options } = listener;
+
+          let path: any;
+          const queryType = isDocOrQuery(fullUrl);
+          if (queryType === FirestoreDocOrQuery.DOC) {
+            path = doc(database, fullUrl);
+          } else {
+            // `options.constraints` is the deprecated place for constraints, kept working in v10
+            const constraints = getConstraints<FirestorePermittedMethods>(listener.queryParams ?? options?.constraints);
+            const queryConstraints =
+              constraints.map((constr: FirestorePermittedMethods) => mapConstraint(constr)) || [];
+            path = query(collection(database, fullUrl), ...queryConstraints);
+          }
+          let unsubscribe = () => {};
+          let unmount = () => {};
+          let clearListeners = () => {};
+
+          unsubscribe = onSnapshot(
+            path,
+            (snapshot: FirestoreSnapshotType<typeof queryType>) => {
+              const getDocData = (s: DocumentSnapshot) => (s.data() ? { ...s.data(), __key: s.id } : null);
+              const response =
+                queryType === FirestoreDocOrQuery.DOC
+                  ? getDocData(snapshot as DocumentSnapshot)
+                  : getOrderedResultFirestore(snapshot as QuerySnapshot);
+              const status = getStatus(response);
+              const groupedResult =
+                options?.groupByChangeType === true && queryType === FirestoreDocOrQuery.QUERY
+                  ? getGroupedResultFirestore(snapshot as QuerySnapshot)
+                  : null;
+              const extra = { ref: path, snapshot, groupedResult, status };
+              onEvent({ topic: listener.topic, data: response, extra });
+            },
+            (error) => {
+              onError({ error });
+            },
+          );
+          unmount = onListen({ listener, callback, onUnmount: unsubscribe });
+          clearListeners = () => {
+            unsubscribe();
+            unmount();
+          };
+
+          return clearListeners;
+        };
+
+        const emit = async () => {
+          throw new Error("Cannot emit from Firestore database socket.");
+        };
+
+        return {
+          connect,
+          reconnect,
+          disconnect,
+          listen,
+          emit,
+        };
+      },
+    );
 };

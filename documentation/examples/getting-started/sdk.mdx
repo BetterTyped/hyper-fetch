@@ -1,0 +1,73 @@
+---
+title: Typed SDK
+sidebar_label: Typed SDK
+sidebar_position: 4
+description: Describe an API once as a typed schema and call it through createSdk with useFetch and useSubmit.
+sidebar_custom_props:
+  path: react/sdk
+  level: beginner
+  tags: [createSdk, useFetch, useSubmit, typescript]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/sdk/src/api.ts";
+import app from "!!raw-loader!@examples/react/sdk/src/App.tsx";
+
+A list of posts, a details panel and a form that adds a post. Instead of declaring each request with `createRequest`,
+the app describes the API as one schema type and reads its requests from an SDK object.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **One schema type** that mirrors the URL tree of the API, with `RequestModel` on each endpoint.
+2. **`createSdk(client)`** turns the schema into an object: `sdk.posts.$postId.$get` is `GET /posts/:postId`.
+3. **Regular requests.** SDK leaves are `Request` instances, so `setParams`, `setQueryParams`, `useFetch` and
+   `useSubmit` work as usual.
+4. **Types from the schema.** Params, query params, payload and response are checked at compile time.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` declares `DummyJsonSchema`. Plain keys (`posts`, `add`) are path segments, a `$` key that is not a method
+   (`$postId`) is a `:postId` param, and `$get` or `$post` is the HTTP method of that path.
+2. `createSdk<typeof client, DummyJsonSchema>(client)` returns a proxy. It creates a request only when you read a leaf,
+   so a large schema costs nothing at startup. The client's URL, cache and global error type apply to every leaf.
+3. `PostList` and `PostDetails` pass SDK requests to `useFetch`, with `setQueryParams` and `setParams` typed from the
+   schema.
+4. `NewPostForm` passes `sdk.posts.add.$post` to `useSubmit` and calls `submit({ payload })`. Leaving out `userId` is a
+   type error, because the payload type is `NewPost`.
+
+```ts
+// highlight-next-line
+const { data } = useFetch(sdk.posts.$postId.$get.setParams({ postId }));
+```
+
+Each property read creates a new request instance. Cache keys come from the endpoint and params, so two reads of the
+same leaf still share one cache entry. Keep a reference only when you call per-instance setters such as `setMock`.
+
+:::note When to use it
+
+- APIs with many endpoints, where one schema is easier to keep in sync than many `createRequest` calls.
+- Schemas generated from an OpenAPI file or a server type, for example with the HyperFetch CLI or `@hyper-fetch/hono`.
+
+:::
+
+---
+
+## Related
+
+- [SDK](/docs/core/sdk)
+- [Requests](/docs/core/request)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+
+:::secondary Summary
+
+You typed the API as one schema, created the SDK with `createSdk(client)` and used its requests with `useFetch` and
+`useSubmit`. The schema is the single source of types for params, payloads and responses.
+
+:::

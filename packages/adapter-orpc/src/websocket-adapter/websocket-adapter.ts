@@ -2,6 +2,7 @@
 import type { QueryParamsType } from "@hyper-fetch/core";
 import { stringifyQueryParams } from "@hyper-fetch/core";
 import {
+  createReconnectingConnection,
   getSocketError,
   getSocketUrl,
   getWebsocketConstructor,
@@ -60,29 +61,12 @@ export const OrpcWebsocketAdapter = ({
   >({ name: "orpc-websocket", confirmsSubscriptions: true })
     .setQueryParamsMapper(stringifyQueryParams)
     .setConnector((bindings) => {
-      const {
-        socket,
-        adapter,
-        getQueryParams,
-        onConnect,
-        onConnectFailed,
-        onReconnect,
-        onDisconnect,
-        onConnected,
-        onDisconnected,
-        onError,
-      } = bindings;
+      const { adapter, getQueryParams, onConnectFailed, onError } = bindings;
 
-      const autoConnect = adapter.adapterOptions?.autoConnect ?? true;
-
-      // The transport in use. Events of any other instance (replaced or closed on purpose) are ignored.
+      // The transport of the current attempt - `undefined` once it is detached
       let websocket: WebSocket | undefined;
       // Options of the current connection (after onConnect interceptors)
       let options: OrpcWebsocketAdapterOptionsType | undefined;
-      // Connection attempt in progress - concurrent `connect()` calls join it
-      let pendingConnection: Promise<boolean> | undefined;
-      // Connection timeout while connecting, reconnection delay after the connection was lost
-      let timeout: ReturnType<typeof setTimeout> | undefined;
       // Request ids are never reused, so a late message of a stopped request can't reach a new one
       let lastRequestId = 0;
       // Running requests of the current connection
@@ -212,176 +196,106 @@ export const OrpcWebsocketAdapter = ({
         subscriptions.receive(subscription, message.event);
       };
 
-      /** Starts over after `delay` - the connection timeout while connecting, the reconnect delay after a loss */
-      const scheduleReconnect = (delay = socket.reconnectTime) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          reconnect();
-        }, delay);
-      };
-
-      const openConnection = async (): Promise<boolean> => {
-        const connection = await onConnect();
-        if (!connection) {
-          return adapter.connected;
-        }
-
-        clearTimeout(timeout);
-        options = connection.adapterOptions;
-        const url = getSocketUrl(connection.url, getQueryParams(connection.queryParams));
-
+      /** Creates the transport, reporting a failed attempt when the environment or the connection details are invalid */
+      const createWebsocket = (url: string): WebSocket | null => {
         const WebSocketConstructor = getWebsocketConstructor(options);
         if (!WebSocketConstructor) {
           onConnectFailed({ error: new Error("WebSocket is not available in this environment") });
-          return false;
+          return null;
         }
-
-        let instance: WebSocket;
         try {
-          instance = new WebSocketConstructor(url, options?.protocols);
+          return new WebSocketConstructor(url, options?.protocols);
         } catch (error) {
           onConnectFailed({ error: toError(error) });
-          return false;
+          return null;
         }
-        // Binary frames are read synchronously, so messages keep their order
-        instance.binaryType = "arraybuffer";
-        websocket = instance;
-        const isCurrent = () => websocket === instance;
+      };
 
-        // Connection timeout - when the server does not answer in time, start over
-        scheduleReconnect(socket.connectionTimeout);
+      /**
+       * Closes a detached transport. The server cancels every subscription of the connection, the listeners stay
+       * registered and keep the id of their last event for the next connection. Resolves on the close - or on an
+       * error, as a transport that fails while closing may report only `error` (Node.js 22).
+       */
+      const closeWebsocket = (transport: WebSocket): Promise<void> => {
+        // The engine closes an attempt before it opens the next one, so this is always the current transport
+        websocket = undefined;
+        releaseAll();
+        if (transport.readyState === WebsocketReadyState.CLOSED) {
+          return Promise.resolve();
+        }
+        return new Promise<void>((resolve) => {
+          transport.addEventListener("close", () => resolve(), { once: true });
+          transport.addEventListener("error", () => resolve(), { once: true });
+          try {
+            transport.close(1000);
+          } catch {
+            // Closing a transport that never connected may throw in some runtimes - it is detached already
+            resolve();
+          }
+        });
+      };
 
-        return new Promise<boolean>((resolve) => {
-          // A closed instance never opens, so the open event always belongs to the current one
-          instance.addEventListener("open", () => {
-            clearTimeout(timeout);
-            onConnected();
-            [...subscriptions.values()].forEach((subscription) => {
+      const connection = createReconnectingConnection({
+        bindings,
+        autoConnect: adapter.adapterOptions?.autoConnect ?? true,
+        open: (attempt) => {
+          options = attempt.connection.adapterOptions;
+          const url = getSocketUrl(attempt.connection.url, getQueryParams(attempt.connection.queryParams));
+          const transport = createWebsocket(url);
+          if (!transport) {
+            return null;
+          }
+          // Binary frames are read synchronously, so messages keep their order
+          transport.binaryType = "arraybuffer";
+          websocket = transport;
+
+          /** The transport is gone - report it and let the engine decide about the next attempt */
+          const onTransportClosed = (event: Pick<CloseEvent, "code"> & Partial<Pick<CloseEvent, "reason">> & Event) => {
+            // The socket is reported as disconnected first, then the error that explains why
+            attempt.lost({ code: event.code, reason: event.reason || undefined });
+            onError({ error: new Error(getSocketError(event)) });
+          };
+
+          transport.addEventListener("open", () => {
+            // Ignored for a replaced transport
+            attempt.ready();
+            // A replaced transport, or a connected callback that closed the connection, starts nothing
+            if (!attempt.isCurrent()) {
+              return;
+            }
+            subscriptions.values().forEach((subscription) => {
               // A listener added by an `onConnected` callback is running already
               if (!subscription.transport) {
                 startSubscription(subscription);
               }
             });
-            resolve(true);
           });
 
-          /** The transport is gone - report it and get the connection back unless it was closed normally */
-          const onTransportClosed = (event: Pick<CloseEvent, "code"> & Event) => {
-            websocket = undefined;
-            clearTimeout(timeout);
-            releaseAll();
-            onDisconnected();
-            onError({ error: new Error(getSocketError(event)) });
-
-            // The connection was lost or closed by the server with an error - try to get it back
-            if (event.code !== 1000) {
-              scheduleReconnect();
+          transport.addEventListener("close", (event) => {
+            if (attempt.isCurrent()) {
+              onTransportClosed(event);
             }
-          };
-
-          instance.addEventListener("close", (event) => {
-            resolve(false);
-            if (!isCurrent()) {
-              return;
-            }
-            onTransportClosed(event);
           });
 
           // Node.js 22 reports a failed handshake with `error` only - no `close` follows and the transport stays
           // CONNECTING. Browsers set CLOSED before the error and send the close event, which handles it as usual.
-          // Here the transport is detached and treated as an abnormally closed one (1006).
-          instance.addEventListener("error", () => {
-            if (!isCurrent() || instance.readyState !== WebsocketReadyState.CONNECTING) {
+          // Here it is treated as an abnormally closed transport (1006).
+          transport.addEventListener("error", () => {
+            if (!attempt.isCurrent() || transport.readyState !== WebsocketReadyState.CONNECTING) {
               return;
-            }
-            resolve(false);
-            try {
-              instance.close();
-            } catch {
-              // Closing a transport that never connected may throw in some runtimes - it is detached already
             }
             onTransportClosed(Object.assign(new Event("close"), { code: 1006 }));
           });
 
-          instance.addEventListener("message", (event) => {
-            if (isCurrent()) {
+          transport.addEventListener("message", (event) => {
+            if (attempt.isCurrent()) {
               handleMessage(event.data);
             }
           });
-        });
-      };
 
-      const connect = (): Promise<boolean> => {
-        // Another attempt is already on its way (e.g. the automatic one) - resolve together with it
-        if (adapter.connecting && pendingConnection) {
-          return pendingConnection;
-        }
-
-        const attempt = openConnection();
-        pendingConnection = attempt;
-        const release = () => {
-          if (pendingConnection === attempt) {
-            pendingConnection = undefined;
-          }
-        };
-        attempt.then(release, release);
-
-        return attempt;
-      };
-
-      /**
-       * Closes the transport and resets the connection state. The server cancels every subscription of the
-       * connection, the listeners stay registered and keep the id of their last event for the next connection.
-       */
-      const closeConnection = async ({ manual }: { manual: boolean }): Promise<boolean> => {
-        clearTimeout(timeout);
-
-        const current = websocket;
-        websocket = undefined;
-        releaseAll();
-
-        const wasActive = adapter.connected || adapter.connecting;
-        onDisconnect();
-        if (!manual) {
-          // Closing the previous transport is a part of reconnecting - only `disconnect()` keeps the socket closed
-          adapter.setForceClosed(false);
-        }
-        if (wasActive) {
-          onDisconnected();
-        }
-
-        if (!current) {
-          return true;
-        }
-        return new Promise<boolean>((resolve) => {
-          current.addEventListener("close", () => resolve(true), { once: true });
-          // A transport that fails while closing may report only `error` (Node.js 22) - don't wait for a close
-          current.addEventListener("error", () => resolve(true), { once: true });
-          current.close(1000);
-        });
-      };
-
-      /** Manual disconnect - the socket stays closed until `connect()` or `reconnect()` is called */
-      const disconnect = (): Promise<boolean> => {
-        return closeConnection({ manual: true });
-      };
-
-      const reconnect = async () => {
-        // Reconnecting is a request to be connected, also after a manual disconnect
-        adapter.setForceClosed(false);
-
-        await onReconnect({
-          disconnect: () => closeConnection({ manual: false }),
-          connect: async () => {
-            // `disconnect()` called while the previous transport was closing wins over the reconnection
-            if (adapter.forceClosed) {
-              adapter.setReconnectionAttempts(0);
-              return false;
-            }
-            return connect();
-          },
-        });
-      };
+          return { close: () => closeWebsocket(transport) };
+        },
+      });
 
       // Throwing synchronously makes `emitter.emit()` fail right at the call site, the same as in the
       // Server-Sent Events adapter
@@ -389,29 +303,13 @@ export const OrpcWebsocketAdapter = ({
         throw new Error("Cannot emit events in the oRPC WebSocket adapter, it only receives events of subscriptions");
       };
 
-      // Initialize
-      if (autoConnect) {
-        connect();
-      }
-
-      const unmountOnline = socket.appManager.events.onOnline(() => {
-        // A socket disconnected on purpose stays closed until `connect()` or `reconnect()` is called
-        if (autoConnect && !adapter.connected && !adapter.forceClosed) {
-          connect();
-        }
-      });
-
       return {
-        connect,
-        reconnect,
-        disconnect,
+        connect: connection.connect,
+        reconnect: connection.reconnect,
+        disconnect: connection.disconnect,
         listen: subscriptions.listen,
         emit,
-        // Nothing of this connector outlives the socket - no online subscription, no pending reconnect
-        dispose: () => {
-          unmountOnline();
-          clearTimeout(timeout);
-        },
+        dispose: connection.dispose,
       };
     });
 };

@@ -141,8 +141,8 @@ onNoteChange.setParams({ noteId: 2 }).listen(/* ... */);
 
 ### Subscription Payload
 
-Some servers need data to start a subscription, for example the input of a tRPC subscription or an oRPC event iterator
-procedure. Pass its type as the second generic and set it with `setPayload`. Params build the topic, the payload is sent
+Some servers need data to start a subscription, for example the input of a tRPC subscription, the variables of a
+GraphQL subscription or an oRPC event iterator procedure. Pass its type as the second generic and set it with `setPayload`. Params build the topic, the payload is sent
 to the server when the subscription starts.
 
 ```ts
@@ -160,14 +160,17 @@ onMessage.setPayload({ roomId: "1" }).listen(({ data }) => {
 onMessage.listen(({ data }) => console.log(data.text), { payload: { roomId: "2" } });
 ```
 
-Listeners of the same topic with different payloads are separate subscriptions. Each one receives only its own
-messages, while listeners with an equal payload share one subscription on the server.
+Listeners of the same topic with different payloads are separate subscriptions. Each one receives only its own messages,
+while listeners with an equal payload share one subscription on the server.
 
 - A required payload must be set before listening. `listen` without it is a TypeScript error.
 - An optional payload (`{ cursor?: number } | undefined`) can be skipped.
 - `useListener` from `@hyper-fetch/react` subscribes again when the payload changes.
-- The payload is used by adapters that start server-side subscriptions, such as the tRPC and oRPC socket adapters. The
-  built-in WebSocket and SSE adapters route messages by topic and do not send it.
+- The payload is used by adapters that start server-side subscriptions, such as the tRPC, oRPC and GraphQL socket
+  adapters. The built-in WebSocket and SSE adapters route messages by topic and do not send it.
+- A typed document in the listener options - like the `document` of the
+  [GraphQL adapter](/docs/integrations/adapter-graphql/subscriptions.mdx), from graphql-codegen or gql.tada - fills in
+  the response and the payload that the generics leave out.
 
 ---
 
@@ -195,6 +198,26 @@ onJobProgress.listen(({ data }) => render(data), {
 - Unsubscribing yourself does not call `onEnd`.
 
 To observe every subscription of a socket, use `socket.events.onListenerStart` and `socket.events.onListenerEnd`.
+
+---
+
+### Query Params
+
+Some adapters let a listener say what it asks for, such as filters, ordering or limits, through query params. Set them
+in `createListener` or with `setQueryParams`, which returns a clone. A callback is turned into data by the adapter as
+soon as it is set, so the listener never holds a function.
+
+```ts
+// Firebase: listen only to green teas, newest first
+const onGreenTeas = socket
+  .createListener<Tea[]>()({ topic: "teas" })
+  .setQueryParams((c) => c.where("type", "==", "Green").orderBy("year", "desc"));
+```
+
+Query params describe what to receive, while the [subscription payload](#subscription-payload) is data the server needs
+to start a subscription. They are also separate from the socket's own `queryParams`, which belong to the connection (for
+example a token in the WebSocket URL). The WebSocket and SSE adapters do not use listener query params, so
+`setQueryParams` does not compile for them.
 
 ---
 
@@ -237,11 +260,11 @@ export const onTick = socket.createListener<Tick>()({
 onTick.listen(({ data }) => {}); // data: Summary
 ```
 
-| | `latest` | `batch` | custom |
-| --- | --- | --- | --- |
-| Callback `data` | `Response` | `Response[]` | your `Output` type |
-| Drops messages | Yes, intermediate ones | Never | up to you |
-| Options | `interval`, `leading` (default `true`) | `interval`, `maxSize` | - |
+|                 | `latest`                               | `batch`               | custom             |
+| --------------- | -------------------------------------- | --------------------- | ------------------ |
+| Callback `data` | `Response`                             | `Response[]`          | your `Output` type |
+| Drops messages  | Yes, intermediate ones                 | Never                 | up to you          |
+| Options         | `interval`, `leading` (default `true`) | `interval`, `maxSize` | -                  |
 
 Semantics shared by all strategies:
 
@@ -249,8 +272,8 @@ Semantics shared by all strategies:
 - Unsubscribing disposes the strategy: timers are cleared and pending messages are dropped, so nothing fires after
   `unlisten()`.
 - Every `listen()` call gets its own buffers and timers.
-- `delivery` is kept by `setParams`, `setOptions` and `clone`. Use `setDelivery` to change it (returns a clone);
-  pass `undefined` to restore immediate delivery.
+- `delivery` is kept by `setParams`, `setOptions` and `clone`. Use `setDelivery` to change it (returns a clone); pass
+  `undefined` to restore immediate delivery.
 - `socket.events.onListenerEvent` still receives every raw message - useful for devtools and logging.
 
 :::info Full guide
@@ -276,8 +299,12 @@ socket.events.onListenerEventByTopic(onNoteChange, ({ data }) => {
   console.log("A note changed:", data);
 });
 
-onNoteChange.setParams({ noteId: 1 }).listen(({ data }) => { /* ... */ });
-onNoteChange.setParams({ noteId: 2 }).listen(({ data }) => { /* ... */ });
+onNoteChange.setParams({ noteId: 1 }).listen(({ data }) => {
+  /* ... */
+});
+onNoteChange.setParams({ noteId: 2 }).listen(({ data }) => {
+  /* ... */
+});
 ```
 
 ---
@@ -342,8 +369,8 @@ application.
 :::danger Methods Return Clones
 
 Methods on a `Listener` instance (e.g., `setParams`, `setOptions`, `setDelivery`) do not modify the original listener
-instance in place. Instead, they return a **new, cloned instance** of the listener with the specified modifications applied. The
-original listener instance remains unchanged.
+instance in place. Instead, they return a **new, cloned instance** of the listener with the specified modifications
+applied. The original listener instance remains unchanged.
 
 **Always use the returned new instance for subsequent operations.** This immutable approach ensures isolation between
 different listener configurations and prevents unintended side effects.
@@ -409,8 +436,8 @@ safety for real-time events.
 ### Response Type
 
 When you create a listener, you should provide the type of the data you expect to receive in the event as a generic.
-This ensures that the `data` passed to your `listen` callbacks is fully typed, enabling autocompletion and
-preventing common errors.
+This ensures that the `data` passed to your `listen` callbacks is fully typed, enabling autocompletion and preventing
+common errors.
 
 ```ts
 // Define the type for your event data
@@ -488,9 +515,8 @@ onTrade.listen(({ data }) => {
 });
 ```
 
-Reusable abstractions keep working: a batched listener still satisfies `ListenerInstance<{ response: Trade }>`. When
-you need to constrain on what callbacks receive, use the `delivered` field, e.g.
-`ListenerInstance<{ delivered: Trade[] }>`.
+Reusable abstractions keep working: a batched listener still satisfies `ListenerInstance<{ response: Trade }>`. When you
+need to constrain on what callbacks receive, use the `delivered` field, e.g. `ListenerInstance<{ delivered: Trade[] }>`.
 
 ---
 

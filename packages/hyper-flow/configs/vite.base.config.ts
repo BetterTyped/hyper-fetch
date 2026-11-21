@@ -22,9 +22,8 @@ export const config: UserConfigFnObject = ({ mode }) => {
         project: "hyper-flow",
         telemetry: false,
       }),
-      tsconfigPaths({
-        root: path.resolve(__dirname, "../"),
-      }),
+      // Finds the nearest tsconfig of every file, so the sibling packages built from source resolve their own paths
+      tsconfigPaths(),
       tanstackRouter({
         target: "react",
         autoCodeSplitting: true,

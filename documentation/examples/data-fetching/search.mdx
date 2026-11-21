@@ -1,0 +1,77 @@
+---
+title: Search as you type
+sidebar_label: Search as you type
+sidebar_position: 5
+description: Search products while typing and send one request per pause with the bounce option of useFetch.
+sidebar_custom_props:
+  path: react/search
+  level: beginner
+  tags: [useFetch, debounce]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/search/src/api.ts";
+import app from "!!raw-loader!@examples/react/search/src/App.tsx";
+
+A product search box. Every keystroke changes the query, but with debounce on the request is sent only when you stop
+typing. Counters show how many changes you typed and how many requests reached the network.
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+:::tip What it shows
+
+1. **The query is a query param.** Each search term is its own request and cache key.
+2. **`bounce: true`** with `bounceTime: 400` waits for a pause before sending the changed request.
+3. **`bounce.active`** tells the UI that a request is waiting for typing to stop.
+4. **Previous results stay on screen** while the next ones load, so the list does not flash.
+
+:::
+
+---
+
+## How it works
+
+1. `api.ts` defines `searchProducts` for `/products/search` with typed `q`, `limit` and `select` query params.
+2. `App` keeps the input value in state and passes `searchProducts.setQueryParams({ q: query, ... })` to `useFetch`.
+3. The hook options `{ bounce: true, bounceType: "debounce", bounceTime: 400 }` delay every change of the request. Each
+   new keystroke restarts the 400 ms timer, so typing "laptop" sends one request for `q="laptop"`. The first request on
+   mount is never delayed.
+4. While the timer runs, `bounce.active` is `true` and the status shows "waiting for typing to stop".
+5. `client.requestManager.events.onRequestStart` counts every request the client sends. Turn the switch off and type
+   again: every keystroke becomes a request.
+6. `keepPreviousData` is `"auto"` by default, which keeps the previous data when only query params change. The old
+   results stay on screen, dimmed, until the new ones arrive.
+
+```tsx
+// `select` is a dummyjson query param: the API returns only these fields.
+const { data, loading, bounce } = useFetch(searchProducts.setQueryParams({ q: query, limit: 8, select: "title" }), {
+  // highlight-next-line
+  bounce: true,
+  bounceTime: 400,
+});
+```
+
+`bounceType: "throttle"` is the other mode: it sends at most one request per `bounceTime` while the input keeps
+changing, which suits live previews more than search.
+
+:::note When to use it
+
+- Search boxes, filters and autocomplete inputs that change on every keystroke.
+- Any input where only the settled value matters to the server.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Query params guide](/docs/guides/core/basics/query-params)
+- [Managers](/docs/core/managers)
+
+:::secondary Summary
+
+You built search as you type with one `useFetch` call. `bounce` turned a request per keystroke into a request per pause,
+and the counters showed the difference.
+
+:::

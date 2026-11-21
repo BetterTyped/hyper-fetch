@@ -122,7 +122,8 @@ maintainability, and optimal usage of HyperFetch's features.
 
 - **Stale-While-Revalidate:** Use the `staleTime` request option to configure how long data should be considered
   fresh. `Stale While Revalidate` allows the UI to display cached data while fetching fresh data in the
-  background. This can be passed to the hook like: `useFetch(request, { revalidate: true })`
+  background. `useFetch` revalidates on mount by default (`revalidate: true`); pass `revalidate: false` to refetch only
+  data older than `staleTime`.
 
 - **Window Focus Refetching:** Use the `refetchOnFocus` option of `useFetch` to keep data fresh when the user switches
   back to the application.

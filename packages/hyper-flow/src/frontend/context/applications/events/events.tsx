@@ -1,16 +1,13 @@
 import { useDidMount } from "@better-hooks/lifecycle";
-import {
-  CoreEvents,
-  CustomEvents,
-  EventSourceType,
-  InternalEvents,
-  MessageOrigin,
-  MessageType,
-} from "@hyper-fetch/plugin-devtools";
+import type { DevtoolsObserversEventData, SocketEvents } from "@hyper-fetch/plugin-devtools";
+import { CoreEvents, EventSourceType, InternalEvents, MessageOrigin, MessageType } from "@hyper-fetch/plugin-devtools";
 import { useEmitter, useListener } from "@hyper-fetch/react";
 import { memo, useEffect } from "react";
 
+import { useCacheStore } from "@/store/applications/cache.store";
 import { useConnectionStore } from "@/store/applications/connection.store";
+import { useQueueStore } from "@/store/applications/queue.store";
+import { useSocketsStore } from "@/store/applications/sockets.store";
 
 export const Events = memo(({ application }: { application: string }) => {
   const { connections } = useConnectionStore();
@@ -20,17 +17,38 @@ export const Events = memo(({ application }: { application: string }) => {
   const { emit } = useEmitter(eventEmitter);
 
   onEvent((event) => {
-    const { eventData, eventName, eventSource, eventType, isTriggeredExternally } = event.data;
+    const { eventData, eventName, eventSource, connectionName, isTriggeredExternally } = event.data;
+    // Every application shares the bridge listener, so each one picks only its own events
+    if (connectionName !== application) {
+      return;
+    }
+
     switch (eventSource) {
       case EventSourceType.CUSTOM_EVENT: {
-        if (eventType === CustomEvents.REQUEST_CREATED) {
-          // TODO - add request list to the store
-          // setRequestList(application, eventData);
-        }
+        // Custom events are not presented yet
+        return;
+      }
+      case EventSourceType.SOCKET: {
+        useSocketsStore.getState().handleEvent(application, eventName as SocketEvents, eventData);
+        return;
+      }
+      case EventSourceType.OBSERVERS: {
+        // Only the user's application has observers, the mirrored client has none to count
+        const { cache, queues } = eventData as DevtoolsObserversEventData;
+        useCacheStore.getState().setObservers({ application, observers: cache });
+        useQueueStore.getState().setObservers({ application, observers: queues });
+        return;
+      }
+      case EventSourceType.REQUEST_MANAGER:
+      case EventSourceType.APP_MANAGER:
+      case EventSourceType.CACHE:
+      case EventSourceType.FETCH_DISPATCHER:
+      case EventSourceType.SUBMIT_DISPATCHER: {
+        client[eventSource].emitter.emit(eventName, eventData, isTriggeredExternally);
         return;
       }
       default: {
-        client[eventSource].emitter.emit(eventName, eventData, isTriggeredExternally);
+        console.error(`Unknown event source: ${eventSource}`);
       }
     }
   });

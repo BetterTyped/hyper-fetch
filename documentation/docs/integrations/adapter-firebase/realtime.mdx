@@ -1,113 +1,208 @@
 ---
 sidebar_position: 3
-title: Working with Realtime database
+title: Working with Realtime Database
 sidebar_label: Realtime Database
 ---
 
-## Available methods
+Realtime Database operations are HyperFetch requests with a Realtime Database `method`. This page covers reading and
+writing data, how lists are returned, and how to query them.
 
-Our Realtime Database adapter provides all the methods the original offers. Due to its nature, we've solved the realtime
-listening a bit differently, and thus - this method is not allowed in standard adapter. For the `onValue`-like usage,
-please check how to **[listen to queries](/docs/integrations/adapter-firebase/realtime-queries)**.
+---
 
-### get
+:::tip Purpose
+
+1.  **Read** values and lists with `get`.
+2.  **Write** with `set`, `push`, `update` and `remove`, with the payload typed per request.
+3.  **Query** lists with ordering, limits and cursors.
+
+:::
+
+---
+
+## Setup
 
 ```tsx
+import { Client } from "@hyper-fetch/core";
 import { FirebaseAdapter } from "@hyper-fetch/firebase";
+import { getDatabase } from "firebase/database";
 
-const client = new Client({ url: "teas/" }).setAdapter(FirebaseAdapter(realtimeDbWeb));
-const req = client.createRequest<{ response: Tea[] }>()({
-  endpoint: "",
+export const client = new Client({ url: "" }).setAdapter(FirebaseAdapter(getDatabase(app)));
+
+type Message = { text: string; author: string; sentAt: number };
+```
+
+---
+
+## Methods
+
+| Method   | `data`                           | `extra`                               |
+| -------- | -------------------------------- | ------------------------------------- |
+| `get`    | the value, or a list (see below) | `ref` (DatabaseReference), `snapshot` |
+| `set`    | the payload                      | `ref`                                 |
+| `push`   | the payload plus the new `__key` | `ref` of the new child, `key`         |
+| `update` | the payload                      | `ref`                                 |
+| `remove` | `null`                           | `ref`                                 |
+
+`get` is the default, so a request without `method` reads.
+
+### `get`
+
+```tsx
+const getMessages = client.createRequest<{ response: (Message & { __key: string })[] | null }>()({
+  endpoint: "rooms/:roomId/messages",
+});
+
+const getMessage = client.createRequest<{ response: Message | null }>()({
+  endpoint: "rooms/:roomId/messages/:messageId",
   method: "get",
 });
 
-const { data, status, extra, success, error } = await req.send();
+const { data } = await getMessages.setParams({ roomId: "general" }).send();
 ```
 
-`extra`:
+### `set`
 
-1. `ref` - reference to the endpoint
-2. `snapshot` - 'raw' snapshot from the result
-
-### set
+Writes the payload at the path, replacing what is there. A `null` payload deletes the value.
 
 ```tsx
-const setReq = client
-  .createRequest<{ response: Tea; payload: Tea }>()({
-    endpoint: ":teaId",
-    method: "set",
-  })
-  .setParams({ teaId: 1 })
-  .setPayload(newData);
+const setTopic = client.createRequest<{ response: string; payload: string }>()({
+  endpoint: "topics/:roomId",
+  method: "set",
+});
 
-const { data, status, extra, success, error } = await setReq.send();
+await setTopic.setParams({ roomId: "general" }).send({ payload: "Tea talk" });
 ```
 
-In case of `set` - data returned is the same data as passed for setting.
+### `push`
 
-`extra`:
-
-1. ref - database reference to the path
-
-You can also **remove data** via set by sending `null` as the payload:
+Adds a child with a generated key to a list.
 
 ```tsx
-const setReq = client
-  .createRequest<{ response: null; payload: null }>()({
-    endpoint: ":teaId",
-    method: "set",
-  })
-  .setParams({ teaId: 1 })
-  .setPayload(null);
+const sendMessage = client.createRequest<{ response: Message & { __key: string }; payload: Message }>()({
+  endpoint: "rooms/:roomId/messages",
+  method: "push",
+});
+
+const { data } = await sendMessage
+  .setParams({ roomId: "general" })
+  .send({ payload: { text: "Hi", author: "ann", sentAt: Date.now() } });
+// data.__key is the generated key
 ```
 
-### push
+### `update`
+
+Writes only the given children and keeps the others.
 
 ```tsx
-const pushReq = client
-  .createRequest<{ response: Tea; payload: Tea }>()({
-    endpoint: "",
-    method: "push",
-    options: {},
-  })
-  .setPayload(newData);
+const editMessage = client.createRequest<{ response: Partial<Message>; payload: Partial<Message> }>()({
+  endpoint: "rooms/:roomId/messages/:messageId",
+  method: "update",
+});
+
+await editMessage.setParams({ roomId: "general", messageId: "-Nx1" }).send({ payload: { text: "Hi all" } });
 ```
 
-In case of `push` - data returned is the same data as passed for setting + the `__key` param that equals id of a newly
-created document.
-
-`extra`:
-
-1. ref - database reference to the path
-2. key - key of the newly created resource
-
-### update
+### `remove`
 
 ```tsx
-const updateReq = client
-  .createRequest<{ response: Tea; payload: Tea }>()({
-    endpoint: ":teaId",
-    method: "update",
-  })
-  .setParams({ teaId: 1 })
-  .setPayload(newData);
+const deleteMessage = client.createRequest<{ response: null }>()({
+  endpoint: "rooms/:roomId/messages/:messageId",
+  method: "remove",
+});
+
+await deleteMessage.setParams({ roomId: "general", messageId: "-Nx1" }).send();
 ```
 
-In case of `update` - data returned is the same data as passed for setting.
+---
 
-`extra`:
+## Values and lists
 
-1. ref - database reference to the path
+`get` decides how to return data from the number of path segments, the same rule as Firestore documents and collections.
 
-### remove
+| Path                        | Segments | `data`                                                            |
+| --------------------------- | -------- | ----------------------------------------------------------------- |
+| `rooms`, `rooms/a/messages` | odd      | an array of children, each spread into an object with its `__key` |
+| `rooms/a`, `topics/general` | even     | the stored value as is                                            |
+
+A list keeps the order of the query, so `$orderByChild` results arrive sorted. An empty list is `null` with
+`status: "emptyResource"`.
+
+:::caution Lists hold objects
+
+Each child of a list is spread into an object, so lists should hold objects. A list of plain values such as strings
+returns entries like `{ 0: "c", __key: "2" }`. Read such data from an even-segment path, or store objects.
+
+:::
+
+---
+
+## Querying
+
+Pass `queryParams` a callback that builds the constraints. Type the request with the type of the list's children, and
+paths and values are checked.
 
 ```tsx
-const removeReq = client
-  .createRequest<{ response: Tea }>()({
-    endpoint: ":teaId",
-    method: "remove",
-  })
-  .setParams({ teaId: 1 });
+import type { RealtimeDBQueryParams } from "@hyper-fetch/firebase";
+
+const getMessages = client.createRequest<{
+  response: (Message & { __key: string })[] | null;
+  queryParams?: RealtimeDBQueryParams<Message>;
+}>()({
+  endpoint: "rooms/:roomId/messages",
+  method: "get",
+});
+
+const { data } = await getMessages.setParams({ roomId: "general" }).send({
+  queryParams: (c) => c.orderByChild("sentAt").limitToLast(50),
+});
 ```
 
-In case of `remove` - returned data equals `null`
+| Chain method                                  | Realtime Database equivalent | Notes                                            |
+| --------------------------------------------- | ---------------------------- | ------------------------------------------------ |
+| `orderByChild(path)`                          | `orderByChild(path)`         | nested children use `/`: `"author/name"`         |
+| `orderByKey()`, `orderByValue()`              | the same                     | one `orderBy*` per query, enforced by the types  |
+| `limitToFirst(n)`, `limitToLast(n)`           | the same                     |                                                  |
+| `equalTo(value, key?)`                        | `equalTo(value, key)`        | after an `orderBy*`; `value` has its type        |
+| `startAt`, `startAfter`, `endAt`, `endBefore` | the same, with `(value, key)` | after an `orderBy*`; `value` has its type       |
+
+:::caution Realtime Database rules still apply
+
+1.  A query can have one `orderBy*`; a second one does not compile.
+2.  `orderByChild` needs an `.indexOn` rule for that child. Without it the request resolves with `status: "error"` and
+    the message `Index not defined, add ".indexOn" ...`.
+
+:::
+
+The optional `key` of a cursor breaks ties between children with the same value, so paging stays stable when values
+repeat:
+
+```tsx
+const last = page1.data?.at(-1);
+
+const page2 = await getMessages.setParams({ roomId: "general" }).send({
+  queryParams: (c) => c.orderByChild("sentAt").startAfter(last!.sentAt, last!.__key).limitToFirst(50),
+});
+```
+
+`queryParams` also takes the constraints array the callback resolves to, built with `$orderByChild`, `$limitToLast` and
+the other `$`-helpers.
+
+---
+
+:::note When it's helpful
+
+- Chat rooms, presence and counters, where reads and writes need loading state and typed payloads.
+- Lists you show sorted and limited, such as the last 50 messages, cached per query.
+
+:::
+
+---
+
+:::secondary Summary
+
+1.  `get` reads; `set`, `push`, `update` and `remove` write.
+2.  Odd-segment paths return lists as arrays of objects with `__key`; even-segment paths return the value as is.
+3.  Queries are a `queryParams` callback; cursors and `equalTo` take the ordered value and an optional tie key.
+4.  Missing `.indexOn` rules and other Firebase errors arrive in `response.error`.
+
+:::

@@ -1,0 +1,30 @@
+{
+  "name": "@hyper-fetch-examples/react-graphql-mutations",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Create, update and delete with GraphQL mutations and write each result into the cached query instead of fetching it again.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/graphql": "latest",
+    "@hyper-fetch/react": "latest",
+    "@hyper-fetch/sockets": "latest",
+    "@picocss/pico": "^2.1.1",
+    "graphql": "^16.11.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8"
+  }
+}
