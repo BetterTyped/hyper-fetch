@@ -1,36 +1,28 @@
-# 🦊 Hyper Fetch Elysia
-
 <p align="center">
-  <b>Call your Elysia backend from a fully typed HyperFetch SDK. No codegen, no duplicated types.</b>
+  <a href="https://hyperfetch.bettertyped.com/docs/integrations/elysia/overview"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/.github/assets/packages/elysia.png" alt="Hyper Fetch Elysia. Your Elysia app. Typed to every status. Bodies, queries, params and errors read from typeof app." /></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?logo=github&color=118ab2" alt="GitHub stars" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/elysia">
-    <img src="https://img.shields.io/npm/v/@hyper-fetch/elysia?logo=npm&color=e76f51" alt="npm version" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/elysia">
-    <img src="https://img.shields.io/npm/dm/@hyper-fetch/elysia?logo=npm" alt="npm downloads" />
-  </a>
-  <a href="https://bundlephobia.com/package/@hyper-fetch/elysia">
-    <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/elysia?color=64BC4B" alt="bundle size" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch?color=yellow" alt="license" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" alt="TypeScript" />
-  </a>
-  <a href="https://elysiajs.com/">
-    <img src="https://img.shields.io/badge/elysia-8A2BE2" alt="Elysia" />
-  </a>
+  <a href="https://hyperfetch.bettertyped.com/docs/integrations/elysia/overview"><b>Quick Start</b></a> ·
+  <a href="https://hyperfetch.bettertyped.com/docs/integrations/elysia/overview">Documentation</a> ·
+  <a href="https://hyperfetch.bettertyped.com/docs/api/elysia/Types/ElysiaAppToHyperFetch">API Reference</a> ·
+  <a href="https://github.com/BetterTyped/hyper-fetch">GitHub</a> ·
+  <a href="https://discord.gg/7upC2kVmyM">Discord</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/BetterTyped/hyper-fetch"><img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat&logo=github&color=333" alt="GitHub stars" /></a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/elysia"><img src="https://img.shields.io/npm/v/@hyper-fetch/elysia?logo=npm&color=e76f51" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/elysia"><img src="https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/elysia&color=fbc646" alt="Monthly downloads" /></a>
+  <a href="https://bundlejs.com/?q=@hyper-fetch/elysia"><img src="https://api.maciejpyrc.com/portfolio/npm/size.svg?package=@hyper-fetch/elysia&external=@hyper-fetch/core,elysia" alt="Bundle size" /></a>
+  <a href="https://github.com/BetterTyped/hyper-fetch"><img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="https://hyperfetch.bettertyped.com/docs/integrations/elysia/overview"><img src="https://img.shields.io/badge/Elysia-1.3%2B-C084FC" alt="Integration" /></a>
+  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md"><img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch?color=blue" alt="License" /></a>
 </p>
 
 ## 📖 About
 
-`@hyper-fetch/elysia` turns the type of an Elysia app into a HyperFetch SDK schema. Your frontend calls the backend
+`@hyper-fetch/elysia` turns the type of an Elysia app into a Hyper Fetch SDK schema. Your frontend calls the backend
 through `createSdk` with response, error, payload, query and param types read straight from your Elysia routes and
 schemas. It ships types only, so nothing from your server ends up in the client bundle.
 
@@ -39,12 +31,11 @@ schemas. It ships types only, so nothing from your server ends up in the client 
 - 🔗 **Backend types, frontend calls** - Change an Elysia route and every SDK call that uses it fails to compile
 - 🧭 **Paths become properties** - `/users/:userId/posts` is `sdk.users.$userId.posts.$get`, with typed `setParams()`
 - 🛂 **Schemas drive the inputs** - `body` and `query` schemas type `setPayload()` and `setQueryParams()`
-- 🚦 **Typed errors per status** - 2xx bodies type `data`, every other status, including `422` validation errors, types
-  `error`
-- 📡 **Types match the wire** - Dates arrive as strings, file bodies are `FormData`, and streams stay `unknown`
+- 🚦 **Typed errors per status** - 2xx bodies type `data`. Every other status, `422` validation errors included, types `error`
+- 📡 **Types match the wire** - Dates arrive as strings, file bodies are `FormData` and streams stay `unknown`
 - 🧩 **Plugins included** - `prefix`, `.group()`, `.guard()`, `.model()` and macros land in the endpoint and the types
 - 🪶 **Zero runtime** - A single type export, so it adds no code to your bundle
-- ⚡ **Every HyperFetch feature** - Cache, retries, deduplication, offline and React hooks work on every route
+- ⚡ **Every HyperFetch feature** - Cache, retries, deduplication, offline replay and React hooks on every route
 
 ## 🚀 Quick Start
 
@@ -75,9 +66,10 @@ const { data } = await sdk.users.$userId.$get.setParams({ userId: "1" }).send();
 
 ## 📚 Documentation
 
-- [Elysia Integration Docs](https://hyperfetch.bettertyped.com/docs/integrations/elysia/overview)
-- [SDK Guide](https://hyperfetch.bettertyped.com/docs/core/sdk)
-- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
+- **[Elysia Integration](https://hyperfetch.bettertyped.com/docs/integrations/elysia/overview)** - Setup, schemas, errors and plugins
+- **[SDK](https://hyperfetch.bettertyped.com/docs/core/sdk)** - How `createSdk` turns a schema into requests
+- **[Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)** - The core request API
+- **[API Reference](https://hyperfetch.bettertyped.com/docs/api/elysia/Types/ElysiaAppToHyperFetch)** - Every exported type
 
 ## 💡 Examples
 
@@ -105,6 +97,7 @@ export type AppSchema = ElysiaAppToHyperFetch<typeof app>;
 ```ts
 const sdk = createSdk<typeof client, AppSchema>(client);
 
+// the payload is typed by t.Object({ name: t.String() })
 await sdk.users.$post.setPayload({ name: "Bob" }).send();
 
 const { data, error } = await sdk.users.$userId.$get.setParams({ userId: "missing" }).send();
@@ -122,12 +115,44 @@ import { useFetch } from "@hyper-fetch/react";
 import { sdk } from "./api";
 
 export const UserName = ({ userId }: { userId: string }) => {
-  const { data, loading } = useFetch(sdk.users.$userId.$get.setParams({ userId }));
+  const { data, error, loading } = useFetch(sdk.users.$userId.$get.setParams({ userId }));
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Spinner />;
+  if (error) return <p>Could not load the user</p>;
   return <p>{data?.name}</p>;
 };
 ```
+
+## 🧩 Hyper Fetch Ecosystem
+
+One typed client for every backend. Swap the adapter and keep the same `createRequest()` everywhere.
+
+<table align="center">
+  <tr>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-hyper-fetch.svg" width="36" height="36" alt="" /><br /><sub><b>Core</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-react.svg" width="36" height="36" alt="" /><br /><sub><b>React</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-sockets.svg" width="36" height="36" alt="" /><br /><sub><b>Sockets</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/cli"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-openapi.svg" width="36" height="36" alt="" /><br /><sub><b>OpenAPI CLI</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-graphql"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-graphql.svg" width="36" height="36" alt="" /><br /><sub><b>GraphQL</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-trpc"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-trpc.svg" width="36" height="36" alt="" /><br /><sub><b>tRPC</b></sub></a></td>
+  </tr>
+  <tr>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-orpc"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-orpc-dark.svg" /><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-orpc.svg" width="36" height="36" alt="" /></picture><br /><sub><b>oRPC</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/hono"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-hono.svg" width="36" height="36" alt="" /><br /><sub><b>Hono</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/elysia"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-elysia.svg" width="36" height="36" alt="" /><br /><sub><b>Elysia</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-firebase.svg" width="36" height="36" alt="" /><br /><sub><b>Firebase</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-axios"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-axios.svg" width="36" height="36" alt="" /><br /><sub><b>Axios</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/hyper-flow"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/hyper-flow.svg" width="36" height="36" alt="" /><br /><sub><b>HyperFlow</b></sub></a></td>
+  </tr>
+</table>
+
+## 💖 Sponsors
+
+<p align="center">
+  <a href="https://github.com/sponsors/prc5">
+    <img src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/other/sponsorkit/sponsors.svg?raw=true" alt="Sponsors" />
+  </a>
+</p>
 
 ## License
 

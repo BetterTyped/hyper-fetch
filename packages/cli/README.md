@@ -1,120 +1,101 @@
-# 🪄 Hyper Fetch CLI
-
 <p align="center">
-  <b>Generate typed API clients from OpenAPI/Swagger schemas. Your SDK is one command away.</b>
+  <a href="https://hyperfetch.bettertyped.com/docs/cli/commands/generate"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/.github/assets/packages/cli.png" alt="Hyper Fetch CLI. OpenAPI schema in. Typed SDK out. One command turns an OpenAPI 3 schema into a typed SDK." /></a>
 </p>
 
 <p align="center">
-  <a href="https://bettertyped.com/">
-    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/cli">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/cli.svg?logo=npm&color=e76f51" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/cli">
-    <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/cli?logoColor=fff&logo=trending-up" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://img.shields.io/badge/openapi-green?logo=openapiinitiative&logoColor=white" alt="OpenAPI" />
-  </a>
+  <a href="https://hyperfetch.bettertyped.com/docs/cli/overview"><b>Quick Start</b></a> ·
+  <a href="https://hyperfetch.bettertyped.com/docs/cli/commands/generate">Documentation</a> ·
+  <a href="https://hyperfetch.bettertyped.com/docs/api/cli/Classes/OpenapiRequestGenerator">API Reference</a> ·
+  <a href="https://github.com/BetterTyped/hyper-fetch">GitHub</a> ·
+  <a href="https://discord.gg/7upC2kVmyM">Discord</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/BetterTyped/hyper-fetch"><img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat&logo=github&color=333" alt="GitHub stars" /></a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/cli"><img src="https://img.shields.io/npm/v/@hyper-fetch/cli?logo=npm&color=e76f51" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/cli"><img src="https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/cli&color=fbc646" alt="Monthly downloads" /></a>
+  <a href="https://hyperfetch.bettertyped.com/docs/cli/commands/generate"><img src="https://img.shields.io/badge/size-runs%20with%20npx-007ec6" alt="Runs with npx" /></a>
+  <a href="https://github.com/BetterTyped/hyper-fetch"><img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="https://hyperfetch.bettertyped.com/docs/cli/commands/generate"><img src="https://img.shields.io/badge/OpenAPI-3.x-6BA539?logo=openapiinitiative&logoColor=white" alt="OpenAPI" /></a>
+  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md"><img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch?color=blue" alt="License" /></a>
 </p>
 
 ## 📖 About
 
-The HyperFetch CLI reads your OpenAPI 3.x schema and generates a complete, fully typed SDK built on `@hyper-fetch/core`.
-Every operation becomes a typed request — params, payloads, query params, and response types are all extracted from the
-schema. The generated code is standard HyperFetch you can customize freely.
+The Hyper Fetch CLI reads an OpenAPI 3 schema and writes a typed SDK built on `@hyper-fetch/core`. Every operation
+becomes a typed request, with params, payloads, query params, responses and errors taken from the schema. The output is
+one plain TypeScript file you own, so there is no runtime to adopt and nothing to eject from.
 
 ## 🎯 Key Capabilities
 
-- 🪄 **One command, full SDK** — Point at an OpenAPI schema and get a complete typed client
-- 🔮 **Types extracted from your schema** — Params, payloads, query params, and responses — you write none of them
-- 🔓 **No lock-in** — Generated code is standard `@hyper-fetch/core` you can customize, extend, and override
-- 📡 **Remote or local schemas** — Pass a URL or a local `.json` file path
-- 🧭 **Interactive mode** — Run without flags and the CLI walks you through every option
-- ✏️ **Your code, your rules** — Edit the generated client, add auth, override individual requests
+- 🪄 **One command, full SDK** - Point it at a schema and get a typed client for every endpoint
+- 🔮 **Types you never write** - Params, payloads, query params, responses and errors come from the schema
+- 🧭 **Paths become properties** - `GET /users/{userId}` is `sdk.users.$userId.$get` with typed `setParams()`
+- 📡 **Remote or local schemas** - Pass a URL or a local `.json` file
+- 🧭 **Interactive or scripted** - Run it bare for prompts, or pass every flag for CI
+- 🔓 **No lock-in** - The output is standard `@hyper-fetch/core` code you can read, edit and extend
+- ⚡ **Every HyperFetch feature** - Cache, retries, deduplication, offline replay and React hooks on every endpoint
 
 ## 🚀 Quick Start
 
-### 1. Initialize your project
-
 ```bash
-# Creates api.json config and the api/ directory structure
+# 1. Create the api.json config and the output folder (default: src/api)
 npx @hyper-fetch/cli init
-```
 
-This creates an `api.json` config file at your project root and sets up the output directory (default: `src/api/`).
-
-### 2. Generate your SDK
-
-```bash
-# Generate from a remote OpenAPI schema
+# 2. Generate the SDK from your schema
 npx @hyper-fetch/cli generate --url https://api.example.com/openapi.json
 ```
 
-### 3. Use the generated SDK
-
 ```ts
+// 3. Use it
 import { createClient } from "@hyper-fetch/core";
-import { createSdk } from "./src/api/api-openapi.sdk";
+
+import { createSdk } from "./api/api-openapi.sdk";
 
 const sdk = createSdk(createClient({ url: "https://api.example.com" }));
 
-// Every endpoint is typed — params, payloads, and responses
-const { data } = await sdk.users.$get.send();
-const { data: user } = await sdk.users.$userId.$get.send({ params: { userId: 1 } });
+const { data: users } = await sdk.users.$get.send();
+const { data: user } = await sdk.users.$userId.$get.setParams({ userId: 1 }).send();
 ```
 
 ## 📋 Commands
 
 ### `init`
 
-Sets up the project directory structure and creates the `api.json` config file.
+Creates the `api.json` config at the project root and the directory for generated files.
 
 ```bash
 npx @hyper-fetch/cli init
 ```
 
-| Flag                 | Description                                        |
-| -------------------- | -------------------------------------------------- |
-| `-y`, `--yes`        | Skip prompts and use defaults (`src/api/`)         |
-| `-c`, `--cwd <path>` | Set working directory (default: current directory) |
+| Flag                 | Description                                         |
+| -------------------- | --------------------------------------------------- |
+| `-y`, `--yes`        | Skip prompts and use the defaults (`src/api/`)      |
+| `-c`, `--cwd <path>` | Working directory (default: the current directory)  |
 
-Without `--yes`, you'll be asked to choose:
-
-- **Main directory** — `src`, `app`, or a custom path
-- **API subdirectory** — name of the folder for generated files (default: `api`)
+Without `--yes` it asks for the main directory (`src`, `app` or a custom path) and the API subdirectory (default `api`).
 
 ### `generate`
 
-Reads an OpenAPI schema and generates a typed SDK file.
+Reads an OpenAPI schema and writes the SDK file.
 
 ```bash
 npx @hyper-fetch/cli generate --url <schema> [options]
 ```
 
-| Flag                      | Description                                                       |
-| ------------------------- | ----------------------------------------------------------------- |
-| `-u`, `--url <url>`       | Schema source — a URL or local file path (relative to cwd)        |
-| `-t`, `--template <type>` | Schema type: `openapi` or `swagger` (default: interactive prompt) |
-| `-f`, `--fileName <name>` | Output filename (default: `api-openapi.sdk.ts`)                   |
-| `-o`, `--overwrite`       | Overwrite existing file without asking                            |
-| `-c`, `--cwd <path>`      | Set working directory (default: current directory)                |
+| Flag                      | Description                                                         |
+| ------------------------- | ------------------------------------------------------------------- |
+| `-u`, `--url <url>`       | Schema source, a URL or a local file path relative to the cwd       |
+| `-t`, `--template <type>` | Schema type: `openapi` or `swagger` (default: interactive prompt)   |
+| `-f`, `--fileName <name>` | Output file name (default: `api-openapi.sdk.ts`)                    |
+| `-o`, `--overwrite`       | Overwrite an existing file without asking                           |
+| `-c`, `--cwd <path>`      | Working directory (default: the current directory)                  |
 
-Without flags, the CLI runs in **interactive mode** — it prompts for every option.
+Without flags the CLI runs in **interactive mode** and prompts for every option.
 
-## ⚙️ Configuration — `api.json`
+## ⚙️ Configuration
 
-The `init` command creates an `api.json` file at your project root. This is the only config file the CLI uses.
+`init` writes `api.json`, the only config file the CLI reads.
 
 ```json
 {
@@ -129,60 +110,42 @@ The `init` command creates an `api.json` file at your project root. This is the 
 }
 ```
 
-| Field     | Description                                                                                   |
-| --------- | --------------------------------------------------------------------------------------------- |
-| `tsx`     | When `true`, generates `.ts` files. When `false`, generates `.js`                             |
-| `aliases` | Path aliases resolved from your `tsconfig.json` paths. Controls where the SDK file is written |
+| Field     | Description                                                                                       |
+| --------- | ------------------------------------------------------------------------------------------------- |
+| `tsx`     | `true` generates `.ts` files, `false` generates `.js`                                             |
+| `aliases` | Path aliases resolved through your `tsconfig.json` paths. They decide where the SDK file is written |
 
-The CLI auto-detects your `tsconfig.json` path aliases (e.g. `@/*` → `./src/*`) to resolve output directories.
+## 📁 What gets generated
 
-## 📁 Generated Output
+One TypeScript file under your API directory, for example `src/api/api-openapi.sdk.ts`, with:
 
-The CLI generates a **single TypeScript file** under your configured API directory:
-
-```
-src/
-  api/
-    api-openapi.sdk.ts    ← generated SDK file
-```
-
-The generated file contains:
-
-1. **Schema types** — TypeScript interfaces for every schema component
-2. **Operation types** — `ResponseType`, `RequestBody`, `QueryParams`, `PathParams` and `ErrorType` for every operation
-3. **SDK schema** — An `SdkSchema` tree mirroring your API paths, with a `$`-prefixed key per HTTP method:
-   `sdk.users.$get`, `sdk.users.$userId.$put`, etc.
-4. **`createSdk` function** — Factory to create the SDK with your custom client
+1. **Schema types** - an interface for every schema component
+2. **Operation types** - `ResponseType`, `RequestBody`, `QueryParams`, `PathParams` and `ErrorType` per operation
+3. **`SdkSchema`** - a tree that mirrors your paths, with a `$`-prefixed key per HTTP method (`$get`, `$post`, ...)
+4. **`createSdk`** - a factory that binds the tree to your client
 
 ```ts
-// What gets generated (simplified)
+// Simplified output
 import { createSdk as coreCreateSdk } from "@hyper-fetch/core";
 import type { ClientInstance, RequestModel } from "@hyper-fetch/core";
 
-// Schema types extracted from your OpenAPI document
 declare namespace Components {
   namespace Schemas {
     export interface User {
       id: number;
       name: string;
-      email: string;
     }
-    // ... all your schema types
   }
 }
 
 export type GetUsersResponseType = Components.Schemas.User[];
 
-// Request model for each operation, keyed by path and then by method
 export type SdkSchema = {
   users: {
     $get: RequestModel<{ response: GetUsersResponseType; endpoint: "/users" }>;
   };
 };
 
-export type { Components };
-
-// SDK tree you import and use
 export const createSdk = <Client extends ClientInstance>(
   client: Client,
   options?: Parameters<typeof coreCreateSdk>[1] | undefined,
@@ -191,44 +154,28 @@ export const createSdk = <Client extends ClientInstance>(
 };
 ```
 
-## ⚠️ Important Notes
+## ⚠️ Good to know
 
-- **`operationId` is optional** — Operations without one are included too. Their type names are derived from the method
-  and path, for example `GetUsers$userIdResponseType` for `GET /users/{userId}`.
-- **JSON schemas only for local files** — Local file paths must point to `.json` files. YAML is not supported for local
-  files.
-- **Remote schemas are fetched with GET** — No auth headers are sent. If your schema requires authentication, download
-  it locally first and pass the file path.
-- **Path params are converted** — `{userId}` in OpenAPI becomes `:userId` in HyperFetch endpoints.
-- **Path segments are camelCased** — Kebab-case path segments become camelCase keys in the SDK tree. `{param}` segments
-  become `$param` and each HTTP method becomes `$get`, `$post`, `$put`, `$patch` or `$delete`.
+- **`operationId` is optional.** Operations without one get names from the method and path, for example
+  `GetUsers$userIdResponseType` for `GET /users/{userId}`
+- **Local files must be JSON.** YAML is not supported for local schemas
+- **Remote schemas are fetched with a plain GET.** No auth headers are sent, so download protected schemas first
+- **Path params are converted.** `{userId}` becomes `:userId` in the endpoint and `$userId` in the SDK tree
+- **Path segments are camelCased.** `/user-profiles` becomes `sdk.userProfiles`
 
 ## 📚 Documentation
 
-- [Generate Command](https://hyperfetch.bettertyped.com/docs/cli/commands/generate)
-- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
-- [API Reference](https://hyperfetch.bettertyped.com/api/)
+- **[CLI Overview](https://hyperfetch.bettertyped.com/docs/cli/overview)** - What the CLI does and when to use it
+- **[`generate`](https://hyperfetch.bettertyped.com/docs/cli/commands/generate)** - Every flag and the generated output
+- **[`init`](https://hyperfetch.bettertyped.com/docs/cli/commands/init)** - Project setup and path aliases
+- **[SDK](https://hyperfetch.bettertyped.com/docs/core/sdk)** - How `createSdk` turns a schema into requests
+- **[API Reference](https://hyperfetch.bettertyped.com/docs/api/cli/Classes/OpenapiRequestGenerator)** - `OpenapiRequestGenerator` for scripts
 
 ## 💡 Examples
 
-### Generate from a remote schema
+### Regenerate in CI with no prompts
 
 ```bash
-# OpenAPI 3.x schema from a URL
-npx @hyper-fetch/cli generate --url https://petstore3.swagger.io/api/v3/openapi.json
-```
-
-### Generate from a local file
-
-```bash
-# Local JSON file relative to your project root
-npx @hyper-fetch/cli generate --url ./schemas/openapi.json --fileName my-api.sdk.ts
-```
-
-### Skip all prompts (CI/scripts)
-
-```bash
-# Non-interactive: all flags provided, overwrite existing file
 npx @hyper-fetch/cli generate \
   --url https://api.example.com/openapi.json \
   --template openapi \
@@ -236,50 +183,49 @@ npx @hyper-fetch/cli generate \
   --overwrite
 ```
 
-### Use the generated SDK
+### Generate from a local file
 
-```ts
-import { createSdk } from "./src/api/api-openapi.sdk";
-import { createClient } from "@hyper-fetch/core";
-
-// Create your client with any configuration you need
-const client = createClient({ url: "https://api.example.com" });
-
-// Create the typed SDK from your client
-const sdk = createSdk(client);
-
-// Every method is fully typed — params, payloads, and responses
-const { data: users } = await sdk.users.$get.send();
-const { data: user } = await sdk.users.$userId.$get.setParams({ userId: 1 }).send();
-const { data: newPet } = await sdk.pets.$post.send({
-  payload: { name: "Buddy", species: "dog" },
-});
+```bash
+npx @hyper-fetch/cli generate --url ./schemas/openapi.json --fileName billing.sdk.ts
 ```
 
-### Add authentication to the generated client
+### Add auth to every generated request
 
 ```ts
-import { createSdk } from "./src/api/api-openapi.sdk";
 import { createClient } from "@hyper-fetch/core";
 
-const client = createClient({ url: "https://api.example.com" });
-const sdk = createSdk(client);
+import { createSdk } from "./api/api-openapi.sdk";
 
-// Add auth header to every request through the client
-client.onAuth((request) => {
-  return request.setHeaders({ Authorization: `Bearer ${getToken()}` });
-});
+const client = createClient({ url: "https://api.example.com" }).onAuth((request) =>
+  request.setHeaders({ ...request.headers, Authorization: `Bearer ${getToken()}` }),
+);
 
-// All SDK requests now include the auth header automatically
+export const sdk = createSdk(client);
+
+// Every SDK call now sends the header
 const { data } = await sdk.users.me.$get.send();
 ```
 
-### Programmatic usage (no CLI)
+### Use the generated SDK in React
+
+```tsx
+import { useFetch, useSubmit } from "@hyper-fetch/react";
+
+const Pet = ({ petId }: { petId: number }) => {
+  const { data, loading } = useFetch(sdk.pets.$petId.$get.setParams({ petId }));
+  const { submit, submitting } = useSubmit(sdk.pets.$petId.$delete.setParams({ petId }));
+
+  if (loading) return <Spinner />;
+  return <PetCard pet={data} onDelete={() => submit()} deleting={submitting} />;
+};
+```
+
+### Run the generator from a script
 
 ```ts
 import { OpenapiRequestGenerator } from "@hyper-fetch/cli";
 
-// The generator reads relative schema paths from `resolvedPaths.cwd` and writes to `resolvedPaths.api`
+// Relative schema paths resolve from resolvedPaths.cwd, the file is written to resolvedPaths.api
 const config = {
   tsx: true,
   aliases: { api: "@/api", hooks: "@/hooks", ui: "@/components/ui", components: "@/components", lib: "@/lib" },
@@ -293,15 +239,43 @@ const config = {
   },
 };
 
-// Use the generator directly in scripts or build tools
 const schema = await OpenapiRequestGenerator.getSchemaFromUrl({ url: "./openapi.json", config });
 const generator = new OpenapiRequestGenerator(schema);
 const filePath = await generator.generateFile({ fileName: "api.sdk.ts", config });
 ```
 
-## Disclaimer
+> The generator is inspired by [openapi-client-axios](https://www.npmjs.com/package/openapi-client-axios).
 
-This package is inspired by [openapi-client-axios](https://www.npmjs.com/package/openapi-client-axios).
+## 🧩 Hyper Fetch Ecosystem
+
+One typed client for every backend. Swap the adapter and keep the same `createRequest()` everywhere.
+
+<table align="center">
+  <tr>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-hyper-fetch.svg" width="36" height="36" alt="" /><br /><sub><b>Core</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-react.svg" width="36" height="36" alt="" /><br /><sub><b>React</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-sockets.svg" width="36" height="36" alt="" /><br /><sub><b>Sockets</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/cli"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-openapi.svg" width="36" height="36" alt="" /><br /><sub><b>OpenAPI CLI</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-graphql"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-graphql.svg" width="36" height="36" alt="" /><br /><sub><b>GraphQL</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-trpc"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-trpc.svg" width="36" height="36" alt="" /><br /><sub><b>tRPC</b></sub></a></td>
+  </tr>
+  <tr>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-orpc"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-orpc-dark.svg" /><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-orpc.svg" width="36" height="36" alt="" /></picture><br /><sub><b>oRPC</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/hono"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-hono.svg" width="36" height="36" alt="" /><br /><sub><b>Hono</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/elysia"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-elysia.svg" width="36" height="36" alt="" /><br /><sub><b>Elysia</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-firebase.svg" width="36" height="36" alt="" /><br /><sub><b>Firebase</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-axios"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-axios.svg" width="36" height="36" alt="" /><br /><sub><b>Axios</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/hyper-flow"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/hyper-flow.svg" width="36" height="36" alt="" /><br /><sub><b>HyperFlow</b></sub></a></td>
+  </tr>
+</table>
+
+## 💖 Sponsors
+
+<p align="center">
+  <a href="https://github.com/sponsors/prc5">
+    <img src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/other/sponsorkit/sponsors.svg?raw=true" alt="Sponsors" />
+  </a>
+</p>
 
 ## License
 

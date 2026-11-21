@@ -1,50 +1,44 @@
-# ⚛️ Hyper Fetch React
-
 <p align="center">
-  <b>React hooks for HyperFetch. Automatic fetching, caching, and real-time updates with full type safety.</b>
+  <a href="https://hyperfetch.bettertyped.com/docs/react/overview"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/.github/assets/packages/react.png" alt="Hyper Fetch React. Server state for React. No useEffect required. useFetch, useSubmit and useListener give every component typed data, loading and error state." /></a>
 </p>
 
 <p align="center">
-  <a href="https://bettertyped.com/">
-    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/react">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/react.svg?logo=npm&color=e76f51" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/react">
-    <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/react?logoColor=fff&logo=trending-up" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
-  </a>
-  <a href="https://bundlephobia.com/package/@hyper-fetch/react">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/react?color=64BC4B&logo=package" />
-  </a>
+  <a href="https://hyperfetch.bettertyped.com/docs/react/quick-start"><b>Quick Start</b></a> ·
+  <a href="https://hyperfetch.bettertyped.com/docs/react/overview">Documentation</a> ·
+  <a href="https://hyperfetch.bettertyped.com/docs/api/react/Hooks/useFetch">API Reference</a> ·
+  <a href="https://github.com/BetterTyped/hyper-fetch">GitHub</a> ·
+  <a href="https://discord.gg/7upC2kVmyM">Discord</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/BetterTyped/hyper-fetch"><img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat&logo=github&color=333" alt="GitHub stars" /></a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/react"><img src="https://img.shields.io/npm/v/@hyper-fetch/react?logo=npm&color=e76f51" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/react"><img src="https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/react&color=fbc646" alt="Monthly downloads" /></a>
+  <a href="https://bundlejs.com/?q=@hyper-fetch/react"><img src="https://api.maciejpyrc.com/portfolio/npm/size.svg?package=@hyper-fetch/react&external=@hyper-fetch/core,@hyper-fetch/sockets,react" alt="Bundle size" /></a>
+  <a href="https://github.com/BetterTyped/hyper-fetch"><img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="https://hyperfetch.bettertyped.com/docs/react/overview"><img src="https://img.shields.io/badge/React-18%20%7C%2019-61DAFB?logo=react&logoColor=black" alt="React" /></a>
+  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md"><img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch?color=blue" alt="License" /></a>
 </p>
 
 ## 📖 About
 
-`@hyper-fetch/react` connects HyperFetch's typed request system to React's component lifecycle. `useFetch` triggers
-requests on mount and re-fetches when dependencies change. `useSubmit` gives you a `submit` function for mutations
-triggered by user actions. Both hooks return fully typed `data`, `error`, and loading states with built-in callbacks.
+`@hyper-fetch/react` binds Hyper Fetch requests to React components. `useFetch` reads, `useSubmit` writes, and both
+return typed `data`, `error` and loading state backed by the client cache. Every component that uses the same request
+shares one response, one in-flight call and one cache entry, so you can drop the `useEffect` fetching and the state
+library for server data.
 
 ## 🎯 Key Capabilities
 
-- ⚡ **Data on mount, zero boilerplate** — `useFetch` fetches, caches, and types your data automatically
-- 🎯 **Mutations that just work** — `useSubmit` handles loading, errors, and success states for form submissions
-- 🔄 **Always fresh data** — Auto-refetch on window focus, polling, and stale-time revalidation built in
-- ✨ **Optimistic updates with rollback** — Update the UI instantly and auto-revert if the request fails
-- 🔮 **Full type safety** — Every hook, callback, response, and error is typed end-to-end with zero `any`
-- 🚀 **Instant page loads** — Prefetch data before components mount so users never wait
-- 🔗 **No more useEffect spaghetti** — Dependent requests via `disabled` option, no manual orchestration
-- 📡 **SSR out of the box** — Works with Next.js, Remix, and any server-rendered framework
-- 💎 **Skip the state library** — No Redux or Zustand needed for server state — it's all handled
+- ⚡ **Data on mount, no `useEffect`** - `useFetch` fetches, caches and refetches when params or query params change
+- ✍️ **Mutations in one call** - `useSubmit` waits for `submit()` and tracks `submitting`, errors and upload progress
+- 🔗 **One request, one cache entry** - Components that use the same request share one response and one network call
+- ✨ **Optimistic updates with rollback** - `setOptimistic` updates the list now and reverts it if the request fails
+- 🔄 **Always fresh** - Refetch on window focus, on reconnect or on an interval with `refresh` and `refreshTime`
+- ⏳ **Search without request floods** - `bounce` debounces or throttles requests while the user types
+- ♾️ **Infinite lists** - `useInfiniteFetch` pages through cursors with `fetchNextPage` and `hasNextPage`
+- 🎯 **Re-renders only for what you read** - Hooks track the fields a component uses and ignore the rest
+- 🖥️ **SSR hydration** - `Hydrate` carries server responses into the first render in Next.js and other SSR frameworks
+- 📡 **Realtime in components** - `useListener` and `useEmitter` bind typed sockets from `@hyper-fetch/sockets`
 
 ## 🚀 Quick Start
 
@@ -54,14 +48,16 @@ npm install @hyper-fetch/core @hyper-fetch/react
 
 ```tsx
 import { useFetch } from "@hyper-fetch/react";
+
 import { getUsers } from "./api";
 
-const UserList = () => {
-  // Fetches on mount, returns typed data — no useEffect needed
-  const { data, loading, error } = useFetch(getUsers);
+export const UserList = () => {
+  // Fetches on mount and returns typed state. No useEffect, no useState
+  const { data, loading, error, refetch } = useFetch(getUsers);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Something went wrong</p>;
+  if (loading && !data) return <Spinner />;
+  if (error) return <button onClick={refetch}>Try again</button>;
+
   return (
     <ul>
       {data?.map((user) => (
@@ -74,146 +70,167 @@ const UserList = () => {
 
 ## 📚 Documentation
 
-- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
-- [React Overview](https://hyperfetch.bettertyped.com/docs/react/overview)
-- [API Reference](https://hyperfetch.bettertyped.com/api/)
+- **[Quick Start](https://hyperfetch.bettertyped.com/docs/react/quick-start)** - Your first hook in a few lines
+- **[useFetch](https://hyperfetch.bettertyped.com/docs/react/hooks/use-fetch)** - Fetching, refetching, polling, suspense and `select`
+- **[useSubmit](https://hyperfetch.bettertyped.com/docs/react/hooks/use-submit)** - Forms, mutations and progress
+- **[useInfiniteFetch](https://hyperfetch.bettertyped.com/docs/react/hooks/use-infinite-fetch)** - Cursor and page based lists
+- **[Hydrate](https://hyperfetch.bettertyped.com/docs/react/hydrate)** - Server rendering and hydration
+- **[useListener](https://hyperfetch.bettertyped.com/docs/react/sockets/use-listener)** - Realtime data from sockets
+- **[Guides](https://hyperfetch.bettertyped.com/docs/guides/react/basics/optimistic-approach)** - Optimistic updates, pagination, dependent requests and more
+- **[API Reference](https://hyperfetch.bettertyped.com/docs/api/react/Hooks/useFetch)** - Every hook, option and return type
 
 ## 💡 Examples
 
-### Fetch with callbacks
+### Search with debounce
 
 ```tsx
-import { useFetch } from "@hyper-fetch/react";
+const UserSearch = ({ search }: { search: string }) => {
+  // The first request goes out right away, later changes wait 300ms
+  const { data, loading } = useFetch(getUsers.setQueryParams({ search }), { bounce: true, bounceTime: 300 });
 
-const UserProfile = ({ userId }: { userId: number }) => {
-  // setParams makes the request dynamic — re-fetches when userId changes
-  const { data, loading, error, onSuccess, onError } = useFetch(getUser.setParams({ userId }));
-
-  // Typed callbacks — response shape matches your request definition
-  onSuccess(({ response }) => {
-    console.log("Loaded user:", response.data.name);
-  });
-
-  onError(({ response }) => {
-    console.error("Failed to load user:", response.error);
-  });
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
-  return <h1>{data.name}</h1>;
+  return <UsersTable users={data ?? []} dimmed={loading} />;
 };
 ```
 
-### Mutations with useSubmit
+### Submit a form and refresh the list
 
 ```tsx
 import { useSubmit } from "@hyper-fetch/react";
 
-const CreateUserForm = () => {
-  // useSubmit doesn't fire on mount — it waits for you to call submit()
-  const { submit, submitting, onSubmitSuccess, onSubmitError } = useSubmit(createUser);
+const AddUser = () => {
+  const { submit, submitting, error, onSubmitSuccess } = useSubmit(createUser);
 
-  // Callbacks fire after each submission with typed response data
-  onSubmitSuccess(({ response }) => {
-    alert(`User ${response.data.name} created!`);
-  });
+  // every mounted useFetch(getUsers) refetches
+  onSubmitSuccess(() => client.cache.invalidate(getUsers));
 
-  onSubmitError(({ response }) => {
-    alert(`Error: ${response.error.message}`);
-  });
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    // Pass typed payload — TypeScript ensures the shape matches your request definition
-    submit({
-      payload: { name: form.get("name") as string, email: form.get("email") as string },
-    });
+  const onSave = async (name: string) => {
+    const response = await submit({ payload: { name } });
+    if (response.success) closeModal();
   };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <input name="name" placeholder="Name" required />
-      <input name="email" placeholder="Email" required />
-      <button type="submit" disabled={submitting}>
-        {submitting ? "Creating..." : "Create User"}
-      </button>
-    </form>
-  );
+  return <UserForm onSubmit={onSave} disabled={submitting} error={error?.message} />;
 };
+```
+
+### Optimistic update with rollback
+
+```ts
+import { optimistic } from "@hyper-fetch/core";
+
+export const toggleTodo = client
+  .createRequest<{ response: Todo; payload: { completed: boolean } }>()({ endpoint: "/todos/:todoId", method: "PATCH" })
+  .setOptimistic(({ params, payload }) => [
+    optimistic(getTodos)
+      .patch(params.todoId, payload)
+      .rollback(({ data, previous }) => {
+        const before = previous.find((todo) => todo.id === Number(params.todoId));
+        return data.map((todo) => (todo.id === Number(params.todoId) && before ? before : todo));
+      }),
+  ]);
+```
+
+```tsx
+// The component needs nothing optimistic-specific
+const { submit } = useSubmit(toggleTodo);
+
+submit({ params: { todoId: todo.id }, payload: { completed: !todo.completed } });
 ```
 
 ### Dependent requests
 
 ```tsx
-const UserPosts = ({ userId }: { userId: number }) => {
-  // First request fetches the user
-  const { data: user } = useFetch(getUser.setParams({ userId }));
-  // Second request waits until user is loaded — no useEffect chains needed
-  const { data: posts } = useFetch(getUserPosts.setParams({ userId }), {
-    disabled: !user,
-  });
+const { data: user } = useFetch(getCurrentUser);
 
-  return (
-    <div>
-      <h1>{user?.name}</h1>
-      {posts?.map((post) => (
-        <article key={post.id}>{post.title}</article>
-      ))}
-    </div>
-  );
-};
+// Waits until the user is loaded, then fetches on its own
+const { data: posts } = useFetch(getUserPosts.setParams({ userId: user?.id ?? 0 }), { disabled: !user });
 ```
 
-### Optimistic updates with automatic rollback
+### Infinite feed
 
 ```tsx
-import { useSubmit } from "@hyper-fetch/react";
+import { useInfiniteFetch } from "@hyper-fetch/react";
 
-// setOptimistic runs before the request is sent - the comment list updates instantly
-const addCommentOptimistic = addComment.setOptimistic(({ params, payload, optimistic }) => {
-  const temp = { id: `temp-${Date.now()}`, text: payload.text, author: "You" };
-
-  return {
-    updates: [
-      optimistic(getComments.setParams({ postId: params.postId }))
-        .insert(temp)
-        // On success swap the temporary comment for the one returned by the server
-        .commit(({ data, response }) => data.map((comment) => (comment.id === temp.id ? response.data : comment)))
-        // If the request fails, take it out again
-        .rollback(({ data }) => data.filter((comment) => comment.id !== temp.id)),
-    ],
-    context: { tempId: temp.id },
-  };
-});
-
-const AddComment = ({ postId }: { postId: number }) => {
-  const { submit, submitting, onSubmitError } = useSubmit(addCommentOptimistic);
-
-  // mutationContext is typed from the context returned by setOptimistic
-  onSubmitError(({ mutationContext }) => {
-    console.log("Rolled back comment", mutationContext?.tempId);
-  });
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const text = new FormData(e.currentTarget).get("text") as string;
-    submit({ params: { postId }, payload: { text } });
-    e.currentTarget.reset();
-  };
+const Feed = ({ topic }: { topic: string }) => {
+  const { items, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteFetch(
+    getFeed.setQueryParams({ topic }),
+    { pagination: { cursor: "cursor", next: "nextCursor", items: "data" } },
+  );
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="text" placeholder="Write a comment..." required />
-      <button type="submit" disabled={submitting}>
-        Post
-      </button>
-    </form>
+    <>
+      {items.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
+      {hasNextPage && (
+        <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+          Load more
+        </button>
+      )}
+    </>
   );
 };
 ```
 
-The comment list is refreshed from the server once the request settles.
+### Server rendering with Next.js
+
+```tsx
+// app/users/page.tsx (server component)
+export default async function Page() {
+  const response = await getFirstPage.send();
+  return <UsersList hydration={[getFirstPage.dehydrate({ response })]} />;
+}
+```
+
+```tsx
+// app/users/users-list.tsx
+"use client";
+
+import { Hydrate, useFetch } from "@hyper-fetch/react";
+import type { HydrateProps } from "@hyper-fetch/react";
+
+export const UsersList = ({ hydration }: { hydration: HydrateProps["data"] }) => (
+  <Hydrate client={client} data={hydration}>
+    <Users />
+  </Hydrate>
+);
+
+const Users = () => {
+  // The first render already has the server data
+  const { data } = useFetch(getFirstPage, { revalidate: false });
+  return <UsersTable users={data ?? []} />;
+};
+```
+
+## 🧩 Hyper Fetch Ecosystem
+
+One typed client for every backend. Swap the adapter and keep the same `createRequest()` everywhere.
+
+<table align="center">
+  <tr>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-hyper-fetch.svg" width="36" height="36" alt="" /><br /><sub><b>Core</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-react.svg" width="36" height="36" alt="" /><br /><sub><b>React</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-sockets.svg" width="36" height="36" alt="" /><br /><sub><b>Sockets</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/cli"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-openapi.svg" width="36" height="36" alt="" /><br /><sub><b>OpenAPI CLI</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-graphql"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-graphql.svg" width="36" height="36" alt="" /><br /><sub><b>GraphQL</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-trpc"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-trpc.svg" width="36" height="36" alt="" /><br /><sub><b>tRPC</b></sub></a></td>
+  </tr>
+  <tr>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-orpc"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-orpc-dark.svg" /><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-orpc.svg" width="36" height="36" alt="" /></picture><br /><sub><b>oRPC</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/hono"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-hono.svg" width="36" height="36" alt="" /><br /><sub><b>Hono</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/elysia"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-elysia.svg" width="36" height="36" alt="" /><br /><sub><b>Elysia</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-firebase.svg" width="36" height="36" alt="" /><br /><sub><b>Firebase</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-axios"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-axios.svg" width="36" height="36" alt="" /><br /><sub><b>Axios</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/hyper-flow"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/hyper-flow.svg" width="36" height="36" alt="" /><br /><sub><b>HyperFlow</b></sub></a></td>
+  </tr>
+</table>
+
+## 💖 Sponsors
+
+<p align="center">
+  <a href="https://github.com/sponsors/prc5">
+    <img src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/other/sponsorkit/sponsors.svg?raw=true" alt="Sponsors" />
+  </a>
+</p>
 
 ## License
 
