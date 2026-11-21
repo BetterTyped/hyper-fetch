@@ -51,6 +51,7 @@ export const Hero = () => {
             <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem] relative">
               Typed
               <span
+                aria-hidden="true"
                 className="absolute text-3xl md:text-5xl lg:text-[3.9rem] -z-[1] inset-0 underline decoration-rose-500 decoration-wavy decoration-from-font underline-offset-2 !text-transparent disable-shadow pointer-events-none"
                 style={{
                   textShadow: "none",

@@ -62,7 +62,8 @@ const getPackagesList = () => {
 
 const config: Config = {
   title: "HyperFetch",
-  tagline: "Use HyperFetch today.",
+  tagline:
+    "Typed requests, caching, offline queues, upload progress and websockets for TypeScript and React. One API over fetch, Axios, GraphQL and Firebase.",
   favicon: "img/favicon.ico",
 
   // Set the production url of your site here
@@ -70,6 +71,10 @@ const config: Config = {
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
+  // S3 serves every page as `<path>/index.html` and answers the slashless URL
+  // with a 302 to the slash one. Without this, sitemap and canonical URLs point
+  // at that redirect and Google sees two URLs for every page.
+  trailingSlash: true,
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -199,8 +204,8 @@ const config: Config = {
   },
 
   themeConfig: {
-    // Replace with your project's social card
-    image: "img/logo.svg",
+    // PNG, not SVG: X, LinkedIn and Facebook do not render SVG previews.
+    image: "img/social-card.png",
     docsearch: {
       appId: process.env.DOC_APP_ID || "dummy_value",
       apiKey: process.env.DOC_API_KEY || "dummy_value",
