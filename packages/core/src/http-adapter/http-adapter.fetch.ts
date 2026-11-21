@@ -170,7 +170,9 @@ export const getAdapter = () =>
               onError({ error, status, extra });
             }
           } else {
-            let bytes: Uint8Array;
+            // The body is read as bytes from the stream. Without a stream reader (e.g. React Native) it is read with
+            // the method matching the response type - text for the default one, so nothing more than text is needed.
+            let body: { bytes: Uint8Array } | { text: string } | { data: Blob | ArrayBuffer };
 
             if (response.body && typeof response.body.getReader === "function") {
               const reader = response.body.getReader();
@@ -201,9 +203,13 @@ export const getAdapter = () =>
                 allChunks.set(chunk, position);
                 position += chunk.length;
               }
-              bytes = allChunks;
+              body = { bytes: allChunks };
+            } else if (response.ok && responseType === "blob") {
+              body = { data: await response.blob() };
+            } else if (response.ok && responseType === "arrayBuffer") {
+              body = { data: await response.arrayBuffer() };
             } else {
-              bytes = new Uint8Array(await response.arrayBuffer());
+              body = { text: await response.text() };
             }
 
             if (timeoutId) {
@@ -213,11 +219,20 @@ export const getAdapter = () =>
             onResponseEnd();
             unmountListener();
 
+            const getText = () => ("text" in body ? body.text : new TextDecoder().decode("bytes" in body ? body.bytes : undefined));
+
             if (response.ok) {
-              const data = readResponseBody(bytes, responseType, response.headers.get("content-type"));
+              let data: unknown;
+              if ("data" in body) {
+                data = body.data;
+              } else if ("bytes" in body) {
+                data = readResponseBody(body.bytes, responseType, response.headers.get("content-type"));
+              } else {
+                data = responseType === "text" ? body.text : parseResponse(body.text);
+              }
               onSuccess({ data, status, extra });
             } else {
-              const error = parseErrorResponse(new TextDecoder().decode(bytes));
+              const error = parseErrorResponse(getText());
               onError({ error, status, extra });
             }
           }
