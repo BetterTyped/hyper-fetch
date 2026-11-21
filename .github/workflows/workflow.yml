@@ -25,7 +25,7 @@ jobs:
         uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "22.21.1"
+          node-version: "24.15.0"
           cache: "pnpm"
         env:
           FORCE_COLOR: 0
@@ -55,7 +55,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.21.1"
+          node-version: "24.15.0"
           cache: "pnpm"
       - name: Restore node_modules
         uses: actions/cache/restore@v3
@@ -111,7 +111,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.21.1"
+          node-version: "24.15.0"
           cache: "pnpm"
       - name: Restore node_modules
         uses: actions/cache/restore@v3
@@ -148,7 +148,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.21.1"
+          node-version: "24.15.0"
           cache: "pnpm"
       - name: Restore node_modules
         uses: actions/cache/restore@v3
@@ -202,7 +202,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.21.1"
+          node-version: "24.15.0"
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
       - name: Restore node_modules
