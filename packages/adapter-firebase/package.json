@@ -1,9 +1,9 @@
 {
   "name": "@hyper-fetch/firebase",
   "version": "0.0.0",
-  "description": "First class Firebase Web adapter for Hyper Fetch",
+  "description": "Firebase adapter for HyperFetch: typed Firestore and Realtime Database requests with caching and realtime listeners",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase/overview/",
   "license": "Apache-2.0",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
@@ -54,9 +54,10 @@
   "keywords": [
     "firebase",
     "firestore",
+    "realtime-database",
     "realtime",
-    "storage",
-    "database",
-    "authentication"
+    "react",
+    "typescript",
+    "hyperfetch"
   ]
 }

@@ -1,9 +1,9 @@
 {
   "name": "eslint-plugin-hyper-fetch",
   "version": "0.0.0",
-  "description": "Eslint plugin for HyperFetch",
+  "description": "ESLint plugin for HyperFetch: checks the generic types passed to createClient and createRequest, so a typo fails lint",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/integrations/plugin-eslint/",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -63,6 +63,10 @@
   },
   "keywords": [
     "eslint",
-    "hyper-fetch"
+    "eslintplugin",
+    "eslint-plugin",
+    "lint",
+    "typescript",
+    "hyperfetch"
   ]
 }

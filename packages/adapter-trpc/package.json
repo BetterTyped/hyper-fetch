@@ -1,9 +1,9 @@
 {
   "name": "@hyper-fetch/trpc",
   "version": "0.0.0",
-  "description": "tRPC adapter for Hyper Fetch",
+  "description": "tRPC adapter for HyperFetch: call tRPC procedures with typed requests, caching, React hooks and subscriptions",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/integrations/adapter-trpc/overview/",
   "license": "Apache-2.0",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
@@ -66,13 +66,13 @@
     ]
   },
   "keywords": [
-    "fetch",
-    "requests",
-    "js",
-    "fetcher",
     "trpc",
     "rpc",
     "typescript",
-    "end-to-end-types"
+    "end-to-end-types",
+    "react",
+    "nextjs",
+    "subscriptions",
+    "hyperfetch"
   ]
 }

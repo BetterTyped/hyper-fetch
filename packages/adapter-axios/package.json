@@ -1,9 +1,9 @@
 {
   "name": "@hyper-fetch/axios",
   "version": "0.0.0",
-  "description": "Simple axios adapter for Hyper Fetch",
+  "description": "Axios adapter for HyperFetch: send typed requests through Axios with HyperFetch caching, retries and upload progress",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/integrations/adapter-axios/overview/",
   "license": "Apache-2.0",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
@@ -45,6 +45,9 @@
   "keywords": [
     "axios",
     "adapter",
-    "hyper fetch"
+    "http-client",
+    "upload-progress",
+    "typescript",
+    "hyperfetch"
   ]
 }

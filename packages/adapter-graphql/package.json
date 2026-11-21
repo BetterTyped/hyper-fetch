@@ -1,9 +1,9 @@
 {
   "name": "@hyper-fetch/graphql",
   "version": "0.0.0",
-  "description": "GraphQL adapters for Hyper Fetch - queries and mutations over HTTP, subscriptions over WebSocket",
+  "description": "GraphQL adapters for HyperFetch: typed queries and mutations over HTTP, subscriptions over WebSocket with graphql-ws",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/overview/",
   "license": "Apache-2.0",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
@@ -60,19 +60,13 @@
     ]
   },
   "keywords": [
-    "fetch",
-    "xhr",
-    "requests",
-    "js",
-    "fetcher",
     "graphql",
-    "gql",
-    "gql-request",
-    "gql-node",
-    "gql-browser",
+    "graphql-client",
+    "apollo-alternative",
     "subscriptions",
-    "websocket",
     "graphql-ws",
-    "graphql-transport-ws"
+    "websocket",
+    "typescript",
+    "hyperfetch"
   ]
 }

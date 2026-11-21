@@ -1,9 +1,9 @@
 {
   "name": "@hyper-fetch/core",
   "version": "0.0.0",
-  "description": "Cache, Queue and Persist your requests no matter if you are online or offline!",
+  "description": "Type-safe data fetching for TypeScript: typed requests, caching, retries, deduplication, offline queues and adapters",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/core/overview/",
   "license": "Apache-2.0",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
@@ -42,16 +42,20 @@
     ]
   },
   "keywords": [
+    "data-fetching",
     "fetch",
-    "xhr",
-    "requests",
-    "js",
-    "fetcher",
-    "queue",
-    "offline",
-    "persist",
+    "http-client",
+    "api-client",
+    "typescript",
+    "type-safe",
     "cache",
-    "builder",
-    "command"
+    "retry",
+    "deduplication",
+    "offline",
+    "queue",
+    "request",
+    "rest",
+    "sdk",
+    "hyperfetch"
   ]
 }

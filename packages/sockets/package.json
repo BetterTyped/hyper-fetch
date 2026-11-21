@@ -1,9 +1,9 @@
 {
   "name": "@hyper-fetch/sockets",
   "version": "0.0.0",
-  "description": "Sockets connection for hyper-fetch",
+  "description": "Typed WebSocket and Server-Sent Events client for HyperFetch, with reconnects, backoff, heartbeat and offline handling",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/sockets/overview/",
   "license": "Apache-2.0",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
@@ -45,15 +45,15 @@
     ]
   },
   "keywords": [
+    "websocket",
     "websockets",
     "sse",
-    "server sent events",
-    "heartbeat",
+    "server-sent-events",
+    "eventsource",
+    "realtime",
     "reconnect",
-    "offline",
-    "listener",
-    "emitter",
-    "socket",
-    "events"
+    "heartbeat",
+    "typescript",
+    "hyperfetch"
   ]
 }
