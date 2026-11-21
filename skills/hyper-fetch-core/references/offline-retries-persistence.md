@@ -117,9 +117,13 @@ export const client = createClient({
 - Queue items are stored as `request.toJSON()` when serialized and rebuilt into `Request` instances on read, but
   functions are lost: mappers, mocks, `retryOnError`, optimistic callbacks and `$hooks` do not survive a restart. Keep
   persisted requests free of required runtime callbacks, or re-attach behavior through interceptors.
-- After a restart the queued items are sent by `dispatcher.flush()` (called automatically on the `online` event); call
-  `client.submitDispatcher.flush()` at startup to resume immediately. Their original `send()` callers are gone, so
-  observe results with `client.requestManager.events.onResponse` or a `Plugin`.
+- After a restart the restored items are sent automatically right after the client is created (after the current
+  task, so interceptors chained on the client apply), and again on the `online` event. Their original `send()` callers
+  are gone, so observe results with `client.requestManager.events.onResponse` or a `Plugin`.
+- A request the browser cancels because the page unloads stays in the persisted queue for the next load.
+- For async stores (IndexedDB, AsyncStorage) use `new Dispatcher({ lazyStorage })` with `set`/`get`/`keys`/`delete`
+  returning promises. The in-memory queue stays the source of truth, every change is written as JSON in order, and on
+  start the persisted requests are put in front of the ones added meanwhile and sent. Failures are logged.
 - Use a dedicated store per dispatcher. Persistent queues are not safe across several browser tabs (each tab would
   replay the same items); use them in single-instance runtimes (React Native, Electron main window).
 - `client.fromJSON(json)` rebuilds a request manually, e.g. for your own outbox implementation.

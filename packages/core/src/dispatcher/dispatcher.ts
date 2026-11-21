@@ -4,6 +4,7 @@ import { getErrorMessage } from "adapter";
 import type { ClientInstance } from "client";
 import type {
   QueueDataType,
+  DispatcherAsyncStorageType,
   DispatcherOptionsType,
   DispatcherStorageType,
   ResolvedQueueDataType,
@@ -40,6 +41,8 @@ export class Dispatcher<Adapter extends AdapterInstance> {
 
   /** Sends the queue restored from the storage once the client is configured */
   private startTimer: ReturnType<typeof setTimeout> | undefined;
+  /** Operations of the lazy storage run one after another, so it always ends with the latest state of the queues */
+  private lazyOperations: Promise<void> = Promise.resolve();
 
   private logger: LoggerMethods;
   private client: ClientInstance<{ adapter: Adapter }>;
@@ -50,7 +53,102 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     if (this.options?.storage) {
       this.storage = this.options.storage;
     }
+    if (this.options?.lazyStorage) {
+      this.storage = this.withLazyStorage(this.storage, this.options.lazyStorage);
+    }
   }
+
+  // *********************************************************************
+  // *********************************************************************
+  // Lazy storage
+  // *********************************************************************
+  // *********************************************************************
+
+  /**
+   * Lazy storage is an external resource - its failures are logged, they must not take the requests down
+   */
+  private runLazyOperation = (action: string, queryKey: string | null, operation: () => Promise<void> | void) => {
+    this.lazyOperations = this.lazyOperations.then(async () => {
+      try {
+        await operation();
+      } catch (error) {
+        this.logger?.error({ title: `Lazy storage "${action}" failed`, type: "system", extra: { queryKey, error } });
+      }
+    });
+  };
+
+  /**
+   * Snapshot of the queue as JSON data - taken right away, as the queue objects change after the write is scheduled
+   */
+  private getLazyQueueData = (queue: QueueDataType): QueueDataType => {
+    return JSON.parse(
+      JSON.stringify({
+        ...queue,
+        requests: queue.requests.map((item) => ({
+          ...item,
+          request: this.isRequestJSON(item.request) ? item.request : item.request.toJSON(),
+        })),
+      }),
+    );
+  };
+
+  /**
+   * The sync storage stays the source of truth, its changes are written through to the lazy storage
+   */
+  private withLazyStorage = (
+    storage: DispatcherStorageType,
+    lazyStorage: DispatcherAsyncStorageType,
+  ): DispatcherStorageType => ({
+    get: (key) => storage.get(key),
+    keys: () => storage.keys(),
+    entries: () => storage.entries(),
+    set: (key, data) => {
+      storage.set(key, data);
+      const snapshot = this.getLazyQueueData(data as QueueDataType);
+      this.runLazyOperation("set", key, () => lazyStorage.set(key, snapshot));
+    },
+    delete: (key) => {
+      storage.delete(key);
+      this.runLazyOperation("delete", key, () => lazyStorage.delete(key));
+    },
+    clear: () => {
+      storage.clear();
+      this.runLazyOperation("clear", null, async () => {
+        const keys = [...(await lazyStorage.keys())];
+        await Promise.all(keys.map((key) => lazyStorage.delete(key)));
+      });
+    },
+  });
+
+  /**
+   * Reads the queues persisted by the previous run. Persisted requests are older than the ones added since the start,
+   * so they go first. Requests already in the queue are not added twice.
+   */
+  private restoreLazyQueues = (lazyStorage: DispatcherAsyncStorageType) => {
+    this.runLazyOperation("restore", null, async () => {
+      const keys = [...(await lazyStorage.keys())];
+      const persistedQueues = await Promise.all(keys.map(async (key) => [key, await lazyStorage.get(key)] as const));
+
+      persistedQueues.forEach(([queryKey, persisted]) => {
+        if (!persisted?.requests.length) {
+          return;
+        }
+        const queue = this.getQueue(queryKey);
+        const knownIds = new Set(queue.requests.map((item) => item.requestId));
+        const restored = persisted.requests
+          .filter((item) => !knownIds.has(item.requestId))
+          .map((item) => ({
+            ...item,
+            request: this.isRequestJSON(item.request) ? this.client.fromJSON(item.request) : item.request,
+          }));
+
+        if (restored.length) {
+          this.setQueue(queryKey, { ...queue, requests: [...restored, ...queue.requests] });
+          this.flushQueue(queryKey);
+        }
+      });
+    });
+  };
 
   // eslint-disable-next-line class-methods-use-this
   private isRequestJSON = (
@@ -71,6 +169,10 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     // A queue restored from a persistent storage (e.g. the requests left by the previous page load) has to be sent
     // on start. It waits for the next task, so the configuration chained after the client constructor - adapter,
     // interceptors, plugins - applies to the restored requests too.
+    if (this.options?.lazyStorage) {
+      this.restoreLazyQueues(this.options.lazyStorage);
+    }
+
     clearTimeout(this.startTimer);
     if (this.getQueuesKeys().length) {
       this.startTimer = setTimeout(() => {

@@ -1,7 +1,14 @@
 import type { RequestInstance, RequestJSON } from "request";
 
 export type DispatcherOptionsType = {
+  /** Synchronous storage of the queues - the in-memory `Map` by default */
   storage?: DispatcherStorageType;
+  /**
+   * Asynchronous persistent storage of the queues - IndexedDB, AsyncStorage and similar. Every change of the queues is
+   * written to it as JSON data, in order. On start the dispatcher reads it, puts the persisted requests in front of the
+   * ones added meanwhile and sends them.
+   */
+  lazyStorage?: DispatcherAsyncStorageType;
 };
 
 // Values
@@ -45,6 +52,17 @@ export type DispatcherStorageType = {
   entries: () => [string, QueueDataType] | IterableIterator<[string, QueueDataType<any>]>;
   delete: (key: string) => void;
   clear: () => void;
+};
+
+/**
+ * Asynchronous storage of the queues. It receives plain JSON data - requests are saved with `request.toJSON()`, so
+ * their functions (mappers, a function `retryTime`) are not kept.
+ */
+export type DispatcherAsyncStorageType = {
+  set: (key: string, data: QueueDataType) => Promise<void>;
+  get: (key: string) => Promise<QueueDataType | undefined>;
+  keys: () => Promise<string[] | IterableIterator<string>>;
+  delete: (key: string) => Promise<void>;
 };
 
 // Running
