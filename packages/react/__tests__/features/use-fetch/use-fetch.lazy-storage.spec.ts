@@ -29,9 +29,6 @@ const createLazyStorage = () => {
     delete: async (key) => {
       store.delete(key);
     },
-    clear: async () => {
-      store.clear();
-    },
   };
   return { storage, store };
 };
