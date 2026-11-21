@@ -160,14 +160,13 @@ definitions in dedicated modules (`src/api/*.ts`) keeps that set small.
 - Referenced types (`createRequest<RequestTypes>()`) are trusted; a typo inside `RequestTypes` is not reported. Prefer
   inline generics or cover the type with a type test.
 - `RequestModel<{ ... }>` schemas used with `createSdk` (including CLI-generated SDKs) are not checked. Cover them with
-  `expectTypeOf` tests (see `hyper-fetch-testing`); generated files come from `hyper-fetch-cli` and should not be edited
-  or linted by hand.
+  `expectTypeOf` tests (see the [testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing)); generated
+  files come from `hyper-fetch-cli` and should not be edited or linted by hand.
 
 ## Related
 
 - `hyper-fetch-eslint`: the same rules for ESLint.
 - `hyper-fetch-core`: request and client generics.
-- `hyper-fetch-testing`: type-level tests for requests and SDKs.
 
 Docs: https://hyperfetch.bettertyped.com/docs/integrations/plugin-oxlint,
 https://hyperfetch.bettertyped.com/docs/integrations/plugin-oxlint/rules

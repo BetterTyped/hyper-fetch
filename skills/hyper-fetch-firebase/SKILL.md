@@ -328,7 +328,7 @@ can rely on a live listener, or invalidate: `client.cache.invalidate(getTeas)`. 
 
 Run the Firebase emulators (`connectFirestoreEmulator`, `connectDatabaseEmulator`) and point the adapters at the
 emulated instances; HyperFetch adds nothing that needs mocking. For component tests, mock at the request level with
-`request.setMock(...)` (see `hyper-fetch-testing`).
+`request.setMock(...)` (see the [testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing)).
 
 ## Docs
 
