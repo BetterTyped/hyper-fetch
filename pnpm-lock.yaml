@@ -1832,6 +1832,9 @@ importers:
       '@hyper-fetch/react':
         specifier: workspace:*
         version: link:../../../packages/react
+      '@hyper-fetch/sockets':
+        specifier: workspace:*
+        version: link:../../../packages/sockets
       '@picocss/pico':
         specifier: ^2.1.1
         version: 2.1.1
@@ -1872,6 +1875,9 @@ importers:
       '@hyper-fetch/react':
         specifier: workspace:*
         version: link:../../../packages/react
+      '@hyper-fetch/sockets':
+        specifier: workspace:*
+        version: link:../../../packages/sockets
       '@picocss/pico':
         specifier: ^2.1.1
         version: 2.1.1
