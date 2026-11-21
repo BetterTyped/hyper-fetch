@@ -23,10 +23,9 @@ cache, and always **resolves** with a **Response** object. Framework bindings (`
 (`@hyper-fetch/axios`, `@hyper-fetch/graphql`, ...) build on these same objects, so everything here applies to them.
 
 Sibling skills: `hyper-fetch-react` (hooks: useFetch, useSubmit, useCache, Hydrate), `hyper-fetch-sockets` (realtime),
-`hyper-fetch-testing` (mocking server, test isolation), `hyper-fetch-cli` (SDK generated from OpenAPI),
-`hyper-fetch-axios`, `hyper-fetch-graphql`, `hyper-fetch-firebase`, `hyper-fetch-firebase-admin`, `hyper-fetch-trpc`,
-`hyper-fetch-orpc`, `hyper-fetch-hono`, `hyper-fetch-elysia`, `hyper-fetch-devtools`, `hyper-fetch-eslint`,
-`hyper-fetch-oxlint`.
+`hyper-fetch-cli` (SDK generated from OpenAPI), `hyper-fetch-axios`, `hyper-fetch-graphql`, `hyper-fetch-firebase`,
+`hyper-fetch-firebase-admin`, `hyper-fetch-trpc`, `hyper-fetch-orpc`, `hyper-fetch-hono`, `hyper-fetch-elysia`,
+`hyper-fetch-devtools`, `hyper-fetch-eslint`, `hyper-fetch-oxlint`.
 
 ## Install and set up
 
@@ -391,9 +390,10 @@ refreshes the target once the last pending mutation on it settles. See
 
 Mock at the request level with
 `request.setMock(({ request }) => ({ data, status: 200 }), { requestTime: 0, responseTime: 0 })` (the mocker waits 20
-ms + 20 ms by default) or at the network level with MSW handlers. Toggle globally with
-`client.setEnableGlobalMocking(false)`. Create a fresh client per test (or call `client.clear()`) so cache, queues and
-interceptors do not leak between tests. Load the `hyper-fetch-testing` skill for the full workflow.
+ms + 20 ms by default) or at the network level with MSW (`http` handlers and `setupServer` from `msw/node`). Toggle
+globally with `client.setEnableGlobalMocking(false)`. Create a fresh client per test (or call `client.clear()`) so
+cache, queues and interceptors do not leak between tests. The
+[testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing) has the full workflow.
 
 ## References
 

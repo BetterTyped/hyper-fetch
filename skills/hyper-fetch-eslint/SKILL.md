@@ -163,7 +163,8 @@ Fix: use `{ error: YourErrorType }`. The adapter is not a generic key; set it wi
   constraint, but the same typo problem applies inside it: prefer inline generics, or keep the referenced type small and
   covered by a type test.
 - SDK schemas built with `RequestModel<{ ... }>` and `createSdk`. Cover those with type tests
-  (`expectTypeOf<ExtractResponseType<typeof sdk.users.$get>>()`, see `hyper-fetch-testing`).
+  (`expectTypeOf<ExtractResponseType<typeof sdk.users.$get>>()`, see the
+  [testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing)).
 - Computed access (`client["createRequest"]<...>()`) and a bare `createRequest<...>()` function call.
 
 ## Pitfalls
@@ -181,7 +182,6 @@ Fix: use `{ error: YourErrorType }`. The adapter is not a generic key; set it wi
 
 - `hyper-fetch-oxlint`: the same two rules for Oxlint (faster).
 - `hyper-fetch-core`: request generics and `createClient`.
-- `hyper-fetch-testing`: type-level tests for requests and SDKs.
 
 Docs: https://hyperfetch.bettertyped.com/docs/integrations/plugin-eslint,
 https://hyperfetch.bettertyped.com/docs/integrations/plugin-eslint/configuration,

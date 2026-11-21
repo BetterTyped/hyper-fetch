@@ -61,12 +61,17 @@ one line here in the same change.
 - **Socket**: the realtime counterpart of Client, in `@hyper-fetch/sockets`.
 - **Listener**: a typed subscription to a topic.
 - **Subscription payload**: data a Listener sends to start a server-side subscription, set with `setPayload`, for
-  example a tRPC subscription input. Listeners of one topic with different payloads are separate subscriptions.
-- **Subscription**: one server-side stream started for a topic and a payload, such as a tRPC subscription procedure or
-  an oRPC event iterator. Listeners with an equal payload share it; the last one to stop ends it on the server. Adapters
+  example a tRPC subscription input or the variables of a GraphQL subscription. Listeners of one topic with different payloads are separate subscriptions.
+- **Subscription**: one server-side stream started for a topic and a payload, such as a tRPC subscription procedure, a
+  GraphQL subscription or an oRPC event iterator. Listeners with an equal payload share it; the last one to stop ends it on the server. Adapters
   with `confirmsSubscriptions` report when the server started it and when it ended it, finished or failed.
 - **Event id**: the id of a subscription event (`tracked()` in tRPC, `withEventMeta` in oRPC, `id:` in SSE), sent back
   when a subscription restarts so the server can resume after it.
+- **Typed document**: a GraphQL document decorated with its result and variables types through `__apiType`, as
+  graphql-codegen (`TypedDocumentNode`) and gql.tada make them. As a request `endpoint` or a listener `document` option it
+  types the response and the payload without generics.
+- **graphql-transport-ws**: the GraphQL over WebSocket protocol of the `graphql-ws` library, spoken by
+  `GraphqlWsAdapter`. A connection is ready once the server acknowledged `connection_init`.
 - **Emitter**: a typed event sender for a topic.
 - **SocketAdapter**: the realtime transport, for example WebSocket or SSE.
 - **Reconnection engine**: `createReconnectingConnection`, the connection lifecycle every socket adapter shares - attempts,

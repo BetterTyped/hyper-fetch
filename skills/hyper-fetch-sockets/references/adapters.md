@@ -176,7 +176,7 @@ Other bindings:
 | `onListenerStart(...)`, `onListenerEnd(...)`            | With `confirmsSubscriptions: true`, when the server confirms or ends a subscription.               |
 | `getQueryParams(queryParams)`                           | Stringify query params with the adapter mapper.                                                    |
 
-For subscriptions with a payload per listener (tRPC, oRPC style), and full reference implementations, read
+For subscriptions with a payload per listener (tRPC, oRPC, GraphQL style), and full reference implementations, read
 `packages/sockets/src/adapter-websockets/websocket-adapter.ts` and `packages/adapter-trpc/src/socket` in the
 [hyper-fetch repository](https://github.com/BetterTyped/hyper-fetch), and the
 [custom adapter docs](https://hyperfetch.bettertyped.com/docs/sockets/adapter).

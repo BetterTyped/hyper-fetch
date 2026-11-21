@@ -251,17 +251,21 @@ are not `AxiosError`s) and do not put the server body in a request's `error` gen
 
 ## Testing
 
-MSW intercepts axios traffic in Node and the browser, and `request.setMock(...)` skips the transport entirely. Both work
-unchanged with `AxiosAdapter`. See the `hyper-fetch-testing` skill.
+`request.setMock(...)` skips the transport entirely and works unchanged with `AxiosAdapter`. To exercise axios itself
+(interceptors, `validateStatus`, error mapping), intercept the network with MSW - it catches axios traffic in Node and
+in the browser. See the [testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing).
 
 ```ts
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
 const server = setupServer(
-  http.get("https://api.example.com/users/:userId", () => HttpResponse.json({ message: "Bad" }, { status: 400 })),
+  http.get("https://api.example.com/users/:userId", () => HttpResponse.json({}, { status: 400 })),
 );
-server.listen();
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 const { error, status } = await getUser.setParams({ userId: 1 }).send();
 // status 400, error is an AxiosError with message "Request failed with status code 400"
@@ -272,4 +276,3 @@ const { error, status } = await getUser.setParams({ userId: 1 }).send();
 - Docs: https://hyperfetch.bettertyped.com/docs/integrations/adapter-axios/overview
 - Axios request config: https://axios-http.com/docs/req_config
 - Related skills: `hyper-fetch-core` (client, requests, interceptors, retries), `hyper-fetch-react` (hooks),
-  `hyper-fetch-testing` (mocking).

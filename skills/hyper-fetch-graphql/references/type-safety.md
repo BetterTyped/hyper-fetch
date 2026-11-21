@@ -5,47 +5,35 @@ types, error typing, and the patterns that silently lose inference.
 
 ## What is typed where
 
-| Request slot  | Source of the type                                                               | Inferred from the document? |
-| ------------- | -------------------------------------------------------------------------------- | --------------------------- |
-| `response`    | `createRequest<{ response }>` generic                                            | No                          |
-| `payload`     | `createRequest<{ payload }>` generic (the variables)                             | No                          |
-| `queryParams` | `createRequest<{ queryParams }>` generic                                         | No                          |
-| `params`      | `:param` segments of a **string path** `endpoint`                                | From the endpoint string    |
-| `error`       | client global error, plus a request `error` generic                              | No                          |
-| `endpoint`    | `string \| DocumentNode`                                                         | -                           |
-| `document`    | `string \| DocumentNode \| undefined`, GraphQL only                              | -                           |
-| `method`      | `GraphqlMethod` enum (`POST`, `GET`)                                             | -                           |
-| `options`     | `FetchGraphqlAdapterOptionsType`                                                 | -                           |
-| `extra`       | `GraphQlExtraType` = `{ headers: HeadersInit; extensions: Record<string, any> }` | -                           |
+| Request slot  | Source of the type                                                                | Inferred from the document?  |
+| ------------- | --------------------------------------------------------------------------------- | ---------------------------- |
+| `response`    | `createRequest<{ response }>` generic, else a typed `endpoint` document           | Typed documents only         |
+| `payload`     | `createRequest<{ payload }>` generic (the variables), else a typed document       | Typed documents only         |
+| `queryParams` | `createRequest<{ queryParams }>` generic                                          | No                           |
+| `params`      | `:param` segments of a **string path** `endpoint`                                 | From the endpoint string     |
+| `error`       | client global error (`GraphqlErrorType`), plus a request `error` generic          | No                           |
+| `endpoint`    | `string \| DocumentNode`                                                          | -                            |
+| `document`    | `string \| DocumentNode \| undefined`, GraphQL only                               | -                            |
+| `method`      | `GraphqlMethod` enum (`POST`, `GET`)                                              | -                            |
+| `options`     | `FetchGraphqlAdapterOptionsType` (`timeout`, `errorPolicy`, `persistedQueries`)   | -                            |
+| `extra`       | `GraphQlExtraType` = `{ headers; extensions; errors?: GraphQLFormattedError[] }`  | -                            |
 
 Core helpers read them back: `ExtractResponseType<typeof req>`, `ExtractPayloadType<typeof req>`,
 `ExtractAdapterExtraType<GraphqlAdapterType>`, `ExtractAdapterOptionsType<GraphqlAdapterType>`,
 `ExtractAdapterRequestOptionsType<GraphqlAdapterType>` (equals `GraphqlRequestOptionsType`, `{ document? }`).
 
-A request with no generics has `response: undefined`, so `data` is `undefined | null`. Always declare `response`.
+A request with a plain `gql` document and no generics has `response: undefined`, so `data` is `undefined | null`.
 
 ## Typed documents (GraphQL Code Generator, gql.tada and friends)
 
-The adapter accepts a `TypedDocumentNode` anywhere a `DocumentNode` is accepted, but does not read its result and
-variables types. Lift them into the generics once, in a small factory:
+A typed document carries its result and variables types in the `__apiType` decoration. As the `endpoint` it types the
+request on its own:
 
 ```ts
-import { createClient } from "@hyper-fetch/core";
-import { GraphqlAdapter } from "@hyper-fetch/graphql";
-import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
-
 import { GetUserDocument, ListUsersDocument } from "./gql/graphql"; // generated
 
-export const client = createClient({ url: "https://api.example.com/graphql" }).setAdapter(GraphqlAdapter());
-
-/** Codegen types operations without variables as `{ [key: string]: never }`, which would force `send({ payload: {} })` */
-type OperationPayload<Variables> = string extends keyof Variables ? undefined : Variables;
-
-export const createOperation = <Result, Variables>(document: TypedDocumentNode<Result, Variables>) =>
-  client.createRequest<{ response: Result; payload: OperationPayload<Variables> }>()({ endpoint: document });
-
-export const getUser = createOperation(GetUserDocument);
-export const listUsers = createOperation(ListUsersDocument);
+const getUser = client.createRequest()({ endpoint: GetUserDocument });
+const listUsers = client.createRequest()({ endpoint: ListUsersDocument });
 
 await listUsers.send(); // no variables, no payload needed
 const { data } = await getUser.send({ payload: { id: "1" } });
@@ -57,19 +45,21 @@ getUser.send({ payload: { id: 1 } });
 getUser.send();
 ```
 
-Without the factory, pass the generated types directly:
+- Declared generics win over the document: `createRequest<{ response: Custom }>()({ endpoint: GetUserDocument })`.
+- A plain `DocumentNode` stays untyped.
+- With the `document` option, or to add other request types, spell the types out with `GraphqlDocumentTypes`:
 
 ```ts
-import type { GetUserQuery, GetUserQueryVariables } from "./gql/graphql";
+import type { GraphqlDocumentTypes } from "@hyper-fetch/graphql";
 
-const getUserById = client.createRequest<{ response: GetUserQuery; payload: GetUserQueryVariables }>()({
-  endpoint: GetUserDocument,
+const tenantUser = client.createRequest<GraphqlDocumentTypes<typeof GetUserDocument> & { queryParams: { v: string } }>()({
+  endpoint: "/tenant/:tenantId/GetUser",
+  document: GetUserDocument,
 });
 ```
 
-To get a per-path URL (the `document` option) from the factory, add the path as an argument and pass
-`{ endpoint: path, document }`. The `:param` segments of `path` type `setParams()` only when `path` is a string literal
-type, so make the factory generic over it (`<Path extends string>(path: Path, ...)`).
+The same decoration types socket listeners of the `GraphqlWsAdapter` through their `document` option - see
+[subscriptions.md](subscriptions.md).
 
 ## Variables from a string document: `ExtractGqlRouteParams`
 
@@ -129,39 +119,26 @@ withQuery.setQueryParams({ source: 1 });
 | Pattern                                                      | Effect                                                                                            | Do instead                                     |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | `endpoint: "query GetUser($id: ID!) {...}"` (string literal) | Core reads `:` as a URL param: `send()` demands `params: { " ID!) {...": ... }` and `queryParams` | `gql`, `as string`, or `document`              |
-| No `response` generic                                        | `data` is `undefined \| null`                                                                     | Declare it, or use the codegen factory         |
+| Plain `gql` document and no `response` generic               | `data` is `undefined \| null`                                                                     | Typed document, or declare `response`          |
 | `payload: any` / `as any` on variables                       | No variable checking at all                                                                       | Generated variables or `ExtractGqlRouteParams` |
-| Passing `TypedDocumentNode` and expecting inference          | Result and variables are ignored                                                                  | Factory above                                  |
-| Declaring a request `error` generic for GraphQL errors only  | Aborts and network errors are `Error[]`, timeouts a single `Error`                                | Client global error `GraphQlError[] \| Error`  |
+| Typed document in the `document` option                      | Only the `endpoint` is read for inference                                                         | `GraphqlDocumentTypes<typeof Doc>` generic     |
+| Declaring a request `error` generic for GraphQL errors only  | Aborts, timeouts and network errors are `Error[]`                                                 | Client global error `GraphqlErrorType`         |
 | `method: "GET"` string                                       | Compile error                                                                                     | `GraphqlMethod.GET`                            |
-| Factory with `path: string` instead of a generic `Path`      | `setParams()` loses the param names                                                               | `<Path extends string>(path: Path)`            |
 
 ## Error typing
 
-Every failure is an array except the timeout:
+Every failure is a list - GraphQL errors, and network, abort and timeout errors wrapped in one:
 
 ```ts
-type GraphQlError = {
-  message: string;
-  path?: (string | number)[];
-  locations?: { line: number; column: number }[];
-  extensions?: Record<string, unknown>;
-};
+import type { GraphqlErrorType } from "@hyper-fetch/graphql";
 
-export const gqlClient = createClient<{ error: GraphQlError[] | Error }>({
+export const gqlClient = createClient<{ error: GraphqlErrorType }>({
   url: "https://api.example.com/graphql",
 }).setAdapter(GraphqlAdapter());
 
-const { error } = await gqlClient
-  .createRequest<{ response: { me: { id: string } } }>()({ endpoint: MeDocument })
-  .send();
+const { error } = await gqlClient.createRequest()({ endpoint: MeDocument }).send();
 
-if (Array.isArray(error)) {
-  // GraphQL errors, or [AbortError] / [TypeError] / [UnexpectedError] wrapped in a list
-  error.map((item) => item.message);
-} else if (error) {
-  error.message; // TimeoutError
-}
+error?.map((item) => item.message); // GraphQLFormattedError | Error
 ```
 
 The global type flows into every request, `useFetch` and `useSubmit` state, and `onError` interceptors of that client. A

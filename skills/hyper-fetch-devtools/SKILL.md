@@ -145,8 +145,9 @@ the edited data. That makes it a quick way to test how a screen renders unusual 
 ## Testing notes
 
 Do not add the plugin in unit or component tests; inspect behavior through responses and the UI (see the
-`hyper-fetch-testing` skill). If a shared client module adds the plugin in development mode, make sure the test
-environment sets `NODE_ENV=test` (Vitest and Jest do by default) so the branch does not run.
+[testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing)). If a shared client module adds the plugin in
+development mode, make sure the test environment sets `NODE_ENV=test` (Vitest and Jest do by default) so the branch does
+not run.
 
 ## Related
 

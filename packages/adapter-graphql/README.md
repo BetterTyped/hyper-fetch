@@ -24,23 +24,25 @@
 
 `@hyper-fetch/graphql` sends GraphQL queries and mutations over HTTP as regular Hyper Fetch requests. The document is
 the endpoint, the variables are the payload, and every set of variables gets its own cache entry. You keep the core
-request API, cache, retries, offline replay and React hooks, with no GraphQL-specific client to learn.
+request API, cache, retries, offline replay and React hooks, with no GraphQL-specific client to learn. Subscriptions run
+over WebSocket with `GraphqlWsAdapter`, which speaks `graphql-transport-ws`, the protocol of `graphql-ws`.
 
 ## 🎯 Key Capabilities
 
 - 🎡 **Operations are requests** - Write a `gql` document as the `endpoint` and call `send()`, `useFetch` or `useSubmit`
-- 🔮 **Typed variables and data** - `payload` types the variables, `response` types `data`, or derive both from codegen
+- 🔮 **Typed variables and data** - A typed document from GraphQL Code Generator or gql.tada types both, no generics
 - 💾 **Cache per variables** - `{ id: "1" }` and `{ id: "2" }` are cached separately and served instantly next time
 - 🌐 **GET when you want it** - `GraphqlMethod.GET` makes queries cacheable by browsers and CDNs
 - 🛣️ **A URL per operation** - The `document` option keeps a path per operation for gateways, logs and APM
 - 🛡️ **Errors you can handle** - The GraphQL `errors` array lands in `response.error`, and `send()` never throws
 - 📊 **Extensions included** - Cost and tracing data from `extensions` arrive in `response.extra`
+- 🔴 **Subscriptions** - `graphql-transport-ws` over WebSocket, with reconnecting, shared subscriptions and lazy connections
 - 📡 **Any spec-compliant server** - Apollo, Yoga, Hasura or your own, over plain HTTP
 
 ## 🚀 Quick Start
 
 ```bash
-npm install @hyper-fetch/core @hyper-fetch/graphql graphql-tag
+npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/graphql graphql graphql-tag
 ```
 
 ```ts
@@ -70,6 +72,7 @@ const { data, error } = await getUser.send({ payload: { id: "1" } });
 - **[Overview](https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/overview)** - Setup, methods, errors and caching
 - **[Queries](https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/queries)** - Variables, GET queries and cache keys
 - **[Mutations](https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/mutations)** - Writes, forms and optimistic updates
+- **[Subscriptions](https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/subscriptions)** - `GraphqlWsAdapter`, connection params and reconnecting
 - **[graphql-tag](https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/graphql-tag)** - Documents, fragments and typing
 - **[API Reference](https://hyperfetch.bettertyped.com/docs/api/adapter-graphql/Functions/GraphqlAdapter)** - `GraphqlAdapter`, `GraphqlMethod` and types
 
@@ -113,17 +116,16 @@ const UserProfile = ({ id }: { id: string }) => {
 ### Handle GraphQL errors
 
 ```ts
-type GraphQlError = { message: string; path?: (string | number)[]; extensions?: Record<string, unknown> };
+import type { GraphqlErrorType } from "@hyper-fetch/graphql";
 
-// Declare the error shape once. Timeouts arrive as a single Error, everything else as a list
-export const client = createClient<{ error: GraphQlError[] | Error }>({
+// Declare the error shape once. GraphQL errors, network failures, aborts and timeouts all arrive as a list
+export const client = createClient<{ error: GraphqlErrorType }>({
   url: "https://api.example.com/graphql",
 }).setAdapter(GraphqlAdapter());
 
 const { error, extra } = await getUser.send({ payload: { id: "1" } });
 
-const messages = error === null ? [] : Array.isArray(error) ? error.map((e) => e.message) : [error.message];
-console.log(messages, extra.extensions);
+console.log(error?.map((item) => item.message), extra.extensions);
 ```
 
 ### Cacheable GET queries
@@ -147,20 +149,34 @@ const listUsers = client.createRequest<{ response: { users: User[] } }>()({
 await listUsers.send();
 ```
 
-### Types from GraphQL Code Generator
+### Typed documents
 
 ```ts
-import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
+import { GetUserDocument } from "./gql/graphql";
 
-// Codegen types operations without variables as { [key: string]: never }
-type OperationPayload<Variables> = string extends keyof Variables ? undefined : Variables;
-
-export const createOperation = <Result, Variables>(document: TypedDocumentNode<Result, Variables>) =>
-  client.createRequest<{ response: Result; payload: OperationPayload<Variables> }>()({ endpoint: document });
-
-// data and variables are typed from the generated document
-const getUserOperation = createOperation(GetUserDocument);
+// data and variables are typed from the generated document - no generics
+const getUserOperation = client.createRequest()({ endpoint: GetUserDocument });
 await getUserOperation.send({ payload: { id: "1" } });
+```
+
+### Subscriptions
+
+```ts
+import { Socket } from "@hyper-fetch/sockets";
+import { GraphqlWsAdapter } from "@hyper-fetch/graphql";
+
+const socket = new Socket({
+  url: "wss://api.example.com/graphql",
+  adapter: GraphqlWsAdapter(),
+  // Runs on every connection attempt, so a reconnect sends a fresh token
+  adapterOptions: { connectionParams: async () => ({ token: await getToken() }) },
+});
+
+const onMessage = socket.createListener()({ topic: "OnMessage", options: { document: OnMessageDocument } });
+
+onMessage.setPayload({ room: "general" }).listen(({ data, extra }) => {
+  console.log(data.onMessage.text, extra.errors);
+});
 ```
 
 ## 🧩 Hyper Fetch Ecosystem

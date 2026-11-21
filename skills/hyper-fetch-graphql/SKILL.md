@@ -1,33 +1,39 @@
 ---
 name: hyper-fetch-graphql
 description:
-  GraphQL adapter for HyperFetch (`@hyper-fetch/graphql`). Sends GraphQL queries and mutations over HTTP with the typed
-  request, cache, deduplication, retries, offline and React hooks of `@hyper-fetch/core`. Use when the user installs or
-  configures `@hyper-fetch/graphql`, imports `GraphqlAdapter`, `GraphqlMethod`, `ExtractGqlRouteParams` or
-  `GraphQlExtraType`, writes `gql` / `graphql-tag` documents or `DocumentNode`s as a request `endpoint`, uses the
-  `document` option for a URL path per operation, passes GraphQL variables as `payload`, sends queries with GET, reads
-  `extensions`, handles the GraphQL `errors` array vs network or HTTP errors, wonders why partial data is null, caches
-  operations per variables, types operations with GraphQL Code Generator or `TypedDocumentNode`, or calls GraphQL with
-  `useFetch` / `useSubmit`.
+  GraphQL for HyperFetch (`@hyper-fetch/graphql`). `GraphqlAdapter` sends queries and mutations over HTTP with the typed
+  request, cache, deduplication, retries, offline and React hooks of `@hyper-fetch/core`; `GraphqlWsAdapter` listens to
+  subscriptions over WebSocket (`graphql-transport-ws`, the `graphql-ws` protocol) through `@hyper-fetch/sockets`. Use
+  when the user installs or configures `@hyper-fetch/graphql`, imports `GraphqlAdapter`, `GraphqlWsAdapter`,
+  `GraphqlMethod`, `GraphqlDocumentTypes`, `GraphqlErrorType`, `GraphqlSubscriptionError`, `matchGqlOperation` or
+  `shouldReconnectGraphqlWs`, writes `gql` / `graphql-tag` documents or typed documents from GraphQL Code Generator or
+  gql.tada, passes variables as `payload`, sets `errorPolicy` or `persistedQueries`, handles the GraphQL `errors` array
+  or partial data, invalidates queries after a mutation, uses the `document` option, writes GraphQL subscriptions,
+  `connectionParams` or keep-alive, or calls GraphQL with `useFetch` / `useSubmit` / `useListener`.
 ---
 
-# HyperFetch GraphQL adapter
+# HyperFetch GraphQL
 
-`GraphqlAdapter()` replaces the HTTP transport of a `@hyper-fetch/core` client with a GraphQL-over-HTTP one. A request's
-`endpoint` is the GraphQL document (a `gql` `DocumentNode` or a string), its `payload` is the variables object, and the
-URL is `client.url`. The adapter POSTs `{ query, variables }` as JSON by default, parses `{ data, errors, extensions }`,
-and installs cache, query and abort key mappers on the client so every set of variables is its own cache entry.
+`GraphqlAdapter()` replaces the HTTP transport of a `@hyper-fetch/core` client with GraphQL over HTTP. A request's
+`endpoint` is the document (a `gql` `DocumentNode`, a typed document or a string), its `payload` is the variables, and
+the URL is `client.url`. It POSTs `{ query, operationName, variables }` as JSON by default and installs cache, query and
+abort key mappers, so every operation and set of variables is its own cache entry.
+
+`GraphqlWsAdapter()` is a `@hyper-fetch/sockets` adapter for subscriptions. A listener's `document` option is the
+subscription, its payload the variables. See [Subscriptions](#subscriptions) and
+[references/subscriptions.md](references/subscriptions.md).
 
 Everything else (requests, cache, retries, interceptors) is core: read `hyper-fetch-core`. For hooks read
-`hyper-fetch-react`. Subscriptions are not handled by this adapter.
+`hyper-fetch-react`, for sockets `hyper-fetch-sockets`.
 
 ## Install and set up
 
 ```bash
-npm install @hyper-fetch/core @hyper-fetch/graphql graphql-tag
+npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/graphql graphql graphql-tag
 ```
 
-`graphql` is a dependency of the adapter. `graphql-tag` gives you the `gql` tag.
+`graphql` is a peer dependency. `graphql-tag` gives you the `gql` tag. `@hyper-fetch/sockets` is a peer dependency too,
+needed for subscriptions.
 
 ```ts
 import { createClient } from "@hyper-fetch/core";
@@ -41,23 +47,40 @@ key mappers with GraphQL-aware ones.
 
 ## Golden rules
 
-1. **Write documents with `gql`** (or pass them through `document`). An inline string literal in `endpoint` that
-   contains `$id: ID!` makes TypeScript read `:` as a URL param, so `send()` then demands `params` and `queryParams`.
-   Use `gql`, a variable typed `as string`, or the `document` option.
-2. **Type every request**: `response` is the shape of `data`, `payload` is the variables. The adapter does not infer
-   them from the document.
-3. **Variables go in `payload`** (`send({ payload })`, `setPayload`). `params` and `queryParams` are for the URL, not
-   for GraphQL.
-4. **Treat `error` as a list.** GraphQL errors, network failures and aborts all arrive as arrays. Timeouts are the one
-   exception, see Errors.
-5. **A response with `errors` is a failure, even with partial data.** `data` is `null` then. Make fields nullable on the
-   server or split the operation if you need partial results.
+1. **Use typed documents** (GraphQL Code Generator `TypedDocumentNode`, gql.tada). As the `endpoint` they type the
+   `response` and the `payload` without generics. Plain `gql` documents need the generics.
+2. **Variables go in `payload`** (`send({ payload })`, `setPayload`). `params` and `queryParams` are for the URL.
+3. **Treat `error` as a list.** GraphQL errors, network failures, aborts and timeouts all arrive as arrays.
+4. **Partial data fails by default.** A response with `errors` fails unless `options: { errorPolicy: "all" }`, which
+   keeps the partial `data` and puts the errors in `extra.errors`.
+5. **Invalidate with `matchGqlOperation`** after a mutation, so active queries of an operation refetch.
 6. **Customize key mappers after `setAdapter`**, never before: the adapter overwrites them when it is set.
 7. **Keep mutations on POST.** `GraphqlMethod.GET` is for queries that should be cacheable by browsers or CDNs.
+8. **Write string documents with `gql` or the `document` option.** An inline string literal in `endpoint` that
+   contains `$id: ID!` makes TypeScript read `:` as a URL param.
 
 ## Core patterns
 
-### Query with variables
+### Typed documents
+
+```ts
+import { GetUserDocument, UpdateUserDocument } from "./gql/graphql"; // generated
+
+const getUser = client.createRequest()({ endpoint: GetUserDocument });
+
+const { data, error } = await getUser.send({ payload: { id: "1" } });
+data?.user?.name; // typed from GetUserQuery
+
+// @ts-expect-error the variables come from the document
+await getUser.send({ payload: { id: 1 } });
+```
+
+- A document without variables needs no payload.
+- Declared generics win: `createRequest<{ response: Custom }>()({ endpoint: GetUserDocument })`.
+- With the `document` option or extra types, use `GraphqlDocumentTypes`:
+  `createRequest<GraphqlDocumentTypes<typeof GetUserDocument> & { queryParams: Q }>()`.
+
+### Plain documents
 
 ```ts
 import gql from "graphql-tag";
@@ -74,30 +97,6 @@ export const getUser = client.createRequest<{ response: { user: User | null }; p
     }
   `,
 });
-
-const { data, error } = await getUser.send({ payload: { id: "1" } });
-// or: await getUser.setPayload({ id: "1" }).send();
-data?.user?.name;
-```
-
-### Mutation
-
-```ts
-export const createUser = client.createRequest<{
-  response: { createUser: User };
-  payload: { name: string };
-}>()({
-  endpoint: gql`
-    mutation CreateUser($name: String!) {
-      createUser(name: $name) {
-        id
-        name
-      }
-    }
-  `,
-});
-
-const { data, error } = await createUser.send({ payload: { name: "Ann" } });
 ```
 
 Queries and mutations are the same kind of request. The document decides what the server runs.
@@ -109,36 +108,39 @@ import { useFetch, useSubmit } from "@hyper-fetch/react";
 
 const { data, loading, error } = useFetch(getUser.setPayload({ id }));
 
-const { submit, submitting } = useSubmit(createUser);
-await submit({ payload: { name: "Ann" } });
+const { submit, submitting } = useSubmit(updateUser);
+await submit({ payload: { id, name: "Ann" } });
 ```
 
 Changing `id` gives a new cache key, so `useFetch` fetches the new user and serves known ids from the cache.
 
-### URL path per operation (`document`)
-
-Gateways, WAF rules, APM and access logs often group traffic by URL. Put the document in `document` and a path in
-`endpoint`, which is appended to `client.url` like with the HTTP adapter:
+### Refetch after a mutation
 
 ```ts
-const getUserById = client.createRequest<{ response: { user: User }; payload: { id: string } }>()({
+import { matchGqlOperation } from "@hyper-fetch/graphql";
+
+await updateUser.send({ payload: { id: "1", name: "Ann" } });
+client.cache.invalidate(matchGqlOperation(GetUserDocument));
+```
+
+`matchGqlOperation(document | request)` matches every cache key of the operation, with any variables. Documents with the
+same operation name but other selections are other operations.
+
+### URL path per operation (`document`)
+
+Put the document in `document` and a path in `endpoint`, which is appended to `client.url` like with the HTTP adapter:
+
+```ts
+const getUserById = client.createRequest<GraphqlDocumentTypes<typeof GetUserDocument>>()({
   endpoint: "/tenant/:tenantId/GetUser",
-  document: gql`
-    query GetUser($id: ID!) {
-      user(id: $id) {
-        id
-        name
-      }
-    }
-  `,
+  document: GetUserDocument,
 });
 
 await getUserById.setParams({ tenantId: 7 }).send({ payload: { id: "1" } });
-// POST {client.url}/tenant/7/GetUser  body: { query, variables: { id: "1" } }
+// POST {client.url}/tenant/7/GetUser
 ```
 
-The path is part of the cache key, so the same operation sent to two paths is cached separately. `document` exists only
-on clients that use `GraphqlAdapter`.
+The path is part of the cache key. `document` exists only on clients that use `GraphqlAdapter`.
 
 ### Query params and GET
 
@@ -146,142 +148,134 @@ on clients that use `GraphqlAdapter`.
 import { GraphqlMethod } from "@hyper-fetch/graphql";
 
 const listUsers = client.createRequest<{ response: { users: User[] }; queryParams: { source: string } }>()({
-  endpoint: gql`
-    query ListUsers {
-      users {
-        id
-        name
-      }
-    }
-  `,
+  endpoint: ListUsersDocument,
   method: GraphqlMethod.GET,
 });
 
 await listUsers.setQueryParams({ source: "app" }).send();
-// GET {client.url}?query=...&variables=...&source=app
+// GET {client.url}?query=...&operationName=ListUsers&source=app
 ```
 
-With POST, query params go into the URL and `{ query, variables }` into the body. With GET everything goes into the
-query string, and `query` / `variables` win over a query param with the same key. Change the encoding with
-`GraphqlAdapter().setQueryParamsMapperConfig({ ...stringifyDefaultOptions, arrayFormat: "comma" })` (spread the
-defaults, the config replaces them).
+With POST, query params go into the URL and the operation into the body. With GET everything goes into the query
+string, and `query`, `operationName`, `variables` and `extensions` win over a query param with the same key. A GET
+request sends no `Content-Type`, so it needs no CORS preflight.
 
-## Type safety
-
-The adapter types the transport, you type the operation. `setAdapter(GraphqlAdapter())` gives the client
-`GraphqlAdapterType`, which fixes: `endpoint: string | DocumentNode`, the extra `document?: string | DocumentNode`
-field, `method: GraphqlMethod` (the enum, not the string `"GET"`), `options: FetchGraphqlAdapterOptionsType` (fetch init
-without `method`/`headers`/`body`/`signal`, plus `timeout`) and `extra: GraphQlExtraType` (`{ headers, extensions }`).
-`response` (the `data` shape) and `payload` (the variables) are **not** inferred from the document. Declare them, or
-derive them from codegen types:
+### Persisted queries
 
 ```ts
-import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
-
-/** Codegen types operations without variables as `{ [key: string]: never }` */
-type OperationPayload<Variables> = string extends keyof Variables ? undefined : Variables;
-
-export const createOperation = <Result, Variables>(document: TypedDocumentNode<Result, Variables>) =>
-  client.createRequest<{ response: Result; payload: OperationPayload<Variables> }>()({ endpoint: document });
-
-const getUserOp = createOperation(GetUserDocument); // data and variables typed from codegen
-await getUserOp.send({ payload: { id: "1" } });
-// @ts-expect-error variables come from the document type
-await getUserOp.send({ payload: { id: 1 } });
+const getUser = client.createRequest()({ endpoint: GetUserDocument, options: { persistedQueries: true } });
 ```
 
-```ts
-const untyped = client.createRequest()({ endpoint: GetUserDocument }); // data is `undefined | null`, nothing inferred
-// @ts-expect-error use the GraphqlMethod enum
-client.createRequest()({ endpoint: GetUserDocument, method: "GET" });
-```
-
-Read [references/type-safety.md](references/type-safety.md) when you need typed operations without codegen
-(`ExtractGqlRouteParams`), error typing, `@ts-expect-error` cases, or the patterns that lose inference.
+Automatic persisted queries: the SHA-256 hash is sent instead of the query, and the full query only when the server
+answers `PersistedQueryNotFound`. Without Web Crypto (`crypto.subtle`) the full query is sent.
 
 ## Errors
 
 `send()` resolves. Check `success` or `error`, not exceptions.
 
-| Server or transport result                     | `success` | `data` | `error`                         | `status` |
-| ---------------------------------------------- | --------- | ------ | ------------------------------- | -------- |
-| `{ data }` (or `errors: []`)                   | `true`    | `data` | `null`                          | HTTP     |
-| `{ data: null, errors: [...] }` with 200       | `false`   | `null` | the `errors` array              | 200      |
-| `{ data: {...}, errors: [...] }` (partial)     | `false`   | `null` | the `errors` array              | 200      |
-| 4xx / 5xx with `{ errors }`                    | `false`   | `null` | the `errors` array              | HTTP     |
-| 4xx / 5xx with HTML, empty or non-GraphQL body | `false`   | `null` | `[UnexpectedError]`             | HTTP     |
-| Network failure                                | `false`   | `null` | `[TypeError]` (the fetch error) | `0`      |
-| `request.abort()`                              | `false`   | `null` | `[abort Error]`                 | `0`      |
-| `options.timeout` reached (default 5000 ms)    | `false`   | `null` | timeout `Error`, **not a list** | `0`      |
+| Server or transport result                     | `success` | `data`  | `error`              |
+| ---------------------------------------------- | --------- | ------- | -------------------- |
+| `{ data }` (or `errors: []`)                   | `true`    | `data`  | `null`               |
+| `{ data: null, errors: [...] }`                | `false`   | `null`  | the `errors` array   |
+| `{ data: {...}, errors: [...] }`, default      | `false`   | `null`  | the `errors` array   |
+| `{ data: {...}, errors: [...] }`, `"all"`      | `true`    | partial | `null`, errors in `extra.errors` |
+| 4xx / 5xx with `{ errors }`                    | `false`   | `null`  | the `errors` array   |
+| 4xx / 5xx with HTML, empty or non-GraphQL body | `false`   | `null`  | `[UnexpectedError]`  |
+| Network failure, abort or timeout              | `false`   | `null`  | `[Error]`            |
 
-`extra` is `{ headers, extensions }`. `extensions` (cost, tracing) is `{}` when the server sends none.
-
-Declare the error shape once on the client and normalize the timeout case:
+Type it once on the client with `GraphqlErrorType` (`(GraphQLFormattedError | Error)[]`):
 
 ```ts
-type GraphQlError = { message: string; path?: (string | number)[]; extensions?: Record<string, unknown> };
+import type { GraphqlErrorType } from "@hyper-fetch/graphql";
 
-export const gqlClient = createClient<{ error: GraphQlError[] | Error }>({
-  url: "https://api.example.com/graphql",
-}).setAdapter(GraphqlAdapter());
-
-const toErrorList = (error: GraphQlError[] | Error | null): { message: string }[] =>
-  error === null ? [] : Array.isArray(error) ? error : [error];
+export const client = createClient<{ error: GraphqlErrorType }>({ url }).setAdapter(GraphqlAdapter());
 ```
+
+`extra` is `{ headers, extensions, errors? }`. `extensions` is `{}` when the server sends none.
 
 ## Caching and request identity
 
-- Cache and query keys are `METHOD_OperationName-params-queryParams-variables`, for example `POST_GetUsers--` for a
-  document without variables. Different variables mean a different cache entry and no deduplication between them.
-- The operation name comes from the operation name, then the first field, then `graphql-request`. Name your operations
-  so devtools and keys stay readable.
+- Cache and query keys are `METHOD_OperationName@fingerprint-params-queryParams-variables`. The fingerprint is a hash
+  of the document text, so two documents with one operation name but other selections never share an entry.
+- Different variables mean a different cache entry and no deduplication between them.
+- The name comes from the operation name, then the first field, then `graphql-request`. Name your operations.
 - The abort key ignores variables, so `request.abort()` stops every running call of that operation.
 - An explicit `setCacheKey("my-key")` wins and makes every variable set share one entry.
-- Deduplication is off by default (unlike `GET` with the HTTP adapter). Turn it on per request with `deduplicate: true`.
-- Outside browsers the client defaults to `"server"` mode, which caches only scoped requests (SSR safety, see
-  `hyper-fetch-core`). Node tests that read the cache need `createClient({ url, mode: "client" })`.
+- Deduplication is off by default. Turn it on per request with `deduplicate: true`.
+- Outside browsers the client defaults to `"server"` mode, which caches only scoped requests (see `hyper-fetch-core`).
 
 ## Options
 
-Adapter options are `fetch` `RequestInit` fields except `method`, `headers`, `body` and `signal`, plus `timeout`:
+Adapter options are `fetch` `RequestInit` fields except `method`, `headers`, `body` and `signal`, plus:
 
-```ts
-const me = client.createRequest<{ response: { me: User } }>()({
-  endpoint: gql`
-    query Me {
-      me {
-        id
-        name
-      }
-    }
-  `,
-  options: { credentials: "include", timeout: 10000 },
-});
-```
+| Option             | Default  | Meaning                                                |
+| ------------------ | -------- | ------------------------------------------------------ |
+| `timeout`          | `5000`   | ms until the request fails with a timeout error        |
+| `errorPolicy`      | `"none"` | `"all"` keeps partial data, errors in `extra.errors`   |
+| `persistedQueries` | `false`  | automatic persisted queries (SHA-256 hash first)       |
 
 Set headers with request `headers` / `setHeaders` or `client.onAuth`, as with any adapter.
 
-## Pitfalls
+## Subscriptions
 
-| Symptom                                                  | Cause                                        | Fix                                           |
-| -------------------------------------------------------- | -------------------------------------------- | --------------------------------------------- |
-| `send()` demands `params` with a key like `" ID!) {..."` | String literal document in `endpoint`        | `gql`, `as string`, or the `document` option  |
-| Partial `data` is `null`                                 | Any `errors` entry makes the response fail   | Read `error`, adjust the schema or operation  |
-| `error.map` crashes on timeout                           | Timeout error is a single `Error`            | Normalize with `Array.isArray`                |
-| Custom `setCacheKeyMapper` has no effect                 | Called before `setAdapter(GraphqlAdapter())` | Call it after `setAdapter`                    |
-| `document` is rejected by TypeScript                     | Client uses another adapter                  | `setAdapter(GraphqlAdapter())` on that client |
-| Server returns 405 or rejects a mutation                 | Mutation sent with `GraphqlMethod.GET`       | Keep mutations on POST                        |
-| Cache is empty in Node tests                             | Client defaults to `"server"` mode           | `createClient({ url, mode: "client" })`       |
+```ts
+import { Socket } from "@hyper-fetch/sockets";
+import { GraphqlWsAdapter } from "@hyper-fetch/graphql";
+
+export const socket = new Socket({
+  url: "wss://api.example.com/graphql",
+  adapter: GraphqlWsAdapter(),
+  adapterOptions: { connectionParams: async () => ({ token: await getToken() }) },
+});
+
+export const onMessage = socket.createListener()({ topic: "OnMessage", options: { document: OnMessageDocument } });
+
+const stop = onMessage.setPayload({ room: "general" }).listen(({ data, extra }) => {
+  data.onMessage.text; // typed from the document
+  extra.errors; // errors of this event, the subscription keeps running
+});
+```
+
+- Speaks `graphql-transport-ws` (Apollo Server, Yoga, Mercurius, Hot Chocolate, Hasura). The legacy
+  `subscriptions-transport-ws` protocol is not supported.
+- A typed `document` types the data and the variables. Without `document`, the `topic` is sent as the document.
+- Listeners with the same document and variables share one server subscription.
+- The connection is open once the server acknowledged `connection_init`; `connectionTimeout` covers it. A function
+  `connectionParams` runs on every attempt.
+- A lost connection reconnects with backoff and sends every subscription again. Close codes a retry can't fix (4400,
+  4401, 4004, 4005, 4406, 4409, 4429, 4500) and 1000 stay closed; use `shouldReconnectGraphqlWs` inside your own
+  `shouldReconnect` to keep these rules.
+- The server's `error` message ends the listener with a `GraphqlSubscriptionError` (`errors`, `topic`, `payload`).
+- `useListener` gives `data`, `status` (`"starting"`, `"listening"`, `"ended"`, `"failed"`), `error` and `listen()`.
+- Queries and mutations stay on the `GraphqlAdapter`; `emit()` throws.
+
+Read [references/subscriptions.md](references/subscriptions.md) for `lazy`, `keepAlive`, the lifecycle and every close
+code.
 
 ## Testing
 
-`request.setMock(...)` skips the network. To exercise the real adapter, mock the operation with MSW:
-`graphql.query("GetUser", () => HttpResponse.json({ data: { user } }))` from `msw`, served by `setupServer` from
-`msw/node`. Name your operations so handlers can match them. See `hyper-fetch-testing`.
+Mock a request with `request.setMock(...)`, which skips the network and returns the response you give. It changes the
+request instance, `clearMock()` removes it.
+
+```ts
+getUser.setMock(() => ({ data: { user: { id: "1", name: "Ann" } }, status: 200 }));
+```
+
+## Pitfalls
+
+| Symptom                                                  | Cause                                        | Fix                                             |
+| -------------------------------------------------------- | -------------------------------------------- | ----------------------------------------------- |
+| `send()` demands `params` with a key like `" ID!) {..."` | String literal document in `endpoint`        | `gql`, `as string`, or the `document` option    |
+| Partial `data` is `null`                                 | `errorPolicy` defaults to `"none"`           | `options: { errorPolicy: "all" }`               |
+| `data` is `undefined \| null` in the types               | Plain `gql` document, no generics            | Typed document or a `response` generic          |
+| Custom `setCacheKeyMapper` has no effect                 | Called before `setAdapter(GraphqlAdapter())` | Call it after `setAdapter`                      |
+| `document` is rejected by TypeScript                     | Client uses another adapter                  | `setAdapter(GraphqlAdapter())` on that client   |
+| Server returns 405 or rejects a mutation                 | Mutation sent with `GraphqlMethod.GET`       | Keep mutations on POST                          |
+| Subscription never starts, socket stays connecting       | Server does not speak `graphql-transport-ws` | Use a `graphql-ws` server, or fix the endpoint  |
+| Subscriptions stop after an expired token                | Server closed with 4401, which is fatal      | Fresh `connectionParams` + `shouldReconnect`    |
 
 ## Links
 
 - Docs: https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/overview
-- Queries: https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/queries
-- Mutations: https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/mutations
-- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-testing`.
+- Subscriptions: https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/subscriptions
+- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-sockets`.

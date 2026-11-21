@@ -217,8 +217,8 @@ process.on("SIGTERM", () => {
 ## Testing
 
 Run against the Firebase emulators (`FIRESTORE_EMULATOR_HOST`, `FIREBASE_DATABASE_EMULATOR_HOST`) with a demo project
-id; no credentials are needed there. Unit-test callers by mocking requests with `request.setMock(...)` (see
-`hyper-fetch-testing`).
+id; no credentials are needed there. Unit-test callers by mocking requests with `request.setMock(...)` (see the
+[testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing)).
 
 ## Docs
 
@@ -227,4 +227,4 @@ id; no credentials are needed there. Unit-test callers by mocking requests with 
 - https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase-admin/realtime
 - https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase-admin/realtime-queries
 
-Related skills: `hyper-fetch-firebase`, `hyper-fetch-core`, `hyper-fetch-sockets`, `hyper-fetch-testing`.
+Related skills: `hyper-fetch-firebase`, `hyper-fetch-core`, `hyper-fetch-sockets`.

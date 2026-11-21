@@ -34,7 +34,7 @@ State lives on the adapter: `socket.adapter.connected`, `socket.adapter.connecti
 
 ## Automatic reconnection
 
-The WebSocket, SSE, tRPC and oRPC adapters share one reconnection engine:
+The WebSocket, SSE, tRPC, oRPC and GraphQL socket adapters share one reconnection engine:
 
 1. A connection is lost: the transport closes with a code other than `1000`, errors, is not ready within
    `connectionTimeout`, or the heartbeat times out. A normal closure (`1000`) from the server stays closed, and so does
