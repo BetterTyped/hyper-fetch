@@ -28,5 +28,6 @@ export const usersPage = (page: number, sortBy: SortField, order: SortOrder) =>
     skip: page * PAGE_SIZE,
     sortBy,
     order,
+    // `select` is a dummyjson query param: the API returns only these fields.
     select: "firstName,lastName,email,age,company",
   });

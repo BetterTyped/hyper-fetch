@@ -8,8 +8,3 @@ export const client = createClient({ url: window.location.origin });
 
 /** Paths, params, query params, payloads, responses and error bodies all come from the Elysia routes. */
 export const sdk = createSdk<typeof client, AppSchema>(client);
-
-// Every SDK property access builds a new request, so keep one reference per endpoint.
-export const getBookmarks = sdk.api.bookmarks.$get;
-export const createBookmark = sdk.api.bookmarks.$post;
-export const deleteBookmark = sdk.api.bookmarks.$bookmarkId.$delete;

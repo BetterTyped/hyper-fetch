@@ -19,6 +19,8 @@ A server that allows three requests per five seconds. Press **Send 5 at once**: 
 `429 Too Many Requests`, wait for the time in the `Retry-After` header, and then succeed. The callers only see the final
 `200`.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`client.onError`** handles `429` for every request of the client, in one place.
@@ -27,8 +29,6 @@ A server that allows three requests per five seconds. Press **Send 5 at once**: 
 4. **`setUsed(true)`** marks the resend, so it is never deduplicated into the request that waits for it.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

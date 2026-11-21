@@ -57,6 +57,7 @@ export const App = () => {
   const users = useFetch(
     getUsers.setQueryParams({
       limit: 3,
+      // `select` and `delay` are dummyjson query params: return only these fields, answer after `delay` ms.
       select: "firstName,lastName",
       delay: 600,
     }),

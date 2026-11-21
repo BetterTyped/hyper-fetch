@@ -18,6 +18,8 @@ import api from "!!raw-loader!@examples/react/tab-sync/src/api.ts";
 A todo list that stays the same in every open tab. **Open the preview in two browser tabs** and put them side by side.
 Check a todo in one tab and the other one updates at once, with no request of its own.
 
+<Example files={{ "src/tab-sync.ts": sync, "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **`cache.events.onData`** reports every write to the cache: responses, `cache.update()` and `cache.set()`.
@@ -26,8 +28,6 @@ Check a todo in one tab and the other one updates at once, with no request of it
 4. **A guard flag** keeps a received change from being sent back, so tabs never loop.
 
 :::
-
-<Example files={{ "src/tab-sync.ts": sync, "src/App.tsx": app, "src/api.ts": api }} />
 
 ---
 

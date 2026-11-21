@@ -25,6 +25,7 @@ const getRecipes = client.createRequest<{
 /** The Astro page and the React island import this request, so they build the same cache key. */
 export const popularRecipes = getRecipes.setQueryParams({
   limit: 6,
+  // `select` is a dummyjson query param: the API returns only these fields.
   select: "name,cuisine,difficulty,prepTimeMinutes",
 });
 

@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/prefetching/src/App.tsx";
 A product list with a details panel. Hovering or focusing a product starts loading its details, so by the time you click
 they are in the cache. The details endpoint is slowed down on purpose, and a log shows which requests reach the network.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **Prefetching is `send()`.** Any request sent outside a hook stores its response in the cache.
@@ -24,8 +26,6 @@ they are in the cache. The details endpoint is slowed down on purpose, and a log
 4. **`staleTime` with `revalidate: false`** lets the details view use the prefetched data without a second request.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

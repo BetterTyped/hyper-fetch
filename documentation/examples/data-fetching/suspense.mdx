@@ -17,6 +17,8 @@ import errorBoundary from "!!raw-loader!@examples/react/suspense/src/error-bound
 A product viewer where the component that reads the data has no loading or error branches. `<Suspense>` shows the
 loading state, an error boundary shows failures, and product 999 is there to fail on purpose.
 
+<Example files={{ "src/App.tsx": app, "src/error-boundary.tsx": errorBoundary, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **`suspense: true`** makes `useFetch` suspend until the first response arrives.
@@ -25,8 +27,6 @@ loading state, an error boundary shows failures, and product 999 is there to fai
 4. **Cached data does not suspend.** A product you opened before renders at once.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/error-boundary.tsx": errorBoundary, "src/api.ts": api }} />
 
 ---
 

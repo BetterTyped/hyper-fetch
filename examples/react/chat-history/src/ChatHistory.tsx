@@ -6,6 +6,7 @@ import { getMessagesRequest, messagesPagination, pageSize } from "./api";
 /** Starts at the newest page (`startAt`) and walks back to older pages with `fetchPreviousPage`. */
 export const ChatHistory = ({ startAt }: { startAt: number }) => {
   const list = useInfiniteFetch(
+    // `select` is a dummyjson query param: the API returns only these fields.
     getMessagesRequest.setQueryParams({ limit: pageSize, skip: startAt, select: "body,user" }),
     {
       pagination: messagesPagination,

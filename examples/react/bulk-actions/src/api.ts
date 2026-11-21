@@ -9,6 +9,7 @@ export const getTodosRequest = client
     response: { todos: Todo[]; total: number };
     queryParams: { limit: number; select: string };
   }>()({ endpoint: "/todos" })
+  // `select` is a dummyjson query param: the API returns only these fields.
   .setQueryParams({ limit: 8, select: "todo,completed" });
 
 /**

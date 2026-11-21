@@ -19,6 +19,8 @@ A table of products. Click a column header to sort, type to search, change the p
 server does the work; the table sends its state as query params and keeps the old rows, dimmed, until the new ones
 arrive.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **Server-side table state**: `sortBy`, `order`, `q`, `limit` and `skip` are typed query params of one request.
@@ -27,8 +29,6 @@ arrive.
 4. **Accessible sorting** with `aria-sort` on the sorted column header.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
 
 ---
 

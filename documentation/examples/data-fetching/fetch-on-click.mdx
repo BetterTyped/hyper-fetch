@@ -18,6 +18,8 @@ A page that sends no request when it opens. The left card loads comments when yo
 card fetches a quote on every click. The log at the bottom lists each request the moment it starts. This is what other
 libraries call a lazy query.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api, "src/RequestLog.tsx": requestLog }} />
+
 :::tip What it shows
 
 1. **`useFetch` with `disabled`**: the hook is mounted, but holds the request until a state flag allows it.
@@ -26,8 +28,6 @@ libraries call a lazy query.
    to handle yourself.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api, "src/RequestLog.tsx": requestLog }} />
 
 ---
 

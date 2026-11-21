@@ -21,6 +21,8 @@ the route renders, so the components read their data with `useFetch` and never s
 through a route action. A small panel lists the requests that reach the network, so you can see which navigations were
 served from the cache.
 
+<Example files={{ "src/api.ts": api, "src/routes.tsx": routes, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **Loaders prefetch with `send({ cachePolicy: "cache-first" })`**: cached data returns at once, new data is fetched.
@@ -30,8 +32,6 @@ served from the cache.
 4. **An action** sends the `PUT`, writes the answer into the cache with `client.cache.update()` and redirects.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/routes.tsx": routes, "src/App.tsx": app }} />
 
 ---
 

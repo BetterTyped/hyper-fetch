@@ -19,6 +19,8 @@ import app from "!!raw-loader!@examples/react/chat-history/src/App.tsx";
 A chat channel with the newest message at the bottom. Scroll up and older messages load above, while the message you
 were reading stays where it was. The messages are dummyjson comments.
 
+<Example files={{ "src/ChatHistory.tsx": chat, "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **Start at the end**: `useInfiniteFetch` starts at the last page by setting `skip` on the request.
@@ -27,8 +29,6 @@ were reading stays where it was. The messages are dummyjson comments.
 4. **`uniqueBy: "id"`** removes messages repeated by overlapping pages.
 
 :::
-
-<Example files={{ "src/ChatHistory.tsx": chat, "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 
@@ -41,6 +41,7 @@ were reading stays where it was. The messages are dummyjson comments.
 
    ```ts
    useInfiniteFetch(
+     // `select` is a dummyjson query param: the API returns only these fields.
      // highlight-next-line
      getMessagesRequest.setQueryParams({ limit: pageSize, skip: startAt, select: "body,user" }),
      { pagination: messagesPagination, uniqueBy: "id" },

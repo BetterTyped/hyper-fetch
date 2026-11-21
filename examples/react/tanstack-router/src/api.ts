@@ -31,6 +31,7 @@ const getProduct = client.createRequest<{
 // Loaders and components build the requests with these functions, so they share one cache key.
 export const productList = getProducts.setQueryParams({
   limit: 12,
+  // `select` is a dummyjson query param: the API returns only these fields.
   select: "title,price",
 });
 export const productDetails = (productId: number) =>

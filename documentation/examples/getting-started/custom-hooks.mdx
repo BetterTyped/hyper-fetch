@@ -17,6 +17,8 @@ import api from "!!raw-loader!@examples/react/custom-hooks/src/api.ts";
 A list of posts with a details panel where you can rename a post. The components never touch a request, a query param or
 the cache. They call three hooks from `hooks.ts`: `usePosts()`, `usePost(id)` and `useRenamePost(id)`.
 
+<Example files={{ "src/hooks.ts": hooks, "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **Custom hooks** wrap `useFetch` and `useSubmit`, so components ask for data in the words of the app.
@@ -27,8 +29,6 @@ the cache. They call three hooks from `hooks.ts`: `usePosts()`, `usePost(id)` an
 
 :::
 
-<Example files={{ "src/hooks.ts": hooks, "src/App.tsx": app, "src/api.ts": api }} />
-
 ---
 
 ## How it works
@@ -38,6 +38,7 @@ the cache. They call three hooks from `hooks.ts`: `usePosts()`, `usePost(id)` an
    params are set once:
 
    ```ts
+   // `select` is a dummyjson query param: the API returns only these fields.
    const postsListRequest = getPostsRequest.setQueryParams({ limit: 5, select: "title,body,userId" });
    // highlight-next-line
    export const usePosts = () => useFetch(postsListRequest, sharedOptions);

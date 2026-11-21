@@ -22,6 +22,16 @@ A shop on the [dummyjson](https://dummyjson.com) products and carts API, with fo
 the cart and the checkout. Add a few products and reload the page: the cart is still there, read from `localStorage`
 without a request.
 
+<Example
+  files={{
+    "src/features/cart/use-cart.ts": useCart,
+    "src/api/cart.ts": cart,
+    "src/api/products.ts": products,
+    "src/api/checkout.ts": checkout,
+    "src/features/checkout/CheckoutPage.tsx": checkoutPage,
+  }}
+/>
+
 :::tip What it shows
 
 1. **Infinite catalog**: `useInfiniteFetch` pages through products, a search or a category, with the filters in the URL
@@ -39,16 +49,6 @@ without a request.
    ([Payload validation](/examples/request-control/payload-validation), [Forms](/examples/mutations/forms)).
 
 :::
-
-<Example
-  files={{
-    "src/features/cart/use-cart.ts": useCart,
-    "src/api/cart.ts": cart,
-    "src/api/products.ts": products,
-    "src/api/checkout.ts": checkout,
-    "src/features/checkout/CheckoutPage.tsx": checkoutPage,
-  }}
-/>
 
 ---
 

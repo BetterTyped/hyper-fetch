@@ -7,6 +7,7 @@ type TodoList = { todos: Todo[]; total: number };
 
 export const getTodosRequest = client
   .createRequest<{ response: TodoList; queryParams: { limit: number; select: string } }>()({ endpoint: "/todos" })
+  // `select` is a dummyjson query param: the API returns only these fields.
   .setQueryParams({ limit: 6, select: "todo,completed" });
 
 /** Returns a new list with the todo moved to `index`. */

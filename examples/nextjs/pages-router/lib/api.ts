@@ -21,6 +21,7 @@ const getPosts = client.createRequest<{
 /** `getServerSideProps` and the page component must use the same request, so the cache keys match. */
 export const latestPosts = getPosts.setQueryParams({
   limit: 6,
+  // `select` is a dummyjson query param: the API returns only these fields.
   select: "title,views,tags",
 });
 

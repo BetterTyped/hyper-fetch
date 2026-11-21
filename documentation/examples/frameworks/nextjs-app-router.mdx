@@ -17,6 +17,8 @@ import posts from "!!raw-loader!@examples/nextjs/app-router/app/posts.tsx";
 A Next.js 16 page that renders a list of posts on the server. The browser receives the HTML with the posts in it, and
 the client cache starts with the same response, so nothing is fetched again after hydration.
 
+<Example files={{ "lib/api.ts": api, "app/page.tsx": page, "app/posts.tsx": posts }} />
+
 :::tip What it shows
 
 1. **A server component** sends the request with `send()` and turns the response into plain data with `dehydrate()`.
@@ -25,8 +27,6 @@ the client cache starts with the same response, so nothing is fetched again afte
 4. **Client-only requests** still work as usual: comments load in the browser when you open them.
 
 :::
-
-<Example files={{ "lib/api.ts": api, "app/page.tsx": page, "app/posts.tsx": posts }} />
 
 ---
 

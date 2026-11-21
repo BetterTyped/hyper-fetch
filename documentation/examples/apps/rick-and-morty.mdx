@@ -22,6 +22,16 @@ An explorer for the public [Rick and Morty API](https://rickandmortyapi.com) wit
 of characters and a page for each character with the episodes they appear in. Hover a character before you open it, then
 go back: the network log on the right shows that neither step sent a request.
 
+<Example
+  files={{
+    "src/api/characters.ts": characters,
+    "src/features/characters/CharacterList.tsx": characterList,
+    "src/features/characters/CharacterPage.tsx": characterPage,
+    "src/features/characters/Episodes.tsx": episodes,
+    "src/api/network-log.ts": networkLog,
+  }}
+/>
+
 :::tip What it shows
 
 1. **Search and page in the URL**: `useSearchParams` holds the state and every page has its own cache key
@@ -38,16 +48,6 @@ go back: the network log on the right shows that neither step sent a request.
    ([Deduplication](/examples/request-control/deduplication)).
 
 :::
-
-<Example
-  files={{
-    "src/api/characters.ts": characters,
-    "src/features/characters/CharacterList.tsx": characterList,
-    "src/features/characters/CharacterPage.tsx": characterPage,
-    "src/features/characters/Episodes.tsx": episodes,
-    "src/api/network-log.ts": networkLog,
-  }}
-/>
 
 ---
 

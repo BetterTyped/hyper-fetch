@@ -29,6 +29,7 @@ export const App = () => {
   const [selected, setSelected] = useState<number | null>(null);
   const [prefetched, setPrefetched] = useState<number[]>([]);
   const [log, setLog] = useState<string[]>([]);
+  // `select` is a dummyjson query param: the API returns only these fields.
   const { data, error, loading } = useFetch(getProducts.setQueryParams({ limit: 10, select: "title,price" }));
 
   const prefetch = (productId: number) => {

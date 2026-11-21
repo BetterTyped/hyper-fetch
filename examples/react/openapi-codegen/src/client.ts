@@ -12,7 +12,3 @@ export const sdk = createSdk(client, {
   // OpenAPI paths are used as written (`/pet/findByStatus`), so keep the camelCase segments.
   camelCaseToKebabCase: false,
 });
-
-export const findPetsByStatus = sdk.pet.findByStatus.$get;
-export const getPetById = sdk.pet.$petId.$get;
-export const addPet = sdk.pet.$post;

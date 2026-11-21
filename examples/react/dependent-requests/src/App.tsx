@@ -26,6 +26,7 @@ export const App = () => {
 
   // "clean" drops the previous user while the next one loads, so the steps below go back to waiting.
   const user = useFetch(
+    // `select` and `delay` are dummyjson query params: return only these fields, answer after `delay` ms.
     findUser.setQueryParams({ key: "username", value: username, select: "firstName,lastName,email", delay: 700 }),
     { keepPreviousData: "clean" },
   );

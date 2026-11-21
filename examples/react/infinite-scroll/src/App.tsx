@@ -5,6 +5,7 @@ import { useInView } from "./use-in-view";
 
 export const App = () => {
   const { items, pages, total, loading, error, hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage } =
+    // `select` is a dummyjson query param: the API returns only these fields.
     useInfiniteFetch(getProducts.setQueryParams({ limit: 12, select: "title,brand,price,thumbnail" }), {
       pagination: productsPagination,
     });

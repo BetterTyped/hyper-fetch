@@ -36,6 +36,7 @@ export const updateUser = client.createRequest<{
 });
 
 // The loader and the component build the request with the same function, so they share one cache key.
+// `select` is a dummyjson query param: the API returns only these fields.
 export const userList = (q: string) => searchUsers.setQueryParams({ q, limit: 12, select: "firstName,lastName" });
 export const userDetails = (userId: number) =>
   getUser.setParams({ userId }).setQueryParams({ select: "firstName,lastName,email,phone,company" });

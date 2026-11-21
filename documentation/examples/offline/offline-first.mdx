@@ -27,6 +27,8 @@ HyperFetch persists two things here, each with a storage option on the client mo
 | Changes not sent   | `submitDispatcher` queue     | localStorage | The dispatcher reads its storage synchronously.             |
 | Demo network state | `AppManager.initiallyOnline` | localStorage | Only so a reload while "offline" stays offline in the demo. |
 
+<Example files={{ "src/api.ts": api, "src/storage.ts": storage, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`Cache({ storage, lazyStorage })`** keeps responses in memory and writes every change to IndexedDB.
@@ -36,8 +38,6 @@ HyperFetch persists two things here, each with a storage option on the client mo
 5. **A client-wide response listener** applies answers to requests that were restored after a reload.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/storage.ts": storage, "src/App.tsx": app }} />
 
 ---
 

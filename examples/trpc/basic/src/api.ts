@@ -15,10 +15,5 @@ export const sdk = createSdk<typeof client, TrpcSchema<AppRouter>>(client, {
   camelCaseToKebabCase: false,
 });
 
-// Every SDK property access builds a new request, so keep one reference per procedure.
-export const listTodos = sdk.todos.list.$query;
-export const addTodo = sdk.todos.add.$mutation;
-export const toggleTodo = sdk.todos.toggle.$mutation;
-
 /** Every input of `todos.list` has its own cache key, this pattern matches all of them. */
 export const todoListsKey = /^QUERY_todos\.list/;

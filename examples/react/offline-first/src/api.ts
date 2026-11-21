@@ -32,6 +32,7 @@ export const getTodos = client
     staleTime: Time.DAY,
     cacheTime: Time.WEEK,
   })
+  // `select` and `delay` are dummyjson query params: return only these fields, answer after `delay` ms.
   .setQueryParams({ limit: 4, select: "todo,completed" });
 
 export const addTodo = client

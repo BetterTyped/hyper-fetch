@@ -18,6 +18,8 @@ import app from "!!raw-loader!@examples/react/file-upload/src/App.tsx";
 Pick a file and send it to httpbin, which echoes the file back. Two progress bars follow the request: one while the file
 is being sent, one while the answer is downloaded. **Cancel** stops the request at any point.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **`FormData` payload**: typed as `payload: FormData` and sent without JSON encoding.
@@ -26,8 +28,6 @@ is being sent, one while the answer is downloaded. **Cancel** stops the request 
 4. **Cancel**: `abort()` from `useSubmit` stops the running request and fires `onSubmitAbort`.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
 
 ---
 

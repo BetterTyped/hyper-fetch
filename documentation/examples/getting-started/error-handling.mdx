@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/error-handling/src/App.tsx";
 A status picker that makes the server answer with 200, 401, 404, 422, 500 or 503. Each failure renders its own state,
 server errors get a retry button, and every error is written to a log through the `onError` callback.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **A global error type** set once on the client with `createClient<{ error: ApiError }>()`.
@@ -25,8 +27,6 @@ server errors get a retry button, and every error is written to a log through th
 5. **`onError`** runs once per failed response, which is where toasts and error reporting go.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

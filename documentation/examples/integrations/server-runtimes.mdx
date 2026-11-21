@@ -19,6 +19,8 @@ A Node.js script with no framework and no UI. It loads users from [dummyjson](ht
 posts in parallel and shows how retries treat a server error and a client error. `npm run dev` runs it with `tsx`, and
 the preview is the terminal output.
 
+<Example files={{ "src/api.ts": api, "src/index.ts": index }} />
+
 :::tip What it shows
 
 1. **Server mode**: outside the browser the client caches nothing unless a request sets a scope, so data of one user
@@ -29,8 +31,6 @@ the preview is the terminal output.
 4. **Conditional retries**: `setRetryOnError` retries a `503` and gives up on a `404` right away.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/index.ts": index }} />
 
 ---
 

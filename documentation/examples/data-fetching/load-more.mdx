@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/load-more/src/App.tsx";
 A post list that opens on page five, as if from a shared link. "Load more" adds the next page, "Load earlier posts" adds
 the one before, and every page is drawn as its own box so you can see how the responses join into one list.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **Buttons instead of scrolling.** `fetchNextPage()` and `fetchPreviousPage()` are plain functions you call from any
@@ -25,8 +27,6 @@ the one before, and every page is drawn as its own box so you can see how the re
 4. **Reloading and starting over.** `refetch()` reloads every loaded page, `reset()` goes back to the starting page.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

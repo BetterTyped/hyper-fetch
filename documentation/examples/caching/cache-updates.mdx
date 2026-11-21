@@ -18,6 +18,8 @@ import app from "!!raw-loader!@examples/react/cache-updates/src/App.tsx";
 A profile editor with a navigation bar and an email badge. Only the editor fetches the user. The other two read the same
 cache entry with `useCache`, so typing in the editor updates all three at once, and no request is sent.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **One cache entry, many readers**: hooks that use the same request share its data.
@@ -26,8 +28,6 @@ cache entry with `useCache`, so typing in the editor updates all three at once, 
 4. **`select`** on `useCache` picks one field, so the component re-renders only when that field changes.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
 
 ---
 

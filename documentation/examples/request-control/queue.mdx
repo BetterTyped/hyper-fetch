@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/queue/src/App.tsx";
 An outbox that sends messages one at a time, in the order you queued them. Each send takes 1.5 seconds, so you have time
 to pause the queue, stop it, start it again or remove a message that has not been sent yet.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **`queued: true`**: requests in the same queue run one after another instead of in parallel.
@@ -24,8 +26,6 @@ to pause the queue, stop it, start it again or remove a message that has not bee
 4. **`keepFinishedRequests`** keeps sent messages in the list as a history.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
 
 ---
 

@@ -28,4 +28,5 @@ export const getUserRequest = client
     queryParams: { select: string };
   }>()({ endpoint: "/users/:userId" })
   .setParams({ userId: 1 })
+  // `select` is a dummyjson query param: the API returns only these fields.
   .setQueryParams({ select: "firstName,lastName,email" });

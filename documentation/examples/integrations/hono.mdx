@@ -17,6 +17,8 @@ import app from "!!raw-loader!@examples/hono/fullstack/src/App.tsx";
 A notes app with its backend in the same project. Vite serves the React app and runs the Hono API under `/api`, and the
 client gets every type from the Hono routes, without codegen.
 
+<Example files={{ "server/app.ts": server, "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`HonoAppToHyperFetch`** turns the type of a Hono app into a schema for `createSdk`.
@@ -25,8 +27,6 @@ client gets every type from the Hono routes, without codegen.
 4. **Typed errors**: the server sends `{ message }`, the error type of the HyperFetch client.
 
 :::
-
-<Example files={{ "server/app.ts": server, "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 
@@ -44,11 +44,10 @@ client gets every type from the Hono routes, without codegen.
    deploy Hono.
 3. `src/api.ts` imports `AppSchema` with `import type`, so no server code reaches the browser bundle, and calls
    `createSdk<typeof client, AppSchema>(client)`. `sdk.api.notes.$get`, `sdk.api.notes.$post` and
-   `sdk.api.notes.$noteId.$delete` are regular requests. Each SDK access builds a new request, so the file keeps one
-   reference per endpoint.
-4. `App` reads the list with `useFetch(getNotes)`, adds notes with `useSubmit(createNote)` and deletes them with
-   `deleteNote.setParams({ noteId }).send()`. Change a route in `server/app.ts` and TypeScript points at the client code
-   that no longer matches.
+   `sdk.api.notes.$noteId.$delete` are regular requests.
+4. `App` reads the list with `useFetch(sdk.api.notes.$get)`, adds notes with `useSubmit(sdk.api.notes.$post)` and
+   deletes them with `sdk.api.notes.$noteId.$delete.setParams({ noteId }).send()`. Change a route in `server/app.ts` and
+   TypeScript points at the client code that no longer matches.
 5. The `json` validator throws an `HTTPException` for an empty note, and `onError` turns it into `{ message }` with a
    `400`. `useSubmit` returns it as `error`. Throwing keeps the error body out of the route's response type, which stays
    `Note`.

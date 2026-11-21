@@ -6,6 +6,7 @@ import { client, getRecipe, popularRecipes } from "../lib/api";
 const Ingredients = ({ recipeId }: { recipeId: number }) => {
   // Not part of the server render: this request starts in the browser when you open a recipe.
   const { data, error, loading } = useFetch(
+    // `select` is a dummyjson query param: the API returns only these fields.
     getRecipe.setParams({ recipeId }).setQueryParams({ select: "ingredients" }),
   );
 

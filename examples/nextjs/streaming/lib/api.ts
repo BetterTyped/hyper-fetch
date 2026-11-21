@@ -24,6 +24,7 @@ export const currentUser = client
     response: User;
     queryParams: { delay: number; select: string };
   }>()({ endpoint: "/users/1" })
+  // `select` and `delay` are dummyjson query params: return only these fields, answer after `delay` ms.
   .setQueryParams({ delay: 300, select: "firstName,lastName,email,company" });
 
 export const latestPosts = client

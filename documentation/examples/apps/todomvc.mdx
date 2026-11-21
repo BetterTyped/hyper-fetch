@@ -22,6 +22,16 @@ import useFilter from "!!raw-loader!@examples/apps/todomvc/src/features/todos/us
 dev server. The server keeps the todos in memory and answers after 400 ms, so you can see every change show up before it
 is saved.
 
+<Example
+  files={{
+    "src/api/todos.ts": todos,
+    "server/app.ts": server,
+    "src/features/todos/TodoApp.tsx": todoApp,
+    "src/features/todos/TodoItem.tsx": todoItem,
+    "src/features/todos/use-filter.ts": useFilter,
+  }}
+/>
+
 :::tip What it shows
 
 1. **One project, two sides**: Hono serves `/api` inside the Vite dev server, the client imports only the server's types
@@ -36,16 +46,6 @@ is saved.
    ([CRUD](/examples/mutations/crud)).
 
 :::
-
-<Example
-  files={{
-    "src/api/todos.ts": todos,
-    "server/app.ts": server,
-    "src/features/todos/TodoApp.tsx": todoApp,
-    "src/features/todos/TodoItem.tsx": todoItem,
-    "src/features/todos/use-filter.ts": useFilter,
-  }}
-/>
 
 ---
 

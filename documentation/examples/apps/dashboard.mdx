@@ -23,6 +23,17 @@ An admin dashboard on [dummyjson](https://dummyjson.com): four KPI cards, a live
 table sorted and paged by the server. Turn on **Break the revenue service** and only the revenue card fails. Turn on
 **Go offline** and a banner appears while polling pauses.
 
+<Example
+  files={{
+    "src/api/stats.ts": stats,
+    "src/features/kpis/KpiCards.tsx": kpiCards,
+    "src/components/Widget.tsx": widget,
+    "src/features/live/OnlineNow.tsx": onlineNow,
+    "src/features/users/UsersTable.tsx": usersTable,
+    "src/components/StatusBar.tsx": statusBar,
+  }}
+/>
+
 :::tip What it shows
 
 1. **Parallel requests**: each KPI card has its own `useFetch`, so they load at the same time
@@ -40,17 +51,6 @@ table sorted and paged by the server. Turn on **Break the revenue service** and 
    ([Select](/examples/data-fetching/select)).
 
 :::
-
-<Example
-  files={{
-    "src/api/stats.ts": stats,
-    "src/features/kpis/KpiCards.tsx": kpiCards,
-    "src/components/Widget.tsx": widget,
-    "src/features/live/OnlineNow.tsx": onlineNow,
-    "src/features/users/UsersTable.tsx": usersTable,
-    "src/components/StatusBar.tsx": statusBar,
-  }}
-/>
 
 ---
 

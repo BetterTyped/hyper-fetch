@@ -20,6 +20,8 @@ A guestbook stored in Firestore. Signing it, liking a message and deleting one a
 Firestore query, all sent as HyperFetch requests through `@hyper-fetch/firebase`. It runs against your own Firebase
 project or the local emulator, and shows a setup screen until one is configured.
 
+<Example files={{ "src/firebase.ts": firebase, "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`FirebaseAdapter(getFirestore(app))`** turns the client into a Firestore client: the endpoint is the Firestore
@@ -29,8 +31,6 @@ project or the local emulator, and shows a setup screen until one is configured.
 4. **Errors in the response**: a denied write or a missing index arrives in `error`, the request never throws.
 
 :::
-
-<Example files={{ "src/firebase.ts": firebase, "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

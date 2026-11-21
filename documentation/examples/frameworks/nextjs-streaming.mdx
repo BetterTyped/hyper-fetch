@@ -21,15 +21,6 @@ A dashboard with three sections whose data takes 0.3, 1.5 and 3 seconds to load.
 once, and each section streams in on its own as soon as its request finishes on the server. In the browser, every
 section's hooks start with the streamed data and send no request.
 
-:::tip What it shows
-
-1. **One Suspense boundary per section**: a slow request only delays its own section.
-2. **Async server components** send the request with `send()` and pack the response with `dehydrate()`.
-3. **`Hydrate` per section** puts each response into the client cache when that section arrives.
-4. **Live hooks after streaming**: `useFetch` renders the server data, and `refetch()` still works in the browser.
-
-:::
-
 <Example
   files={{
     "lib/api.ts": api,
@@ -38,6 +29,15 @@ section's hooks start with the streamed data and send no request.
     "app/sections.tsx": sections,
   }}
 />
+
+:::tip What it shows
+
+1. **One Suspense boundary per section**: a slow request only delays its own section.
+2. **Async server components** send the request with `send()` and pack the response with `dehydrate()`.
+3. **`Hydrate` per section** puts each response into the client cache when that section arrives.
+4. **Live hooks after streaming**: `useFetch` renders the server data, and `refetch()` still works in the browser.
+
+:::
 
 ---
 

@@ -17,6 +17,8 @@ import app from "!!raw-loader!@examples/react/resume-after-reload/src/App.tsx";
 A todo form whose offline queue lives in `localStorage`. Todos added offline are still waiting after you reload the page
 or close the tab, and they reach the server once the app is online again.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`Dispatcher({ storage })`** keeps the queue of the submit dispatcher in `localStorage` instead of memory.
@@ -25,8 +27,6 @@ or close the tab, and they reach the server once the app is online again.
 4. **`dispatcher.flush()`** sends what the last session left behind when the app starts online.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

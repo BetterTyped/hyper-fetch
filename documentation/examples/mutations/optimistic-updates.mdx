@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/optimistic-updates/src/App.tsx";
 A todo list where checking a box or adding a todo changes the list at once, while the server takes a full second to
 answer. Turn on **Make requests fail** and the same change is reverted when the error arrives.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`setOptimistic`** on the request describes the change, so components only call `submit()`.
@@ -26,8 +28,6 @@ answer. Turn on **Make requests fail** and the same change is reverted when the 
 5. **`useIsSubmitting`** shows how many mutations are still waiting for the server.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

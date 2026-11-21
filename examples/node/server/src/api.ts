@@ -25,6 +25,7 @@ export const getUsers = client
   }>()({
     endpoint: "/users",
   })
+  // `select` is a dummyjson query param: the API returns only these fields.
   .setQueryParams({ limit: 3, select: "firstName,lastName,email" });
 
 export const getUserPosts = client.createRequest<{

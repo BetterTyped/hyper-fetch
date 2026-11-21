@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/invalidation/src/App.tsx";
 A form that creates a post and three lists below it. After the post is created, the app invalidates the cache keys you
 pick, and the matching lists fetch again. Each list counts its fetches, so you can see which ones reacted.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **`client.cache.invalidate()`** marks cached data stale after a mutation.
@@ -24,8 +26,6 @@ pick, and the matching lists fetch again. Each list counts its fetches, so you c
    lists.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
 
 ---
 

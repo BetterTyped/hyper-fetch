@@ -6,6 +6,7 @@ import { sdk } from "./api";
 
 const PostList = ({ selected, onSelect }: { selected: number | null; onSelect: (id: number) => void }) => {
   // `sdk.posts.$get` is a regular Request, so every request method and hook works with it.
+  // `select` is a dummyjson query param: the API returns only these fields.
   const { data, error, loading } = useFetch(sdk.posts.$get.setQueryParams({ limit: 8, select: "title" }));
 
   if (loading && !data) return <p aria-busy="true">Loading posts...</p>;

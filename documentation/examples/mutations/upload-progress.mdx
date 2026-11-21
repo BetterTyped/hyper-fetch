@@ -18,6 +18,8 @@ An upload form with a progress bar that moves as the bytes go out, plus the spee
 MB or press **Upload a 1 MB test file**, and press **Cancel** to stop halfway. The file goes to httpbin, which echoes
 what it received.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **The Axios adapter** swaps the transport with `setAdapter(AxiosAdapter)` and reports upload progress.
@@ -26,8 +28,6 @@ what it received.
 4. **No other change**: requests, hooks and callbacks are the same as with the default adapter.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
 
 ---
 

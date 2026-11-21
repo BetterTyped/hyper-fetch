@@ -18,4 +18,5 @@ export const getUserRequest = client
     deduplicate: true,
   })
   .setParams({ userId: 1 })
+  // `select` and `delay` are dummyjson query params: return only these fields, answer after `delay` ms.
   .setQueryParams({ select: "firstName,lastName", delay: 1000 });

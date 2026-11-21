@@ -17,6 +17,8 @@ import api from "!!raw-loader!@examples/react/download-progress/src/api.ts";
 A download button with a progress bar, the speed and the time left. httpbin sends a 1 MB file slowly on purpose; pick
 how slowly. When the file is complete, **Save file** stores it from memory without downloading it again.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **`onSubmitDownloadProgress`** fires for every received chunk with `progress`, `loaded`, `total` and `timeLeft`.
@@ -25,8 +27,6 @@ how slowly. When the file is complete, **Save file** stores it from memory witho
 4. **Request options for downloads**: `cache: false` and a longer adapter `timeout`.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
 
 ---
 

@@ -1,14 +1,16 @@
 import { useListener, useSubmit } from "@hyper-fetch/react";
 import { useState } from "react";
 
-import { onProgress, startJob } from "./api";
+import { realtime, sdk } from "./api";
 
 type Job = { id: string; steps: number };
 
 const JobCard = ({ job }: { job: Job }) => {
   const [log, setLog] = useState<string[]>([]);
   // The payload is the procedure input. Each job is its own stream.
-  const { data, extra, status, error, onEvent } = useListener(onProgress.setPayload({ id: job.id }));
+  const { data, extra, status, error, onEvent } = useListener(
+    realtime.job.onProgress.$listener.setPayload({ id: job.id }),
+  );
 
   onEvent(({ data: event }) => {
     // `at` is a Date: the oRPC serializer keeps rich types in every event.
@@ -37,7 +39,7 @@ const JobCard = ({ job }: { job: Job }) => {
 
 export const App = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
-  const { submit, submitting, error } = useSubmit(startJob);
+  const { submit, submitting, error } = useSubmit(sdk.job.start.$mutation);
 
   const start = async (steps: number) => {
     const { data } = await submit({ payload: { steps } });

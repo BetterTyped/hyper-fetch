@@ -18,6 +18,8 @@ import app from "!!raw-loader!@examples/react/timeouts/src/App.tsx";
 A product card behind a slow server. Pick how long the server takes and how long the request may wait. When the server
 is slower than the timeout, the request is aborted and the card offers to retry, or to retry with a longer limit.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`setAdapterDefaults`** sets one timeout for every request of the client.
@@ -26,8 +28,6 @@ is slower than the timeout, the request is aborted and the card offers to retry,
 4. **`refetch()`** retries after a timeout.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

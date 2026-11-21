@@ -20,6 +20,8 @@ A todo list where **Delete** removes the todo at once and shows a toast with **U
 waits. Undo puts the todo back and nothing is sent. When the time runs out, the delete is sent, and if the server fails,
 the todo comes back.
 
+<Example files={{ "src/use-undo-delete.ts": hook, "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`setOptimistic`** on the delete request removes the todo from the cached list as soon as it is sent.
@@ -29,8 +31,6 @@ the todo comes back.
 4. **Rollback on failure**: turn on **Make deletes fail** and the todo returns after the error.
 
 :::
-
-<Example files={{ "src/use-undo-delete.ts": hook, "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

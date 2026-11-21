@@ -19,6 +19,3 @@ export const socket = new Socket({ url, adapter: OrpcStreamAdapter() });
 export const realtime = createSocketSdk<typeof socket, OrpcSocketSchema<typeof router>>(socket, {
   camelCaseToKebabCase: false,
 });
-
-export const startJob = sdk.job.start.$mutation;
-export const onProgress = realtime.job.onProgress.$listener;

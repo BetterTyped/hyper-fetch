@@ -23,6 +23,7 @@ export const App = () => {
     reset,
   } = useInfiniteFetch(
     // `skip: 20` starts the list in the middle, as if the user opened a shared link to the fifth page.
+    // `select` is a dummyjson query param: the API returns only these fields.
     getPosts.setQueryParams({ limit: PAGE_SIZE, skip: 20, select: "title,views" }),
     { pagination: postsPagination },
   );

@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/custom-retry/src/App.tsx";
 A quote loader with a retry policy of its own. Pick a scenario: network errors and `5xx` answers are retried with a
 delay that doubles each time, a `404` stops at once, and a server that keeps failing is given up on after four retries.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **A retry condition**: status `0` (network error or timeout) and `5xx` are retried, `4xx` is final.
@@ -24,8 +26,6 @@ delay that doubles each time, a `404` stops at once, and a server that keeps fai
 4. **An attempt log** with the status and decision of every attempt.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

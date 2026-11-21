@@ -12,6 +12,7 @@ const Recipes = ({ page }: { page: number }) => {
     getRecipes.setQueryParams({
       limit: PAGE_SIZE,
       skip: page * PAGE_SIZE,
+      // `select` and `delay` are dummyjson query params: return only these fields, answer after `delay` ms.
       select: "name,image,cuisine,difficulty",
       // A slow response, so the difference between network and cache is easy to see.
       delay: 1500,

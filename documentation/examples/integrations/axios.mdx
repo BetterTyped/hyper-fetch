@@ -17,6 +17,8 @@ import app from "!!raw-loader!@examples/react/axios/src/App.tsx";
 A product list where axios performs the HTTP calls. The requests and the hook are the same as in any HyperFetch app; the
 adapter, the request options and the error type come from axios.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`setAdapter(AxiosAdapter)`** makes axios the transport for every request of the client.
@@ -25,8 +27,6 @@ adapter, the request options and the error type come from axios.
 4. **Response headers** from axios are in `extra.headers`.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

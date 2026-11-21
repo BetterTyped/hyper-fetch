@@ -3,6 +3,7 @@ import { useFetch, useSubmit } from "@hyper-fetch/react";
 import { client, getPostRequest, getPostsRequest, updatePostRequest } from "./api";
 
 /** The list every screen shows. Components never repeat the query params. */
+// `select` is a dummyjson query param: the API returns only these fields.
 const postsListRequest = getPostsRequest.setQueryParams({ limit: 5, select: "title,body,userId" });
 
 /** Options all posts hooks share. Change them here, not in every component. */

@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/graphql/src/App.tsx";
 A country browser on top of the public [Countries GraphQL API](https://countries.trevorblades.com/). It uses the same
 requests and hooks as a REST app; only the adapter changes.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`GraphqlAdapter`** turns every request of the client into a GraphQL operation.
@@ -24,8 +26,6 @@ requests and hooks as a REST app; only the adapter changes.
 4. **GraphQL errors** arrive as the typed `error` list, like any other failed response.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

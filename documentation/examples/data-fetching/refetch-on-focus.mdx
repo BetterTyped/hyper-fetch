@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/refetch-on-focus/src/App.tsx";
 A random todo that is fetched again when you come back to the tab, leave it, or get your connection back. Each option
 has a switch, and a log prints every focus or network event followed by the request it caused.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`refetchOnFocus`** refetches when the window or tab gets focus again.
@@ -25,8 +27,6 @@ has a switch, and a log prints every focus or network event followed by the requ
    state.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

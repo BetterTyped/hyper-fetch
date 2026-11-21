@@ -19,6 +19,8 @@ A todo list on the public [GraphQLZero](https://graphqlzero.almansi.me) API. Add
 send a GraphQL mutation, and the result of the mutation is written into the cached `todos` query. The list updates
 without a second request, and a log shows every cache write.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **Mutations are requests**: the operation goes in `document`, the variables in the payload, and the response is typed
@@ -30,8 +32,6 @@ without a second request, and a log shows every cache write.
    point at the same entry.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

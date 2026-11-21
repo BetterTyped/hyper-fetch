@@ -1,7 +1,7 @@
 import { useFetch, useSubmit } from "@hyper-fetch/react";
 import { type FormEvent, useState } from "react";
 
-import { client, createBookmark, deleteBookmark, getBookmarks } from "./api";
+import { client, sdk } from "./api";
 
 const tags = ["docs", "tools"] as const;
 type Tag = (typeof tags)[number];
@@ -12,8 +12,8 @@ export const App = () => {
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // `setQueryParams` is typed by the route's `query` schema.
-  const { data, error, loading } = useFetch(getBookmarks.setQueryParams({ tag: filter }));
-  const { submit, submitting, error: createError, onSubmitSuccess } = useSubmit(createBookmark);
+  const { data, error, loading } = useFetch(sdk.api.bookmarks.$get.setQueryParams({ tag: filter }));
+  const { submit, submitting, error: createError, onSubmitSuccess } = useSubmit(sdk.api.bookmarks.$post);
 
   // Every tag filter is its own cache entry, so refresh all of them after a change.
   const refreshLists = () => client.cache.invalidate(/\/api\/bookmarks/);
@@ -30,7 +30,7 @@ export const App = () => {
   };
 
   const remove = async (bookmarkId: number) => {
-    const response = await deleteBookmark.setParams({ bookmarkId }).send();
+    const response = await sdk.api.bookmarks.$bookmarkId.$delete.setParams({ bookmarkId }).send();
     // The error is typed as the route's `status(404, { message })` body, or the client's global `Error`.
     setDeleteError(response.error?.message ?? null);
     refreshLists();

@@ -11,6 +11,7 @@ export const App = () => {
 
   // With `bounce`, a changed query waits until typing pauses for `bounceTime` ms. Only that last value is sent.
   const { data, error, loading, bounce } = useFetch(
+    // `select` is a dummyjson query param: the API returns only these fields.
     searchProducts.setQueryParams({ q: query, limit: 8, select: "title,price,thumbnail" }),
     { bounce: debounce, bounceType: "debounce", bounceTime: 400 },
   );

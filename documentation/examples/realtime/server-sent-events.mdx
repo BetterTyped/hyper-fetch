@@ -17,6 +17,8 @@ A live feed of edits on Wikipedia and other Wikimedia wikis, from the public
 [EventStreams](https://stream.wikimedia.org/v2/stream/recentchange) service. The server pushes every change over
 server-sent events, and the app keeps the newest few on screen.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`ServerSentEventsAdapter`** gives a socket client the browser's `EventSource` as its transport.
@@ -26,8 +28,6 @@ server-sent events, and the app keeps the newest few on screen.
 5. **A capped list** keeps memory and rendering flat on a stream with dozens of events per second.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

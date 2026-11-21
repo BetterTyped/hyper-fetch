@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/streaming/src/App.tsx";
 A response that arrives slowly, rendered as it downloads. httpbin's `/drip` endpoint sends a few bytes at a time over
 several seconds, which is the same shape as an LLM answer streamed token by token.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`useStream`** sends a request in streaming mode and reads the response body chunk by chunk.
@@ -24,8 +26,6 @@ several seconds, which is the same shape as an LLM answer streamed token by toke
 4. **`streaming` and `done`** tell the UI when to show a cursor and when the answer is complete.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

@@ -18,6 +18,8 @@ A profile card with a persisted cache and two "releases". Release 2 also shows t
 without a version bump and it reads the user saved by release 1, which has no email. Turn the bump on and the old entry
 is dropped and fetched again.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`Cache({ version })`** tags every saved entry with the version it was written under.
@@ -25,8 +27,6 @@ is dropped and fetched again.
 3. **A version per release** keeps old persisted data from reaching code that expects a new shape.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

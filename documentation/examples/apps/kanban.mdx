@@ -26,6 +26,16 @@ The backend is a mock built with HyperFetch mocking. It keeps the board in `loca
 and every tab reads the same cards, like a real database. Swap the client `url` for your API, delete `mock-server.ts`,
 and the rest of the app stays the same.
 
+<Example
+  files={{
+    "src/api/cards.ts": cards,
+    "src/features/board/Column.tsx": column,
+    "src/components/SyncStatus.tsx": syncStatus,
+    "src/api/tab-sync.ts": tabSync,
+    "src/api/mock-server.ts": mockServer,
+  }}
+/>
+
 :::tip What it shows
 
 1. **Optimistic updates on the request**: `setOptimistic` with `insert`, `patch` and `remove` moves, adds and deletes
@@ -41,16 +51,6 @@ and the rest of the app stays the same.
    ([Mocking](/examples/request-control/mocking)).
 
 :::
-
-<Example
-  files={{
-    "src/api/cards.ts": cards,
-    "src/features/board/Column.tsx": column,
-    "src/components/SyncStatus.tsx": syncStatus,
-    "src/api/tab-sync.ts": tabSync,
-    "src/api/mock-server.ts": mockServer,
-  }}
-/>
 
 ---
 

@@ -19,6 +19,8 @@ import log from "!!raw-loader!@examples/react/cancellation/src/RequestLog.tsx";
 A product search where the server takes 1.5 seconds to answer. Type a few letters quickly: every new letter cancels the
 search that is still running, and the log shows each request being sent and canceled. **Cancel** stops the current one.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app, "src/RequestLog.tsx": log }} />
+
 :::tip What it shows
 
 1. **`cancelable: true`**: a new request aborts the running one in the same queue, so a slow old answer never replaces a
@@ -28,8 +30,6 @@ search that is still running, and the log shows each request being sent and canc
 4. **Request events**: `client.requestManager.events` reports every start, abort and response.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app, "src/RequestLog.tsx": log }} />
 
 ---
 

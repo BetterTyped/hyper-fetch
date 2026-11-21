@@ -9,6 +9,7 @@ export const getTodosRequest = client
     response: { todos: Todo[]; total: number };
     queryParams: { limit: number; select: string };
   }>()({ endpoint: "/todos" })
+  // `select` is a dummyjson query param: the API returns only these fields.
   .setQueryParams({ limit: 6, select: "todo,completed" });
 
 /** The todo leaves the list when `send()` is called. If the request fails or is removed from its queue, it comes back. */

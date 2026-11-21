@@ -18,6 +18,7 @@ log(`GET /users -> ${status}, ${users.map((user) => `${user.firstName} ${user.la
 // 2. Parallel requests: one per user, all in flight at once.
 log(`Fetching the posts of ${users.length} users in parallel`);
 const posts = await Promise.all(
+  // `select` is a dummyjson query param: the API returns only these fields.
   users.map((user) => getUserPosts.setParams({ userId: user.id }).setQueryParams({ limit: 2, select: "title" }).send()),
 );
 posts.forEach((response, index) => {

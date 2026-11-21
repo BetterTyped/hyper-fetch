@@ -52,7 +52,8 @@ export const App = () => {
   const [delay, setDelay] = useState(1500);
   const [timeout, setTimeoutMs] = useState(2000);
 
-  // `setOptions` replaces the adapter options of this request instance. `delay` makes dummyjson answer slowly.
+  // `setOptions` replaces the adapter options of this request instance. `delay` and `select` are dummyjson query
+  // params: answer after `delay` ms, return only these fields.
   const request = getProduct.setQueryParams({ delay, select: "title,price,thumbnail" }).setOptions({ timeout });
   // The timeout is not part of the cache key, so it is listed as a dependency to send the request again on change.
   const { data, error, loading, refetch } = useFetch(request, { dependencies: [timeout] });

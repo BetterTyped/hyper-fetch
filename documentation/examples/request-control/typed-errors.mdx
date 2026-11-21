@@ -19,6 +19,8 @@ Three endpoints that fail in three different ways: an unknown product, a wrong p
 panel shows its error type and narrows it to the right message. **Break the network** makes every request time out,
 which shows the error that all of them share.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **A global error type** on the client: `createClient<{ error: Error }>()` for failures of the transport.
@@ -27,8 +29,6 @@ which shows the error that all of them share.
 4. **Deeper narrowing** on fields of the endpoint error, such as `status` in problem details.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

@@ -19,6 +19,3 @@ export const socket = new Socket({ url, adapter: TrpcSseAdapter() });
 export const realtime = createSocketSdk<typeof socket, TrpcSocketSchema<AppRouter>>(socket, {
   camelCaseToKebabCase: false,
 });
-
-export const sendMessage = sdk.chat.post.$mutation;
-export const onMessage = realtime.chat.onMessage.$listener;

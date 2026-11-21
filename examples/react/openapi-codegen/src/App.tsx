@@ -2,7 +2,7 @@ import { useFetch, useSubmit } from "@hyper-fetch/react";
 import { type FormEvent, useState } from "react";
 
 import type { Components } from "./api/petstore.sdk";
-import { addPet, client, findPetsByStatus, getPetById } from "./client";
+import { client, sdk } from "./client";
 
 // Models from the spec are exported by the generated file too.
 type Status = NonNullable<Components.Schemas.Pet["status"]>;
@@ -10,7 +10,7 @@ const statuses: Status[] = ["available", "pending", "sold"];
 
 const PetDetails = ({ petId }: { petId: number }) => {
   // `:petId` in the spec path types `setParams()`.
-  const { data, error, loading } = useFetch(getPetById.setParams({ petId }));
+  const { data, error, loading } = useFetch(sdk.pet.$petId.$get.setParams({ petId }));
 
   if (loading && !data) return <p aria-busy="true">Loading pet {petId}...</p>;
   if (error || !data) return <p className="error">Pet {petId} was not found.</p>;
@@ -29,8 +29,8 @@ export const App = () => {
   const [name, setName] = useState("");
 
   // `status` is a required query param in the spec, so leaving it out does not compile.
-  const pets = useFetch(findPetsByStatus.setQueryParams({ status }));
-  const { submit, submitting, error: createError, onSubmitSuccess } = useSubmit(addPet);
+  const pets = useFetch(sdk.pet.findByStatus.$get.setQueryParams({ status }));
+  const { submit, submitting, error: createError, onSubmitSuccess } = useSubmit(sdk.pet.$post);
 
   onSubmitSuccess(({ response }) => {
     setName("");

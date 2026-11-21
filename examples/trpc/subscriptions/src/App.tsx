@@ -2,7 +2,7 @@ import { useListener, useSubmit } from "@hyper-fetch/react";
 import { type FormEvent, useState } from "react";
 
 import type { Message } from "../server/router";
-import { onMessage, sendMessage } from "./api";
+import { realtime, sdk } from "./api";
 
 const rooms = ["general", "random"] as const;
 const author = `guest-${Math.floor(Math.random() * 1000)}`;
@@ -12,8 +12,10 @@ const Room = ({ room }: { room: (typeof rooms)[number] }) => {
   const [text, setText] = useState("");
 
   // The payload is the procedure input. Another room is another subscription.
-  const { status, connected, extra, error, onEvent } = useListener(onMessage.setPayload({ room }));
-  const { submit, submitting } = useSubmit(sendMessage);
+  const { status, connected, extra, error, onEvent } = useListener(
+    realtime.chat.onMessage.$listener.setPayload({ room }),
+  );
+  const { submit, submitting } = useSubmit(sdk.chat.post.$mutation);
 
   // `data` is the event without the `tracked()` wrapper, the id is in `extra.eventId`.
   onEvent(({ data }) => {

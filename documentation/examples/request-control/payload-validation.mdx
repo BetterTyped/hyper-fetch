@@ -18,6 +18,8 @@ import app from "!!raw-loader!@examples/react/payload-validation/src/App.tsx";
 A sign-up form whose request validates its own payload with [zod](https://zod.dev). Submit it half filled: the fields
 show their errors and the counter of sent requests stays at zero. Fix the fields and the user is created.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`setRequestMapper`** runs the schema right before the request is sent.
@@ -26,8 +28,6 @@ show their errors and the counter of sent requests stays at zero. Fix the fields
 4. **The `error` generic** types the `ZodError`, and `instanceof` narrows it for field errors.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

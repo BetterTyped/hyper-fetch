@@ -8,6 +8,7 @@ export const App = () => {
 
   // A regular HyperFetch hook. Cache, retries and dedupe work the same; axios only sends the HTTP request.
   const { data, error, loading, extra, status, refetch } = useFetch(
+    // `select` and `delay` are dummyjson query params: return only these fields, answer after `delay` ms.
     getProducts.setQueryParams({ limit: 6, select: "title,price,thumbnail", delay }),
   );
 

@@ -17,6 +17,8 @@ import inView from "!!raw-loader!@examples/react/infinite-scroll/src/use-in-view
 A product list that grows as you scroll. `useInfiniteFetch` keeps track of the pages, and a small `IntersectionObserver`
 in the app decides when to ask for the next one. A badge in the corner counts the loaded items and pages.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app, "src/use-in-view.ts": inView }} />
+
 :::tip What it shows
 
 1. **Typed pagination.** `{ offset: "skip", limit: "limit", items: "products", total: "total" }` is checked against the
@@ -26,8 +28,6 @@ in the app decides when to ask for the next one. A badge in the corner counts th
 4. **The trigger lives in app code.** HyperFetch has no DOM helpers, so the observer is a short hook you own.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app, "src/use-in-view.ts": inView }} />
 
 ---
 

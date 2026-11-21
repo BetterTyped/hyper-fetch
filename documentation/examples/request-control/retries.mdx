@@ -18,6 +18,8 @@ A quote that loads from an unreliable server. Pick how many attempts fail before
 The request is retried up to three times, one second apart, and the log lists every attempt. With four failures, the
 retries run out and the final error is shown.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app, "src/AttemptLog.tsx": log }} />
+
 :::tip What it shows
 
 1. **`retry`** sets how many times a failed request is sent again.
@@ -27,8 +29,6 @@ retries run out and the final error is shown.
 5. **Mocking** makes the failures repeatable: the first attempts answer `503` on purpose.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app, "src/AttemptLog.tsx": log }} />
 
 ---
 

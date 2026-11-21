@@ -18,6 +18,8 @@ An orders table that is fetched once and then stays current. A small Hono server
 orders every few seconds and pushes each change as a server-sent event. The client writes every event into the cached
 list, so no refetch is needed. Press **Advance** in a second tab and watch the first one update.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api, "server/app.ts": server }} />
+
 :::tip What it shows
 
 1. **`useFetch`** loads the list once and reads it from the cache from then on.
@@ -26,8 +28,6 @@ list, so no refetch is needed. Press **Advance** in a second tab and watch the f
 4. **Writes without local updates**: the **Advance** button only sends a `POST`. The change comes back as an event.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api, "server/app.ts": server }} />
 
 ---
 

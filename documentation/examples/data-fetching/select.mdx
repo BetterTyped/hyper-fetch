@@ -18,6 +18,8 @@ A shopping cart split into four cards that all read the same cached response. Th
 with `select`, the fourth reads all of it. Every card flashes when it re-renders, so you can see which ones a change
 reaches.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **One request, many readers.** Every card calls `useFetch(getCart)`. They share one cache entry and one network call.
@@ -26,8 +28,6 @@ reaches.
 4. **Structural sharing** keeps a derived array's reference when its contents are equal, so inline selectors are fine.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

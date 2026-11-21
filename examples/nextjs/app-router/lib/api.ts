@@ -17,6 +17,7 @@ const getPosts = client.createRequest<{
  * The server page and the client component must use the same request, so the cache keys match.
  * Exporting the prepared request keeps the query params in one place.
  */
+// `select` is a dummyjson query param: the API returns only these fields.
 export const latestPosts = getPosts.setQueryParams({ limit: 8, select: "title,body,views,tags" });
 
 export const getPostComments = client.createRequest<{ response: { comments: Comment[] } }>()({

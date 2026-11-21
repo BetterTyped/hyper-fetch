@@ -18,6 +18,8 @@ import app from "!!raw-loader!@examples/react/plugins/src/App.tsx";
 Two small plugins on one client. The logger writes a line when a request starts and when it ends. The metrics plugin
 counts calls, errors and durations per endpoint, like an APM agent. Send a few requests and watch both fill in.
 
+<Example files={{ "src/plugins.ts": plugins, "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`new Plugin({ name })`** with chained hooks, wrapped in a function like `loggerPlugin()`.
@@ -26,8 +28,6 @@ counts calls, errors and durations per endpoint, like an APM agent. Send a few r
 4. **`addPlugin` and `removePlugin`** turn a plugin on and off at runtime.
 
 :::
-
-<Example files={{ "src/plugins.ts": plugins, "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

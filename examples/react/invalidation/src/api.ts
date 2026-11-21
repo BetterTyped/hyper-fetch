@@ -13,6 +13,7 @@ export const getPostsRequest = client
   }>()({
     endpoint: "/posts",
   })
+  // `select` is a dummyjson query param: the API returns only these fields.
   .setQueryParams({ limit: 3, select: "title", sortBy: "id", order: "desc" });
 
 export const getUserPostsRequest = client

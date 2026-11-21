@@ -20,6 +20,8 @@ A small shop with a cart badge in the header, a product grid and a cart panel. T
 context and no state library. The cart lives in one cache entry: one component fetches it, the others read it with
 `useCache` and change it with `client.cache.update()`.
 
+<Example files={{ "src/App.tsx": app, "src/cart.ts": cart, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **The cache as shared state**: every hook that uses the same request reads the same cache entry.
@@ -28,8 +30,6 @@ context and no state library. The cart lives in one cache entry: one component f
 4. **One fetcher**: only `CartPanel` calls `useFetch`, so the cart is requested once.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/cart.ts": cart, "src/api.ts": api }} />
 
 ---
 

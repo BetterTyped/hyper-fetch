@@ -10,6 +10,7 @@ export const getProductsRequest = client
   .createRequest<{ response: { products: Product[] }; queryParams: { limit: number; select: string } }>()({
     endpoint: "/products",
   })
+  // `select` is a dummyjson query param: the API returns only these fields.
   .setQueryParams({ limit: 6, select: "title,price,thumbnail" });
 
 /**

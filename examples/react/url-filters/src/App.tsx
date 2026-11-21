@@ -17,6 +17,7 @@ export const App = () => {
       order: filters.order,
       limit: pageSize,
       skip: (filters.page - 1) * pageSize,
+      // `select` is a dummyjson query param: the API returns only these fields.
       select: "title,price,rating,category",
     }),
   );

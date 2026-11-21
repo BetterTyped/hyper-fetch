@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/search/src/App.tsx";
 A product search box. Every keystroke changes the query, but with debounce on the request is sent only when you stop
 typing. Counters show how many changes you typed and how many requests reached the network.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **The query is a query param.** Each search term is its own request and cache key.
@@ -24,8 +26,6 @@ typing. Counters show how many changes you typed and how many requests reached t
 4. **Previous results stay on screen** while the next ones load, so the list does not flash.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 
@@ -43,6 +43,7 @@ typing. Counters show how many changes you typed and how many requests reached t
    results stay on screen, dimmed, until the new ones arrive.
 
 ```tsx
+// `select` is a dummyjson query param: the API returns only these fields.
 const { data, loading, bounce } = useFetch(searchProducts.setQueryParams({ q: query, limit: 8, select: "title" }), {
   // highlight-next-line
   bounce: true,

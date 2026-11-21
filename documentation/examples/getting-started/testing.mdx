@@ -17,6 +17,8 @@ import api from "!!raw-loader!@examples/react/testing/src/api.ts";
 A small todo list and five tests for it. The tests render the component with Testing Library and answer its requests
 with `setMock`, so they run without a server and cover loading, success, error, empty and save states.
 
+<Example files={{ "src/TodoList.test.tsx": test, "src/TodoList.tsx": todoList, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **`setMock`** answers a request in tests. Cache, hooks and callbacks run the same way as with a real response.
@@ -25,8 +27,6 @@ with `setMock`, so they run without a server and cover loading, success, error, 
 4. **Isolation**: `clearMock()` and `client.clear()` after each test, so no test sees another test's data.
 
 :::
-
-<Example files={{ "src/TodoList.test.tsx": test, "src/TodoList.tsx": todoList, "src/api.ts": api }} />
 
 ---
 

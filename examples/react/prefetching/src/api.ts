@@ -26,4 +26,5 @@ export const getProduct = client.createRequest<{
 export const productDetails = (productId: number) =>
   getProduct
     .setParams({ productId })
+    // `select` and `delay` are dummyjson query params: return only these fields, answer after `delay` ms.
     .setQueryParams({ select: "title,price,description,brand,rating,images", delay: 700 });

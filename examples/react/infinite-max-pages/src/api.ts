@@ -13,6 +13,7 @@ export const getProductsRequest = client
     response: { products: Product[]; total: number; skip: number; limit: number };
     queryParams: { limit: number; skip?: number; select: string };
   }>()({ endpoint: "/products" })
+  // `select` is a dummyjson query param: the API returns only these fields.
   .setQueryParams({ limit: pageSize, select: "title,brand,price" });
 
 /** dummyjson pages with `skip` and `limit`. With an offset, the hook can also compute the page before the first one. */

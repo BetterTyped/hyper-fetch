@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/pagination/src/App.tsx";
 A product table with numbered pages. Each page is a separate cache entry, the next page is fetched before you ask for
 it, and a log lists every request that reaches the network.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **Query params as pages.** `limit` and `skip` are part of the cache key, so every page is cached on its own.
@@ -25,8 +27,6 @@ it, and a log lists every request that reaches the network.
 4. **`staleTime` with `revalidate: false`** stops pages you already have from being requested again.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

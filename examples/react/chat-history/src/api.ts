@@ -12,7 +12,10 @@ export const getMessagesRequest = client.createRequest<{
   queryParams: { limit: number; skip: number; select: string };
 }>()({ endpoint: "/comments" });
 
-/** dummyjson lists the oldest first, so the newest messages are the last page. This asks only for the total. */
+/**
+ * dummyjson lists the oldest first, so the newest messages are the last page. This asks only for the total: `select`
+ * is a dummyjson query param that returns only the listed fields.
+ */
 export const getMessageCountRequest = getMessagesRequest.setQueryParams({ limit: 1, skip: 0, select: "id" });
 
 export const messagesPagination = {

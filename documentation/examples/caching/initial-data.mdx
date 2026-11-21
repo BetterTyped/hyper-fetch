@@ -18,6 +18,8 @@ A product list with a details panel. The details request is slow on purpose, but
 shows the product from the list right away and swaps in the server response when it arrives. A product that is not in
 the list has nothing to start from, so it shows a spinner instead.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **`initialResponse`**: data a `useFetch` hook shows while the cache is still empty.
@@ -25,8 +27,6 @@ the list has nothing to start from, so it shows a spinner instead.
 3. **Reusing data you already have**: the list response is used as the starting point for the details.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
 
 ---
 

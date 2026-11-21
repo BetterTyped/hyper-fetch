@@ -18,6 +18,8 @@ import app from "!!raw-loader!@examples/trpc/basic/src/App.tsx";
 A todo list backed by a tRPC router. The router runs inside the Vite dev server through Hono, and the React app calls
 its queries and mutations with `useFetch` and `useSubmit`. Every input, output and error type comes from the router.
 
+<Example files={{ "server/router.ts": router, "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`TrpcAdapter`** sends requests in the tRPC format: queries as `GET`, mutations as `POST`.
@@ -26,8 +28,6 @@ its queries and mutations with `useFetch` and `useSubmit`. Every input, output a
 4. **Typed errors**: the router's `errorFormatter` adds `fieldErrors`, and the client sees them with their types.
 
 :::
-
-<Example files={{ "server/router.ts": router, "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 
@@ -64,9 +64,9 @@ its queries and mutations with `useFetch` and `useSubmit`. Every input, output a
    `camelCaseToKebabCase: false` keeps the procedure names as the router spells them. `sdk.todos.list.$query` is a
    request for `todos.list`.
 
-4. `App` passes the procedure input as the payload: `useFetch(listTodos.setPayload({ status }))`. The adapter adds the
-   input to the cache key, so `all`, `open` and `done` are three cache entries. Switch back to a filter you already
-   opened and it renders without a request.
+4. `App` passes the procedure input as the payload: `useFetch(sdk.todos.list.$query.setPayload({ status }))`. The
+   adapter adds the input to the cache key, so `all`, `open` and `done` are three cache entries. Switch back to a filter
+   you already opened and it renders without a request.
 5. The mutations run through `useSubmit`. After one succeeds, `client.cache.invalidate(/^QUERY_todos\.list/)` marks
    every cached `todos.list` input stale, and the mounted list fetches again.
 6. Type a title shorter than three characters. zod rejects it, the router's `errorFormatter` adds

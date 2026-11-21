@@ -20,6 +20,15 @@ A pet store client for the public [Swagger Petstore](https://petstore3.swagger.i
 by hand: `@hyper-fetch/cli` reads the OpenAPI spec and generates one file with every endpoint, model and `createSdk`
 factory. The app lists pets by status, adds a pet and looks one up by id.
 
+<Example
+  files={{
+    "api.json": config,
+    "src/api/petstore.sdk.ts": sdk,
+    "src/client.ts": client,
+    "src/App.tsx": app,
+  }}
+/>
+
 :::tip What it shows
 
 1. **`hyper-fetch generate`** turns an OpenAPI spec into a typed SDK file, run from an npm script.
@@ -29,15 +38,6 @@ factory. The app lists pets by status, adds a pet and looks one up by id.
 4. **Regular requests**: the generated SDK returns normal HyperFetch requests, used with `useFetch` and `useSubmit`.
 
 :::
-
-<Example
-  files={{
-    "api.json": config,
-    "src/api/petstore.sdk.ts": sdk,
-    "src/client.ts": client,
-    "src/App.tsx": app,
-  }}
-/>
 
 ---
 
@@ -60,9 +60,10 @@ factory. The app lists pets by status, adds a pet and looks one up by id.
    `GET /pet/{petId}` is `sdk.pet.$petId.$get`.
 4. `src/client.ts` creates the client with the base URL of the API and calls the generated `createSdk`. It passes
    `camelCaseToKebabCase: false` because OpenAPI paths are literal: `/pet/findByStatus` must stay camelCase.
-5. `App` uses the requests like hand-written ones. `findPetsByStatus.setQueryParams({ status })` fails to compile
-   without `status`, which the spec marks as required. `getPetById.setParams({ petId })` takes the `{petId}` path param.
-   `useSubmit(addPet)` types the payload from the `Pet` schema, where `name` and `photoUrls` are required.
+5. `App` uses the requests like hand-written ones. `sdk.pet.findByStatus.$get.setQueryParams({ status })` fails to
+   compile without `status`, which the spec marks as required. `sdk.pet.$petId.$get.setParams({ petId })` takes the
+   `{petId}` path param. `useSubmit(sdk.pet.$post)` types the payload from the `Pet` schema, where `name` and
+   `photoUrls` are required.
 
 The Petstore is a shared public demo, so the list changes as other people use it, and some of its ids are larger than a
 JavaScript number can hold. The app only offers to look up ids it can represent.

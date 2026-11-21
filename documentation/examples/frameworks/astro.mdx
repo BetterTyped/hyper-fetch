@@ -19,6 +19,14 @@ A recipe list rendered by Astro. The page fetches the recipes in its frontmatter
 React island, so the HTML already contains the list and the island's hooks start with the same data. Ingredients load in
 the browser when you open a recipe.
 
+<Example
+  files={{
+    "src/lib/api.ts": api,
+    "src/pages/index.astro": page,
+    "src/components/Recipes.tsx": recipes,
+  }}
+/>
+
 :::tip What it shows
 
 1. **Astro frontmatter** sends the request with `send()` on the server and packs it with `dehydrate()`.
@@ -27,14 +35,6 @@ the browser when you open a recipe.
 4. **Client-only requests** still work as usual inside the island.
 
 :::
-
-<Example
-  files={{
-    "src/lib/api.ts": api,
-    "src/pages/index.astro": page,
-    "src/components/Recipes.tsx": recipes,
-  }}
-/>
 
 ---
 

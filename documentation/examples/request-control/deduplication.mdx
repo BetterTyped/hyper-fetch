@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/deduplication/src/App.tsx";
 Up to ten callers request the same user at the same moment. With `deduplicate` on, only the first one goes to the
 network and the others wait for its response. Turn it off to see one request per caller.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **`deduplicate`**: identical requests started while one is in flight join it instead of sending their own.
@@ -23,8 +25,6 @@ network and the others wait for its response. Turn it off to see one request per
 3. **Dispatcher events**: `onRequestStart` counts network requests, `onDeduplicated` counts the callers that joined.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
 
 ---
 

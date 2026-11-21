@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/polling/src/App.tsx";
 A quote card that asks the server for a new random quote every few seconds. Switches turn polling on and off and decide
 whether it continues in a background tab, and a progress bar shows when the next refresh is due.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`refresh`** turns polling on and off for one `useFetch` call.
@@ -24,8 +26,6 @@ whether it continues in a background tab, and a progress bar shows when the next
 4. **`refetch()`** fetches right away and starts the interval over.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

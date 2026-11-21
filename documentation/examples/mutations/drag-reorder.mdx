@@ -17,6 +17,8 @@ import app from "!!raw-loader!@examples/react/drag-reorder/src/App.tsx";
 A todo list you reorder by dragging, or with the arrow buttons. The new order shows at once while the save takes a
 second. Turn on **Make saves fail** and the todo slides back to where it was when the error arrives.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **Native drag and drop**: `draggable`, `onDragStart`, `onDragOver` and `onDrop`, no library.
@@ -25,8 +27,6 @@ second. Turn on **Make saves fail** and the todo slides back to where it was whe
 4. **Mocked failures** with `setMock` and `setMockingEnabled`, switched from the UI.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

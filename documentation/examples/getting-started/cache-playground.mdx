@@ -18,6 +18,14 @@ import cacheTable from "!!raw-loader!@examples/react/cache-playground/src/CacheT
 A playground for the cache options. Move a slider, open another post or leave the tab, and a live cache table and event
 log show what HyperFetch stores, when it sends a request and when it removes data.
 
+<Example
+  files={{
+    "src/api.ts": api,
+    "src/App.tsx": app,
+    "src/CacheTable.tsx": cacheTable,
+  }}
+/>
+
 :::tip What it shows
 
 1. **`staleTime`** decides how long a cached response counts as fresh, so opening it again sends no request.
@@ -27,14 +35,6 @@ log show what HyperFetch stores, when it sends a request and when it removes dat
 5. **Client events** (`client.cache.events` and `client.requestManager.events`) make the cache and the network visible.
 
 :::
-
-<Example
-  files={{
-    "src/api.ts": api,
-    "src/App.tsx": app,
-    "src/CacheTable.tsx": cacheTable,
-  }}
-/>
 
 ---
 

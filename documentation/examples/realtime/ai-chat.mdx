@@ -18,6 +18,8 @@ A chat window in the style of an LLM app. A Hono route in the same Vite project 
 one word at a time, and the client shows the text while it grows. **Stop** cancels the answer halfway, and
 **Regenerate** asks again with the same history.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api, "server/app.ts": server }} />
+
 :::tip What it shows
 
 1. **`useStream`** sends a request in streaming mode and returns `text` that grows with every chunk.
@@ -26,8 +28,6 @@ one word at a time, and the client shows the text while it grows. **Stop** cance
 4. **Regenerate** mounts a new answer with the same history, which starts a fresh stream.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api, "server/app.ts": server }} />
 
 ---
 

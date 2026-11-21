@@ -18,6 +18,8 @@ import app from "!!raw-loader!@examples/react/stale-time/src/App.tsx";
 A post viewer next to a live table of the cache. Each post stays fresh for 10 seconds and is removed after 30. Switch
 between posts and watch the "Requests" column: fresh posts come from the cache, stale ones are fetched again.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **`staleTime`**: how long a response counts as fresh. Fresh data is not fetched again.
@@ -27,8 +29,6 @@ between posts and watch the "Requests" column: fresh posts come from the cache, 
 4. **Cache source**: the request counter shows when the data came from the network and when it came from the cache.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
 
 ---
 

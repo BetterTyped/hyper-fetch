@@ -15,7 +15,3 @@ export const sdk = createSdk<typeof client, OrpcSchema<ContractRouterClient<type
   // Keep procedure names as written in the contract.
   camelCaseToKebabCase: false,
 });
-
-// Every oRPC procedure has `$query` and `$mutation`, pick the one that matches how you use it.
-export const listPlanets = sdk.planet.list.$query;
-export const createPlanet = sdk.planet.create.$mutation;

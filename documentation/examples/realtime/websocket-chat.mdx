@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/websocket-chat/src/App.tsx";
 A chat room connected to a public WebSocket echo server. The server sends every message back, so what you see in the
 list has made the full trip: emitter, server, listener.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`createSocketClient`** with the `WebsocketAdapter` opens one connection that every listener and emitter shares.
@@ -25,8 +27,6 @@ list has made the full trip: emitter, server, listener.
    hand.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

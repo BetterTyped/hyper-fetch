@@ -8,6 +8,7 @@ export const getTodos = client
   .createRequest<{ response: { todos: Todo[] }; queryParams: { limit: number; select: string } }>()({
     endpoint: "/todos",
   })
+  // `select` is a dummyjson query param: the API returns only these fields.
   .setQueryParams({ limit: 5, select: "todo,completed" });
 
 export const toggleTodo = client.createRequest<{ response: Todo; payload: Pick<Todo, "completed"> }>()({

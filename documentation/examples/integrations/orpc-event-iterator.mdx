@@ -20,6 +20,8 @@ A job runner. Each button starts a job with a regular oRPC call, and every job c
 event iterator: an async generator on the server that yields one event per step and then returns. Start a few jobs at
 once to see the streams run side by side.
 
+<Example files={{ "server/router.ts": router, "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`OrpcStreamAdapter`** connects a HyperFetch `Socket` to oRPC event iterator procedures over an HTTP event stream.
@@ -29,8 +31,6 @@ once to see the streams run side by side.
 5. **Rich types in events**: `at` is a `Date` in every event, encoded by the oRPC serializer.
 
 :::
-
-<Example files={{ "server/router.ts": router, "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 
@@ -55,9 +55,9 @@ once to see the streams run side by side.
    });
    ```
 
-5. `App` starts a job with `useSubmit(startJob)` and renders a `JobCard` for it. The card calls
-   `useListener(onProgress.setPayload({ id: job.id }))`, which sends `POST /api/rpc/job/onProgress` and reads the
-   `text/event-stream` answer.
+5. `App` starts a job with `useSubmit(sdk.job.start.$mutation)` and renders a `JobCard` for it. The card calls
+   `useListener(realtime.job.onProgress.$listener.setPayload({ id: job.id }))`, which sends
+   `POST /api/rpc/job/onProgress` and reads the `text/event-stream` answer.
 6. `data` holds the latest event, so `<progress value={data?.step}>` moves with the stream. `onEvent` keeps a short log,
    formatting `event.at` with `toLocaleTimeString()` because it is already a `Date`. When the generator returns,
    `status` becomes `ended` and the card shows "Done".

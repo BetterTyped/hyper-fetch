@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/sdk/src/App.tsx";
 A list of posts, a details panel and a form that adds a post. Instead of declaring each request with `createRequest`,
 the app describes the API as one schema type and reads its requests from an SDK object.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **One schema type** that mirrors the URL tree of the API, with `RequestModel` on each endpoint.
@@ -25,8 +27,6 @@ the app describes the API as one schema type and reads its requests from an SDK 
 4. **Types from the schema.** Params, query params, payload and response are checked at compile time.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

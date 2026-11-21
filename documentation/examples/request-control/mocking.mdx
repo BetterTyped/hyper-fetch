@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/mocking/src/App.tsx";
 A todo screen built before its API is ready. A mock answers the real request, and one switch sends it to the real
 DummyJSON endpoint instead.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`setMock`** answers a request with data you return, without a server and without changing the component.
@@ -24,8 +26,6 @@ DummyJSON endpoint instead.
 4. **`client.setEnableGlobalMocking(false)`** turns every mock off and sends the same request to the real API.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

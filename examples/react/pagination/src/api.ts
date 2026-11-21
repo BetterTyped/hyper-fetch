@@ -23,5 +23,6 @@ export const getProductsPage = (page: number) =>
   getProducts.setQueryParams({
     limit: PAGE_SIZE,
     skip: (page - 1) * PAGE_SIZE,
+    // `select` is a dummyjson query param: the API returns only these fields.
     select: "title,category,price,rating",
   });

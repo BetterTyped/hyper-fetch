@@ -1,7 +1,7 @@
 import { useFetch, useSubmit } from "@hyper-fetch/react";
 import { type FormEvent, useState } from "react";
 
-import { addTodo, client, listTodos, todoListsKey, toggleTodo } from "./api";
+import { client, sdk, todoListsKey } from "./api";
 
 const filters = ["all", "open", "done"] as const;
 
@@ -10,9 +10,9 @@ export const App = () => {
   const [title, setTitle] = useState("");
 
   // The input is the payload. Each filter is cached on its own, so switching back is instant.
-  const { data, error, loading } = useFetch(listTodos.setPayload({ status }));
-  const add = useSubmit(addTodo);
-  const toggle = useSubmit(toggleTodo);
+  const { data, error, loading } = useFetch(sdk.todos.list.$query.setPayload({ status }));
+  const add = useSubmit(sdk.todos.add.$mutation);
+  const toggle = useSubmit(sdk.todos.toggle.$mutation);
 
   // A change affects every filter, so invalidate all cached inputs of `todos.list` at once.
   const refreshLists = () => client.cache.invalidate(todoListsKey);

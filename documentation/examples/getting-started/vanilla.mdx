@@ -16,6 +16,8 @@ import main from "!!raw-loader!@examples/vanilla/basic/src/main.ts";
 A todo list and a lookup form built with plain DOM code. `@hyper-fetch/core` does not need React or any other framework:
 you create a client, describe requests, and call `send()`.
 
+<Example files={{ "src/api.ts": api, "src/main.ts": main }} />
+
 :::tip What it shows
 
 1. **`createClient` and `createRequest`** work the same with or without a UI framework.
@@ -24,8 +26,6 @@ you create a client, describe requests, and call `send()`.
 4. **Errors resolve, they do not throw.** A 404 comes back as a response with a typed `error`.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/main.ts": main }} />
 
 ---
 

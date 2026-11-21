@@ -17,6 +17,7 @@ export const getUserRequest = client
     queryParams: { select: string };
   }>()({ endpoint: "/users/:userId" })
   .setParams({ userId: 1 })
+  // `select` is a dummyjson query param: the API returns only these fields.
   .setQueryParams({ select: "firstName,lastName,email,image" });
 
 /** Writes into the cache. Every hook that reads `getUserRequest` re-renders with the new data, no request is sent. */

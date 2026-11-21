@@ -17,6 +17,8 @@ import app from "!!raw-loader!@examples/react/forms/src/App.tsx";
 A "new post" form that sends a `POST` request to dummyjson. The server checks the author: leave it empty and it answers
 `400`, pick an unknown id and it answers `404`. Both messages show up next to the field.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **`useSubmit`** sends nothing on mount. The request runs when you call `submit({ payload })`.
@@ -26,8 +28,6 @@ A "new post" form that sends a `POST` request to dummyjson. The server checks th
 5. **Lifecycle callbacks**: `onSubmitSuccess` resets the form and `onSubmitError` explains the failure.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
 
 ---
 

@@ -1,13 +1,13 @@
 import { useFetch, useSubmit } from "@hyper-fetch/react";
 import { type FormEvent, useState } from "react";
 
-import { createNote, deleteNote, getNotes } from "./api";
+import { sdk } from "./api";
 
 export const App = () => {
   const [text, setText] = useState("");
   // `data` is typed as `Note[]` by the GET /api/notes handler in server/app.ts.
-  const { data, error, loading, refetch } = useFetch(getNotes);
-  const { submit, submitting, error: submitError, onSubmitSuccess } = useSubmit(createNote);
+  const { data, error, loading, refetch } = useFetch(sdk.api.notes.$get);
+  const { submit, submitting, error: submitError, onSubmitSuccess } = useSubmit(sdk.api.notes.$post);
 
   onSubmitSuccess(() => {
     setText("");
@@ -22,7 +22,7 @@ export const App = () => {
 
   const remove = async (noteId: number) => {
     // `:noteId` in the Hono path types `setParams()`.
-    const response = await deleteNote.setParams({ noteId }).send();
+    const response = await sdk.api.notes.$noteId.$delete.setParams({ noteId }).send();
     if (response.success) refetch();
   };
 

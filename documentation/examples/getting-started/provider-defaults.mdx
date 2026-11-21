@@ -18,6 +18,8 @@ Three widgets that refresh themselves. The refresh options are set once in the `
 uses them as they are, one changes the interval and one opts out. The switches at the top change the defaults while the
 app runs.
 
+<Example files={{ "src/App.tsx": app, "src/Widgets.tsx": widgets, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **`<Provider config>`** sets default options for every `useFetch` below it with `useFetchConfig`.
@@ -26,8 +28,6 @@ app runs.
 4. **Request counters** on each widget show how the options change the traffic.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/Widgets.tsx": widgets, "src/api.ts": api }} />
 
 ---
 

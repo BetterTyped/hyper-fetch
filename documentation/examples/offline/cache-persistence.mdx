@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/cache-persistence/src/App.tsx";
 A paged recipe list whose cache lives in `localStorage`. The API answers slowly on purpose; after a reload, every page
 you have already opened appears at once.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`Cache({ storage })`** replaces the in-memory `Map` with a storage backed by `localStorage`.
@@ -24,8 +26,6 @@ you have already opened appears at once.
 4. **`cache.clear()`** removes the entries from memory and from the storage.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

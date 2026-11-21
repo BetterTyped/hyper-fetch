@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/authentication/src/App.tsx";
 A login form and a profile page backed by the DummyJSON auth API. The token handling lives in two client interceptors,
 so the requests and components never touch a token.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`onAuth`** adds the `Authorization` header to every request that has `auth: true`.
@@ -24,8 +26,6 @@ so the requests and components never touch a token.
 4. **Logout** removes the tokens and clears the cache, so the next user never sees the old profile.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

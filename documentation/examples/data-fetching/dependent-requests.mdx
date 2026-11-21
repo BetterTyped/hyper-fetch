@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/dependent-requests/src/App.tsx";
 A user profile that is loaded by username. The posts and todos endpoints need the numeric user id, which only the first
 response contains, so those two requests wait for it. A small step list shows each request waiting, loading or done.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`disabled`** keeps a `useFetch` request from being sent until its input is known.
@@ -24,8 +26,6 @@ response contains, so those two requests wait for it. A small step list shows ea
 4. **`keepPreviousData: "clean"`** clears the previous user when you switch, so the chain starts over visibly.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

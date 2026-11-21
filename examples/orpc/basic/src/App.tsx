@@ -1,7 +1,7 @@
 import { useFetch, useSubmit } from "@hyper-fetch/react";
 import { type FormEvent, useState } from "react";
 
-import { createPlanet, listPlanets } from "./api";
+import { sdk } from "./api";
 
 const types = ["rocky", "gas", "ice"] as const;
 
@@ -10,8 +10,8 @@ export const App = () => {
   const [type, setType] = useState<(typeof types)[number]>("ice");
   const [date, setDate] = useState("1930-02-18");
 
-  const { data, error, loading, refetch } = useFetch(listPlanets);
-  const { submit, submitting, error: createError, onSubmitSuccess } = useSubmit(createPlanet);
+  const { data, error, loading, refetch } = useFetch(sdk.planet.list.$query);
+  const { submit, submitting, error: createError, onSubmitSuccess } = useSubmit(sdk.planet.create.$mutation);
 
   onSubmitSuccess(() => {
     setName("");

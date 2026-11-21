@@ -13,4 +13,5 @@ export const getProduct = client
     // Adapter options for this request only. They win over the defaults above.
     options: { timeout: 2000 },
   })
+  // `select` and `delay` are dummyjson query params: return only these fields, answer after `delay` ms.
   .setQueryParams({ delay: 1000, select: "title,price,thumbnail" });

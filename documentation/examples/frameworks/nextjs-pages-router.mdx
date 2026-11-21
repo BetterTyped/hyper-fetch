@@ -20,15 +20,6 @@ A list of posts and a page for each post, built with the Next.js Pages Router. B
 so the HTML already contains the data, and the HyperFetch hooks in the browser start with the same responses. Clicking a
 post navigates on the client, and the post still comes from the server.
 
-:::tip What it shows
-
-1. **`getServerSideProps`** sends the request with `send()` and returns `request.dehydrate({ response })` as props.
-2. **One `Hydrate` in `_app`** writes the `hydration` prop of every page into the client cache.
-3. **`useFetch`** renders the server data on the first render, with no loading state and no request.
-4. **Client navigation**: a `Link` runs `getServerSideProps` on the server and hydrates the new page the same way.
-
-:::
-
 <Example
   files={{
     "lib/api.ts": api,
@@ -37,6 +28,15 @@ post navigates on the client, and the post still comes from the server.
     "pages/posts/[postId].tsx": post,
   }}
 />
+
+:::tip What it shows
+
+1. **`getServerSideProps`** sends the request with `send()` and returns `request.dehydrate({ response })` as props.
+2. **One `Hydrate` in `_app`** writes the `hydration` prop of every page into the client cache.
+3. **`useFetch`** renders the server data on the first render, with no loading state and no request.
+4. **Client navigation**: a `Link` runs `getServerSideProps` on the server and hydrates the new page the same way.
+
+:::
 
 ---
 

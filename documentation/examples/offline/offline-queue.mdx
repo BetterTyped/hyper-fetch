@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/offline-queue/src/App.tsx";
 A todo form that keeps working without a network. Todos added offline wait in the dispatcher queue and reach the server,
 in order, once the app is online again.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`offline: true`** keeps a request in the queue while the app is offline instead of failing it.
@@ -24,8 +26,6 @@ in order, once the app is online again.
 4. **`useQueue`** shows every request that is waiting or in flight.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

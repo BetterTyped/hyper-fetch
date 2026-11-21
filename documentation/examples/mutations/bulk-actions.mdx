@@ -19,6 +19,8 @@ A table of todos with checkboxes. Select some and press **Complete** or **Delete
 progress bar counts the finished ones, and a failed row shows its error while the others succeed. Choose whether the
 requests run one at a time or all at once.
 
+<Example files={{ "src/use-bulk-action.ts": hook, "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **One request per row** with `send()`, so each row has its own status and error.
@@ -28,8 +30,6 @@ requests run one at a time or all at once.
 4. **Per-instance mocks**: `setMock` on one request instance makes only that row fail.
 
 :::
-
-<Example files={{ "src/use-bulk-action.ts": hook, "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

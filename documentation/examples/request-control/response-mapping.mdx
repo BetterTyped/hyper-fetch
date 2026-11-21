@@ -16,6 +16,8 @@ import app from "!!raw-loader!@examples/react/response-mapping/src/App.tsx";
 A product grid that never renders data it does not understand. Every response goes through a zod schema that checks it
 and turns the API fields into the fields the components use.
 
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`setResponseMapper`** runs on every response, before `send()` resolves and before a hook gets the data.
@@ -25,8 +27,6 @@ and turns the API fields into the fields the components use.
    issues.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 

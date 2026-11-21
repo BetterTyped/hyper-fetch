@@ -19,6 +19,8 @@ import api from "!!raw-loader!@examples/react/url-filters/src/api.ts";
 A product table with search, sorting and pages. The filters are stored in the URL, so you can share a link to the exact
 view, reload the page, or use the back and forward buttons. It uses `URLSearchParams` and the history API, no router.
 
+<Example files={{ "src/App.tsx": app, "src/url-state.ts": urlState, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **The URL as state**: `?q=phone&sortBy=price&order=desc&page=2` is the single source of truth for the filters.
@@ -28,8 +30,6 @@ view, reload the page, or use the back and forward buttons. It uses `URLSearchPa
 4. **Previous data stays visible** while the next page loads.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/url-state.ts": urlState, "src/api.ts": api }} />
 
 ---
 
@@ -52,6 +52,7 @@ view, reload the page, or use the back and forward buttons. It uses `URLSearchPa
        limit: pageSize,
        // highlight-next-line
        skip: (filters.page - 1) * pageSize,
+       // `select` is a dummyjson query param: the API returns only these fields.
        select: "title,price,rating,category",
      }),
    );

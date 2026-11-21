@@ -15,6 +15,7 @@ export type Category = { slug: string; name: string };
 type ProductPage = { products: ProductSummary[]; total: number; skip: number; limit: number };
 type PageQuery = { limit: number; skip?: number; select: string };
 
+// `select` is a dummyjson query param: the API returns only these fields.
 const PAGE = { limit: 12, select: "title,price,thumbnail,rating" };
 
 export const getCategories = client.createRequest<{ response: Category[] }>()({

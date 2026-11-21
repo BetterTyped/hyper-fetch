@@ -16,6 +16,7 @@ const ProductDetails = ({ productId }: { productId: number }) => {
   const { data } = useFetch(
     getProduct
       .setParams({ productId })
+      // `select` and `delay` are dummyjson query params: return only these fields, answer after `delay` ms.
       .setQueryParams({ select: "title,description,price,rating,thumbnail", delay: 800 }),
     { suspense: true, throwOnError: true },
   );

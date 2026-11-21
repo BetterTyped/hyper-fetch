@@ -7,6 +7,7 @@ const slowRequest = getSlowUsers.setQueryParams({ limit: 3, delay: 4000 });
 
 const Users = () => {
   const { data, error, loading, refetch } = useFetch(
+    // `select` is a dummyjson query param: the API returns only these fields.
     getUsers.setQueryParams({ limit: 5, select: "firstName,lastName,email" }),
   );
 

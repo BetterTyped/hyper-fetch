@@ -17,6 +17,8 @@ import app from "!!raw-loader!@examples/react/crud/src/App.tsx";
 A todo list with all four operations: add a todo, edit its text, check it off and delete it. Each mutation waits for the
 server, then writes the server's answer into the cached list.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
 :::tip What it shows
 
 1. **Four typed requests**: `GET`, `POST`, `PATCH` and `DELETE`, with `:todoId` params and typed payloads.
@@ -25,8 +27,6 @@ server, then writes the server's answer into the cached list.
 4. **No extra round trip**: the list is never refetched after a change.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
 
 ---
 

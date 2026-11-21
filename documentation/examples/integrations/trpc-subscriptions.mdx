@@ -20,6 +20,8 @@ A chat with two rooms. Messages are posted with a tRPC mutation and arrive throu
 Server-Sent Events into `useListener`. A bot answers every message a second later, so you see events that the client did
 not ask for. Open the app in a second tab to chat between them.
 
+<Example files={{ "server/router.ts": router, "src/api.ts": api, "src/App.tsx": app }} />
+
 :::tip What it shows
 
 1. **`TrpcSseAdapter`** connects a HyperFetch `Socket` to tRPC subscriptions over Server-Sent Events.
@@ -29,8 +31,6 @@ not ask for. Open the app in a second tab to chat between them.
 5. **One handler, two adapters**: the same `/api/trpc` endpoint serves the mutation (`TrpcAdapter`) and the stream.
 
 :::
-
-<Example files={{ "server/router.ts": router, "src/api.ts": api, "src/App.tsx": app }} />
 
 ---
 
@@ -52,7 +52,7 @@ not ask for. Open the app in a second tab to chat between them.
    });
    ```
 
-4. `Room` calls `useListener(onMessage.setPayload({ room }))`. The adapter opens
+4. `Room` calls `useListener(realtime.chat.onMessage.$listener.setPayload({ room }))`. The adapter opens
    `GET /api/trpc/chat.onMessage?input={"room":"general"}` as an `EventSource`. Other components listening to the same
    room share that stream. Switching rooms changes the payload, so the hook stops the old subscription and starts a new
    one.

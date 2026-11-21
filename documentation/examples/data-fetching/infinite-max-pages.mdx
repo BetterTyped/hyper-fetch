@@ -20,6 +20,8 @@ A product list that loads more as you scroll, but never holds more than three pa
 dropped. Scroll back up and they are fetched again. The bar at the top shows which pages are loaded and how many
 requests were sent.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api, "src/use-in-view.ts": useInView }} />
+
 :::tip What it shows
 
 1. **`maxPages: 3`** on `useInfiniteFetch` keeps the list at three pages. Loading one at one end drops one at the other.
@@ -28,8 +30,6 @@ requests were sent.
 4. **Live status**: loaded page numbers, the visible item range and a request counter.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api, "src/use-in-view.ts": useInView }} />
 
 ---
 

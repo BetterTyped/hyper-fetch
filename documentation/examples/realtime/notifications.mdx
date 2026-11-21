@@ -20,6 +20,8 @@ A notification bell like the one in most web apps. A Hono server in the same Vit
 few seconds. The bell, the list and the tab title show the unread count, a click marks one as read, and the list keeps
 only the ten newest.
 
+<Example files={{ "src/App.tsx": app, "src/api.ts": api, "server/app.ts": server }} />
+
 :::tip What it shows
 
 1. **`useListener`** receives the `notification` events of a server-sent events stream.
@@ -29,8 +31,6 @@ only the ten newest.
 5. **Mark as read** changes the list at once and puts it back if the server refuses.
 
 :::
-
-<Example files={{ "src/App.tsx": app, "src/api.ts": api, "server/app.ts": server }} />
 
 ---
 

@@ -19,6 +19,8 @@ A product catalog with code-based TanStack Router routes. Route loaders put the 
 is slowed down on purpose: a hovered product opens at once, a cold one shows the pending screen. A panel lists the
 requests that reach the network.
 
+<Example files={{ "src/api.ts": api, "src/router.tsx": router }} />
+
 :::tip What it shows
 
 1. **Loaders fill the cache** with `send({ cachePolicy: "cache-first" })` and return nothing.
@@ -27,8 +29,6 @@ requests that reach the network.
 4. **Typed params**: `params.parse` turns `$productId` into a number for the loader and the component.
 
 :::
-
-<Example files={{ "src/api.ts": api, "src/router.tsx": router }} />
 
 ---
 

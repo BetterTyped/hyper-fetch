@@ -20,6 +20,15 @@ import config from "!!raw-loader!@examples/elysia/fullstack/vite.config.ts";
 A bookmarks app with an Elysia backend running on Node.js. The React client filters, adds and deletes bookmarks through
 an SDK typed from the Elysia routes: query params, payloads, responses, the `422` validation error and a custom `404`.
 
+<Example
+  files={{
+    "server/app.ts": server,
+    "vite.config.ts": config,
+    "src/api.ts": api,
+    "src/App.tsx": app,
+  }}
+/>
+
 :::tip What it shows
 
 1. **`ElysiaAppToHyperFetch`** turns the type of an Elysia app into a schema for `createSdk`, with no codegen.
@@ -30,15 +39,6 @@ an SDK typed from the Elysia routes: query params, payloads, responses, the `422
 4. **Elysia on Node.js** with `@elysiajs/node`, started next to Vite by one `npm run dev`.
 
 :::
-
-<Example
-  files={{
-    "server/app.ts": server,
-    "vite.config.ts": config,
-    "src/api.ts": api,
-    "src/App.tsx": app,
-  }}
-/>
 
 ---
 
@@ -57,12 +57,13 @@ an SDK typed from the Elysia routes: query params, payloads, responses, the `422
    In production, run the API alone with `npm run api` (`server/index.ts`) and build the client with `vite build`.
 3. `src/api.ts` imports `AppSchema` with `import type` and calls `createSdk<typeof client, AppSchema>(client)`. The
    `/api` prefix becomes `sdk.api`, so `sdk.api.bookmarks.$get` is `GET /api/bookmarks`.
-4. `App` reads the list with `useFetch(getBookmarks.setQueryParams({ tag: filter }))`. Passing a tag that is not `docs`
-   or `tools` does not compile, because the route's `query` schema says so.
+4. `App` reads the list with `useFetch(sdk.api.bookmarks.$get.setQueryParams({ tag: filter }))`. Passing a tag that is
+   not `docs` or `tools` does not compile, because the route's `query` schema says so.
 5. Submit the form with an empty title or a URL like `not-a-url`. The `body` schema fails, Elysia answers `422`, and the
    form shows `createError.summary`. A `"summary" in createError` check separates that body from a network error.
-6. `deleteBookmark.setParams({ bookmarkId }).send()` returns `status(404, { message })` as its typed error when the
-   bookmark is gone. After every change, `client.cache.invalidate(/\/api\/bookmarks/)` refreshes all cached filters.
+6. `sdk.api.bookmarks.$bookmarkId.$delete.setParams({ bookmarkId }).send()` returns `status(404, { message })` as its
+   typed error when the bookmark is gone. After every change, `client.cache.invalidate(/\/api\/bookmarks/)` refreshes
+   all cached filters.
 
 :::note When to use it
 

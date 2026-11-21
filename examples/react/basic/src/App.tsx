@@ -5,6 +5,7 @@ import { getPost, getPostComments, getPosts } from "./api";
 
 const PostList = ({ selected, onSelect }: { selected: number | null; onSelect: (id: number) => void }) => {
   // The request is sent on mount. Data, error and loading state come from the shared cache.
+  // `select` is a dummyjson query param: the API returns only these fields.
   const { data, error, loading, refetch } = useFetch(getPosts.setQueryParams({ limit: 10, select: "title" }));
 
   if (loading && !data) return <p aria-busy="true">Loading posts...</p>;

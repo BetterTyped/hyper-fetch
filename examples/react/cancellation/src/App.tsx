@@ -11,6 +11,7 @@ export const App = () => {
   const { data, error, loading, abort } = useFetch(
     searchProductsRequest.setQueryParams({
       q: query,
+      // `select` and `delay` are dummyjson query params: return only these fields, answer after `delay` ms.
       select: "title",
       limit: 5,
       delay: 1500,
