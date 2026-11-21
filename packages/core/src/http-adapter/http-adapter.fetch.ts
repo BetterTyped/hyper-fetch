@@ -4,7 +4,7 @@ import type { HttpMethodsType, HttpStatusType } from "types";
 
 import { Adapter } from "../adapter/adapter";
 import { defaultTimeout, xhrExtra } from "./http-adapter.constants";
-import type { HttpAdapterExtraType, FetchAdapterOptionsType } from "./http-adapter.types";
+import type { HttpAdapterExtraType, FetchAdapterOptionsType, FetchResponseType } from "./http-adapter.types";
 import { parseErrorResponse, parseResponse, stringifyQueryParams } from "./http-adapter.utils";
 
 const defaultExtra = xhrExtra;
@@ -22,6 +22,26 @@ const getBodySize = (body: unknown): number | undefined => {
     return new Blob([body.toString()]).size;
   }
   return undefined;
+};
+
+/**
+ * Body of a successful response in the shape picked with the `responseType` option
+ */
+const readResponseBody = (bytes: Uint8Array, responseType: FetchResponseType | undefined, contentType: string | null) => {
+  switch (responseType) {
+    case "arrayBuffer": {
+      return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+    }
+    case "blob": {
+      return new Blob([bytes as BlobPart], { type: contentType ?? "" });
+    }
+    case "text": {
+      return new TextDecoder().decode(bytes);
+    }
+    default: {
+      return parseResponse(new TextDecoder().decode(bytes));
+    }
+  }
 };
 
 export const getAdapter = () =>
@@ -75,7 +95,12 @@ export const getAdapter = () =>
         const fullUrl = `${url}${endpoint}${queryParams}`;
 
         const controller = getAbortController();
-        const { timeout: timeoutMs = defaultTimeout, streaming = false, ...restOptions } = adapterOptions || {};
+        const {
+          timeout: timeoutMs = defaultTimeout,
+          streaming = false,
+          responseType,
+          ...restOptions
+        } = adapterOptions || {};
 
         let timedOut = false;
         let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -145,7 +170,7 @@ export const getAdapter = () =>
               onError({ error, status, extra });
             }
           } else {
-            let body: string;
+            let bytes: Uint8Array;
 
             if (response.body && typeof response.body.getReader === "function") {
               const reader = response.body.getReader();
@@ -176,9 +201,9 @@ export const getAdapter = () =>
                 allChunks.set(chunk, position);
                 position += chunk.length;
               }
-              body = new TextDecoder().decode(allChunks);
+              bytes = allChunks;
             } else {
-              body = await response.text();
+              bytes = new Uint8Array(await response.arrayBuffer());
             }
 
             if (timeoutId) {
@@ -189,10 +214,10 @@ export const getAdapter = () =>
             unmountListener();
 
             if (response.ok) {
-              const data = parseResponse(body);
+              const data = readResponseBody(bytes, responseType, response.headers.get("content-type"));
               onSuccess({ data, status, extra });
             } else {
-              const error = parseErrorResponse(body);
+              const error = parseErrorResponse(new TextDecoder().decode(bytes));
               onError({ error, status, extra });
             }
           }

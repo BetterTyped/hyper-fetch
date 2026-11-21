@@ -21,6 +21,7 @@ type Echo = {
  * teardown) releases them, so nothing here depends on how fast the machine is.
  */
 describe("E2E [ Fetch adapter ]", () => {
+  const binaryData = Buffer.from(Array.from({ length: 256 }, (_, index) => index));
   const gzipData = Array.from({ length: 5000 }, (_, index) => ({ id: index, name: "compressible user name" }));
   let server: http.Server;
   let baseUrl = "";
@@ -92,6 +93,14 @@ describe("E2E [ Fetch adapter ]", () => {
       res.write('{"partial":');
       heldResponses.push(res);
       return received.resolve(res);
+    }
+    // Every byte value - not valid UTF-8, so decoding it as text corrupts it
+    if (pathname === "/binary") {
+      res.writeHead(200, { "Content-Type": "application/octet-stream", "Content-Length": String(binaryData.length) });
+      return res.end(binaryData);
+    }
+    if (pathname === "/binary-error") {
+      return sendJson(res, 404, { message: "File not found" });
     }
     // Compressed body - Content-Length tells the size of the compressed bytes, fetch reads the decompressed ones
     if (pathname === "/gzip") {
@@ -487,6 +496,67 @@ describe("E2E [ Fetch adapter ]", () => {
       const response = await get("/status/404").exec({});
 
       expect(response).toMatchObject({ success: false, status: 404, error: { status: 404 } });
+    });
+  });
+
+  describe("When choosing the response type", () => {
+    const getBinary = <Response>(endpoint: string, responseType: "blob" | "arrayBuffer" | "text" | "json") =>
+      createClient().createRequest<{ response: Response; error: { message: string } }>()({
+        endpoint,
+        options: { responseType },
+      });
+
+    it("should give the body as an ArrayBuffer without changing the bytes", async () => {
+      const { data } = await getBinary<ArrayBuffer>("/binary", "arrayBuffer").send();
+
+      expect(data).toBeInstanceOf(ArrayBuffer);
+      expect(Buffer.from(data!)).toStrictEqual(binaryData);
+    });
+
+    it("should give the body as a Blob with the content type of the response", async () => {
+      const { data } = await getBinary<Blob>("/binary", "blob").send();
+
+      expect(data).toBeInstanceOf(Blob);
+      expect(data!.type).toBe("application/octet-stream");
+      expect(Buffer.from(await data!.arrayBuffer())).toStrictEqual(binaryData);
+    });
+
+    it("should give a JSON body as text without parsing it", async () => {
+      const { data } = await getBinary<string>("/status/200", "text").send();
+
+      expect(data).toBe(JSON.stringify({ status: 200 }));
+    });
+
+    it("should parse a JSON body with the json response type", async () => {
+      const { data } = await getBinary<{ status: number }>("/status/200", "json").send();
+
+      expect(data).toStrictEqual({ status: 200 });
+    });
+
+    it("should parse the error body of a binary request", async () => {
+      const { data, error, status } = await getBinary<Blob>("/binary-error", "blob").send();
+
+      expect(data).toBeNull();
+      expect(status).toBe(404);
+      expect(error).toStrictEqual({ message: "File not found" });
+    });
+
+    it("should report the download progress of a binary body", async () => {
+      const progress: number[] = [];
+
+      await getBinary<ArrayBuffer>("/binary", "arrayBuffer").send({
+        onDownloadProgress: (event) => progress.push(event.progress),
+      });
+
+      expect(progress.at(-1)).toBe(100);
+    });
+
+    it("should not pass the response type to fetch", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+      await getBinary<ArrayBuffer>("/binary", "arrayBuffer").send();
+
+      expect(fetchSpy.mock.calls[0][1]).not.toHaveProperty("responseType");
     });
   });
 

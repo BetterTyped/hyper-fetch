@@ -354,7 +354,7 @@ type UpdateUserResult = RequestResponseType<typeof updateUser>; // { data: User 
 
 type Http = ExtractAdapterType<typeof updateUser>;
 type HttpMethod = ExtractAdapterMethodType<Http>; // "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "QUERY"
-type HttpOptions = ExtractAdapterOptionsType<Http>; // RequestInit fields + timeout + streaming
+type HttpOptions = ExtractAdapterOptionsType<Http>; // RequestInit fields + timeout + streaming + responseType
 type HttpStatus = ExtractAdapterStatusType<Http>; // number
 type HttpExtra = ExtractAdapterExtraType<Http>; // { headers: Record<string, string> }
 
