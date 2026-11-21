@@ -110,6 +110,9 @@ export class OpenapiRequestGenerator {
 
     const generatedTypes: string[] = [];
     const schemaTree: Record<string, any> = {};
+    // The SDK turns camelCase keys back into kebab-case segments - the keys for which it would give another segment
+    // than the one in the schema (`findByStatus`, `avatarImage`) are mapped to their segment
+    const pathSegments: Record<string, string> = {};
 
     getAvailableOperations(this.openapiDocument).forEach((operation) => {
       const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
@@ -135,6 +138,12 @@ export class OpenapiRequestGenerator {
           key = segment;
         }
 
+        const isParam = segment.startsWith(":");
+        const kebabCaseSegment = key.replaceAll(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+        if (!isParam && kebabCaseSegment !== segment && !Object.prototype.hasOwnProperty.call(pathSegments, key)) {
+          pathSegments[key] = segment;
+        }
+
         if (!currentLevel[key]) {
           currentLevel[key] = {};
         }
@@ -150,8 +159,14 @@ export class OpenapiRequestGenerator {
 
 export type { Components };
 
+/** URL segments of the keys which the SDK would not turn into the path of the schema */
+export const sdkPathSegments: Record<string, string> = ${JSON.stringify(pathSegments)};
+
 export const createSdk = <Client extends ClientInstance>(client: Client, options?: Parameters<typeof coreCreateSdk>[1] | undefined) => {
-  return coreCreateSdk<Client, SdkSchema>(client, options);
+  return coreCreateSdk<Client, SdkSchema>(client, {
+    ...options,
+    pathSegments: { ...sdkPathSegments, ...options?.pathSegments },
+  });
 };
 `;
 

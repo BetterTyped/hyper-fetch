@@ -79,6 +79,11 @@ npx @hyper-fetch/cli@latest generate --template openapi --url https://petstore3.
 This writes `petstore.sdk.ts` to the `api` directory configured in `api.json` (`src/api` by default). Each path becomes a
 nested key and each HTTP method a `$`-prefixed key on it, so `GET /store/inventory` is `sdk.store.inventory.$get`.
 
+Kebab-case segments become camelCase keys: `GET /user-profiles` is `sdk.userProfiles.$get`. Segments that are already
+camelCase keep their spelling in the url: `GET /pet/findByStatus` is `sdk.pet.findByStatus.$get` and calls
+`/pet/findByStatus`. The generated file exports these segments as `sdkPathSegments` and passes them to `createSdk` as
+the `pathSegments` option. Segments you pass yourself take precedence.
+
 Then to use generated SDK you can do the following:
 
 ```ts
