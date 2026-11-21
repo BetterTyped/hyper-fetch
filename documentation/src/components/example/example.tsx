@@ -3,16 +3,18 @@ import { cn } from "@site/src/lib/utils";
 import CodeBlock from "@theme/CodeBlock";
 import copy from "copy-text-to-clipboard";
 import { Check, Copy, ExternalLink, Github, Play } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import {
+  canEmbedStackblitz,
   getCodesandboxUrl,
   getDownloadCommand,
   getGithubUrl,
   getLanguage,
   getStackblitzEmbedUrl,
   getStackblitzUrl,
+  STACKBLITZ_IFRAME_ALLOW,
 } from "./example.utils";
 import { levelClassName, useExamples } from "./examples-catalog";
 
@@ -56,13 +58,23 @@ export const Example = ({ files, path: pathProp, file, height = 560 }: ExamplePr
   const [tab, setTab] = useState(openFile);
   const [running, setRunning] = useState(false);
   const [copied, setCopied] = useState(false);
+  // Whether the page is cross-origin isolated is known only in the browser, so it is read after the first render.
+  const [embeddable, setEmbeddable] = useState(false);
+
+  useEffect(() => setEmbeddable(canEmbedStackblitz()), []);
 
   if (!path) {
     throw new Error("<Example> needs `sidebar_custom_props.path` in the page front matter or a `path` prop.");
   }
 
   const command = getDownloadCommand(path);
+  const stackblitzUrl = getStackblitzUrl(path, openFile);
   const run = () => {
+    if (!canEmbedStackblitz()) {
+      // An embed would only show StackBlitz's isolation error, so run it on stackblitz.com instead.
+      window.open(stackblitzUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
     setRunning(true);
     setTab(PREVIEW_TAB);
   };
@@ -89,7 +101,7 @@ export const Example = ({ files, path: pathProp, file, height = 560 }: ExamplePr
         <Tabs value={tab} onValueChange={setTab}>
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800 px-3 py-2">
             <TabsList className="h-auto flex-wrap justify-start bg-transparent p-0">
-              <TabsTrigger value={PREVIEW_TAB} onClick={() => setRunning(true)} className="gap-1.5">
+              <TabsTrigger value={PREVIEW_TAB} onClick={() => setRunning(embeddable)} className="gap-1.5">
                 <Play className="size-3.5" aria-hidden /> Preview
               </TabsTrigger>
               {fileNames.map((name) => (
@@ -99,7 +111,7 @@ export const Example = ({ files, path: pathProp, file, height = 560 }: ExamplePr
               ))}
             </TabsList>
             <div className="flex flex-wrap items-center gap-2">
-              <a className={linkClassName} href={getStackblitzUrl(path, openFile)} target="_blank" rel="noreferrer">
+              <a className={linkClassName} href={stackblitzUrl} target="_blank" rel="noreferrer">
                 StackBlitz <ExternalLink className="size-3" aria-hidden />
               </a>
               <a className={linkClassName} href={getCodesandboxUrl(path, openFile)} target="_blank" rel="noreferrer">
@@ -118,7 +130,7 @@ export const Example = ({ files, path: pathProp, file, height = 560 }: ExamplePr
                   src={getStackblitzEmbedUrl(path, openFile)}
                   title={`HyperFetch example: ${path}`}
                   className="h-full w-full border-0"
-                  allow="clipboard-read; clipboard-write"
+                  allow={STACKBLITZ_IFRAME_ALLOW}
                 />
               ) : (
                 <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
@@ -128,10 +140,13 @@ export const Example = ({ files, path: pathProp, file, height = 560 }: ExamplePr
                     className="inline-flex cursor-pointer items-center gap-2 rounded-lg border-0 bg-yellow-500 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition-colors hover:bg-yellow-400"
                   >
                     <Play className="size-4" aria-hidden /> Run example
+                    {!embeddable && <ExternalLink className="size-4" aria-hidden />}
                   </button>
                   <p className="m-0 max-w-md text-sm text-zinc-400">
-                    Starts the example in StackBlitz, right in your browser. The first start installs packages and takes
-                    a few seconds.
+                    {embeddable
+                      ? "Starts the example in StackBlitz, right in your browser."
+                      : "Opens the example in StackBlitz in a new tab."}{" "}
+                    The first start installs packages and takes a few seconds.
                   </p>
                 </div>
               )}
