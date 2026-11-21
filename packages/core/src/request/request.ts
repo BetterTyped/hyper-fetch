@@ -27,6 +27,7 @@ import type {
   PayloadType,
   RequestJSON,
   RequestOptionsType,
+  RetryTimeType,
   RequestConfigurationType,
   PayloadMapperType,
   RequestInstance,
@@ -86,7 +87,7 @@ export class Request<
   options?: ClientAdapterOptions<Client> | undefined = undefined;
   cancelable: boolean;
   retry: number;
-  retryTime: number;
+  retryTime: RetryTimeType;
   cacheTime: number;
   cache: boolean;
   staleTime: number;
@@ -276,7 +277,7 @@ export class Request<
     return this.clone({ retry });
   };
 
-  /** Set the delay in milliseconds between retry attempts. */
+  /** Set the delay in milliseconds between retry attempts, or a function that returns it for each attempt. */
   public setRetryTime = (retryTime: ClientRequestOptions<Endpoint, Client>["retryTime"]) => {
     return this.clone({ retryTime });
   };

@@ -15,6 +15,7 @@ import type {
   RequestInstance,
   RequestJSON,
   RequestSendOptionsType,
+  RetryTimeFunctionType,
 } from "./request.types";
 
 type MappedResponse =
@@ -416,4 +417,43 @@ export const sendRequest = async <Request extends RequestInstance>(
       unmountRemoveQueueElement();
     }
   });
+};
+
+/** Above this exponent `min * 2 ** attempt` is past any sane maximum, and a larger one only risks Infinity */
+const MAX_BACKOFF_EXPONENT = 30;
+
+/**
+ * Retry time that grows exponentially with every attempt: `min * 2 ** attempt`, never above `max`. With `jitter` (the
+ * default) the delay is a random value from `min` up to that window, so the clients that failed together do not all
+ * retry at the same moment.
+ *
+ * @example
+ * client.createRequest()({ endpoint: "/users", retry: 5, retryTime: exponentialBackoff({ min: 500, max: 10_000 }) });
+ */
+export const exponentialBackoff = ({
+  min = 500,
+  max = 30_000,
+  jitter = true,
+  random = Math.random,
+}: {
+  /** Delay of the first retry in milliseconds. @default 500 */
+  min?: number;
+  /** Longest delay in milliseconds. @default 30000 */
+  max?: number;
+  /** Spread the delays randomly between `min` and the exponential window. @default true */
+  jitter?: boolean;
+  /** Source of the randomness, for deterministic tests. @default Math.random */
+  random?: () => number;
+} = {}): RetryTimeFunctionType => {
+  return ({ attempt }) => {
+    const floor = Math.max(0, min);
+    const exponent = Math.min(Math.max(0, attempt), MAX_BACKOFF_EXPONENT);
+    const exponential = floor * 2 ** exponent;
+
+    if (!jitter) {
+      return Math.min(max, exponential);
+    }
+    const window = Math.max(0, Math.min(max - floor, exponential));
+    return Math.round(floor + random() * window);
+  };
 };

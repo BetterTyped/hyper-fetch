@@ -56,8 +56,9 @@ const getFeed = client
   .setRetryOnError((response) => response.status === 0 || (response.status ?? 0) >= 500);
 ```
 
-- `retry` = extra attempts after the first (`retry: 3` means up to 4 calls). `retryTime` is a fixed delay (default 500
-  ms); there is no exponential backoff, so pick it per endpoint or compute it with a custom dispatcher.
+- `retry` = extra attempts after the first (`retry: 3` means up to 4 calls). `retryTime` is a delay in ms (default 500)
+  or a function `({ attempt, response }) => ms` (`attempt` from 0). `exponentialBackoff({ min, max, jitter })` from
+  `@hyper-fetch/core` builds one. A throwing function stops retrying; functions are lost in a persisted queue.
 - Every failure is retried by default, including 4xx. Use `setRetryOnError` to retry only transient errors; return
   `false` to stop. A throwing callback stops retrying.
 - Never retried: aborted/canceled requests, requests removed from the queue, failures while offline (they wait for the

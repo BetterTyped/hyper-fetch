@@ -178,7 +178,7 @@ export type RequestJSON<Request extends RequestInstance> = {
   auth: boolean;
   cancelable: boolean;
   retry: number;
-  retryTime: number;
+  retryTime: RetryTimeType;
   cacheTime: number;
   cache: boolean;
   staleTime: number;
@@ -206,6 +206,19 @@ export type RequestJSON<Request extends RequestInstance> = {
 };
 
 // Request
+
+/**
+ * Delay in milliseconds before a retry. The function form gets the `attempt` (0 for the first retry) and the failed
+ * `response`. A delay that is not a positive finite number retries right away. When the function throws, the request
+ * is not retried.
+ */
+export type RetryTimeType = number | RetryTimeFunctionType;
+
+/** Function form of the retry time - returns the delay in milliseconds before the retry `attempt` (from 0) */
+export type RetryTimeFunctionType = (options: {
+  attempt: number;
+  response: RequestResponseType<RequestInstance>;
+}) => number;
 
 /**
  * Configuration options for request creation
@@ -237,9 +250,11 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
    */
   retry?: number;
   /**
-   * Retry time delay between retries
+   * Delay in milliseconds before a retry, or a function that returns it for each attempt - for example
+   * `exponentialBackoff()`. A function is not kept when the request is serialized for a persistent queue.
+   * @default 500
    */
-  retryTime?: number;
+  retryTime?: RetryTimeType;
   /**
    * Should we trigger garbage collection or leave data in memory
    */

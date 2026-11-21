@@ -1,5 +1,5 @@
 import type { ClientInstance } from "client";
-import type { RequestInstance } from "request";
+import type { RequestInstance, RetryTimeType } from "request";
 import { Request } from "request";
 import type {
   ExtractEndpointType,
@@ -80,7 +80,7 @@ export type SdkRequestDefaults = {
   cacheTime?: number;
   staleTime?: number;
   retry?: number;
-  retryTime?: number;
+  retryTime?: RetryTimeType;
   cancelable?: boolean;
   queued?: boolean;
   offline?: boolean;

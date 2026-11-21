@@ -666,6 +666,24 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   };
 
   /**
+   * Delay of the next attempt from the `retryTime` of the request. The function form belongs to the user - when it
+   * throws, the request is not retried (`null`). Anything but a positive finite delay retries right away.
+   */
+  private getRetryDelay = (request: RequestInstance, attempt: number, response: RequestResponseType<any>) => {
+    const { retryTime } = request;
+    let delay: unknown = retryTime;
+    if (typeof retryTime === "function") {
+      try {
+        delay = retryTime({ attempt, response });
+      } catch (error) {
+        this.logger.error({ title: "The retryTime callback failed", type: "system", extra: { error, request } });
+        return null;
+      }
+    }
+    return typeof delay === "number" && Number.isFinite(delay) && delay > 0 ? delay : 0;
+  };
+
+  /**
    * Request can run for some time, once it's done, we have to check if it's successful or if it was aborted
    * It can be different once the previous call was set as cancelled and removed from queue before this request got resolved
    */
@@ -673,7 +691,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     const { request, requestId } = storageItem;
     this.logger.debug({ title: "Performing request", type: "system", extra: { request, requestId } });
 
-    const { retry, retryTime, queryKey: rawQueryKey, abortKey: rawAbortKey, offline, scope } = request;
+    const { retry, queryKey: rawQueryKey, abortKey: rawAbortKey, offline, scope } = request;
     const queryKey = scopeKey(rawQueryKey, scope);
     const abortKey = scopeKey(rawAbortKey, scope);
     const { adapter, requestManager, cache, appManager } = this.client;
@@ -741,7 +759,11 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       const isQueued = !!this.getRequest(queryKey, requestId);
       const canRetryResponse =
         !response.success && canRetry && isQueued && !isCanceled && !isOfflineResponseStatus && !isUnloadFailure;
-      const willRetry = canRetryResponse && this.getShouldRetryOnError(request, response);
+      const retryDelay =
+        canRetryResponse && this.getShouldRetryOnError(request, response)
+          ? this.getRetryDelay(request, storageItem.retries, response)
+          : null;
+      const willRetry = retryDelay !== null;
 
       const requestDetails: ResponseDetailsType = {
         isCanceled,
@@ -914,7 +936,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
           });
           // Let the queue go on when it was held by this request
           this.flushQueue(queryKey);
-        }, retryTime || 0);
+        }, retryDelay);
         this.retryTimers.set(requestId, retryTimer);
       } else {
         if (request.retry) {

@@ -334,7 +334,7 @@ refreshes the target once the last pending mutation on it settles. See
 | `auth`                    | `true`                                                     | runs `onAuth`                                 |
 | `cache`                   | `true`                                                     | ignored in `"server"` mode without `setScope` |
 | `cacheTime` / `staleTime` | `300000` ms each                                           | `Time.MIN * 5`                                |
-| `retry` / `retryTime`     | `0` / `500` ms                                             | fixed delay, no backoff                       |
+| `retry` / `retryTime`     | `0` / `500` ms                                             | delay or `exponentialBackoff()` function      |
 | `deduplicate`             | `true` for GET and QUERY on the HTTP adapter, else `false` |                                               |
 | `deduplicateTime`         | `null`                                                     | joins for the whole flight                    |
 | `cancelable` / `queued`   | `false` / `false`                                          |                                               |
