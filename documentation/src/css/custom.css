@@ -1483,9 +1483,12 @@ body {
   }
 
   /* Tailwind's `.container` grows to 1536px on wide screens, which stretches the text column far past a readable line. */
+  /* Kept next to the sidebar instead of centered, so wide screens add the spare room on the right. */
   .docs-wrapper main > .container {
     max-width: 1240px;
-    padding-left: 3rem;
+    margin-left: 0;
+    /* With the row's -16px margin and the column's 16px padding, this leaves the same 64px gap as before the TOC. */
+    padding-left: 4rem;
   }
 
   /* Room between the text and the table of contents. */
