@@ -22,14 +22,6 @@
     "@hyper-fetch/core": "*",
     "@hyper-fetch/sockets": "*"
   },
-  "peerDependenciesMeta": {
-    "@hyper-fetch/core": {
-      "optional": true
-    },
-    "@hyper-fetch/sockets": {
-      "optional": true
-    }
-  },
   "devDependencies": {
     "superjson": "2.2.1",
     "wait-for-expect": "^3.0.2",
