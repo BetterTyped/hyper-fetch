@@ -214,7 +214,7 @@ For Firestore data that several views read and that has to stay live, `firestore
 them current, as described in [DB with Firestore](/docs/db/firestore).
 
 ```tsx
-import { firestoreCollection } from "@hyper-fetch/firebase";
+import { firestoreCollection } from "@hyper-fetch/firebase/db";
 
 const Tea = firestoreCollection(TeaSchema, { client, socket, path: "teas", key: "id" });
 ```

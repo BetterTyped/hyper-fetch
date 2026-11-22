@@ -9,8 +9,9 @@ import { getRollupExternalsFromPackageJson } from "../../scripts/vite-lib-extern
 export default defineConfig({
   build: {
     lib: {
-      entry: "src/index.ts",
-      fileName: "index",
+      // `db` is its own entry: it loads the optional `@hyper-fetch/db`, which the main entry must never load
+      entry: { index: "src/index.ts", db: "src/db/index.ts" },
+      fileName: (_format, name) => `${name}.mjs`,
       formats: ["es"],
     },
     minify: false,

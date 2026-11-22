@@ -648,8 +648,8 @@ Every backend fills in the same declarations, so the planner treats them alike:
 | Live updates | syncs on socket listeners   | syncs on subscriptions      | the loader, `onSnapshot`   |
 | Writes       | `mutate` or `.resource()`   | mutations through `mutate`  | native, pending writes     |
 
-- **Firestore:** `firestoreCollection(PostSchema, { client, socket, path, key })` from `@hyper-fetch/firebase` declares
-  everything at once. Every operator maps to Firestore constraints, `onSnapshot` keeps every subset live through one
+- **Firestore:** `firestoreCollection(PostSchema, { client, socket, path, key })` from `@hyper-fetch/firebase/db` declares
+  everything at once. It is a subpath export, so the adapter's main entry never loads `@hyper-fetch/db`. Every operator maps to Firestore constraints, `onSnapshot` keeps every subset live through one
   `syncChanges` sync, a document is read by key with `getDoc` and kept live by a listener on that document, and writes
   go through `setDoc`, `updateDoc` and `deleteDoc`. Writes use Firestore's own pending writes and offline queue instead
   of an optimistic layer and the outbox. A query that falls inside a live subset is answered from its rows instead of

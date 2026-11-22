@@ -66,7 +66,12 @@ export type FirestoreMutations<Input, Row> = { insert: Input; update: Partial<Ro
  * Inserts need the key, because Firestore stores the document under it. Generate it on the client, for example with
  * `crypto.randomUUID()`.
  *
+ * Import it from `@hyper-fetch/firebase/db`. The main entry never loads `@hyper-fetch/db`, so apps without the db
+ * do not need it installed.
+ *
  * @example
+ * import { firestoreCollection } from "@hyper-fetch/firebase/db";
+ *
  * const Post = firestoreCollection(PostSchema, { client, socket, path: "posts", key: "id" });
  * const db = createDb({ post: Post });
  */

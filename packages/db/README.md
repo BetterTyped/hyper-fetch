@@ -39,7 +39,7 @@ places, or has to work offline.
 - 🧩 **REST resources in one line** - `.resource(sdk.posts, { item: "$postId" })` derives loaders and mutations
 - 🔗 **Related data** - Links keep a post and its summary in step, `normalize` stores nested records, joins batch-load
   them
-- 🔥 **Firestore in one call** - `firestoreCollection` from `@hyper-fetch/firebase` maps queries and stays live
+- 🔥 **Firestore in one call** - `firestoreCollection` from `@hyper-fetch/firebase/db` maps queries and stays live
 - ♾️ **Infinite lists that stay live** - `useLiveInfiniteQuery` pages over held rows and loads backend pages on demand
 - 🧾 **Transactions** - `db.transaction` keeps or reverts several writes together, as one request or in order
 - 🖥️ **Server rendering** - `db.dehydrate()` on the server, `createDb(collections, { state })` and `DbProvider` on the

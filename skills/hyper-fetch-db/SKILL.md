@@ -8,7 +8,7 @@ description:
   eq/gt/gte/lt/lte/inArray/and/or/not, op server-only operators), explain(), optimistic writes with mutate
   (insert/update/delete, onSuccess keep/refetch/sync), db.transaction with named mutationFn, dependsOn, offline outbox,
   persistence with codecs, tabs, dehydrate/state for server rendering, inspect/onChange for devtools, relayConnection
-  for GraphQL, firestoreCollection from @hyper-fetch/firebase, and useLiveQuery, useLiveInfiniteQuery, DbProvider and
+  for GraphQL, firestoreCollection from @hyper-fetch/firebase/db, and useLiveQuery, useLiveInfiniteQuery, DbProvider and
   useDb from @hyper-fetch/react. Use when code imports @hyper-fetch/db or calls collection, createDb, useLiveQuery, or
   when the task is normalized or shared client data, a list and detail that must stay in step, related records or joins,
   live updates from sockets or Firestore into lists, optimistic updates without rollback code, or offline writes.
@@ -232,7 +232,7 @@ Persistence and `dehydrate` store type-tagged JSON (Date, bigint, Map, Set survi
 ### Firestore
 
 ```ts
-import { firestoreCollection } from "@hyper-fetch/firebase";
+import { firestoreCollection } from "@hyper-fetch/firebase/db";
 
 const Post = firestoreCollection(PostSchema, { client, socket, path: "posts", key: "id" });
 ```

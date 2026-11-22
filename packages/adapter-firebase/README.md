@@ -129,7 +129,7 @@ const stop = onAdmins.listen(({ data }) => console.log(data.length, "admins"));
 
 ```ts
 import { createDb, eq } from "@hyper-fetch/db";
-import { firestoreCollection } from "@hyper-fetch/firebase";
+import { firestoreCollection } from "@hyper-fetch/firebase/db";
 
 const db = createDb({ post: firestoreCollection(PostSchema, { client, socket, path: "posts", key: "id" }) });
 

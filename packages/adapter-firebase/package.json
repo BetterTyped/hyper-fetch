@@ -9,6 +9,24 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./db": {
+      "types": "./dist/db/index.d.ts",
+      "default": "./dist/db.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "db": [
+        "./dist/db/index.d.ts"
+      ]
+    }
+  },
   "scripts": {
     "test": "firebase emulators:exec 'npx vitest run'",
     "coverage": "firebase emulators:exec 'npx vitest run --coverage'",
