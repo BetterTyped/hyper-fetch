@@ -52,9 +52,15 @@ describe("runDocsVersion", () => {
   });
 
   it("freezes the outgoing major from its last tag before a major release", async () => {
-    const io = createIo({ next: "10.0.0" });
+    const io = createIo({ next: "10.0.0", versions: ["v8.0.0"] });
     assert.equal(await runDocsVersion(io), 9);
-    assert.deepEqual(io.calls, ["snapshot:v9.8.0:v9.0.0", "write:v9.0.0,v8.0.0,v7.0.0"]);
+    assert.deepEqual(io.calls, ["snapshot:v9.8.0:v9.0.0", "write:v9.0.0,v8.0.0"]);
+  });
+
+  it("builds the current docs and only the two newest frozen majors", async () => {
+    const io = createIo({ next: "10.0.0", versions: ["v8.0.0", "v7.0.0"] });
+    assert.equal(await runDocsVersion(io), 9);
+    assert.deepEqual(io.calls, ["snapshot:v9.8.0:v9.0.0", "write:v9.0.0,v8.0.0"]);
   });
 
   it("does not freeze a major twice", async () => {
