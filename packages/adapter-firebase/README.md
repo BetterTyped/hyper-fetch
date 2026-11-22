@@ -36,6 +36,7 @@ hooks, the same API you use for HTTP. Live data comes through `@hyper-fetch/sock
 - 🛡️ **Errors you can render** - Permission and index errors arrive in `response.error`, and `send()` never throws
 - 🗂️ **Clean results** - Documents carry their id as `__key`, and Realtime Database lists come back as ordered arrays
 - 🧰 **Firestore and Realtime Database** - One adapter API for both, picked by the database you pass in
+- 🗃️ **Live db collections** - `firestoreCollection` gives `@hyper-fetch/db` a Firestore collection in one call
 
 ## 🚀 Quick Start
 
@@ -124,6 +125,17 @@ const onAdmins = socket
 const stop = onAdmins.listen(({ data }) => console.log(data.length, "admins"));
 ```
 
+### Live collections with @hyper-fetch/db
+
+```ts
+import { createDb, eq } from "@hyper-fetch/db";
+import { firestoreCollection } from "@hyper-fetch/firebase";
+
+const db = createDb({ post: firestoreCollection(PostSchema, { client, socket, path: "posts", key: "id" }) });
+
+const query = db.post.where((post) => eq(post.teamId, 1)); // a Firestore query, kept live by onSnapshot
+```
+
 ### Use with React
 
 ```tsx
@@ -151,6 +163,7 @@ One typed client for every backend. Swap the adapter and keep the same `createRe
     <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-hyper-fetch.svg" width="36" height="36" alt="" /><br /><sub><b>Core</b></sub></a></td>
     <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-react.svg" width="36" height="36" alt="" /><br /><sub><b>React</b></sub></a></td>
     <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-sockets.svg" width="36" height="36" alt="" /><br /><sub><b>Sockets</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/db"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-hyper-fetch.svg" width="36" height="36" alt="" /><br /><sub><b>DB</b></sub></a></td>
     <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/cli"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-openapi.svg" width="36" height="36" alt="" /><br /><sub><b>OpenAPI CLI</b></sub></a></td>
     <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-graphql"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-graphql.svg" width="36" height="36" alt="" /><br /><sub><b>GraphQL</b></sub></a></td>
     <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-trpc"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-trpc.svg" width="36" height="36" alt="" /><br /><sub><b>tRPC</b></sub></a></td>

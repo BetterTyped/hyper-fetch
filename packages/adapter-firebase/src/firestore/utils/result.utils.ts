@@ -9,13 +9,13 @@ export const getOrderedResultFirestore = (snapshot: QuerySnapshot<any>) => {
 };
 
 export const getGroupedResultFirestore = (snapshot: QuerySnapshot) => {
-  const groupedResult: { added: DocumentData[]; modified: DocumentData[]; removed: DocumentData[] } = {
+  const groupedResult: Record<"added" | "modified" | "removed", (DocumentData & { __key: string })[]> = {
     added: [],
     modified: [],
     removed: [],
   };
   snapshot.docChanges().forEach((change) => {
-    groupedResult[change.type].push(change.doc.data());
+    groupedResult[change.type].push({ ...change.doc.data(), __key: change.doc.id });
   });
   return [...groupedResult.added, ...groupedResult.modified, ...groupedResult.removed].length > 0
     ? groupedResult
