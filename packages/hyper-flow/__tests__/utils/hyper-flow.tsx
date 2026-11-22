@@ -1,6 +1,7 @@
 import type { ClientInstance } from "@hyper-fetch/core";
 import { createClient } from "@hyper-fetch/core";
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+import type { DevtoolsDb } from "@hyper-fetch/plugin-devtools";
 import type { SocketInstance } from "@hyper-fetch/sockets";
 import type { StartServer } from "@server/server";
 import { startServer } from "@server/server";
@@ -17,6 +18,7 @@ import { useApplications } from "@/store/applications/apps.store";
 import { useCacheStatsStore } from "@/store/applications/cache-stats.store";
 import { useCacheStore } from "@/store/applications/cache.store";
 import { useConnectionStore } from "@/store/applications/connection.store";
+import { useDbStore } from "@/store/applications/db.store";
 import { useErrorStatsStore } from "@/store/applications/error-stats.store";
 import { useInitializerStore } from "@/store/applications/initialization.store";
 import { useMethodStatsStore } from "@/store/applications/method-stats.store";
@@ -45,6 +47,7 @@ export const resetStores = () => {
   reset(useQueueStatsStore);
   reset(useQueueStore);
   reset(useSocketsStore);
+  reset(useDbStore);
   reset(useSettings);
   reset(useTracking);
   useConnectionStore.setState({ connections: {} });
@@ -141,15 +144,18 @@ export const createHyperFlowEnv = () => {
     client,
     environment,
     sockets,
+    dbs,
   }: {
     appName?: string;
     client?: Client;
     environment?: string;
     /** Sockets to inspect, passed to the plugin's `sockets` option */
     sockets?: SocketInstance[];
+    /** Dbs to inspect, passed to the plugin's `dbs` option */
+    dbs?: DevtoolsDb[];
   } = {}) => {
     const resolvedClient = (client ?? createClient({ url: "http://localhost:5000" })) as Client;
-    const plugin = DevtoolsPlugin({ appName, url: `ws://localhost:${port}`, environment, sockets });
+    const plugin = DevtoolsPlugin({ appName, url: `ws://localhost:${port}`, environment, sockets, dbs });
     resolvedClient.addPlugin(plugin);
 
     const app: ConnectedApp = {

@@ -1,7 +1,7 @@
 import type { LinkProps } from "@tanstack/react-router";
 import { Link, useParams } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
-import { Atom, Boxes, Earth, Home, AppWindow, Radio, Settings2 } from "lucide-react";
+import { AppWindow, Atom, Boxes, Database, Earth, Home, Radio, Settings2 } from "lucide-react";
 import * as React from "react";
 
 import logo from "../../../../assets/images/icon.png";
@@ -61,6 +61,13 @@ export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sid
       to: "/applications/$applicationName/sockets",
       params: { applicationName },
       icon: Radio,
+      isActive: false,
+    },
+    {
+      title: "DB",
+      to: "/applications/$applicationName/db",
+      params: { applicationName },
+      icon: Database,
       isActive: false,
     },
     {

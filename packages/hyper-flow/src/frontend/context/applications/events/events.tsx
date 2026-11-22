@@ -1,11 +1,17 @@
 import { useDidMount } from "@better-hooks/lifecycle";
-import type { DevtoolsObserversEventData, SocketEvents } from "@hyper-fetch/plugin-devtools";
+import type {
+  DbEvents,
+  DevtoolsDbEventData,
+  DevtoolsObserversEventData,
+  SocketEvents,
+} from "@hyper-fetch/plugin-devtools";
 import { CoreEvents, EventSourceType, InternalEvents, MessageOrigin, MessageType } from "@hyper-fetch/plugin-devtools";
 import { useEmitter, useListener } from "@hyper-fetch/react";
 import { memo, useEffect } from "react";
 
 import { useCacheStore } from "@/store/applications/cache.store";
 import { useConnectionStore } from "@/store/applications/connection.store";
+import { useDbStore } from "@/store/applications/db.store";
 import { useQueueStore } from "@/store/applications/queue.store";
 import { useSocketsStore } from "@/store/applications/sockets.store";
 
@@ -30,6 +36,10 @@ export const Events = memo(({ application }: { application: string }) => {
       }
       case EventSourceType.SOCKET: {
         useSocketsStore.getState().handleEvent(application, eventName as SocketEvents, eventData);
+        return;
+      }
+      case EventSourceType.DB: {
+        useDbStore.getState().handleEvent(application, eventName as DbEvents, eventData as DevtoolsDbEventData);
         return;
       }
       case EventSourceType.OBSERVERS: {
