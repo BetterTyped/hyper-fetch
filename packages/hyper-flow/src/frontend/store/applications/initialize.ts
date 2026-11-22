@@ -1,5 +1,6 @@
 import { useCacheStatsStore } from "./cache-stats.store";
 import { useCacheStore } from "./cache.store";
+import { useDbStore } from "./db.store";
 import { useErrorStatsStore } from "./error-stats.store";
 import { useInitializerStore } from "./initialization.store";
 import { useMethodStatsStore } from "./method-stats.store";
@@ -27,5 +28,6 @@ export const initializeApplicationStores = (application: string) => {
   useQueueStore.getState().initialize(application);
   useQueueStatsStore.getState().initialize(application);
   useSocketsStore.getState().initialize(application);
+  useDbStore.getState().initialize(application);
   useInitializerStore.getState().initialize(application);
 };

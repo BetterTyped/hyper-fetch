@@ -1,0 +1,118 @@
+---
+sidebar_position: 3
+title: DB Related Data
+sidebar_label: Related Data
+---
+
+# Related data
+
+> Records often show up in more than one shape and inside each other: a post and its summary, a post and its author. The
+> db keeps each shape in its own collection and connects them with links, normalizing and joins.
+
+:::tip Purpose
+
+1. **Links**: an edit to a post shows in its summary at once, optimistic changes included.
+2. **Normalize**: the author nested in a post response fills the `user` collection.
+3. **Joins**: each summary carries its author, loaded for the whole list in one request.
+
+:::
+
+---
+
+## Links
+
+A list that returns summaries is its own collection, so the same post lives in `post` and `postSummary`. A link tells the
+db that both hold the same records:
+
+```ts
+const db = createDb({ post: Post, postSummary: PostSummary }, { links: [["post", "postSummary"]] });
+
+// The summary in every list shows the new title at once
+await db.post.update(1, { title: "Renamed" });
+```
+
+- A write, delete or optimistic change to one collection changes the fields the other has, for the same key. When the
+  write fails, both revert.
+- A link never creates rows. An insert into `post` adds no summary, because summaries belong to the lists that load
+  them.
+- Fields one collection lacks are never copied into it, so a summary never gains `body`.
+- Links name collections of the db, so a typo does not compile.
+
+---
+
+## Normalize
+
+A response that nests other records can fill their collections too:
+
+```ts
+const User = collection(UserSchema, { key: "id" });
+
+const Post = collection(PostSchema, { key: "id" })
+  .load(getPost, { byKey: (id) => ({ params: { postId: id } }) })
+  .normalize(User, (post) => (post.author ? [post.author] : []));
+```
+
+- It runs on every complete write from the server: loads, inserts, ingested responses and mutation responses.
+- The nested rows must be complete rows of the target collection, or the collection does not compile.
+- The target is the collection itself, so renaming or removing it breaks the build. `createDb` throws when the db does
+  not hold it.
+- The nested object stays a field of the post. Read the current author through `user`, for example with a join.
+
+---
+
+## Joins
+
+A join adds the row of another collection whose key a field holds:
+
+```ts
+const query = db.postSummary
+  .where((post) => eq(post.teamId, teamId))
+  .join("author", db.user, (post) => post.authorId);
+
+const { data } = useLiveQuery(query);
+// data: (PostSummary & { author: User | undefined })[] | undefined
+```
+
+- It is a left join. `author` is `undefined` while the user is not loaded or when there is none, and the type says so.
+- The field's type must fit the joined collection's key, so joining a number field to a string key does not compile.
+- The db loads the joined rows through the joined collection's key loader. With `byKeys`, the authors of the whole list
+  arrive in one request.
+- A collection without a key loader joins the rows it holds, and a `local()` query never loads joined rows.
+- A change to a user updates every result that shows it, and a result that leaves the query releases its user.
+- A joined row loaded by key joins the syncs its own fields select: a post of team 1 follows team 1's events.
+- `join` works after `select`, `findOne` and other joins.
+
+### Inner and one-to-many joins
+
+Options go in an object, with the field as `by`:
+
+```ts
+// Only posts whose author the db holds
+db.postSummary.join("author", db.user, { by: (post) => post.authorId, type: "inner" });
+
+// Every comment of each post, as an array
+db.postSummary.join("comments", db.comment, { by: (post) => post.id, on: "postId" });
+```
+
+- `type: "inner"` leaves out results without a joined row, also while it loads, and types the row as present.
+- `on` matches a field of the joined collection instead of its key. Each result holds an array, empty when nothing
+  matches. The comments of the whole result load in one request, through a loader of `comment` that can send `inArray`
+  on `postId`. Without such a loader, the join reads the comments the db holds.
+
+:::note When to use what
+
+- Use **links** for the same record in two shapes, such as a detail and a summary.
+- Use **normalize** for records nested in a response that other views read on their own.
+- Use **joins** to show a related record next to each result.
+
+:::
+
+---
+
+:::secondary Summary
+
+- Links keep two shapes of the same record in step, optimistic changes included.
+- Normalize writes nested records into their own collections on every server write.
+- Joins add related rows to query results, loaded in one batch and kept live.
+
+:::

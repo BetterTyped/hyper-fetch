@@ -48,6 +48,7 @@
     "graphql": "^15.0.0 || ^16.0.0"
   },
   "devDependencies": {
+    "@hyper-fetch/db": "workspace:*",
     "abortcontroller-polyfill": "^1.7.5",
     "graphql": "^16.13.2",
     "graphql-tag": "^2.12.6",

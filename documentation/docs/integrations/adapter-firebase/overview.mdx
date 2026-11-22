@@ -207,6 +207,20 @@ const stop = onTeas.listen(({ data }) => render(data));
 
 ---
 
+## Collections
+
+For Firestore data that several views read and that has to stay live, `firestoreCollection` declares a
+[`@hyper-fetch/db`](/docs/db/overview) collection in one call. Queries become Firestore constraints and snapshots keep
+them current, as described in [DB with Firestore](/docs/db/firestore).
+
+```tsx
+import { firestoreCollection } from "@hyper-fetch/firebase/db";
+
+const Tea = firestoreCollection(TeaSchema, { client, socket, path: "teas", key: "id" });
+```
+
+---
+
 ## React
 
 Firebase requests and listeners work with the regular hooks.

@@ -1,0 +1,101 @@
+---
+sidebar_position: 2
+title: DB Quick Start
+sidebar_label: Quick Start
+---
+
+# Quick Start
+
+> From a request to a live query in four steps.
+
+---
+
+## Install
+
+```bash
+npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/db
+```
+
+---
+
+## 1. Define a collection
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+import { collection } from "@hyper-fetch/db";
+import { z } from "zod";
+
+const client = createClient({ url: "https://api.example.com" });
+
+const getTeamPosts = client.createRequest<{ response: Post[] }>()({
+  endpoint: "/teams/:teamId/posts",
+});
+const updatePost = client.createRequest<{
+  response: Post;
+  payload: Partial<Post>;
+}>()({
+  endpoint: "/posts/:postId",
+  method: "PATCH",
+});
+
+const PostSchema = z.object({
+  id: z.number(),
+  teamId: z.number(),
+  title: z.string(),
+  createdAt: z.string(),
+});
+type Post = z.infer<typeof PostSchema>;
+
+const Post = collection(PostSchema, { key: "id" })
+  .load(getTeamPosts, {
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
+  })
+  .mutate({
+    update: {
+      request: updatePost,
+      map: (key, changes) => ({ params: { postId: key }, payload: changes }),
+    },
+  });
+```
+
+---
+
+## 2. Create the db
+
+```ts
+import { createDb } from "@hyper-fetch/db";
+
+export const db = createDb({ post: Post });
+```
+
+---
+
+## 3. Query it
+
+```tsx
+import { eq } from "@hyper-fetch/db";
+import { useLiveQuery } from "@hyper-fetch/react";
+
+const Posts = ({ teamId }: { teamId: number }) => {
+  const { data, status } = useLiveQuery(
+    db.post
+      .where((post) => eq(post.teamId, teamId))
+      .orderBy((post) => post.createdAt, "desc"),
+  );
+
+  if (status !== "ready") return null;
+  return data.map((post) => <PostRow key={post.id} post={post} />);
+};
+```
+
+---
+
+## 4. Write to it
+
+```ts
+await db.post.update(1, { title: "Renamed" });
+```
+
+The change shows in every query at once and reverts if the request fails.

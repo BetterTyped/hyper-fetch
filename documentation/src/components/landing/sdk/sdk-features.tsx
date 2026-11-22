@@ -53,7 +53,7 @@ export const SdkFeatures = () => (
       <motion.div key={f.title} {...fadeUp(i)} className="group flex gap-4">
         <span className="relative flex size-12 shrink-0 items-center justify-center rounded-2xl border border-solid border-white/10 bg-gradient-to-b from-white/[0.07] to-white/[0.01] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-colors duration-300 group-hover:border-yellow-400/40">
           <span className="absolute inset-0 rounded-2xl bg-yellow-400/0 blur-md transition-colors duration-300 group-hover:bg-yellow-400/15" />
-          <f.icon className="relative size-5 text-yellow-400" />
+          <f.icon className="bt-gold-icon relative size-5" />
         </span>
         <div>
           <h4 className="!m-0 text-xl font-extrabold tracking-tight text-zinc-100">

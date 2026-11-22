@@ -24,6 +24,7 @@ export default defineConfig({
     alias: {
       "@hyper-fetch/core": path.resolve(__dirname, "../core/src/index.ts"),
       "@hyper-fetch/sockets": path.resolve(__dirname, "../sockets/src/index.ts"),
+      "@hyper-fetch/db": path.resolve(__dirname, "../db/src/index.ts"),
       "@hyper-fetch/testing": path.resolve(__dirname, "../testing/src/index.ts"),
     },
     coverage: {

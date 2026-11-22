@@ -121,7 +121,12 @@ export type FirestoreOnSnapshotExtra = {
   snapshot?: DocumentSnapshot | QuerySnapshot;
   unsubscribe?: FirestoreUnsubscribe;
   /** Grouped document changes when the listener has `groupByChangeType`, otherwise `null`. Collection listeners only. */
-  groupedResult: { added: DocumentData[]; modified: DocumentData[]; removed: DocumentData[] } | null;
+  /** Each document carries its id as `__key`, as in `data` */
+  groupedResult: {
+    added: (DocumentData & { __key: string })[];
+    modified: (DocumentData & { __key: string })[];
+    removed: (DocumentData & { __key: string })[];
+  } | null;
   /** `"emptyResource"` when the document is missing or the result list is empty. */
   status: FirestoreStatuses;
 };

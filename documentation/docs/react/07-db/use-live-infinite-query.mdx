@@ -1,0 +1,61 @@
+---
+sidebar_position: 2
+title: Infinite lists
+sidebar_label: useLiveInfiniteQuery
+---
+
+# useLiveInfiniteQuery
+
+> `useLiveInfiniteQuery` reads an ordered [`@hyper-fetch/db`](/docs/db/overview) query page by page. Each page shows
+> at once when the db already holds its rows, and the query's loader loads more only when the window runs past them.
+
+:::tip Purpose
+
+1. **Pages of any size**: the UI's `pageSize` is independent of the backend's page size.
+2. **Instant pages**: rows the db already holds show without a request.
+3. **Live windows**: inserts shift rows across pages, and deletes pull the next row in.
+
+:::
+
+---
+
+## Usage
+
+```tsx
+import { eq } from "@hyper-fetch/db";
+import { useLiveInfiniteQuery } from "@hyper-fetch/react";
+
+const { pages, data, hasNextPage, fetchNextPage, isFetchingNextPage, status } = useLiveInfiniteQuery(
+  db.post.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+  { pageSize: 20 },
+);
+```
+
+- The query must have `orderBy`, so a page never shifts between renders. Without it, the hook does not compile.
+- `data` holds the rows of every loaded page, and `pages` splits them into pages of `pageSize`.
+- `fetchNextPage()` widens the window by one page. Two calls at once load one page.
+- A cursor loader loads its next backend pages until the db holds one row past the window. A loader with `limit` and
+  no cursor is sent the window size plus one, and keeps showing the last window while the wider one loads. A loader
+  that is not paginated has loaded every row already.
+- A page that fails to load keeps the pages shown so far and sets `error`, and the next call tries again.
+- The same query keeps its loaded pages across renders. A different query or `pageSize` starts again from the first
+  page.
+- Outside React, `query.infinite({ pageSize })` returns the same window with `subscribe`, `getSnapshot` and
+  `fetchNextPage`.
+
+:::note When to use it
+
+- Feeds and long tables that grow as the user scrolls.
+- Lists that must stay live while pages are loaded.
+
+:::
+
+---
+
+:::secondary Summary
+
+- `useLiveInfiniteQuery(query, { pageSize })` shows an ordered query page by page.
+- Pages show at once from rows the db holds, and load from the backend only when needed.
+- The window stays live as rows are inserted and deleted.
+
+:::

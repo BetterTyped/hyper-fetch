@@ -247,6 +247,9 @@ export const onSnapshotTestSuite = (
         expect(afterRemoveExtra.groupedResult.added).toHaveLength(0);
         expect(afterRemoveExtra.groupedResult.modified).toHaveLength(0);
         expect(afterRemoveExtra.groupedResult.removed).toHaveLength(1);
+        // Removed documents carry their id, which is all a consumer has to match them
+        expect(afterAddExtra.groupedResult.added[0]).toHaveProperty("__key");
+        expect(afterRemoveExtra.groupedResult.removed[0]).toMatchObject({ __key: "1" });
       });
 
       unmount();

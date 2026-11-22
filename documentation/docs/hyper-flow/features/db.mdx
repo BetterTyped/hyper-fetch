@@ -1,0 +1,56 @@
+---
+sidebar_position: 6
+title: DB Inspector
+---
+
+# DB Inspector
+
+The DB Inspector shows what a [`@hyper-fetch/db`](/docs/db/overview) db holds: its collections, the subsets they
+loaded, the live queries with their plans, the pending optimistic writes and the outbox.
+
+:::tip Purpose
+
+1.  **See the plan**: every live query shows which loader serves it, what it sends and what runs on the client.
+2.  **See freshness**: each loaded subset shows whether it is fresh, live through syncs, loading or failed.
+3.  **See pending writes**: optimistic writes and the offline outbox are listed until they settle.
+
+:::
+
+---
+
+## Inspecting your db
+
+Pass the db to the devtools plugin of your client:
+
+```tsx
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+
+client.addPlugin(
+  DevtoolsPlugin({
+    appName: "My App",
+    // highlight-next-line
+    dbs: [db],
+  }),
+);
+```
+
+The plugin sends a snapshot whenever the db changes, at most once per tick, and one whenever HyperFlow connects.
+
+---
+
+## What it shows
+
+- **Collections** with their row count, loaded subsets and pending writes. Select a collection to list its subsets:
+  the loader that serves each, its rows, its state and how many queries read it.
+- **Live queries** with their status, row count, plan, the conditions sent and the ones run locally, the syncs that
+  keep them live, and their subscribers.
+- **Outbox** entries of an offline db, in replay order.
+
+Several dbs show as buttons above the collections.
+
+:::secondary Summary
+
+- Add `dbs: [db]` to the devtools plugin to inspect a db.
+- The DB page shows collections, subsets, live queries with their plans and the outbox.
+
+:::

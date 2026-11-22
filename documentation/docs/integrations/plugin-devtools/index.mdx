@@ -97,6 +97,12 @@ const client = new Client({ url: "http://localhost:3000" }).addPlugin(
 );
 ```
 
+## Inspecting dbs
+
+Pass your [`@hyper-fetch/db`](/docs/db/overview) dbs in the `dbs` option, as in `DevtoolsPlugin({ appName, dbs: [db] })`,
+to inspect their collections, loaded subsets, live queries and outbox. See the
+[DB Inspector](/docs/hyper-flow/features/db).
+
 ---
 
 ## Node.js backends

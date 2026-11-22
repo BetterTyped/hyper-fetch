@@ -24,7 +24,8 @@
     "readme:banners": "node ./scripts/readme-banners/render.mjs",
     "examples": "nx run-many --target=typecheck,build --parallel=3 --projects='@hyper-fetch-examples/*'",
     "test:examples": "node --test scripts/examples.test.mjs",
-    "test:skills": "node --test scripts/skills.test.mjs"
+    "test:skills": "node --test scripts/skills.test.mjs",
+    "test:packages": "node --test scripts/package-imports.test.mjs"
   },
   "dependencies": {
     "@nx/js": "22.6.5",

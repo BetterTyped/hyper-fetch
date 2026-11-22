@@ -1,0 +1,68 @@
+---
+sidebar_position: 6
+title: DB Transactions
+sidebar_label: Transactions
+---
+
+# Transactions
+
+> `db.transaction` groups writes to several rows and collections into one optimistic change, which is kept or
+> reverted as a whole.
+
+---
+
+## With one request
+
+Declare the request that sends a group of writes in `createDb`, and give it a name:
+
+```ts
+const db = createDb(collections, {
+  transactions: {
+    publish: {
+      mutationFn: ({ id, mutations }) => publishRequest.setPayload({ mutations, idempotencyKey: id }),
+    },
+  },
+});
+
+const result = await db.transaction("publish", (tx) => {
+  tx.post.update(postId, { status: "published" });
+  tx.notification.insert({ id: crypto.randomUUID(), postId });
+});
+```
+
+- `mutations` lists each write as `{ collection, op, key, values }`. The transaction id is an idempotency key.
+- Every write shows at once. On success the changes are kept; with `onSuccess: "refetch"` the lists holding them
+  reload first. On failure every write reverts.
+- The name, not the function, goes to the outbox, so an offline transaction replays after a restart. Names are typed.
+- Named transactions can write any collection, including ones that declare no `mutate`.
+
+---
+
+## Through each collection
+
+```ts
+await db.transaction((tx) => {
+  tx.post.update(1, { title: "One" });
+  tx.comment.insert(comment);
+});
+```
+
+- Each write goes through its collection's `mutate`, in order. When one fails, the writes after it revert, and the
+  lists holding rows already written refetch, because REST has no atomic batch.
+
+---
+
+## Rules
+
+- An insert needs its key, such as a UUID made on the client.
+- Writes are validated against their schemas first. An invalid write rejects the whole transaction before anything
+  shows.
+- Like every write, `db.transaction` resolves with `{ success, data, error }` and never rejects.
+
+:::secondary Summary
+
+- `db.transaction(name, callback)` sends the writes as one request through a `mutationFn` declared in `createDb`.
+- `db.transaction(callback)` sends them in order through each collection's `mutate`.
+- Either way they show at once and are kept or reverted together.
+
+:::

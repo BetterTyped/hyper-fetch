@@ -3693,6 +3693,9 @@ importers:
         specifier: workspace:*
         version: link:../sockets
     devDependencies:
+      '@hyper-fetch/db':
+        specifier: workspace:*
+        version: link:../db
       firebase:
         specifier: ^9.21.0
         version: 9.23.0(encoding@0.1.13)
@@ -3737,6 +3740,9 @@ importers:
         specifier: workspace:*
         version: link:../sockets
     devDependencies:
+      '@hyper-fetch/db':
+        specifier: workspace:*
+        version: link:../db
       abortcontroller-polyfill:
         specifier: ^1.7.5
         version: 1.7.8
@@ -3873,6 +3879,22 @@ importers:
       abortcontroller-polyfill:
         specifier: ^1.7.5
         version: 1.7.8
+
+  packages/db:
+    dependencies:
+      '@hyper-fetch/core':
+        specifier: workspace:*
+        version: link:../core
+      '@hyper-fetch/sockets':
+        specifier: workspace:*
+        version: link:../sockets
+    devDependencies:
+      ws:
+        specifier: ^8.18.0
+        version: 8.23.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      zod:
+        specifier: ^4.4.1
+        version: 4.6.7
 
   packages/elysia:
     dependencies:
@@ -4284,6 +4306,10 @@ importers:
       react:
         specifier: 19.2.5
         version: 19.2.5
+    devDependencies:
+      '@hyper-fetch/db':
+        specifier: workspace:*
+        version: link:../db
 
   packages/sockets:
     dependencies:

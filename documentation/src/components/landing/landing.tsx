@@ -14,6 +14,7 @@ import { Problems } from "./problems/problems";
 import { Production } from "./production/production";
 import { Sdk } from "./sdk/sdk";
 import { Sponsors } from "./sponsors/sponsors";
+import { GoldGradient } from "./shared/gold-gradient";
 import { WhatIs } from "./what-is/what-is";
 import "./landing.css";
 
@@ -49,6 +50,7 @@ export const Landing = () => {
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Head>
       <div className="landing-root relative z-10 w-[100vw] max-w-[100vw] overflow-x-hidden translate-y-[-88px]">
+        <GoldGradient />
         <Hero />
         <div className="landing-scope">
           <Clients />

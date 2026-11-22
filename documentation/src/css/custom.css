@@ -2541,3 +2541,19 @@ input[type="search"]::-webkit-search-results-decoration {
 .blog-list-page .margin-bottom--xl {
   @apply !mb-4;
 }
+
+/*
+ * The gold of the BetterTyped numbers, for the few accents that echo them: the hero's accent word, the
+ * bento numbers, the feature icons and the navbar version tag. Text takes the gradient through
+ * background-clip, icons through the SVG gradient `#bt-gold` that <GoldGradient /> defines on the landing.
+ */
+.bt-gold-text {
+  background-image: linear-gradient(to bottom, #ffe08a, #f5a623);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+}
+
+.bt-gold-icon {
+  stroke: url(#bt-gold);
+}

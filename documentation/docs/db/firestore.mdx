@@ -1,0 +1,92 @@
+---
+sidebar_position: 4
+title: DB Firestore
+sidebar_label: Firestore
+---
+
+# Firestore
+
+> `firestoreCollection` from `@hyper-fetch/firebase/db` declares a whole db collection for a Firestore collection in one
+> call: queries become Firestore constraints, snapshots keep every query live, and writes go through Firestore.
+
+:::tip Purpose
+
+1. **One call**: loaders, live updates and writes come from the collection's path, schema and key.
+2. **Every operator**: `eq`, `gt`, `gte`, `lt`, `lte` and `inArray` are sent as Firestore `where` constraints, and
+   `orderBy` as Firestore orders.
+3. **Live by default**: `onSnapshot` keeps every loaded query current.
+4. **Validated**: Firestore is schemaless, so every document from the server is checked against the schema.
+
+:::
+
+---
+
+## Setup
+
+```ts
+import { Client } from "@hyper-fetch/core";
+import { Socket } from "@hyper-fetch/sockets";
+import { createDb, and, eq, gt } from "@hyper-fetch/db";
+import { FirebaseAdapter, FirebaseSocketsAdapter } from "@hyper-fetch/firebase";
+import { firestoreCollection } from "@hyper-fetch/firebase/db";
+
+const client = new Client({ url: "" }).setAdapter(FirebaseAdapter(firestore));
+const socket = new Socket({ url: "", adapter: FirebaseSocketsAdapter(firestore) });
+
+const Post = firestoreCollection(PostSchema, { client, socket, path: "posts", key: "id" });
+
+export const db = createDb({ post: Post });
+```
+
+`key` is the row field that holds the document id. It must be a string field.
+
+---
+
+## Queries
+
+```ts
+const query = db.post
+  .where((post) => and(eq(post.teamId, 1), gt(post.likes, 10)))
+  .orderBy((post) => post.likes, "desc");
+
+query.explain(); // { kind: "list", loader: 0, local: [], ... }
+```
+
+- Conditions joined by a top-level `and` and every `orderBy` are sent to Firestore. `or` and `not` run on the rows the
+  db holds.
+- `db.post.findOne(id)` reads one document with `getDoc` and keeps it live with a listener on that document, never one
+  on the whole collection.
+- A query that falls inside a loaded query is answered from its rows instead of opening another listener.
+- A query that needs a composite index Firestore does not have fails with Firestore's error, which names the index.
+
+---
+
+## Writes
+
+```ts
+await db.post.insert({ id: crypto.randomUUID(), teamId: 1, title: "New", likes: 0 });
+await db.post.update(id, { title: "Renamed" });
+await db.post.delete(id);
+```
+
+- Writes use `setDoc`, `updateDoc` and `deleteDoc`. Firestore applies them locally and its snapshot shows them at once,
+  so the db adds no optimistic layer of its own and does not queue them in its outbox.
+- Inserts need the key, because Firestore stores the document under it.
+- Like every db write, they resolve with `{ success, data, error }` and never reject.
+
+:::note When to use it
+
+- Use it when components read Firestore data in several views and every view has to stay live.
+- Use the plain adapter requests when one screen reads its own data once.
+
+:::
+
+---
+
+:::secondary Summary
+
+- `firestoreCollection(schema, { client, socket, path, key })` declares loaders, live updates and writes.
+- Operators and orders are sent as Firestore constraints, and snapshots keep queries live.
+- Writes go through Firestore's own local writes and offline queue.
+
+:::

@@ -9,6 +9,24 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./db": {
+      "types": "./dist/db/index.d.ts",
+      "default": "./dist/db.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "db": [
+        "./dist/db/index.d.ts"
+      ]
+    }
+  },
   "scripts": {
     "test": "firebase emulators:exec 'npx vitest run'",
     "coverage": "firebase emulators:exec 'npx vitest run --coverage'",
@@ -34,11 +52,15 @@
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
+    "@hyper-fetch/db": "*",
     "@hyper-fetch/sockets": "*",
     "firebase": "*",
     "firebase-tools": "*"
   },
   "peerDependenciesMeta": {
+    "@hyper-fetch/db": {
+      "optional": true
+    },
     "firebase": {
       "optional": true
     },
@@ -47,6 +69,7 @@
     }
   },
   "devDependencies": {
+    "@hyper-fetch/db": "workspace:*",
     "firebase": "^9.21.0",
     "firebase-tools": "^11.23.1",
     "wait-for-expect": "^3.0.2"

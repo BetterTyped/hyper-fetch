@@ -62,6 +62,11 @@ packages/core/src/cache/
 
 React hooks add `<hook>.hooks.ts` and `<hook>.constants.ts` for default options. Create a file only when it has content.
 
+An optional peer is imported with `import type` only. npm never installs optional peers, so a value import in an entry
+point breaks everyone who skipped the peer, as soon as they import anything from the package. Code that needs an
+optional peer at runtime goes into its own subpath export, like `@hyper-fetch/firebase/db`. A peer the code always
+needs is a required peer. `pnpm test:packages` checks every built entry point.
+
 ## Self-review smells
 
 Scan your diff before finishing. Each is a judgement call, but be able to explain any that remain.

@@ -24,7 +24,29 @@ export enum EventSourceType {
   SOCKET = "socket",
   /** How many observers the application has, see `ObserverEvents` */
   OBSERVERS = "observers",
+  /** Snapshots of the `@hyper-fetch/db` dbs passed in the `dbs` option */
+  DB = "db",
 }
+
+/** What HyperFlow learns about the `@hyper-fetch/db` dbs it inspects */
+export enum DbEvents {
+  /** Everything the db holds: collections, subsets, live queries, optimistic layers and the outbox */
+  SNAPSHOT = "DB_SNAPSHOT",
+}
+
+/** A `@hyper-fetch/db` db, as the plugin reads it. It is a structural type, so the plugin does not depend on the db. */
+export type DevtoolsDb = {
+  inspect: () => unknown;
+  onChange: (listener: () => void) => () => void;
+};
+
+export type DevtoolsDbEventData = {
+  /** Identifies the db within the application */
+  dbId: string;
+  timestamp: number;
+  /** What `db.inspect()` returned */
+  inspection: unknown;
+};
 
 /** What happens to the sockets HyperFlow inspects */
 export enum SocketEvents {
