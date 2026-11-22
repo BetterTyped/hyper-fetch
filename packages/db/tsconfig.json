@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./dist",
+    "paths": {
+      "@hyper-fetch/db": ["./src"]
+    }
+  },
+  "include": ["src/**/*.ts", "../../global.d.ts"],
+  "exclude": ["node_modules", "dist", "vite.config.ts", "__tests__"]
+}

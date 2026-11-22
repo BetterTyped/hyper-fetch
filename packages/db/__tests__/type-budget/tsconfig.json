@@ -1,0 +1,4 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["budget.fixture.ts", "../../../../global.d.ts"]
+}

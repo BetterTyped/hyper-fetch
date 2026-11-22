@@ -100,6 +100,35 @@ onMessage
   .listen(({ data }) => render(data.author, data.text));`,
   },
   {
+    id: "db",
+    pkg: "@hyper-fetch/db",
+    logo: "integration-hyper-fetch.svg",
+    accent: "#f59e0b",
+    accentTo: "#22d3ee",
+    headline: ["One source of truth.", "Live by default."],
+    description:
+      "Typed collections fed by your requests and sockets, with live queries, optimistic writes and an offline outbox.",
+    chips: [
+      ["database", "Collections"],
+      ["zap", "Live queries"],
+      ["wifi-off", "Offline outbox"],
+      ["shield-check", "Strict rows"],
+    ],
+    file: "posts.ts",
+    language: "typescript",
+    code: `import { collection, createDb, eq } from "@hyper-fetch/db";
+
+const Post = collection(PostSchema, { key: "id" })
+  .resource(sdk.posts, { item: "$postId" })
+  .sync(onPostChanged, { type: "update" });
+
+const db = createDb({ post: Post });
+
+const { data } = useLiveQuery(
+  db.post.where((post) => eq(post.teamId, teamId)),
+);`,
+  },
+  {
     id: "cli",
     pkg: "@hyper-fetch/cli",
     logo: "integration-openapi.svg",
