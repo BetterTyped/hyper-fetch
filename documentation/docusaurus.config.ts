@@ -13,8 +13,9 @@ import llmsTxtPlugin from "./src/plugins/llms-txt";
 import docsVersions from "./versions.json";
 
 /**
- * `versions.json` lists the frozen majors, newest first. `pnpm docs:version` adds one before every major
- * release, so the docs in `docs/` are always the major after the newest frozen one.
+ * `versions.json` lists the frozen majors the site builds, newest first. `pnpm docs:version` adds one before
+ * every major release and keeps only the newest two, so the site builds three versions. The docs in `docs/`
+ * are always the major after the newest frozen one. Older snapshots stay in `versioned_docs` unbuilt.
  */
 const getVersions = () => {
   const [newestFrozen = "v0.0.0"] = docsVersions;

@@ -3,7 +3,8 @@ name: Version docs
 # A major release replaces the docs in `documentation/docs`. When a pull request would release a
 # major, this freezes the docs of the outgoing major (`pnpm docs:version`) and commits them to the
 # pull request, so they reach main together with the breaking change. The release refuses a major
-# whose outgoing docs are not frozen.
+# whose outgoing docs are not frozen. `versions.json` keeps the two newest frozen majors, so the
+# site builds three versions; older snapshots stay in the repository unbuilt.
 
 on:
   pull_request:

@@ -13,6 +13,10 @@
 // shipped with, API reference included. Docusaurus then serves it from `versioned_docs`, and the
 // current docs take the next major as their label (`getVersions` in docusaurus.config.ts).
 //
+// The site builds the current docs and the newest `BUILT_DOCS_VERSIONS` frozen majors. Freezing a
+// major takes the oldest one out of `versions.json`, which is all Docusaurus reads. Its snapshot
+// stays in `versioned_docs`, so it can go back into the build by adding it to the list again.
+//
 // The `Version docs` workflow runs this on every pull request to main and commits the snapshot to
 // the pull request that brings the breaking change. The release refuses a major without it.
 // ************************************************************
@@ -54,6 +58,9 @@ export const outgoingMajor = (tags, next) => {
   return majorOf(next) > majorOf(latest) ? majorOf(latest) : undefined;
 };
 
+/** How many frozen majors the site builds next to the current docs. */
+export const BUILT_DOCS_VERSIONS = 2;
+
 /** Newest first, the order Docusaurus reads `versions.json` in. */
 export const sortDocsVersions = (versions) =>
   [...new Set(versions)].sort((a, b) => compareVersions(parseVersion(b), parseVersion(a)));
@@ -81,8 +88,14 @@ export const runDocsVersion = async (io, { major, check = false } = {}) => {
   if (check) return target;
 
   io.snapshot(`v${tag}`, name);
-  io.writeVersions(sortDocsVersions([name, ...versions]));
+  const sorted = sortDocsVersions([name, ...versions]);
+  const built = sorted.slice(0, BUILT_DOCS_VERSIONS);
+  io.writeVersions(built);
   io.log(`Versioned the ${name} docs from v${tag}.`);
+  const dropped = sorted.slice(BUILT_DOCS_VERSIONS);
+  if (dropped.length > 0) {
+    io.log(`The site no longer builds ${dropped.join(", ")}. Their snapshots stay in versioned_docs.`);
+  }
   return target;
 };
 
