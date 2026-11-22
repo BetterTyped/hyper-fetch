@@ -1,5 +1,7 @@
 import type { SocketInstance } from "@hyper-fetch/sockets";
 
+import type { DevtoolsDb } from "./events.types";
+
 export type DevtoolsPluginOptions = {
   /**
    * Name of your application, it will be displayed in the HyperFlow app
@@ -32,4 +34,10 @@ export type DevtoolsPluginOptions = {
    * @example DevtoolsPlugin({ appName: "My App", sockets: [socket] })
    */
   sockets?: SocketInstance[];
+  /**
+   * `@hyper-fetch/db` dbs to inspect in HyperFlow: their collections, loaded subsets, live queries with their plans,
+   * optimistic layers and outbox.
+   * @example DevtoolsPlugin({ appName: "My App", dbs: [db] })
+   */
+  dbs?: DevtoolsDb[];
 };

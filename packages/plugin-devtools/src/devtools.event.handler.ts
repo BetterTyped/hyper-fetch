@@ -8,6 +8,7 @@ import type {
 import type { Emitter, Listener } from "@hyper-fetch/sockets";
 import { Socket } from "@hyper-fetch/sockets";
 
+import { createDbReporter } from "./devtools.db-reporter";
 import { createObserversReporter } from "./devtools.observers-reporter";
 import { createSocketReporter, getSocketIds } from "./devtools.socket-reporter";
 import { CoreEvents, EventSourceType, InternalEvents, ObserverEvents } from "./types/events.types";
@@ -38,6 +39,7 @@ export class DevtoolsEventHandler {
   environment: string;
   logger: LoggerMethods;
   socketReporters: ReturnType<typeof createSocketReporter>[] = [];
+  dbReporters: ReturnType<typeof createDbReporter>[] = [];
   observersReporter: ReturnType<typeof createObserversReporter>;
 
   constructor(
@@ -49,6 +51,7 @@ export class DevtoolsEventHandler {
       environment,
       WebSocket,
       sockets = [],
+      dbs = [],
     }: DevtoolsPluginOptions,
   ) {
     this.isConnected = false;
@@ -77,6 +80,19 @@ export class DevtoolsEventHandler {
         socketId: socketIds[index],
         report: (eventName, data) =>
           this.sendEvent({ eventSource: EventSourceType.SOCKET, eventName, data, isTriggeredExternally: false }),
+      }),
+    );
+
+    this.dbReporters = dbs.map((db, index) =>
+      createDbReporter({
+        db,
+        dbId: index === 0 ? "db" : `db #${index + 1}`,
+        report: (eventName, data) => {
+          // A snapshot replaces the previous one, so instead of queueing them HyperFlow gets one when it connects
+          if (this.isConnected && this.isInitialized) {
+            this.sendEvent({ eventSource: EventSourceType.DB, eventName, data, isTriggeredExternally: false });
+          }
+        },
       }),
     );
 
@@ -201,6 +217,7 @@ export class DevtoolsEventHandler {
             });
             // A reloaded HyperFlow knows nothing about the sockets, their events so far went to the previous one
             this.socketReporters.forEach((reporter) => reporter.sendSnapshot());
+            this.dbReporters.forEach((reporter) => reporter.sendSnapshot());
             this.observersReporter.sendSnapshot();
           } else {
             this.logger.error({
