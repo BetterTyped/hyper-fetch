@@ -73,7 +73,7 @@ html body {
 }
 
 :root {
-  --doc-sidebar-width: 235px !important;
+  --doc-sidebar-width: clamp(250px, 18vw, 270px) !important;
   --background: 240 10% 3.9%;
   --foreground: 0 0% 98%;
   --card: 240 10% 3.9%;
@@ -1480,6 +1480,17 @@ body {
 
   .docs-wrapper .main-wrapper {
     @apply px-6;
+  }
+
+  /* Tailwind's `.container` grows to 1536px on wide screens, which stretches the text column far past a readable line. */
+  .docs-wrapper main > .container {
+    max-width: 1240px;
+    padding-left: 3rem;
+  }
+
+  /* Room between the text and the table of contents. */
+  .docs-wrapper main .row > .col:not(.col--3) {
+    padding-right: 3rem;
   }
 
   .navbar--fixed-top {
