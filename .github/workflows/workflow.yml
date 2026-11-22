@@ -79,6 +79,8 @@ jobs:
         run: pnpm test:release
       - name: Check agent skills
         run: pnpm test:skills
+      - name: Check package entry points
+        run: pnpm test:packages
       - name: Check examples
         run: pnpm test:examples && pnpm examples
       - name: Send Report
