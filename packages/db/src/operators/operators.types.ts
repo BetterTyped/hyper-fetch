@@ -59,3 +59,9 @@ export type Condition<Tokens extends string = string, Eq extends string = string
 export type ExtractConditionTokens<C> = C extends Condition<infer Tokens, any> ? Tokens : never;
 
 export type ExtractConditionEq<C> = C extends Condition<any, infer Eq> ? Eq : never;
+
+/**
+ * Keeps a parameter out of type inference, so the field decides the type and the value is checked against it.
+ * TypeScript's own `NoInfer` needs 5.4, and the API docs and older consumers compile with earlier versions.
+ */
+export type NoInferValue<T> = [T][T extends unknown ? 0 : never];

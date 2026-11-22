@@ -178,8 +178,10 @@ export class ListSubset extends BaseSubset {
       return;
     }
     if (!result.success) {
+      // Read before the callback: TypeScript before 5.4 drops the narrowing of a `let` inside closures
+      const { error } = result;
       db.batch(() => {
-        this.error = result.error;
+        this.error = error;
         this.endLoad();
         this.collection.markSubsetChanged(this);
       });

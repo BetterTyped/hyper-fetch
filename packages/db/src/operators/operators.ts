@@ -5,6 +5,7 @@ import type {
   ExtractConditionTokens,
   FieldRef,
   LocalToken,
+  NoInferValue,
 } from "./operators.types";
 
 const comparison = (op: "eq" | "gt" | "gte" | "lt" | "lte" | "inArray", ref: FieldRef, value: unknown) => {
@@ -14,37 +15,37 @@ const comparison = (op: "eq" | "gt" | "gte" | "lt" | "lte" | "inArray", ref: Fie
 /** Matches rows whose field equals the value. Dates are equal when they are the same instant. */
 export const eq = <Name extends string, Value>(
   ref: FieldRef<Name, Value>,
-  value: NoInfer<Value>,
+  value: NoInferValue<Value>,
 ): Condition<`${Name}:eq`, Name> => comparison("eq", ref, value);
 
 /** Matches rows whose field is greater than the value */
 export const gt = <Name extends string, Value extends ComparableValue | null | undefined>(
   ref: FieldRef<Name, Value>,
-  value: NoInfer<NonNullable<Value>>,
+  value: NoInferValue<NonNullable<Value>>,
 ): Condition<`${Name}:gt`, never> => comparison("gt", ref, value);
 
 /** Matches rows whose field is greater than or equal to the value */
 export const gte = <Name extends string, Value extends ComparableValue | null | undefined>(
   ref: FieldRef<Name, Value>,
-  value: NoInfer<NonNullable<Value>>,
+  value: NoInferValue<NonNullable<Value>>,
 ): Condition<`${Name}:gte`, never> => comparison("gte", ref, value);
 
 /** Matches rows whose field is less than the value */
 export const lt = <Name extends string, Value extends ComparableValue | null | undefined>(
   ref: FieldRef<Name, Value>,
-  value: NoInfer<NonNullable<Value>>,
+  value: NoInferValue<NonNullable<Value>>,
 ): Condition<`${Name}:lt`, never> => comparison("lt", ref, value);
 
 /** Matches rows whose field is less than or equal to the value */
 export const lte = <Name extends string, Value extends ComparableValue | null | undefined>(
   ref: FieldRef<Name, Value>,
-  value: NoInfer<NonNullable<Value>>,
+  value: NoInferValue<NonNullable<Value>>,
 ): Condition<`${Name}:lte`, never> => comparison("lte", ref, value);
 
 /** Matches rows whose field equals one of the values */
 export const inArray = <Name extends string, Value>(
   ref: FieldRef<Name, Value>,
-  values: readonly NoInfer<Value>[],
+  values: readonly NoInferValue<Value>[],
 ): Condition<`${Name}:inArray`, never> => comparison("inArray", ref, values);
 
 /**

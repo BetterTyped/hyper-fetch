@@ -27,7 +27,7 @@
     "build": "vite build",
     "lint": "oxlint .",
     "format": "oxfmt --write .",
-    "typecheck": "tsgo --noEmit --emitDeclarationOnly false && tsgo --noEmit -p __tests__/tsconfig.json && node scripts/type-budget.mjs",
+    "typecheck": "tsgo --noEmit --emitDeclarationOnly false && tsgo --noEmit -p __tests__/tsconfig.json && node scripts/type-budget.mjs && node scripts/docs-typescript.mjs",
     "tests": "pnpm lint-staged"
   },
   "publishConfig": {
