@@ -3,16 +3,27 @@ import { replaceEqualDeep, stringifyKey } from "@hyper-fetch/core";
 import type {
   ExtractListenerDeliveredType,
   ListenerEndType,
+  ListenerDeliveryType,
   ListenerInstance,
   ListenerLifecycleOptionsType,
   ListenerRequiresPayload,
 } from "@hyper-fetch/sockets";
-import { getDeliveryKey } from "@hyper-fetch/sockets";
 import { useSocketState } from "helpers";
 import type { ListenerStatusType, UseListenerOptionsType } from "hooks/use-listener";
 import { useProvider } from "provider";
 import { useRef } from "react";
 import { createTrackedProxy } from "utils";
+
+/**
+ * The effect key of a listener's delivery: presets compare by value, custom strategies by identity. It mirrors
+ * `getDeliveryKey` from `@hyper-fetch/sockets`, which this package must not import as a value: sockets is an
+ * optional peer, so a value import would break every app that installs `@hyper-fetch/react` without it.
+ */
+const getDeliveryKey = (delivery?: ListenerDeliveryType) => {
+  if (!delivery) return "";
+  if (typeof delivery === "function") return delivery;
+  return JSON.stringify(delivery);
+};
 
 /** A listener whose subscription payload is required has to get it with `setPayload()` before it is passed */
 type ListenerWithPayloadType<ListenerType extends ListenerInstance> =
