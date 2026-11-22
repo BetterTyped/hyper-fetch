@@ -32,10 +32,14 @@
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
+    "@hyper-fetch/db": "*",
     "@hyper-fetch/sockets": "*",
     "react": ">= 18.0.0"
   },
   "peerDependenciesMeta": {
+    "@hyper-fetch/db": {
+      "optional": true
+    },
     "@hyper-fetch/sockets": {
       "optional": true
     }
@@ -43,6 +47,9 @@
   "dependencies": {
     "@better-hooks/lifecycle": "^2.0.0",
     "@better-hooks/performance": "^2.1.0"
+  },
+  "devDependencies": {
+    "@hyper-fetch/db": "workspace:*"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
