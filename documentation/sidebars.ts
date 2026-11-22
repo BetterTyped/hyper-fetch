@@ -1,3 +1,5 @@
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 import type { SidebarsConfig } from "@docusaurus/plugin-content-docs";
 
 import { apiOverviewSection } from "./src/apis";
@@ -25,6 +27,17 @@ modules.some((section) => {
     return false;
   });
 });
+
+// Detect docs folders that no section points to: their pages get no sidebar and cannot be reached
+const NON_SECTION_DIRS = ["api", "guides", "integrations"];
+const sectionDirs = new Set(modules.map((section) => section.dir));
+const orphanDirs = readdirSync(join(__dirname, "docs"), { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && !NON_SECTION_DIRS.includes(entry.name))
+  .map((entry) => entry.name)
+  .filter((name) => !sectionDirs.has(name));
+if (orphanDirs.length) {
+  throw new Error(`Docs folders without a section in src/modules.ts: ${orphanDirs.join(", ")}`);
+}
 
 const sidebars: SidebarsConfig = {
   // Docs
