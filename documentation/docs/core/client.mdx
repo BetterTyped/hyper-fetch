@@ -1,12 +1,13 @@
 ---
 sidebar_position: 3
 title: Client
+description: "The Client holds your base URL, adapter, cache, dispatchers and interceptors. Create one per API and build every request from it."
 sidebar_label: Client
 ---
 
 [Read the API Reference »](/docs/api/core/Classes/Client.mdx)
 
-**`Client`** is the central class for configuring your server connection in Hyper Fetch. It initializes all core
+**`Client`** is the central class for configuring your server connection in HyperFetch. It initializes all core
 subsystems—such as queues, cache, and interceptors—and provides a unified way to create and manage requests based on its
 configuration. By keeping all data and logic encapsulated within a single client instance, you ensure that each client
 remains isolated and independent from others.
@@ -305,7 +306,7 @@ Always scope to the current user/session context in server environments.
 6. ### Plugins
 
 Plugins are a powerful feature that allows you to extend the functionality of the client. They can be used to listen to
-the events happening inside of the Hyper Fetch.
+the events happening inside of the HyperFetch.
 
 :::caution Debug mode required for logging
 

@@ -1,13 +1,18 @@
 ---
 sidebar_position: 2
-title: tRPC Subscriptions
+title: tRPC Subscriptions over WebSocket and SSE
+description: Listen to tRPC subscriptions over WebSocket or Server-Sent Events with typed listeners, shared inputs, tracked events and React hooks.
 sidebar_label: Subscriptions
 ---
 
+# tRPC subscriptions over WebSocket and SSE
+
 [Read the API Reference »](/docs/api/adapter-trpc/Functions/TrpcWebsocketAdapter.mdx)
 
-> The tRPC socket adapters connect a HyperFetch `Socket` to tRPC subscriptions, over WebSocket or Server-Sent Events.
-> Subscription procedures become typed listeners, with the procedure input as the payload.
+A tRPC subscription is a procedure that keeps sending events after the client calls it, for example new chat messages
+or job progress. tRPC subscriptions run over a websocket with `wsLink` or over Server-Sent Events with
+`httpSubscriptionLink`. The HyperFetch socket adapters speak both protocols, so each subscription procedure becomes a
+typed listener on a `Socket`, with the procedure input as the payload.
 
 :::tip Purpose
 
@@ -19,6 +24,20 @@ sidebar_label: Subscriptions
 5. **Support transformers** such as `superjson`.
 
 :::
+
+---
+
+## How tRPC subscriptions work
+
+On the server, a subscription procedure is an async generator. Each `yield` sends one event to the client, and the
+`signal` it receives aborts when the client unsubscribes. Wrapping an event in `tracked(id, data)`
+gives it an id, so a client that reconnects can pass the last id back as `lastEventId` and the server resumes from there
+instead of replaying everything.
+
+On the client, tRPC's own links open the connection: `wsLink` for a websocket and `httpSubscriptionLink` for SSE. The
+adapters on this page replace those links. `TrpcWebsocketAdapter` speaks the `wsLink` protocol and `TrpcSseAdapter`
+speaks the `httpSubscriptionLink` protocol, so the server needs no changes. Which one to pick is covered under
+[Server-Sent Events](#server-sent-events).
 
 ---
 

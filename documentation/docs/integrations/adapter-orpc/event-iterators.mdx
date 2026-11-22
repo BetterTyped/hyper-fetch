@@ -1,14 +1,18 @@
 ---
 sidebar_position: 2
-title: oRPC Event Iterators
+title: oRPC Event Iterators and Streaming in React
+description: Stream oRPC event iterators into React over an HTTP event stream or a WebSocket, with typed listeners, shared inputs and resume after reconnect.
 sidebar_label: Event Iterators
 ---
 
+# oRPC event iterators and streaming in React
+
 [Read the API Reference »](/docs/api/adapter-orpc/Functions/OrpcStreamAdapter.mdx)
 
-> The oRPC socket adapters connect a HyperFetch `Socket` to procedures that return an event iterator, over an HTTP event
-> stream or a WebSocket. Every event iterator procedure becomes a typed listener, with the procedure input as the
-> payload.
+An oRPC event iterator is a procedure that returns an async generator, so the server can keep sending events after one
+call: chat messages, job progress or tokens from a model. The oRPC client for HyperFetch turns each event iterator
+procedure into a typed listener on a `Socket`, over an HTTP event stream or a WebSocket, with the procedure input as
+the payload. In React, `useListener` gives you every event as it arrives.
 
 :::tip Purpose
 

@@ -22,8 +22,8 @@ one line here in the same change.
   (`"none"`) or a success with partial data and the errors in `extra.errors` (`"all"`).
 - **Mapper**: a function that transforms a request before sending or a response after receiving.
 - **Mock**: a handler attached with `request.setMock()` that replaces the adapter for that request instance.
-- **SDK schema**: the nested type `createSdk` reads, with `$method` keys holding a `Request`. `HonoAppToHyperFetch` in
-  `@hyper-fetch/hono` derives one from a Hono app type, and `ElysiaAppToHyperFetch` in `@hyper-fetch/elysia` from an
+- **SDK schema**: the nested type `createSdk` reads, with `$method` keys holding a `Request`. `HonoSchema` in
+  `@hyper-fetch/hono` derives one from a Hono app type, and `ElysiaSchema` in `@hyper-fetch/elysia` from an
   Elysia app type.
 
 ## Execution

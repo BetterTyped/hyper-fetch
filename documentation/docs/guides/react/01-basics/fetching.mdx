@@ -1,23 +1,77 @@
 ---
 sidebar_position: 1
-title: Fetching Data with useFetch
+title: Fetching Data in React with the Fetch API and useFetch
+description: Fetching data in React with the fetch API and useEffect, the problems it leaves you with, and the useFetch hook that handles loading, errors and caching.
 sidebar_label: Fetching
 ---
 
-# Fetching Data
+# Fetching Data in React
 
-The primary way to fetch data in a React application with Hyper-fetch is by using the `useFetch` hook. It's designed to
-handle everything you need for data fetching: loading states, error handling, and of course, the data itself. This hook
-simplifies your component logic by abstracting away the complexities of making and managing API requests.
+Fetching data in React usually starts with the Fetch API inside `useEffect`. That works for a demo, and then the
+same questions come up in every component: where do loading and error state live, what happens when the user switches
+pages before the response arrives, and why does the same request fire twice? This guide shows the plain version first,
+then the `useFetch` hook from HyperFetch, which handles loading state, errors, caching and stale responses for you.
 
 :::secondary What you'll learn
 
-1.  How to use the **`useFetch` hook** to fetch data from an API.
-2.  How to handle **loading** and **error states** in your components.
-3.  How to pass **parameters** to your requests.
-4.  What are the **main values** returned by the `useFetch` hook.
+1.  How to fetch data with the **fetch API in React**, and where it falls short.
+2.  How to use the **`useFetch` hook** to fetch data from an API.
+3.  How to handle **loading** and **error states** in your components.
+4.  How to pass **parameters** to your requests.
+5.  What are the **main values** returned by the `useFetch` hook.
+6.  How `useFetch` compares to React Query's **`useQuery`**.
 
 :::
+
+---
+
+## The fetch API in React
+
+Here is a typical React fetch with `useEffect`:
+
+```tsx
+type User = { id: number; name: string };
+
+function UserList() {
+  const [users, setUsers] = React.useState<User[] | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<Error | null>(null);
+
+  React.useEffect(() => {
+    const controller = new AbortController();
+
+    fetch("/api/users", { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then(setUsers)
+      .catch((err) => {
+        if (err.name !== "AbortError") setError(err);
+      })
+      .finally(() => setLoading(false));
+
+    return () => controller.abort();
+  }, []);
+
+  // render loading, error, users...
+}
+```
+
+Even this careful version leaves gaps:
+
+- **No cache.** Every component that needs users fetches them again, and navigating back shows a spinner again.
+- **No sharing.** Two components mounting at once send two requests. React's Strict Mode also runs the effect twice in
+  development.
+- **`fetch` doesn't fail on HTTP errors.** A `404` or `500` resolves normally, so you have to check `response.ok`
+  yourself.
+- **No types.** `response.json()` returns `any`.
+- **No retries, refetch on focus, or refetch after a mutation.** Each one is more code in every component.
+
+A data-fetching hook moves all of that out of the component. In HyperFetch that hook is `useFetch`. You describe the
+request once, and every component that uses it shares the same cache and the same in-flight request.
+
+---
 
 ## Basic Usage
 
@@ -96,7 +150,7 @@ function UserProfile() {
 }
 ```
 
-The `useFetch` hook will automatically re-fetch the data whenever the `userId` state changes because Hyper-fetch tracks
+The `useFetch` hook will automatically re-fetch the data whenever the `userId` state changes because HyperFetch tracks
 the dependencies of your request.
 
 ---
@@ -109,7 +163,7 @@ The `useFetch` hook returns a rich set of values beyond just `data`, `loading`, 
 const {
   data,               // The response data (typed)
   error,              // The error object if the request failed
-  loading,            // Whether the request is in progress
+  loading,            // Whether the request is in progress (stays true between retries)
   success,            // Whether the last request was successful
   status,             // HTTP status code
   extra,              // Adapter-specific extra data (e.g. response headers)
@@ -158,6 +212,30 @@ Key options include:
 
 ---
 
+## useFetch and useQuery
+
+If you've used React Query, `useFetch` is the equivalent of
+[`useQuery`](https://tanstack.com/query/latest/docs/framework/react/guides/queries). `useQuery` takes a `queryKey` and a
+`queryFn` you write. `useFetch` takes a request object, and the cache key comes from the request's method, endpoint,
+params and query params, so there is no key to keep in sync by hand.
+
+| React Query `useQuery`                    | HyperFetch `useFetch`                          |
+| ----------------------------------------- | ----------------------------------------------- |
+| `useQuery({ queryKey, queryFn })`         | `useFetch(getUsers)`                            |
+| `queryKey: ["user", id]`                  | `getUser.setParams({ userId: id })`             |
+| `isPending`                               | `loading`                                       |
+| `data`, `error`                           | `data`, `error`                                 |
+| `enabled: false`                          | `disabled: true`                                |
+| `refetch()`                               | `refetch()`                                     |
+| `queryClient.invalidateQueries(...)`      | `client.cache.invalidate(...)`                  |
+
+For writes, the counterpart of `useMutation` is `useSubmit`, covered in
+[mutations in React with useSubmit](./submitting.mdx). For lists that grow while scrolling, see
+[infinite scroll](./infinite-scroll.mdx). To understand when cached data gets refreshed, see
+[cache invalidation](../../core/02-advanced/cache-revalidation.mdx).
+
+---
+
 :::success Congratulations!
 
 You've learned the basics of fetching data with `useFetch`!
@@ -165,6 +243,6 @@ You've learned the basics of fetching data with `useFetch`!
 - You can fetch **lists of data** and **single items** with parameters.
 - You can handle **loading** and **error states** to provide a better user experience.
 - You understand how `useFetch` **automatically re-fetches** when request parameters change.
-- You are ready to explore more advanced features of the [`useFetch` hook](/docs/react/hooks/use-fetch).
+- You are ready to explore more advanced features of the [`useFetch` hook](../../../react/04-hooks/use-fetch.mdx).
 
 :::

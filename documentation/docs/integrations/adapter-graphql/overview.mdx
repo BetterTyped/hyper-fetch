@@ -1,23 +1,68 @@
 ---
 sidebar_position: 1
-title: GraphQL Adapter
+title: GraphQL and React with a Typed GraphQL Client
+description: Use GraphQL and React with a typed client. Queries, mutations and subscriptions with caching, hooks, persisted queries, as an Apollo Client alternative.
 sidebar_label: Overview
 ---
 
+# GraphQL and React with a typed GraphQL client
+
 [Read the API Reference »](/docs/api/adapter-graphql/Functions/GraphqlAdapter.mdx)
 
-> The Hyper Fetch GraphQL package integrates GraphQL with Hyper Fetch: queries and mutations over HTTP with the
-> `GraphqlAdapter`, and subscriptions over WebSocket with the `GraphqlWsAdapter`.
+Using graphql and react together comes down to one choice: which client sends the operations and keeps the results.
+`@hyper-fetch/graphql` is that client for HyperFetch. Queries and mutations go over HTTP with the `GraphqlAdapter`,
+subscriptions go over WebSocket with the `GraphqlWsAdapter`, and React components read them through the same
+`useFetch`, `useSubmit` and `useListener` hooks you use for REST.
 
 :::tip Purpose
 
-1. **Simplify GraphQL integration** in both server and browser environments.
-2. **Provide a type-safe way** to handle GraphQL operations.
-3. **Offer seamless integration** with the Hyper Fetch ecosystem.
-4. **Support queries, mutations and subscriptions** with a consistent API -
-   [subscriptions](/docs/integrations/adapter-graphql/subscriptions.mdx) use the `graphql-transport-ws` protocol.
+1. **Send GraphQL operations** from the browser or the server with one request API.
+2. **Type every operation** with generics or with typed documents from GraphQL Code Generator or gql.tada.
+3. **Cache, deduplicate and retry** queries with the HyperFetch request options.
+4. **Support queries, mutations and subscriptions** with a consistent API.
+   [Subscriptions](/docs/integrations/adapter-graphql/subscriptions.mdx) use the `graphql-transport-ws` protocol.
 
 :::
+
+---
+
+## What a GraphQL client does in React
+
+A GraphQL server answers one endpoint. The client sends a document (the query text), its variables and the operation
+name, and gets back `data` and maybe `errors`. You can do that with `fetch` in ten lines. What you can't do in ten lines
+is everything around it:
+
+- Keep the result so a second component reading the same query does not send it again.
+- Merge two identical queries that start at the same time into one request.
+- Track loading and error state for each component.
+- Turn the `errors` list of a `200` response into an error you can handle.
+- Open a WebSocket for subscriptions and reconnect when it drops.
+
+That is the job of a GraphQL client. Apollo Client, urql and Relay all do it, and so does this package.
+
+---
+
+## An Apollo Client alternative
+
+Apollo Client is the best known GraphQL client for React. It keeps a normalized cache: each object is stored once under
+its `__typename` and `id`, so a mutation that returns an updated user refreshes every query that shows that user. If
+your app depends on that, for example a large UI where many queries overlap on the same entities, Apollo is built for
+it and you should stay there.
+
+HyperFetch caches per request instead. Each operation and its variables get their own cache entry, and after a mutation
+you invalidate or update the entries you know changed. That is less automatic, and it is also easier to predict.
+
+| Need                                  | Apollo Client                    | `@hyper-fetch/graphql`                                     |
+| ------------------------------------- | -------------------------------- | ---------------------------------------------------------- |
+| Cache model                           | Normalized by `__typename` and `id` | Per operation and variables                             |
+| React hooks                           | `useQuery`, `useMutation`, `useSubscription` | `useFetch`, `useSubmit`, `useListener`         |
+| Subscriptions                         | Yes                              | Yes, `graphql-transport-ws`                                |
+| Persisted queries                     | Yes                              | Yes, `persistedQueries: true`                              |
+| Offline request queue                 | Not built in                     | Yes, `offline`                                             |
+| REST, Firebase and sockets in one client | GraphQL client                | Yes, swap the adapter                                      |
+
+Pick HyperFetch when GraphQL is one of several backends in your app, or when you want offline queues and request
+cancellation without extra links.
 
 ---
 
@@ -34,8 +79,8 @@ npm install @hyper-fetch/graphql graphql graphql-tag
 
 ## Getting Started
 
-Whether you're developing a server-side GraphQL API or a client-side application that consumes GraphQL data, you can use
-Hyper Fetch GraphQL to interact with it. The setup process is simple and straightforward.
+Create a client with the `GraphqlAdapter`, write the query with `gql`, and send it. The same code runs in the browser and
+in Node.js.
 
 ```tsx
 import { Client } from "@hyper-fetch/core";
@@ -68,6 +113,28 @@ const getUser = client.createRequest<{ response: User }>()({
 // 4. Send the request and get the response
 const { data, error } = await getUser.send();
 ```
+
+---
+
+## GraphQL in React components
+
+Pass the request to `useFetch` for queries and `useSubmit` for mutations. Two components that use `getUser` with the same
+variables share one cache entry, and with `deduplicate: true` on the request they also share one network call.
+
+```tsx
+import { useFetch } from "@hyper-fetch/react";
+
+export const Profile = () => {
+  const { data, loading, error } = useFetch(getUser);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Could not load the user</p>;
+
+  return <h1>{data?.user.firstName}</h1>;
+};
+```
+
+For subscriptions, see [GraphQL subscriptions in React](./subscriptions.mdx).
 
 ---
 

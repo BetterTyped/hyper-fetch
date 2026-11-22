@@ -1,10 +1,11 @@
 ---
 sidebar_position: 2
 title: React Native
+description: "Use HyperFetch in React Native. Connect NetInfo and AppState for offline and focus detection, and keep queued requests in persistent storage."
 sidebar_label: React Native
 ---
 
-`Hyper Fetch` is designed to be environment-agnostic, providing full support for `React Native`. Its modular
+`HyperFetch` is designed to be environment-agnostic, providing full support for `React Native`. Its modular
 architecture allows for easy replacement of core components to seamlessly integrate with native device features.
 
 :::secondary What you'll learn
@@ -17,7 +18,7 @@ architecture allows for easy replacement of core components to seamlessly integr
 
 ## Online and Offline Status
 
-By default, Hyper Fetch listens to browser-based online/offline events. For React Native, you can use the
+By default, HyperFetch listens to browser-based online/offline events. For React Native, you can use the
 [`@react-native-community/netinfo`](https://github.com/react-native-netinfo/react-native-netinfo) library to track the
 device's network status.
 
@@ -27,7 +28,7 @@ First, you need to install the library:
 npm install --save @react-native-community/netinfo
 ```
 
-Then, configure the `appManager` to use `NetInfo` for network state detection. This ensures that Hyper Fetch is always
+Then, configure the `appManager` to use `NetInfo` for network state detection. This ensures that HyperFetch is always
 aware of the device's connectivity, preventing requests from being sent when the device is offline.
 
 ```tsx title="services/client.ts"
@@ -55,9 +56,9 @@ export const client = new Client<ServerErrorType>({
 ## Application Focus and Blur
 
 To automatically manage requests based on the application's focus state, you can use React Native's `AppState` API. This
-allows Hyper Fetch to pause requests when the app is in the background and resume them when it's back in the foreground.
+allows HyperFetch to pause requests when the app is in the background and resume them when it's back in the foreground.
 
-This configuration tells Hyper Fetch to listen for app state changes. When the app becomes `active`, it's considered
+This configuration tells HyperFetch to listen for app state changes. When the app becomes `active`, it's considered
 focused. When it's `inactive` or in the `background`, it's blurred.
 
 ```tsx title="services/client.ts"
@@ -91,7 +92,7 @@ By default, the dispatcher stores its request queues in memory. In React Native,
 like [MMKV](https://github.com/mrousavy/react-native-mmkv) so that queued requests survive app restarts. This is
 especially useful for offline-first applications where requests should be retried when connectivity returns.
 
-Hyper Fetch automatically handles the serialization and deserialization of request data. When requests are read back from
+HyperFetch automatically handles the serialization and deserialization of request data. When requests are read back from
 a JSON-based storage, they are transparently reconstructed into proper `Request` class instances — no extra work needed
 on your side.
 
@@ -153,7 +154,7 @@ browsers where multiple tabs can cause duplicated requests.
 
 :::success That's it!
 
-Your app is now ready to fully use all of the features of Hyper Fetch.
+Your app is now ready to fully use all of the features of HyperFetch.
 
 - You can track **online/offline status** using `NetInfo`.
 - You can manage **focus/blur states** with `AppState`.

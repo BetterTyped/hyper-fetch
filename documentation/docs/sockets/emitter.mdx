@@ -1,12 +1,13 @@
 ---
 sidebar_position: 5
 title: Emitter
+description: "The Emitter defines a typed socket event once, with its topic and payload, and sends it through the Socket. Use it for outgoing WebSocket messages."
 sidebar_label: Emitter
 ---
 
 [Read the API Reference »](/docs/api/sockets/Classes/Emitter.mdx)
 
-The `Emitter` class is a core component of Hyper Fetch's real-time communication layer, built on top of WebSockets. It
+The `Emitter` class is a core component of HyperFetch's real-time communication layer, built on top of WebSockets. It
 provides a **structured, type-safe way to define, configure, and send events to a server**. By encapsulating all the
 details for an event—such as its topic and data payload—`Emitter` ensures consistency and predictability in your
 real-time data interactions.
@@ -77,7 +78,7 @@ sendChatMessage.setPayload({ message: "message" }).emit();
 
 ## Methods
 
-Using methods on a emitter is different from other classes in Hyper Fetch. This is to ensure isolation between different
+Using methods on a emitter is different from other classes in HyperFetch. This is to ensure isolation between different
 uses, which allows you to avoid overwriting previously-prepared emitters and to dynamically generate keys for queues or
 the cache.
 

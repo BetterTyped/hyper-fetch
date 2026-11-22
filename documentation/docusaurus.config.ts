@@ -9,6 +9,7 @@ import path from "path";
 
 import examplesPlugin from "./plugins/examples";
 import hyperFlowReleasesPlugin from "./src/plugins/hyperflow-releases";
+import llmsTxtPlugin from "./src/plugins/llms-txt";
 import docsVersions from "./versions.json";
 
 /**
@@ -44,8 +45,7 @@ const getPackagesList = () => {
   return result
     .filter((item) => !item.includes("tokens"))
     .map((dir) => {
-      const dirName = dir.split("/").pop();
-      const title = dirName[0] + dirName.slice(1);
+      const title = path.basename(dir);
 
       return {
         title,
@@ -64,7 +64,8 @@ const getPackagesList = () => {
 
 const config: Config = {
   title: "HyperFetch",
-  tagline: "Use HyperFetch today.",
+  tagline:
+    "Typed requests, caching, offline queues, upload progress and websockets for TypeScript and React. One API over fetch, Axios, GraphQL and Firebase.",
   favicon: "img/favicon.ico",
 
   // Set the production url of your site here
@@ -72,6 +73,10 @@ const config: Config = {
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
+  // S3 serves every page as `<path>/index.html` and answers the slashless URL
+  // with a 302 to the slash one. Without this, sitemap and canonical URLs point
+  // at that redirect and Google sees two URLs for every page.
+  trailingSlash: true,
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -155,6 +160,7 @@ const config: Config = {
   plugins: [
     "@docsearch/docusaurus-adapter",
     hyperFlowReleasesPlugin,
+    llmsTxtPlugin,
     "docusaurus-plugin-sass",
     async function tailwindPlugin() {
       return {
@@ -203,8 +209,8 @@ const config: Config = {
   },
 
   themeConfig: {
-    // Replace with your project's social card
-    image: "img/logo.svg",
+    // PNG, not SVG: X, LinkedIn and Facebook do not render SVG previews.
+    image: "img/social-card.png",
     docsearch: {
       appId: process.env.DOC_APP_ID || "dummy_value",
       apiKey: process.env.DOC_API_KEY || "dummy_value",
@@ -297,10 +303,31 @@ const config: Config = {
         {
           title: "Docs",
           items: [
-            {
-              label: "Documentation",
-              to: "/docs/getting-started",
-            },
+            { label: "Getting started", to: "/docs/getting-started/" },
+            { label: "React", to: "/docs/react/overview/" },
+            { label: "WebSockets and SSE", to: "/docs/sockets/overview/" },
+            { label: "OpenAPI client", to: "/docs/cli/openapi-typescript-client/" },
+            { label: "Migrating from React Query", to: "/docs/guides/react/basics/migrating-from-react-query/" },
+          ],
+        },
+        {
+          title: "Compare",
+          items: [
+            { label: "Data fetching libraries", to: "/docs/guides/comparisons/" },
+            { label: "vs TanStack Query", to: "/docs/guides/comparisons/tanstack-query/" },
+            { label: "vs SWR", to: "/docs/guides/comparisons/swr/" },
+            { label: "vs RTK Query", to: "/docs/guides/comparisons/rtk-query/" },
+            { label: "Axios vs fetch", to: "/docs/guides/comparisons/axios-vs-fetch/" },
+          ],
+        },
+        {
+          title: "Guides",
+          items: [
+            { label: "SSE vs WebSocket", to: "/docs/guides/sockets/sse-vs-websocket/" },
+            { label: "WebSockets in React", to: "/docs/guides/sockets/websockets-in-react/" },
+            { label: "File upload progress", to: "/docs/guides/react/basics/progress/" },
+            { label: "Next.js data fetching", to: "/docs/guides/react/basics/nextjs-data-fetching/" },
+            { label: "Optimistic updates", to: "/docs/guides/react/basics/optimistic-approach/" },
           ],
         },
         {

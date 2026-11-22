@@ -2,12 +2,12 @@ import { createClient, createSdk } from "@hyper-fetch/core";
 import type { ExtractPayloadType, ExtractQueryParamsType, ExtractResponseType } from "@hyper-fetch/core";
 import { expectTypeOf } from "vitest";
 
-import type { HonoAppToHyperFetch } from "../../../src";
+import type { HonoSchema } from "../../../src";
 import type { inputsApp } from "../../utils/inputs.app";
 
-type Schema = HonoAppToHyperFetch<typeof inputsApp>;
+type Schema = HonoSchema<typeof inputsApp>;
 
-describe("HonoAppToHyperFetch [ Validator inputs ]", () => {
+describe("HonoSchema [ Validator inputs ]", () => {
   it("should take the payload from the json validator, optional fields included", () => {
     expectTypeOf<ExtractPayloadType<Schema["posts"]["$post"]>>().toEqualTypeOf<{ title: string; draft?: boolean }>();
     expect(true).toBe(true);
@@ -53,7 +53,7 @@ describe("HonoAppToHyperFetch [ Validator inputs ]", () => {
   });
 });
 
-describe("HonoAppToHyperFetch [ Validator inputs on createSdk ]", () => {
+describe("HonoSchema [ Validator inputs on createSdk ]", () => {
   const client = createClient({ url: "http://localhost" });
   const sdk = createSdk<typeof client, Schema>(client);
 

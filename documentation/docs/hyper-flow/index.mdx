@@ -1,20 +1,37 @@
 ---
 sidebar_position: 1
-title: HyperFlow
+title: "HyperFlow: Devtools App for Requests, Cache and Queues"
+description: HyperFlow is a desktop devtools app for HyperFetch. Inspect requests, cache entries, queues and sockets of React and Node.js apps in real time.
 sidebar_label: Overview
 ---
 
-# Welcome to HyperFlow
+# HyperFlow, a devtools app for requests, cache and queues
 
-> HyperFlow is a dedicated DevTools suite for monitoring, debugging, and optimizing your application's network activity
-> and cache within the Hyper Fetch ecosystem.
+HyperFlow is a desktop app for macOS, Windows and Linux that shows what the data layer of a HyperFetch app is doing. Your
+client connects to it through the [devtools plugin](../integrations/plugin-devtools/index.mdx), and HyperFlow lists every
+request with its payload, response, headers, status and timing, the cache with fresh and stale entries, the queues, and
+socket traffic. If you know react query devtools, it covers the same ground for HyperFetch, from a separate window
+instead of a panel inside the page.
 
-It provides a command center for your application's data exchange, empowering you to:
+HyperFlow is in alpha.
 
-- **Visualize** your app's network and cache activity in real time.
-- **Debug** requests and responses with a detailed inspector.
-- **Optimize** performance by identifying bottlenecks and inefficient resource usage.
-- **Manage** request queues and cache entries with fine-grained control.
+- **Inspect** every request and filter by endpoint, method, key, success, failure, paused or canceled.
+- **Browse and edit the cache**, and watch hooks pick up the change.
+- **Control queues**: stop, start and clear them to test slow and offline paths.
+- **Read sockets**: connection state, messages in and out, and errors for WebSocket and SSE.
+
+---
+
+## Why a desktop app and not a browser extension
+
+Browser devtools, including the Chrome React DevTools extension, only see what runs in that tab. React DevTools shows
+the component tree and the profiler. The Network tab shows HTTP traffic, but not which requests were served from
+cache, deduplicated or waiting in a queue.
+
+HyperFlow gets that from the client itself. The plugin sends events over a local WebSocket, so the app does not have to
+run in Chrome at all: a Node.js backend, a script or a browser tab all connect the same way, and each shows up as its
+own connection under its `appName`. The trade-off is one more app to start while you develop, and no inline panel in
+the page.
 
 ---
 
@@ -22,8 +39,7 @@ It provides a command center for your application's data exchange, empowering yo
 
 ## Key Features
 
-HyperFlow offers a comprehensive set of tools to give you full visibility into your application's data layer. Explore
-the core features to see how you can supercharge your development workflow.
+Each part of HyperFlow has its own page:
 
 <div className="row">
   <div className="col col--6" style={{ padding: "0.5rem" }}>
@@ -64,10 +80,8 @@ the core features to see how you can supercharge your development workflow.
 
 ## Getting Started
 
-Ready to transform your debugging and optimization workflow? Dive into HyperFlow and experience the next level of
-developer productivity.
-
-To start using HyperFlow, you'll need to install it and integrate it with your application.
+Download the app, start it, then [connect your client](./connecting.mdx) with the devtools plugin. The
+[compatibility table](./compatibility.mdx) lists what works with each adapter.
 
 <LinkCard
   type="promo"

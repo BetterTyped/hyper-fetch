@@ -1,14 +1,16 @@
 ---
-title: Optimistic Updates
+title: Optimistic Updates in React with Rollback
+description: Optimistic updates show a change before the server confirms it and undo it on error. How optimistic UI works in React, compared with React Query.
 sidebar_label: Optimistic Updates
 ---
 
-# Optimistic Updates
+# Optimistic Updates in React
 
 Optimistic updates change the UI right after a user action, before the server answers. If the request fails, the change
-is reverted. HyperFetch splits this in two: a **helper describes the change** of a cached request, and **`.rollback()`
-describes the undo**. Core applies the change, runs the undo when needed, refreshes the data afterwards and protects the
-change from stale responses - for `send()`, `$hooks` and React hooks alike.
+is reverted. That's what makes a like button or a todo checkbox feel instant on a slow connection. HyperFetch splits
+this in two: a **helper describes the change** of a cached request, and **`.rollback()` describes the undo**. Core
+applies the change, runs the undo when needed, refreshes the data afterwards and protects the change from stale
+responses, for `send()`, `$hooks` and React hooks alike.
 
 :::tip Purpose
 
@@ -20,6 +22,44 @@ change from stale responses - for `send()`, `$hooks` and React hooks alike.
 5. **Typed end to end**: helpers are typed by the target's response, `.commit()` by the mutation's response.
 
 :::
+
+---
+
+## What optimistic UI takes
+
+Optimistic UI is a bet that the server will say yes. Most of the time it does, so showing the result right away is
+the better experience. To make the bet safe, every optimistic update needs four steps:
+
+1. **Apply** the expected result to the data on screen.
+2. **Protect** it, so a refetch that was already in flight doesn't overwrite it with old data.
+3. **Undo** it if the request fails, without wiping out other changes made in the meantime.
+4. **Reconcile** with the server once it's done, so the screen ends up showing what was really saved.
+
+Use it for small, frequent, likely-to-succeed actions: toggles, likes, reordering, renaming, adding a comment. Skip it
+when failure is common or costly, like payments, or when the server computes the result (an order number, a price with
+tax). There, a loading state is more honest.
+
+### Coming from React Query
+
+React Query documents two ways to do React Query optimistic updates
+([TanStack docs](https://tanstack.com/query/latest/docs/framework/react/guides/optimistic-updates)). One renders the
+mutation's `variables` in the UI while it's pending. The other writes to the cache in `onMutate`: cancel outgoing
+queries, snapshot the data with `getQueryData`, write with `setQueryData`, return the snapshot as context, restore it in
+`onError`, and invalidate in `onSettled`.
+
+HyperFetch covers the cache approach, and you write less of it. The helper is step 1, `.rollback()` is step 3, and core
+does steps 2 and 4 on its own: it discards stale responses and refetches the targets once the last pending mutation
+settles.
+The mutation itself is a normal [`useSubmit`](./submitting.mdx) call, and the refetch is the same
+[cache invalidation](../../core/02-advanced/cache-revalidation.mdx) you would trigger by hand. Full hook options are in the
+[useSubmit reference](../../../react/04-hooks/use-submit.mdx).
+
+| Step      | React Query (cache approach)            | HyperFetch                           |
+| --------- | --------------------------------------- | ------------------------------------- |
+| Apply     | `setQueryData` in `onMutate`            | `optimistic(target).patch(...)` etc.  |
+| Protect   | `cancelQueries` in `onMutate`           | Automatic                             |
+| Undo      | Restore the snapshot in `onError`       | `.rollback(...)`                      |
+| Reconcile | `invalidateQueries` in `onSettled`      | Automatic refetch of the targets      |
 
 ---
 
@@ -90,7 +130,7 @@ optimistic(getTodos).remove(params.slug, { key: "slug" });
 
 - `optimistic(getUser.setParams({ userId }))` - one cache entry. A target whose params are not set is a compile error.
 - `optimistic.all(getUsers)` - every cached variant of the request, whatever the query params: filters, sorting and
-  all pages of [infinite lists](/docs/react/hooks/use-infinite-fetch).
+  all pages of [infinite lists](../../../react/04-hooks/use-infinite-fetch.mdx).
 - `.list("field")` - the list helpers for an array inside an object response:
 
 ```ts
@@ -315,4 +355,4 @@ To move to the helpers:
 ## Next Steps
 
 For concurrent mutations on one list, toggles and several caches at once, see the
-[Advanced Optimistic Patterns](/docs/guides/react/basics/optimistic-advanced) guide.
+[Advanced Optimistic Patterns](./optimistic-advanced.mdx) guide.

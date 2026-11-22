@@ -31,7 +31,7 @@ an SDK typed from the Elysia routes: query params, payloads, responses, the `422
 
 :::tip What it shows
 
-1. **`ElysiaAppToHyperFetch`** turns the type of an Elysia app into a schema for `createSdk`, with no codegen.
+1. **`ElysiaSchema`** turns the type of an Elysia app into a schema for `createSdk`, with no codegen.
 2. **Typed inputs**: the `query` schema types `setQueryParams()`, the `body` schema types the payload, and `:bookmarkId`
    types `setParams()`.
 3. **Typed errors**: Elysia rejects bad input with a `422` before the handler runs, and the client reads its `summary`
@@ -49,7 +49,7 @@ an SDK typed from the Elysia routes: query params, payloads, responses, the `422
 
    ```ts
    // highlight-next-line
-   export type AppSchema = ElysiaAppToHyperFetch<typeof app>;
+   export type AppSchema = ElysiaSchema<typeof app>;
    ```
 
 2. `vite.config.ts` has a small plugin that loads `server/app.ts` with `ssrLoadModule`, calls `app.listen(3000)` and
@@ -84,7 +84,7 @@ an SDK typed from the Elysia routes: query params, payloads, responses, the `422
 
 :::secondary Summary
 
-`ElysiaAppToHyperFetch` reads the routes and schemas of an Elysia app and `createSdk` turns them into typed requests.
+`ElysiaSchema` reads the routes and schemas of an Elysia app and `createSdk` turns them into typed requests.
 Query params, payloads, responses and error bodies all follow the backend, and the frontend uses the usual hooks.
 
 :::

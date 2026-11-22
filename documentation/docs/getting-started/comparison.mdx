@@ -1,20 +1,25 @@
 ---
 sidebar_position: 5
-title: Why Hyper Fetch is Unique
+title: Why HyperFetch is Unique
+description: "What sets HyperFetch apart: typed requests defined once, HTTP and realtime behind one API, offline queues, swappable adapters and devtools."
 sidebar_label: Why HF?
 ---
 
-# Why Hyper Fetch?
+# Why HyperFetch?
 
 The TypeScript data-fetching ecosystem is large and every library occupies a different niche. Understanding where Hyper
 Fetch sits helps you decide whether it is the right fit for your project.
 
 :::info
 
-This page describes Hyper Fetch's own capabilities and design decisions. Where other tools are mentioned it is only to
+This page describes HyperFetch's own capabilities and design decisions. Where other tools are mentioned it is only to
 sketch the general landscape - every library moves fast, so always check the source you care about directly.
 
 :::
+
+For head-to-head pages with code and sources, see the [comparisons section](../guides/comparisons/index.mdx): Hyper
+Fetch vs [TanStack Query](../guides/comparisons/tanstack-query.mdx), [SWR](../guides/comparisons/swr.mdx) and
+[RTK Query](../guides/comparisons/rtk-query.mdx), plus [Axios vs fetch](../guides/comparisons/axios-vs-fetch.mdx).
 
 ---
 
@@ -32,7 +37,7 @@ that protocol but are not designed to cover HTTP, sockets, SSE, and Firebase wit
 **Full-stack RPC frameworks** — own both ends of the wire. Maximum type safety when you control the server, but
 require adopting their router format and running their server-side runtime.
 
-**Transport-agnostic API layers** — this is where Hyper Fetch lives. One typed schema, one runtime, pluggable
+**Transport-agnostic API layers.** This is where HyperFetch lives. One typed schema, one runtime, pluggable
 adapters. REST, GraphQL, WebSockets, SSE, and Firebase all look identical from your application code.
 
 ---
@@ -102,7 +107,7 @@ making typed requests immediately.
 npx @hyper-fetch/cli@latest generate \
   --template openapi \
   --url https://api.example.com/openapi.json \
-  --output ./src/api/client.ts
+  --fileName client.ts
 ```
 
 The generated output is a `createSdk` schema. You bring your own `Client` (base URL, auth, adapter) and the
@@ -196,7 +201,7 @@ const updateUser = client.createRequest<{
 ```
 
 Most server-state managers carry types only on the response. Query param types, URL param types, global/local error
-variants, and request-state tracking are not common across the ecosystem; they are a core part of Hyper Fetch's design.
+variants, and request-state tracking are not common across the ecosystem; they are a core part of HyperFetch's design.
 
 ### Full capability reference
 
@@ -286,7 +291,7 @@ Requests that fail due to offline state are automatically retried when connectiv
 
 ### Upload and download progress with ETA
 
-For any request that involves a body or binary response, Hyper Fetch emits granular progress events:
+For any request that involves a body or binary response, HyperFetch emits granular progress events:
 
 - `onUploadProgress` / `onDownloadProgress`
 - bytes loaded, bytes total, bytes remaining
@@ -425,7 +430,7 @@ immediately. The browser's native scroll position is preserved without any scrol
 
 ### Caching approach
 
-Hyper Fetch caches by **request key** - a deterministic string derived from the endpoint, method, params, and query
+HyperFetch caches by **request key** - a deterministic string derived from the endpoint, method, params, and query
 params. Every distinct request configuration maps to its own cache entry. Updates to that entry notify all subscribers.
 The key is always derived automatically from the request schema — no manual key construction needed.
 
@@ -457,7 +462,7 @@ the app is online). This prevents unbounded growth in long-lived single-page app
 
 ### Normalized caching
 
-Hyper Fetch does **not** maintain a normalized entity store. If your application requires entity normalization (one
+HyperFetch does **not** maintain a normalized entity store. If your application requires entity normalization (one
 canonical record updated across all views when a mutation occurs), that pattern is better served by libraries built
 around it.
 
@@ -516,14 +521,14 @@ monkey-patching fetch — is a direct consequence of HF's command-pattern archit
 
 ### Environment support
 
-Hyper Fetch's core is written in TypeScript with zero runtime dependencies. It runs in browsers, Node.js, React
+HyperFetch's core is written in TypeScript with zero runtime dependencies. It runs in browsers, Node.js, React
 Native, Electron, and any environment that supports the Fetch API (or a polyfill for it). Framework-specific packages
 (`@hyper-fetch/react`) add thin UI bindings on top.
 
 ### Default adapter included
 
 The core package ships with a production-ready HTTP adapter. Most server-state managers expect you to supply your own
-fetching function. Hyper Fetch works out of the box without wiring up an external HTTP client first.
+fetching function. HyperFetch works out of the box without wiring up an external HTTP client first.
 
 ### Server connection setup
 
@@ -533,13 +538,13 @@ the base URL or swapping the adapter in tests requires one line.
 
 ---
 
-## What Hyper Fetch does not try to be
+## What HyperFetch does not try to be
 
 **It is not a normalized entity cache.** If your application requires one canonical record updated across all views
 when a mutation occurs, a library built around normalization will serve that use case better.
 
 **It is not a full-stack RPC framework.** If you control both ends of the wire, a type-safe RPC layer gives you a
-tighter contract. Hyper Fetch is intentionally client-only: it talks to whatever backend you already have.
+tighter contract. HyperFetch is intentionally client-only: it talks to whatever backend you already have.
 
 **It is not a UI state manager.** Local state, form state, and derived client state belong in your component layer or
-a store. Hyper Fetch is concerned with server state only.
+a store. HyperFetch is concerned with server state only.

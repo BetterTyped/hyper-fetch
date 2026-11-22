@@ -1,11 +1,12 @@
 ---
-title: Guide - Persistence
+title: Cache and queue persistence across sessions
+description: "Persist the HyperFetch cache and request queues in localStorage or AsyncStorage, with sync or async storages, so data and offline requests survive a reload."
 sidebar_label: Persistence
 ---
 
 # Persistence
 
-Persistence in Hyper-fetch allows you to store cache and request queue data across application sessions. This is
+Persistence in HyperFetch allows you to store cache and request queue data across application sessions. This is
 achieved by providing a custom storage implementation that can save and retrieve data from a persistent source like
 `localStorage` or `AsyncStorage`. This guide will walk you through setting up persistence for both cache and queues.
 
@@ -238,7 +239,7 @@ not kept. Use a separate store or key prefix for each dispatcher.
 
 :::success Congratulations!
 
-You've learned how to implement persistence in Hyper-fetch!
+You've learned how to implement persistence in HyperFetch!
 
 - You can enable **cache persistence** using synchronous or asynchronous storages.
 - You know how to set up **queue persistence** for `fetchDispatcher` and `submitDispatcher`.

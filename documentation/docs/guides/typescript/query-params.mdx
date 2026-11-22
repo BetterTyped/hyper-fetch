@@ -1,12 +1,13 @@
 ---
 sidebar_position: 6
 title: Setting Query Params Type
+description: "Type query parameters in HyperFetch requests to get autocompletion and compile-time checks for filtering, sorting and pagination, including optional params."
 sidebar_label: Query Params
 ---
 
 # Query Params Type
 
-Query parameters are a fundamental part of many REST APIs, used for filtering, sorting, and pagination. Hyper-fetch
+Query parameters are a fundamental part of many REST APIs, used for filtering, sorting, and pagination. HyperFetch
 allows you to define a **type for your query parameters**, ensuring that you pass valid values and catch potential
 errors at compile time. This leads to more robust and maintainable code.
 
@@ -14,7 +15,7 @@ errors at compile time. This leads to more robust and maintainable code.
 
 1.  How to define a **type for query parameters** in a request.
 2.  How to pass **type-safe query parameters** when sending a request.
-3.  How Hyper-fetch handles **optional parameters** and provides autocompletion.
+3.  How HyperFetch handles **optional parameters** and provides autocompletion.
 
 :::
 
@@ -64,7 +65,7 @@ const getUsers = client.createRequest<{
 });
 
 // 4. Send the request with type-safe query parameters
-// Hyper-fetch will ensure you pass the correct types.
+// HyperFetch will ensure you pass the correct types.
 // Try changing 'Admin' to 'Guest' or removing 'role' to see an error.
 const { data, error } = await getUsers.send({
   queryParams: {

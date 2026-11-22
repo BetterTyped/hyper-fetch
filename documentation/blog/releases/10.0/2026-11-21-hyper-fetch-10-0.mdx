@@ -1,0 +1,190 @@
+---
+slug: hyper-fetch-10-0
+title: Announcing HyperFetch 10
+authors: [maciej]
+tags: [Release]
+date: 2026-11-21T18:00:00
+description: "HyperFetch 10 types your client from tRPC, oRPC, Hono and Elysia, unifies socket reconnection, and adds persisted queries and graphql-ws to GraphQL."
+---
+
+import { BlogPostImage, LinkCard } from "@site/src/components";
+
+<BlogPostImage
+  title="HyperFetch 10"
+  description="Your backend, typed. Every transport, realtime."
+  badge="release"
+  href="/blog/hyper-fetch-10-0"
+  pattern="paths"
+/>
+
+HyperFetch 10 types your client straight from tRPC, oRPC, Hono and Elysia, gives every socket adapter one reconnection
+engine with typed subscription payloads, and brings automatic persisted queries and `graphql-ws` subscriptions to
+GraphQL. It is also the most tested release we have shipped: two weeks of hardening landed more than 80 fixes across
+every package, each with a regression test.
+
+{/* truncate */}
+
+:::success Key features
+
+1. **Backend packages**: typed clients from tRPC, oRPC, Hono and Elysia, with tRPC and oRPC subscriptions.
+2. **Listener delivery**: throttle and batch socket messages before they reach your UI.
+3. **Typed subscriptions**: listeners carry a payload and report when the server starts and ends them.
+4. **Reconnection engine**: one tested engine for WebSocket, SSE, tRPC and oRPC sockets.
+5. **Optimistic helpers**: `optimistic()` with automatic rollback and refresh, built into `useSubmit`.
+6. **Infinite queries**: `useInfiniteFetch`, `fetchInfinite` and pagination helpers.
+7. **GraphQL upgrades**: persisted queries, typed documents, error policy and `GraphqlWsAdapter`.
+8. **Firebase queries**: constraints as a typed `queryParams` array or callback.
+9. **Socket Inspector**: HyperFlow shows connections, messages and errors of your sockets.
+10. **88 examples**: runnable apps with StackBlitz and CodeSandbox previews.
+
+:::
+
+---
+
+## What is HyperFetch?
+
+**HyperFetch** is a data-exchange framework that unifies HTTP, GraphQL, Firebase, RPC and realtime sources like
+WebSockets and Server-Sent Events behind one type-safe API. Caching, queueing, retries, offline support and devtools work
+the same whatever the transport, in React, React Native and Node.js.
+
+<LinkCard
+  type="docs"
+  title="Get Started"
+  description="Write your first request with HyperFetch."
+  href="/docs/getting-started"
+/>
+
+---
+
+## The release in posts
+
+There is too much in this release for one page, so each area has its own post. Start with the one you use most.
+
+### Backend packages
+
+Four new packages type a HyperFetch client from the server you already have: **`@hyper-fetch/trpc`**,
+**`@hyper-fetch/orpc`**, **`@hyper-fetch/hono`** and **`@hyper-fetch/elysia`**. No schema to write, no code to generate.
+tRPC subscriptions and oRPC event iterators become typed HyperFetch listeners, and Hono websocket routes get a typed
+address.
+
+<LinkCard
+  type="integrations"
+  title="Type your client from your backend"
+  description="tRPC, oRPC, Hono and Elysia, straight into createSdk."
+  href="/blog/hyper-fetch-10-backends"
+/>
+
+### Core and React
+
+Optimistic updates without hand-written rollbacks, infinite queries, `Hydrate` for server rendering, retry backoff
+functions, `responseType`, `pathSegments` for SDKs, and dispatcher queues persisted in async storage so offline work
+survives a reload.
+
+<LinkCard
+  type="docs"
+  title="Core and React in v10"
+  description="Optimistic helpers, infinite queries, hydration and more."
+  href="/blog/hyper-fetch-10-core-react"
+/>
+
+### Sockets
+
+Listener delivery strategies, added during the 9.x line, throttle and batch high-frequency messages and now work with
+the new subscription lifecycle. Listeners carry typed subscription payloads and a lifecycle. A single reconnection engine drives every adapter, sockets run in Node.js, Bun and Deno, and listeners
+accept query params.
+
+<LinkCard
+  type="docs"
+  title="Sockets in v10"
+  description="Delivery strategies, typed subscriptions and reconnection."
+  href="/blog/hyper-fetch-10-sockets"
+/>
+
+### GraphQL
+
+Typed documents infer the response and variables. Automatic persisted queries, an error policy, `matchGqlOperation` for
+refetching every variant of an operation, and a `GraphqlWsAdapter` for subscriptions over `graphql-transport-ws`.
+
+<LinkCard
+  type="docs"
+  title="GraphQL in v10"
+  description="Persisted queries, typed documents and subscriptions."
+  href="/blog/hyper-fetch-10-graphql"
+/>
+
+### Firebase
+
+Query constraints move into `queryParams`, as an array or a typed callback. Writes send their payload, listeners deliver
+each snapshot once, and the whole suite now runs against the Firebase emulators in CI.
+
+<LinkCard
+  type="docs"
+  title="Firebase in v10"
+  description="Typed query constraints and reliable listeners."
+  href="/blog/hyper-fetch-10-firebase"
+/>
+
+### HyperFlow, linting and examples
+
+A Socket Inspector in HyperFlow, devtools for Node.js servers, real observer counts, an Oxlint plugin, ESLint fixes for
+typescript-eslint 8, 88 runnable examples and agent skills for every package.
+
+<LinkCard
+  type="docs"
+  title="HyperFlow, Linting and Examples"
+  description="The tooling around HyperFetch 10."
+  href="/blog/hyper-fetch-10-tooling"
+/>
+
+---
+
+## Hardened everywhere
+
+Before this release we audited every package and wrote a failing test for each problem we found before fixing it. The
+result is a long list of bugs that will never come back: out-of-order responses no longer overwrite newer data, falsy
+payloads and response data are kept, removed requests stop retrying, failed response mappers resolve `send()` with a
+failed response instead of rejecting, scopes stay isolated in hooks and Suspense, and SSE sockets no longer reconnect after
+a manual disconnect.
+
+Flaky specs were fixed at the cause, not retried: timing-dependent tests now run on fake clocks or hold requests in
+flight until they assert. Each area post lists the fixes that affect its package.
+
+---
+
+## One version for every package
+
+Every public package now ships under a single version and one `v*` tag. Install matching versions and you know they were
+released and tested together:
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core@10 @hyper-fetch/react@10
+```
+
+---
+
+## Upgrading to 10
+
+The breaking changes are in `@hyper-fetch/sockets`. Core, React, Firebase and the HTTP adapters upgrade without code
+changes.
+
+- **Listener generics** changed to make room for subscription payloads. This only matters if you type `Listener`,
+  `ListenType` or `ListenerOfAdapter` by hand.
+- **`connectionTimeout`** (default 5s) now limits how long a connection attempt may take. `reconnectTime` is only the
+  minimum delay before the next attempt, 1s by default, and grows with backoff.
+- **Server rendering**: sockets connect wherever a global `WebSocket` exists, Node.js included. Set
+  `adapterOptions: { autoConnect: typeof window !== "undefined" }` to keep sockets from connecting on the server.
+- **`onMessage` interceptors** receive `{ event, topic, extra }`.
+- **GraphQL**: `graphql` and `@hyper-fetch/sockets` are now peer dependencies of `@hyper-fetch/graphql`, and its cache
+  keys changed, so data persisted by earlier versions is fetched again once.
+
+The [sockets post](/blog/hyper-fetch-10-sockets#upgrading) and the [GraphQL post](/blog/hyper-fetch-10-graphql#upgrading)
+have the exact before and after for each one. The v9 docs stay
+available under [v9.0.0](/docs/v9.0.0/getting-started).
+
+---
+
+## Thank you
+
+Thanks to everyone who reported issues and asked for the integrations that shipped here.
+If something does not work as described, [open an issue](https://github.com/BetterTyped/hyper-fetch/issues) and we will
+fix it with a test.

@@ -15,13 +15,13 @@ import type {
 import { Hono } from "hono";
 import { expectTypeOf } from "vitest";
 
-import type { HonoAppToHyperFetch } from "../../../src";
+import type { HonoSchema } from "../../../src";
 import type { User, apiApp, app } from "../../utils/app";
 import type { RealtimeApp } from "../../utils/realtime-server";
 
-type Schema = HonoAppToHyperFetch<typeof app>;
+type Schema = HonoSchema<typeof app>;
 
-describe("HonoAppToHyperFetch [ Schema shape ]", () => {
+describe("HonoSchema [ Schema shape ]", () => {
   it("should nest mounted routes under their path segments", () => {
     expectTypeOf<keyof Schema>().toEqualTypeOf<"$get" | "users" | "auth">();
     expectTypeOf<keyof Schema["users"]>().toEqualTypeOf<"$get" | "$post" | "$userId">();
@@ -50,7 +50,7 @@ describe("HonoAppToHyperFetch [ Schema shape ]", () => {
   });
 
   it("should prefix endpoints with the app basePath", () => {
-    type ApiSchema = HonoAppToHyperFetch<typeof apiApp>;
+    type ApiSchema = HonoSchema<typeof apiApp>;
 
     expectTypeOf<keyof ApiSchema>().toEqualTypeOf<"api">();
     expectTypeOf<ExtractEndpointType<ApiSchema["api"]["users"]["$get"]>>().toEqualTypeOf<"/api/users">();
@@ -59,15 +59,15 @@ describe("HonoAppToHyperFetch [ Schema shape ]", () => {
 
   it("should lowercase the method keys", () => {
     const methods = new Hono().on("PATCH", "/users", (c) => c.json({ patched: true }));
-    type MethodsSchema = HonoAppToHyperFetch<typeof methods>;
+    type MethodsSchema = HonoSchema<typeof methods>;
 
     expectTypeOf<keyof MethodsSchema["users"]>().toEqualTypeOf<"$patch">();
     expect(true).toBe(true);
   });
 
   it("should resolve to an empty schema for anything that is not a Hono app", () => {
-    expectTypeOf<HonoAppToHyperFetch<{ routes: [] }>>().toEqualTypeOf<{}>();
-    expectTypeOf<HonoAppToHyperFetch<new () => Hono>>().toEqualTypeOf<{}>();
+    expectTypeOf<HonoSchema<{ routes: [] }>>().toEqualTypeOf<{}>();
+    expectTypeOf<HonoSchema<new () => Hono>>().toEqualTypeOf<{}>();
     expect(true).toBe(true);
   });
 
@@ -83,7 +83,7 @@ describe("HonoAppToHyperFetch [ Schema shape ]", () => {
   });
 });
 
-describe("HonoAppToHyperFetch [ Request types ]", () => {
+describe("HonoSchema [ Request types ]", () => {
   it("should take the response from the handler output", () => {
     expectTypeOf<ExtractResponseType<Schema["users"]["$get"]>>().toEqualTypeOf<User[]>();
     expectTypeOf<ExtractResponseType<Schema["auth"]["session"]["$delete"]>>().toEqualTypeOf<{ loggedOut: true }>();
@@ -116,7 +116,7 @@ describe("HonoAppToHyperFetch [ Request types ]", () => {
 
   it("should default the client to ClientInstance and accept a custom one", () => {
     type AppClient = Client<{ code: string }, HttpAdapterType>;
-    type TypedSchema = HonoAppToHyperFetch<typeof app, AppClient>;
+    type TypedSchema = HonoSchema<typeof app, AppClient>;
 
     expectTypeOf<ExtractClientType<Schema["users"]["$get"]>>().toEqualTypeOf<ClientInstance>();
     expectTypeOf<ExtractClientType<TypedSchema["users"]["$get"]>>().toEqualTypeOf<AppClient>();
@@ -124,7 +124,7 @@ describe("HonoAppToHyperFetch [ Request types ]", () => {
   });
 });
 
-describe("HonoAppToHyperFetch [ createSdk ]", () => {
+describe("HonoSchema [ createSdk ]", () => {
   const client = createClient({ url: "http://localhost" });
   const sdk = createSdk<typeof client, Schema>(client);
 
@@ -164,8 +164,8 @@ describe("HonoAppToHyperFetch [ createSdk ]", () => {
   });
 });
 
-describe("HonoAppToHyperFetch [ Realtime routes ]", () => {
-  type RealtimeSchema = HonoAppToHyperFetch<RealtimeApp>;
+describe("HonoSchema [ Realtime routes ]", () => {
+  type RealtimeSchema = HonoSchema<RealtimeApp>;
 
   it("should leave WebSocket routes out of the schema", () => {
     // /ws, /chat/:roomId, /notifications and /legacy are upgradeWebSocket() routes
@@ -181,7 +181,7 @@ describe("HonoAppToHyperFetch [ Realtime routes ]", () => {
         upgradeWebSocket(() => ({})),
       )
       .post("/live", (c) => c.json({ posted: true }));
-    type MixedSchema = HonoAppToHyperFetch<typeof mixed>;
+    type MixedSchema = HonoSchema<typeof mixed>;
 
     expectTypeOf<keyof MixedSchema>().toEqualTypeOf<"live">();
     expectTypeOf<keyof MixedSchema["live"]>().toEqualTypeOf<"$post">();

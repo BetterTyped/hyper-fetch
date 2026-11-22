@@ -1,13 +1,16 @@
 ---
 sidebar_position: 4
-title: Realtime listening
+title: Firebase Admin Realtime Listeners in Node.js
+description: Listen to Firestore and Realtime Database changes from Node.js workers with the Firebase Admin SDK, with typed listeners and live query filters.
 sidebar_label: Realtime listening
 ---
+# Firebase Admin realtime listeners in Node.js
 
 [Read the API Reference »](/api/adapter-firebase-admin/Functions/FirebaseSocketsAdminAdapter.mdx)
 
-Server code can listen to Firestore and Realtime Database changes through `@hyper-fetch/sockets` with
-`FirebaseSocketsAdminAdapter`. Listeners work like the
+A Node.js worker can react to data changes as they happen, for example to send an email when an order is paid. With the
+firebase admin sdk that is `onSnapshot` for Firestore and `on("value")` for the Realtime Database. Here both run through
+`@hyper-fetch/sockets` with `FirebaseSocketsAdminAdapter`. Listeners work like the
 [web package listeners](/docs/integrations/adapter-firebase/realtime-queries), with a few server-side differences.
 
 ---

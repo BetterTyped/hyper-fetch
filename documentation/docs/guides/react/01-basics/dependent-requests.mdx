@@ -1,12 +1,13 @@
 ---
 title: Dependent Requests in React
+description: "Run dependent requests in React with HyperFetch: use the disabled option in useFetch to wait for data from one request before firing the next in a chain."
 sidebar_label: Dependent Requests
 ---
 
 # Dependent Requests
 
 In many applications, you'll encounter scenarios where one request depends on the data returned by another. For example,
-you might need to fetch a user's profile first and then use their ID to fetch their posts. Hyper-fetch provides a simple
+you might need to fetch a user's profile first and then use their ID to fetch their posts. HyperFetch provides a simple
 and declarative way to handle these dependent requests using the `disabled` option in the `useFetch` hook.
 
 :::secondary What you'll learn
@@ -82,7 +83,7 @@ This pattern ensures that you don't try to fetch data with missing parameters, w
 
 :::success Congratulations!
 
-You've mastered handling dependent requests in Hyper-fetch!
+You've mastered handling dependent requests in HyperFetch!
 
 - You can **chain requests** by using data from one request to trigger another.
 - You can use the **`disabled` option** for conditional fetching.

@@ -1,12 +1,13 @@
 ---
 sidebar_position: 4
 title: Request
+description: "The Request class defines an endpoint once: method, params, query params, payload, cache and retry options. Send it anywhere with full type safety."
 sidebar_label: Request
 ---
 
 [Read the API Reference »](/docs/api/core/Classes/Request.mdx)
 
-The `Request` class is the cornerstone of Hyper Fetch's data-fetching system. It provides a **powerful, type-safe way to
+The `Request` class is the cornerstone of HyperFetch's data-fetching system. It provides a **powerful, type-safe way to
 define, configure, and manage API requests** throughout your application. By encapsulating all the details needed to
 perform a request—such as endpoint, method, parameters, payload, and behavior - `Request` ensures consistency,
 predictability, and flexibility in how you interact with remote data sources.
@@ -65,7 +66,7 @@ Here is a quick start guide to help you get started with Requests.
 
 ### Fetching
 
-There are two main methods to send a request with Hyper Fetch - `send(options)` and `exec(options)`.
+There are two main methods to send a request with HyperFetch - `send(options)` and `exec(options)`.
 
 ```mermaid
     timeline
@@ -145,7 +146,7 @@ const { data, error } = await getUser.exec();
 <LinkCard
   type="guides"
   title="Fetching"
-  description="Discover how Hyper Fetch handles request execution."
+  description="Discover how HyperFetch handles request execution."
   to="/docs/guides/core/basics/fetching"
 />
 
@@ -451,7 +452,7 @@ instance in place. Instead, they return a **new, cloned instance** of the reques
 applied. The original request instance remains unchanged.
 
 Always use the returned new instance for subsequent operations or for sending the request. This immutable approach
-ensures isolation between different request configurations and is fundamental to how Hyper Fetch manages request states
+ensures isolation between different request configurations and is fundamental to how HyperFetch manages request states
 for features like caching and queueing.
 
 :::
@@ -488,7 +489,7 @@ const { data: chainedData, error: chainedError } = await getUser
 
 Each `Request` instance is assigned several unique identifiers, known as **keys**. These keys are essential for internal
 mechanisms—such as caching, queueing, request cancellation, deduplication, effect management and many more. Think of
-them as "fingerprints" that help Hyper Fetch track, manage, and use for assigning side-effects to requests.
+them as "fingerprints" that help HyperFetch track, manage, and use for assigning side-effects to requests.
 
 :::note Keys are generated automatically
 
@@ -892,7 +893,7 @@ await errorRequest.send({
 <LinkCard
   type="guides"
   title="Error handling"
-  description="Understand the error handling mechanisms in Hyper Fetch requests."
+  description="Understand the error handling mechanisms in HyperFetch requests."
   to="/docs/guides/core/basics/error-handling"
 />
 
@@ -1049,7 +1050,7 @@ unsubscribe();
 `$hooks` is a **runtime-only** property. It is excluded from `toJSON()` serialization, so hooks are not persisted to
 storage or queues. When a request is restored from JSON, hooks are simply not present (no crash).
 
-The `$` prefix convention indicates runtime-only properties throughout Hyper Fetch.
+The `$` prefix convention indicates runtime-only properties throughout HyperFetch.
 
 :::
 
@@ -1146,7 +1147,7 @@ Learn how to install and configure the plugin in the [Eslint plugin guide](/docs
 
 ### Generics
 
-Starting from `Hyper Fetch v7.0.0`, the generics of `createClient` and the `createRequest` method are passed as
+Starting from `HyperFetch v7.0.0`, the generics of `createClient` and the `createRequest` method are passed as
 objects. This way, user can specify **only** what they want, in any order, in very a readable way.
 
 ```ts

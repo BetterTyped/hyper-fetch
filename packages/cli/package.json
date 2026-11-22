@@ -1,9 +1,9 @@
 {
   "name": "@hyper-fetch/cli",
   "version": "0.0.0",
-  "description": "Hyper Fetch cli for code generation and utilities",
+  "description": "HyperFetch CLI: generate a typed TypeScript SDK from an OpenAPI or Swagger schema",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/cli/overview/",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -65,11 +65,13 @@
     ]
   },
   "keywords": [
-    "codegen",
     "openapi",
-    "hyper fetch",
     "swagger",
-    "openapi schema",
-    "code generator"
+    "codegen",
+    "code-generator",
+    "openapi-typescript",
+    "sdk",
+    "typescript",
+    "hyperfetch"
   ]
 }

@@ -14,7 +14,7 @@ export const banners = [
     logo: "integration-hyper-fetch.svg",
     accent: "#fbc646",
     accentTo: "#fb923c",
-    headline: ["From REST to realtime.", "Fully typed."],
+    headline: ["Fetch anything.", "Type everything."],
     codeSize: 13,
     description:
       "Typed requests with cache, deduplication, retries, queues and offline replay built in. One <code>createRequest()</code> for every backend.",
@@ -264,7 +264,7 @@ if (error?.defined && error.code === "NOT_FOUND") {
     language: "typescript",
     code: `// server.ts
 const app = new Hono().get("/users/:userId", getUser);
-export type AppSchema = HonoAppToHyperFetch<typeof app>;
+export type AppSchema = HonoSchema<typeof app>;
 
 // client.ts
 const sdk = createSdk<typeof client, AppSchema>(client);
@@ -293,7 +293,7 @@ const { data } = await sdk.users.$userId.$get
     language: "typescript",
     code: `// server.ts
 const app = new Elysia().get("/users/:userId", getUser);
-export type AppSchema = ElysiaAppToHyperFetch<typeof app>;
+export type AppSchema = ElysiaSchema<typeof app>;
 
 // client.ts
 const sdk = createSdk<typeof client, AppSchema>(client);

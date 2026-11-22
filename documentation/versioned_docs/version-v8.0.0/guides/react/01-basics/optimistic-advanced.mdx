@@ -292,7 +292,7 @@ const completeAll = client
 | --- | --- | --- |
 | Single item in a list | Snapshot the **item**, restore by ID | Other concurrent mutations are unaffected |
 | Toggle (on/off) | Store the **previous value**, flip back | Simple, no snapshot object needed |
-| Create (add to list) | Filter out by **temp ID** | See the [basic guide](/docs/guides/react/basics/optimistic-approach#advanced-custom-rollback-for-creates) |
+| Create (add to list) | Filter out by **temp ID** | See the [basic guide](/docs/guides/react/basics/optimistic-approach/#rollback) |
 | Cross-cache update | Snapshot **each cache key**, restore all | Atomic revert across caches |
 | Batch operation | Snapshot **affected items**, restore by ID map | Same as single-item, scaled |
 

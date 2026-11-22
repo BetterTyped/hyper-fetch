@@ -1,0 +1,322 @@
+---
+title: "Axios in React: GET Requests, Hooks and Cancellation"
+description: How to use Axios in React with useEffect, AbortController and loading state, why race conditions happen, and how to get cached Axios hooks.
+sidebar_label: Axios in React
+---
+
+# Axios in React
+
+Using axios in react usually starts with one `axios.get` inside `useEffect`. That's fine for a first screen. Then the
+same problems show up in every component that fetches: a loading flag, an error state, a request that should stop when
+the user leaves, and a slow response that lands after a newer one. This page shows the plain Axios version first and
+what it needs to be correct, then the same component with Axios kept as the transport and HyperFetch hooks on top.
+
+:::secondary What you'll learn
+
+1.  How to send an **axios get request in React** with loading and error state.
+2.  How to **cancel** Axios requests with `AbortController` and why **race conditions** happen.
+3.  Why the request fires twice under **StrictMode**, and what to do about it.
+4.  What a custom **Axios React hook** covers and what it leaves out.
+5.  How to use Axios through **`useFetch`** and **`useSubmit`** with the `@hyper-fetch/axios` adapter.
+
+:::
+
+---
+
+## An axios get request in React
+
+Install Axios:
+
+```bash
+npm install axios
+```
+
+Here is a component that loads one user. It is longer than the one-line version you usually see, because each extra
+line fixes a real bug:
+
+```tsx
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+type User = { id: number; name: string };
+
+function UserProfile({ userId }: { userId: number }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+
+    axios
+      .get<User>(`/api/users/${userId}`, { signal: controller.signal })
+      .then((response) => setUser(response.data))
+      .catch((err) => {
+        // highlight-next-line
+        if (axios.isCancel(err)) return; // we aborted it, not a failure
+        setError(err);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    // highlight-next-line
+    return () => controller.abort();
+  }, [userId]);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error.message}</p>;
+  return <h1>{user?.name}</h1>;
+}
+```
+
+A few things Axios already does for you here. It rejects the promise for any status outside 200 to 299, so a 404 lands
+in `catch` (see the [Axios error handling docs](https://axios.rest/pages/advanced/error-handling)). It parses the JSON
+body into `response.data`. And `axios.get<User>` types `response.data`, although nothing checks that the server really
+sends a `User`.
+
+---
+
+## Cancellation and race conditions
+
+Say `userId` changes from 1 to 2 while the first request is still out. If request 1 is slow, it can resolve after
+request 2 and overwrite the screen with the wrong user. React's docs call this a
+[race condition](https://react.dev/learn/you-might-not-need-an-effect#fetching-data) and fix it with a cleanup that
+ignores stale responses.
+
+With Axios you can do better than ignoring the response: abort the request. Axios has accepted an `AbortController`
+signal since v0.22.0, and its `CancelToken` API is deprecated
+([Axios cancellation docs](https://axios.rest/pages/advanced/cancellation)). A cancelled request rejects with a
+`CanceledError`, which is why the example checks `axios.isCancel(err)` before setting the error state.
+
+The cleanup in `useEffect` runs before the next effect and on unmount, so every `userId` change aborts the previous
+request. The `finally` check stops an aborted request from switching the spinner off while the new one is still
+loading.
+
+---
+
+## Why the request fires twice in development
+
+With `<StrictMode>` on, React runs
+["one extra setup+cleanup cycle in development for every Effect"](https://react.dev/reference/react/StrictMode). In the
+network tab you'll see the first Axios request cancelled and a second one sent. That's expected, and it only happens in
+development.
+
+Don't remove `StrictMode` to hide it. It is showing you that the effect needs a cleanup, and with the `AbortController`
+cleanup above the double run is harmless. What it can't fix is the extra request itself: the effect has no idea that an
+identical request is already in flight.
+
+---
+
+## A custom Axios React hook
+
+The usual next step is to pull the effect into a hook:
+
+```tsx
+function useAxiosGet<T>(url: string) {
+  const [state, setState] = useState<{ data: T | null; loading: boolean; error: Error | null }>({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+
+    axios
+      .get<T>(url, { signal: controller.signal })
+      .then((response) => setState({ data: response.data, loading: false, error: null }))
+      .catch((err) => {
+        if (!axios.isCancel(err)) setState({ data: null, loading: false, error: err });
+      });
+
+    return () => controller.abort();
+  }, [url]);
+
+  return state;
+}
+```
+
+That removes the repetition. It still leaves the parts that make data fetching hard:
+
+- **No cache.** Two components that call `useAxiosGet("/api/users/1")` send two requests, and going back to a page
+  shows the spinner again.
+- **No sharing of in-flight requests.** StrictMode, or two components mounting together, means duplicate calls.
+- **No retries, refetch on focus or refetch after a write.** Each one is more code in the hook.
+- **Writes need a second hook.** A `POST` should not fire on mount, so you end up writing `useAxiosPost` with a
+  `submit` function and its own loading state.
+
+This is the point where people reach for a data fetching library. You don't have to give up Axios to do that.
+
+---
+
+## Axios with HyperFetch hooks
+
+The [`@hyper-fetch/axios` adapter](../../../integrations/adapter-axios/overview.mdx) makes Axios the transport under
+HyperFetch. Axios still sends every request. HyperFetch adds the cache, deduplication, retries and the React hooks.
+
+```bash
+npm install @hyper-fetch/core @hyper-fetch/react @hyper-fetch/axios axios
+```
+
+Create the client once and describe each request once:
+
+```ts title="api/client.ts"
+import { createClient } from "@hyper-fetch/core";
+import { AxiosAdapter } from "@hyper-fetch/axios";
+import type { AxiosError } from "axios";
+
+type User = { id: number; name: string };
+
+// The error type is the Axios error, because that's what the adapter passes on
+export const client = createClient<{ error: AxiosError }>({ url: "https://api.example.com" }).setAdapter(
+  AxiosAdapter,
+);
+
+export const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  // Any Axios request config, except the fields the adapter owns (see below)
+  options: { timeout: 10000, withCredentials: true },
+});
+```
+
+### Reading with useFetch
+
+```tsx
+import { useFetch } from "@hyper-fetch/react";
+import { getUser } from "./api/client";
+
+function UserProfile({ userId }: { userId: number }) {
+  // highlight-next-line
+  const { data, loading, error, refetch } = useFetch(getUser.setParams({ userId }));
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <button onClick={refetch}>{error.message}. Try again</button>;
+  return <h1>{data?.name}</h1>;
+}
+```
+
+Here is what changed against the `useEffect` version:
+
+- **Params are typed.** `:userId` in the endpoint makes `setParams({ userId })` required.
+- **Stale responses can't win.** The hook reads from the cache entry of the current params. When `userId` changes it
+  moves to the new entry, so a late response for user 1 is stored under user 1 and never shown as user 2.
+- **One request, not two.** If a request with the same key is already running when the hook mounts, it doesn't send
+  another. That covers StrictMode's second effect run and two components mounting at once.
+- **Cached between screens.** Results stay in the cache, 5 minutes by default (`staleTime`). See
+  [cache revalidation](../../core/02-advanced/cache-revalidation.mdx).
+
+For search boxes, where every keystroke sends a request, set `cancelable: true`. A new request then aborts the pending
+ones in the same queue, and the adapter passes the abort signal to Axios:
+
+```ts
+export const searchUsers = client.createRequest<{ response: User[]; queryParams: { q: string } }>()({
+  endpoint: "/users",
+  cancelable: true,
+  queryKey: "users-search", // one queue for every search term
+});
+
+// In the component
+const { data } = useFetch(searchUsers.setQueryParams({ q: search }));
+```
+
+[Cancellation](../../core/02-advanced/cancellation.mdx) explains `cancelable`, `queryKey` and manual `abort()`.
+
+### Writing with useSubmit
+
+Writes go through `useSubmit`, which sends nothing until you call `submit`:
+
+```tsx
+import { useSubmit } from "@hyper-fetch/react";
+
+const updateUser = client.createRequest<{ response: User; payload: { name: string } }>()({
+  endpoint: "/users/:userId",
+  method: "PATCH",
+});
+
+function RenameUser({ userId }: { userId: number }) {
+  const { submit, submitting, error, onSubmitSuccess } = useSubmit(updateUser.setParams({ userId }));
+
+  // Refetch the profile everywhere it's shown
+  onSubmitSuccess(() => client.cache.invalidate(getUser.setParams({ userId })));
+
+  return (
+    <button disabled={submitting} onClick={() => submit({ payload: { name: "Ada" } })}>
+      {error ? "Retry rename" : "Rename"}
+    </button>
+  );
+}
+```
+
+The payload is typed by the request, so `submit({ payload: { name: 1 } })` fails to compile. More in
+[submitting](./submitting.mdx).
+
+### Upload progress
+
+Upload progress is the most common reason to keep Axios in a browser app, because `fetch` has no upload progress event.
+The adapter forwards Axios's upload events to `useSubmit`:
+
+```tsx
+const { submit, onSubmitUploadProgress } = useSubmit(uploadAvatar);
+
+onSubmitUploadProgress(({ progress, timeLeft }) => {
+  setPercent(progress); // 0 to 100
+});
+```
+
+The [upload progress guide](./progress.mdx) builds a full progress bar.
+
+---
+
+## What the adapter owns
+
+Request `options` take Axios request config. A few fields are set by the adapter and get overwritten:
+
+| Axios field                              | Use instead                                         |
+| ---------------------------------------- | --------------------------------------------------- |
+| `url`, `baseURL`                         | Client `url` plus request `endpoint`                |
+| `method`                                 | Request `method`                                    |
+| `data`                                   | `payload`                                           |
+| `headers`                                | Request headers or a client interceptor             |
+| `signal`                                 | `cancelable`, `abort()`, abort keys                 |
+| `onUploadProgress`, `onDownloadProgress` | `onSubmitUploadProgress`, `onUploadProgress` events |
+
+The adapter sends through the default `axios` export, so interceptors you register on `axios.interceptors` still run.
+An instance made with `axios.create()` is not used. Move its settings to request `options` and its interceptors to
+[client interceptors](../../core/02-advanced/intercepting.mdx), which work the same with any adapter.
+
+---
+
+## Plain Axios vs Axios through HyperFetch
+
+| Concern                         | Axios in `useEffect`                  | Axios with HyperFetch hooks                      |
+| ------------------------------- | ------------------------------------- | ------------------------------------------------ |
+| Loading and error state         | Your `useState` calls                 | `loading`, `error` from the hook                 |
+| Late response after params change | Aborted by the cleanup              | Stored under its own params, never shown         |
+| Abort superseded requests       | `AbortController` in the cleanup      | `cancelable: true`                               |
+| StrictMode double request       | Aborted and re-sent                   | Joins the request already in flight              |
+| Cache between components        | Not built in                          | Yes, with `staleTime`                            |
+| Retries                         | Not built in, often `axios-retry`     | `retry`, `retryTime`                             |
+| Upload progress                 | `onUploadProgress`                    | `onSubmitUploadProgress`                         |
+
+:::note When to use it
+
+- You already use Axios and want caching and hooks without rewriting your requests as `fetch` calls.
+- Your app uploads files and needs real upload progress.
+- You need an Axios-only option such as `withCredentials`, `maxContentLength` or a Node `httpAgent`.
+- If you don't need any Axios feature, the default `fetch` adapter does the same job.
+  [Axios vs fetch](../../comparisons/axios-vs-fetch.mdx) compares the two.
+
+:::
+
+:::secondary Summary
+
+- An axios get request in `useEffect` needs loading state, error state and an `AbortController` cleanup to be correct.
+- The cleanup handles race conditions and makes StrictMode's double effect harmless, but can't share or cache requests.
+- `@hyper-fetch/axios` keeps Axios as the transport and adds `useFetch`, `useSubmit`, caching and deduplication.
+- `cancelable: true` aborts superseded requests, and upload progress comes through `onSubmitUploadProgress`.
+
+:::

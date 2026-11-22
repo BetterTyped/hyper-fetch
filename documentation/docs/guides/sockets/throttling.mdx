@@ -1,6 +1,7 @@
 ---
 sidebar_position: 3
 title: Socket Throttling & Batching Guide
+description: "Throttle and batch high-frequency WebSocket streams in HyperFetch with the listener delivery option: latest, batch, custom strategies and switching at runtime."
 sidebar_label: Throttling & Batching
 ---
 
@@ -10,7 +11,7 @@ Some socket streams are fast. A price ticker can push hundreds of updates per se
 of those messages reaches every `listen` callback, and in React every one of them is a re-render. Most of that work is
 wasted: the screen refreshes 60 times a second, and nobody reads 500 intermediate prices.
 
-Hyper Fetch solves this at the listener level with the **`delivery`** option. You declare *how* messages should reach
+HyperFetch solves this at the listener level with the **`delivery`** option. You declare *how* messages should reach
 your callbacks, and everything built on top of the listener - `listen()`, `useListener`, the SDK - follows along
 without any changes.
 

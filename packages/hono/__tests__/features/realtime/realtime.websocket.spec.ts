@@ -1,7 +1,7 @@
 import type { EmitterModel, ListenerModel, SocketInstance, WebsocketAdapterOptionsType } from "@hyper-fetch/sockets";
 import { createSocketSdk, Socket } from "@hyper-fetch/sockets";
 
-import type { HonoWebSocketPath } from "../../../src";
+import type { HonoSocketPath } from "../../../src";
 import type { ChatMessage, Notification, Price, RealtimeApp, RealtimeServer } from "../../utils/realtime-server";
 import { createRealtimeServer } from "../../utils/realtime-server";
 
@@ -10,7 +10,7 @@ describe("Hono realtime [ WebSocket ]", () => {
   let sockets: SocketInstance[] = [];
 
   const createSocket = (
-    path: HonoWebSocketPath<RealtimeApp>,
+    path: HonoSocketPath<RealtimeApp>,
     options?: { queryParams?: Record<string, string>; adapterOptions?: WebsocketAdapterOptionsType },
   ) => {
     // A short reconnect delay keeps the reconnect tests fast, `connectionTimeout` keeps slow handshakes alive
@@ -199,7 +199,7 @@ describe("Hono realtime [ WebSocket ]", () => {
     });
 
     it("should open one connection per room on a route with path params", async () => {
-      const roomPath = (roomId: string): HonoWebSocketPath<RealtimeApp> => `/chat/${roomId}`;
+      const roomPath = (roomId: string): HonoSocketPath<RealtimeApp> => `/chat/${roomId}`;
       const socket = createSocket(roomPath("1"));
       const onMessage = vi.fn();
       socket.createListener<ChatMessage>()({ topic: "message" }).listen(onMessage);

@@ -1,15 +1,18 @@
 ---
 sidebar_position: 1
-title: Elysia
+title: Elysia Client with Types from Your App, Eden Alternative
+description: A typed Elysia client for the frontend. Read routes, schemas and errors from your Elysia app type and call them with caching, retries and React hooks.
 sidebar_label: Overview
 ---
 
-[Read the API Reference »](/docs/api/elysia/Types/ElysiaAppToHyperFetch.mdx)
+# Elysia client with types from your app
 
-`@hyper-fetch/elysia` converts the type of an [Elysia](https://elysiajs.com/) app into a schema for
-[`createSdk`](/docs/core/sdk). The frontend then calls the backend through a typed SDK whose responses, errors,
-payloads, query params and URL params come from your Elysia routes and schemas. The package exports a single type and
-adds no code to your bundle.
+[Read the API Reference »](/docs/api/elysia/Types/ElysiaSchema.mdx)
+
+`@hyper-fetch/elysia` gives you a typed elysia client built on HyperFetch. It converts the type of an
+[Elysia](https://elysiajs.com/) app into a schema for [`createSdk`](/docs/core/sdk), so the frontend calls the backend
+through an SDK whose responses, errors, payloads, query params and URL params come from your Elysia routes and schemas.
+The package exports a single type and adds no code to your bundle.
 
 :::tip Purpose
 
@@ -21,6 +24,30 @@ adds no code to your bundle.
 4. **Full HyperFetch features**: Every route is a regular `Request` with cache, retries, deduplication and React hooks.
 
 :::
+
+---
+
+## Elysia Eden or HyperFetch
+
+Elysia ships its own client, [Eden](https://elysiajs.com/eden/overview). It reads the app type with no code generation,
+the same way this package does, and comes in two forms: Eden Treaty, created with `treaty<App>(url)`, which mirrors
+your routes as an object, and Eden Fetch, created with `edenFetch<App>(url)`, a fetch-style call. Treaty also covers
+WebSocket routes. If you want typed calls and nothing else, Eden is the shortest path and it is maintained with Elysia.
+
+Eden returns the response and stops there. This package keeps the same route types and puts each route behind a
+HyperFetch `Request`, so the parts Eden leaves to you are part of the request:
+
+| Need                        | Eden Treaty                  | `@hyper-fetch/elysia`                                      |
+| --------------------------- | ---------------------------- | ---------------------------------------------------------- |
+| Types from the Elysia app   | Yes                          | Yes                                                        |
+| Typed errors per status     | Yes                          | Yes, non-2xx statuses type `error`                         |
+| Response cache              | Not built in                 | [Built-in cache](../../core/cache.mdx)                     |
+| Retries and deduplication   | Not built in                 | Request options                                            |
+| React hooks                 | Not built in                 | `useFetch` and `useSubmit` from `@hyper-fetch/react`       |
+| WebSocket routes            | Yes                          | Left out of the HTTP schema, connect a [`Socket`](../../sockets/socket.mdx) |
+
+Stay on Eden when the app is small and you fetch in a few places. Use this package when the same data is read in many
+components, when you need offline queues, or when your frontend also talks to services that are not Elysia.
 
 ---
 
@@ -43,7 +70,7 @@ supports.
 
 ```ts title="backend/src/app.ts"
 import { Elysia, t } from "elysia";
-import type { ElysiaAppToHyperFetch } from "@hyper-fetch/elysia";
+import type { ElysiaSchema } from "@hyper-fetch/elysia";
 
 const users = new Elysia({ prefix: "/users" })
   .get("/", () => [{ id: "1", name: "Ann" }])
@@ -55,7 +82,7 @@ const users = new Elysia({ prefix: "/users" })
 export const app = new Elysia().use(users);
 
 // highlight-next-line
-export type AppSchema = ElysiaAppToHyperFetch<typeof app>;
+export type AppSchema = ElysiaSchema<typeof app>;
 ```
 
 2. Pass the schema to `createSdk` on the frontend. Use `import type` so no backend code reaches the client bundle.
@@ -214,12 +241,20 @@ const { error } = await sdk.users.$get.send();
 
 :::secondary What you learned
 
-- `ElysiaAppToHyperFetch<typeof app>` turns a chained Elysia app into a schema for `createSdk`.
+- `ElysiaSchema<typeof app>` turns a chained Elysia app into a schema for `createSdk`.
 - Paths, params, optional params, kebab-case segments, prefixes and groups all map to nested SDK properties.
 - 2xx bodies type the response, and every other status types the local error.
 - Response types follow the wire: dates are strings, empty bodies are `""`, and streams are `unknown`.
 - `body` and `query` schemas type the payload and query params of each request.
 - The package ships types only, so import it with `import type` on the frontend.
+
+:::
+
+---
+
+:::note Renamed type
+
+Earlier releases called `ElysiaSchema` `ElysiaAppToHyperFetch`. The old name still works and is marked `@deprecated`.
 
 :::
 

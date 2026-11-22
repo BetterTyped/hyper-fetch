@@ -1,12 +1,13 @@
 ---
 sidebar_position: 6
 title: Socket Connection Guide
+description: "Manage WebSocket connections in HyperFetch: autoConnect, manual connect and disconnect, reconnect, the onConnect interceptor, connection status and retries."
 sidebar_label: Connection
 ---
 
 # Connection
 
-This guide provides a comprehensive overview of how to manage socket connections using Hyper-fetch. You'll learn how to
+This guide shows how to manage socket connections using HyperFetch. You'll learn how to
 control connection states, handle automatic and manual connections, and configure retry policies to build robust
 real-time applications.
 
@@ -25,7 +26,7 @@ real-time applications.
 
 ## Autoconnect
 
-By default, Hyper-fetch attempts to connect to the socket server as soon as the `Socket` instance is created. This
+By default, HyperFetch attempts to connect to the socket server as soon as the `Socket` instance is created. This
 behavior is controlled by the `autoConnect` option, which is set to `true` by default.
 
 You can disable autoconnect by setting `autoConnect: false` in the adapter options. This is useful when you want to
@@ -99,7 +100,7 @@ closed.
 
 ## Reconnect
 
-Hyper-fetch provides a `socket.reconnect()` method to manually trigger a reconnection attempt. This can be useful in
+HyperFetch provides a `socket.reconnect()` method to manually trigger a reconnection attempt. This can be useful in
 scenarios where you want to give users a way to re-establish a connection without a full page reload, such as when a
 connection is lost due to a temporary network issue.
 
@@ -312,7 +313,7 @@ const socket = new Socket({
 
 :::success Congratulations!
 
-You now know how to manage socket connections in Hyper-fetch.
+You now know how to manage socket connections in HyperFetch.
 
 - You can control **automatic and manual connections**.
 - You can **disconnect and reconnect** from the server on demand.

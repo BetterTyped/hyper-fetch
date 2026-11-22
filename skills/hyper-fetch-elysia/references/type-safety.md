@@ -8,7 +8,7 @@ should return errors. Every statement here is checked against the package's type
 ```
 new Elysia().use(plugin).get(...).post(...)  backend: one chain, Elysia records every route on its "~Routes" type
         │ typeof app
-ElysiaAppToHyperFetch<typeof app>             route tree → nested SDK schema (up to 9 segments)
+ElysiaSchema<typeof app>                      route tree → nested SDK schema (up to 9 segments)
         │ import type { AppSchema }
 createSdk<typeof client, AppSchema>(client)   injects the client type into every Request (up to 8 segments)
         │
@@ -17,7 +17,7 @@ sdk.users.$userId.$get                        Request<Response, Payload, Query, 
 send() / useFetch() / useSubmit()             data, error, payload, params, queryParams all typed
 ```
 
-`ElysiaAppToHyperFetch` matches any type with a `"~Routes"` property, so it works for `new Elysia()`, apps built from
+`ElysiaSchema` matches any type with a `"~Routes"` property, so it works for `new Elysia()`, apps built from
 plugins (`.use()`), `prefix`, `.group()`, `.guard()`, `.model()` and macros. Anything else, including the `Elysia` class
 itself (`typeof Elysia`), resolves to `{}`.
 
@@ -165,7 +165,7 @@ expectTypeOf<Exclude<ExtractLocalErrorType<AppSchema["users"]["$userId"]["$get"]
 | Pattern                                                   | Result                                               | Fix                                              |
 | --------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------ |
 | `const app = new Elysia(); app.get(...)` (separate calls) | Route missing                                        | Chain every `.get/.post/.use`                    |
-| `ElysiaAppToHyperFetch<typeof Elysia>`                    | `{}`                                                 | `typeof app` of the instance                     |
+| `ElysiaSchema<typeof Elysia>`                    | `{}`                                                 | `typeof app` of the instance                     |
 | Handler without a return value, or returning `any`        | Response `unknown`                                   | Return a typed value or annotate the return type |
 | `throw` for expected failures                             | No local error, runtime text body                    | `return status(code, body)`                      |
 | `status(code, { ...literal })`                            | `readonly` literal types                             | Pass a typed variable                            |

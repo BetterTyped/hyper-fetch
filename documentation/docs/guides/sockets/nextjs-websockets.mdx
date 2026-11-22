@@ -1,0 +1,242 @@
+---
+sidebar_position: 11
+title: Next.js WebSocket client in the App Router
+description: How to use a WebSocket in Next.js. Where the socket server runs, why route handlers cannot upgrade, and a typed client component that connects to it.
+sidebar_label: WebSockets in Next.js
+---
+
+# WebSockets in Next.js
+
+A next js websocket setup has two halves, and Next.js only owns one of them. The client half, a component that opens the
+connection and renders messages, is an ordinary Client Component. The server half, the process that accepts the
+connection and keeps it open, usually lives outside Next.js, because Next.js has no API for WebSocket upgrades.
+
+This page explains where the server can run, then builds the client: a socket module that is safe under server rendering,
+a client component that listens and sends, and a server component that hands it the initial data.
+
+:::secondary What you'll learn
+
+1.  Why **route handlers** cannot accept a WebSocket, and where the socket server runs instead.
+2.  How to create a **Next.js WebSocket client** that does not connect during server rendering.
+3.  How to build a **client component** with `useListener` and `useEmitter`.
+4.  When **SSE from a route handler** is the simpler choice.
+
+:::
+
+---
+
+## Where the socket server runs
+
+Route handlers in the App Router handle HTTP methods: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD` and `OPTIONS`,
+using the Web `Request` and `Response` APIs
+([Next.js: route.js](https://nextjs.org/docs/app/api-reference/file-conventions/route)). A handler returns one `Response`.
+There is no hook to take over the connection and upgrade it. Vercel's own docs say it directly: Next.js
+"does not expose an API for handling WebSocket upgrades"
+([Vercel: WebSockets](https://vercel.com/docs/functions/websockets)).
+
+So you pick one of these:
+
+| Option | How it works | Good for |
+| --- | --- | --- |
+| Separate socket server | A Node, Bun or Go service (with `ws`, `uWebSockets`, Socket.IO and so on) on its own host or port | Most apps. Portable, any host, no connection time limit |
+| Custom Next.js server | Your own Node server runs Next.js and a WebSocket server on the same port | Self-hosting on one machine |
+| Managed realtime service | A hosted pub/sub service with its own client SDK | Teams that do not want to run socket servers |
+| `upgradeWebSocket()` on Vercel | The `@vercel/functions` package upgrades the request inside a route handler | Apps already on Vercel. Connections close when the function hits its maximum duration |
+
+Whichever you pick, the browser connects to a `wss://` URL, and the code below does not change. In every case, plan for
+the connection to drop: deploys, function time limits and network changes all close it. The
+[reconnection guide](./websocket-reconnection-and-errors.mdx) covers what the client should do then.
+
+---
+
+## The socket module
+
+Create the socket once, in a module that only client components import. Two Next.js details matter here.
+
+**Environment variables.** Only variables prefixed with `NEXT_PUBLIC_` are included in the client bundle. Others are
+replaced with an empty string
+([Next.js: Server and Client Components](https://nextjs.org/docs/app/getting-started/server-and-client-components)).
+
+**Server rendering.** Client Components are still rendered to HTML on the server for the first load. A module-level
+`new Socket()` runs there too, and Node.js 22 and later have a global `WebSocket`, so it would open a connection from your
+Next.js server. Turn the automatic connection off when there is no `window`:
+
+```ts title="lib/socket.ts"
+import { Socket } from "@hyper-fetch/sockets";
+
+export type ChatMessage = { id: string; user: string; text: string };
+
+export const socket = new Socket({
+  url: process.env.NEXT_PUBLIC_SOCKET_URL ?? "ws://localhost:4000",
+  // highlight-next-line
+  adapterOptions: { autoConnect: typeof window !== "undefined" },
+});
+
+export const onChatMessage = socket.createListener<ChatMessage>()({
+  topic: "chat-message",
+});
+
+export const sendChatMessage = socket.createEmitter<Omit<ChatMessage, "id">>()({
+  topic: "chat-message",
+});
+```
+
+On the server the socket is created but stays disconnected. In the browser the module is evaluated again, `window`
+exists, and it connects. The same caution is in the [adapter reference](../../sockets/adapter.mdx).
+
+---
+
+## The client component
+
+Mark the component with `"use client"`, because it needs state, effects and a browser API
+([Next.js: Server and Client Components](https://nextjs.org/docs/app/getting-started/server-and-client-components)).
+
+```tsx title="app/chat/live-chat.tsx"
+"use client";
+
+import { useState } from "react";
+import { useEmitter, useListener } from "@hyper-fetch/react";
+
+import { onChatMessage, sendChatMessage, type ChatMessage } from "@/lib/socket";
+
+export function LiveChat({ initialMessages }: { initialMessages: ChatMessage[] }) {
+  const [messages, setMessages] = useState(initialMessages);
+  const [text, setText] = useState("");
+
+  const { connected, connecting, onEvent } = useListener(onChatMessage);
+  const { emit, onEmitError } = useEmitter(sendChatMessage);
+
+  onEvent(({ data }) => {
+    setMessages((previous) => [...previous, data]);
+  });
+
+  onEmitError(({ error }) => {
+    console.error("Not sent:", error.message);
+  });
+
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-sm">{connecting ? "Connecting..." : connected ? "Live" : "Reconnecting..."}</p>
+
+      {messages.map((message) => (
+        <p key={message.id}>
+          <span className="font-bold">{message.user}:</span> {message.text}
+        </p>
+      ))}
+
+      <input value={text} onChange={(event) => setText(event.target.value)} className="border rounded px-2 py-1" />
+      <button
+        disabled={!connected || !text}
+        onClick={() => {
+          emit({ payload: { user: "me", text } });
+          setText("");
+        }}
+      >
+        Send
+      </button>
+    </div>
+  );
+}
+```
+
+During server rendering `useListener` does not subscribe; its `status` stays `idle` until the component mounts in the
+browser. The subscription starts on mount and stops on unmount. The connection itself belongs to the module, so moving
+between pages does not reconnect it.
+
+---
+
+## Initial data from a server component
+
+A socket only delivers what happens after it connects. Load the history in a Server Component and pass it down as props,
+which must be serializable:
+
+```tsx title="app/chat/page.tsx"
+import { LiveChat } from "./live-chat";
+
+export default async function ChatPage() {
+  const response = await fetch(`${process.env.API_URL}/messages`, { cache: "no-store" });
+  const initialMessages = await response.json();
+
+  return <LiveChat initialMessages={initialMessages} />;
+}
+```
+
+If the history comes through a HyperFetch request instead of `fetch`, [Hydrate](../../react/06-hydrate.mdx) passes the
+server response into the client cache so the browser does not request it again.
+
+---
+
+## Authentication
+
+Do not put tokens in `NEXT_PUBLIC_` variables, they ship to every visitor. Resolve the user's token right before each
+connection attempt with the `onConnect` interceptor, so reconnects never reuse an expired one:
+
+```ts title="lib/socket.ts"
+socket.onConnect(async ({ connection }) => {
+  const response = await fetch("/api/socket-token");
+  const { token } = await response.json();
+  return { ...connection, queryParams: { token } };
+});
+```
+
+The [authentication guide](./authentication.mdx) covers subprotocols and adapter options as well.
+
+---
+
+## When SSE from a route handler is simpler
+
+If the browser only receives, you may not need a socket server at all. A route handler can return a streamed `Response`
+built on a `ReadableStream`, which the Next.js docs show for streaming, and a stream with the `text/event-stream` content
+type is Server-Sent Events:
+
+```ts title="app/api/events/route.ts"
+export async function GET() {
+  const encoder = new TextEncoder();
+  let timer: ReturnType<typeof setInterval>;
+
+  const stream = new ReadableStream({
+    start(controller) {
+      timer = setInterval(() => {
+        const message = { topic: "tick", data: { at: Date.now() } };
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(message)}\n\n`));
+      }, 1000);
+    },
+    cancel() {
+      clearInterval(timer);
+    },
+  });
+
+  return new Response(stream, {
+    headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache" },
+  });
+}
+```
+
+The client keeps the same listener API, only the adapter changes:
+
+```ts title="lib/events.ts"
+import { ServerSentEventsAdapter, Socket } from "@hyper-fetch/sockets";
+
+export const events = new Socket({
+  url: "/api/events",
+  adapter: ServerSentEventsAdapter(),
+  adapterOptions: { autoConnect: typeof window !== "undefined" },
+});
+
+export const onTick = events.createListener<{ at: number }>()({ topic: "tick" });
+```
+
+On serverless hosting the stream still ends when the function reaches its time limit. `EventSource` reconnects on its
+own, and the adapter follows it. [SSE vs WebSocket](./sse-vs-websocket.mdx) compares the two in detail.
+
+:::secondary Summary
+
+- Next.js route handlers answer HTTP requests and cannot upgrade them to WebSockets. Run the socket server separately,
+  in a custom server, through a managed service, or with `upgradeWebSocket()` on Vercel.
+- Create the HyperFetch `Socket` at module level with `autoConnect: typeof window !== "undefined"` and a
+  `NEXT_PUBLIC_` URL.
+- Use `useListener` and `useEmitter` in a `"use client"` component, and load history in a Server Component.
+- Resolve tokens per attempt with `onConnect`.
+- For receive-only data, an SSE route handler plus `ServerSentEventsAdapter` may be all you need.
+
+:::

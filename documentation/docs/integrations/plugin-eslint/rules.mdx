@@ -1,12 +1,14 @@
 ---
 sidebar_position: 3
-title: Rules
+title: ESLint Rules for Typed Requests and Clients
+description: What the request-generic-types and client-generic-types ESLint rules check in HyperFetch generics, with examples of code each rule reports.
+sidebar_label: Rules
 ---
 
-# Rules
+# ESLint rules for typed requests and clients
 
-The Hyper Fetch ESLint plugin includes several rules to help you catch common issues when working with Hyper Fetch. This
-page describes each rule, explains what it checks for, and provides examples of code that would trigger the rule.
+The HyperFetch ESLint plugin has two rules for typed request linting: `client-generic-types` and
+`request-generic-types`. This page describes each rule, what it checks, and code that triggers it.
 
 ---
 
@@ -25,7 +27,7 @@ matching `RequestGenericType` in `@hyper-fetch/core`.
 
 1. ## client-generic-types
 
-This rule ensures proper generic types are used when creating clients with Hyper Fetch. It extends TypeScript's
+This rule ensures proper generic types are used when creating clients with HyperFetch. It extends TypeScript's
 functionality to trace issues with object-like generic types that might otherwise be missed.
 
 ### Description
@@ -70,7 +72,7 @@ Default severity: `"error"`
 
 2. ## request-generic-types
 
-This rule ensures proper generic types are used when creating requests with Hyper Fetch. It extends TypeScript's
+This rule ensures proper generic types are used when creating requests with HyperFetch. It extends TypeScript's
 functionality to trace issues with object-like generic types that might otherwise be missed.
 
 ### Description
@@ -117,7 +119,7 @@ Default severity: `"error"`
 
 These rules are particularly useful for:
 
-1. Large codebases where multiple developers might be working with Hyper Fetch
+1. Large codebases where multiple developers might be working with HyperFetch
 2. Projects where type safety is critical
-3. Applications where you want to ensure consistent usage of Hyper Fetch
+3. Applications where you want to ensure consistent usage of HyperFetch
 4. Preventing subtle type-related bugs that might only manifest at runtime

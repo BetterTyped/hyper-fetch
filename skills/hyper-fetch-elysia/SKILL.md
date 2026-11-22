@@ -1,11 +1,11 @@
 ---
 name: hyper-fetch-elysia
 description:
-  Elysia integration for HyperFetch (`@hyper-fetch/elysia`). A types-only package whose `ElysiaAppToHyperFetch<typeof
+  Elysia integration for HyperFetch (`@hyper-fetch/elysia`). A types-only package whose `ElysiaSchema<typeof
   app>` turns an Elysia app type into a schema for `createSdk` from `@hyper-fetch/core`, so the frontend calls a Bun or
   Node Elysia backend with responses, per-status errors, `t.Object` body and query schemas and `:param` URL params typed
   from the routes, without codegen or Eden. Use when the user installs `@hyper-fetch/elysia`, imports
-  `ElysiaAppToHyperFetch`, wants end-to-end type safety between an Elysia backend and a HyperFetch or React frontend,
+  `ElysiaSchema`, wants end-to-end type safety between an Elysia backend and a HyperFetch or React frontend,
   writes `createSdk<typeof client, AppSchema>`, calls `sdk.users.$userId.$get`, maps `prefix`, `.group()`, `.guard()`,
   `.model()`, macros, `status(404, ...)` or optional `:id?` params to typed requests, types the `422` validation error,
   uploads `t.File()` bodies as FormData, sends array query params, reads `sse()` streams, replaces Eden Treaty with
@@ -14,7 +14,7 @@ description:
 
 # HyperFetch Elysia integration
 
-`@hyper-fetch/elysia` exports a single type, `ElysiaAppToHyperFetch<App, Client?>`. It reads the route tree Elysia keeps
+`@hyper-fetch/elysia` exports a single type, `ElysiaSchema<App, Client?>`. It reads the route tree Elysia keeps
 on its app type (the one Eden uses) and converts it into a nested `createSdk` schema. There is no adapter and no runtime
 code: the frontend uses a normal `@hyper-fetch/core` client with the default HTTP adapter plus `createSdk`. Every route
 becomes a regular `Request` with cache, retries, deduplication and React hooks. Unlike the Hono integration, each route
@@ -36,7 +36,7 @@ dependency is enough).
 ```ts
 // backend/src/app.ts
 import { Elysia, t } from "elysia";
-import type { ElysiaAppToHyperFetch } from "@hyper-fetch/elysia";
+import type { ElysiaSchema } from "@hyper-fetch/elysia";
 
 type User = { id: string; name: string };
 
@@ -63,7 +63,7 @@ const auth = new Elysia({ prefix: "/auth" }).get("/google-login", () => ({ authU
 
 export const app = new Elysia().use(users).use(auth);
 
-export type AppSchema = ElysiaAppToHyperFetch<typeof app>;
+export type AppSchema = ElysiaSchema<typeof app>;
 ```
 
 ```ts
@@ -251,12 +251,12 @@ if (data instanceof ReadableStream) {
 
 ### Requests outside `createSdk`
 
-`ElysiaAppToHyperFetch<typeof app, typeof client>` fills the `Client` generic directly when you use the schema types
+`ElysiaSchema<typeof app, typeof client>` fills the `Client` generic directly when you use the schema types
 without `createSdk`. With `createSdk` this is not needed, it injects its own client.
 
 ## Type safety
 
-Types flow in one direction: Elysia chain → `typeof app` → `ElysiaAppToHyperFetch<typeof app>` →
+Types flow in one direction: Elysia chain → `typeof app` → `ElysiaSchema<typeof app>` →
 `createSdk<typeof client, AppSchema>(client)` → each `Request` → `send()`, `useFetch`, `useSubmit`. A backend change
 breaks the frontend build at the call site.
 

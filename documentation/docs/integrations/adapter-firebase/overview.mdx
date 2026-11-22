@@ -1,14 +1,19 @@
 ---
 sidebar_position: 1
-title: Firebase Adapter
+title: Firebase React Hooks for Firestore and Realtime Database
+description: Use Firestore and the Realtime Database from React with typed hooks, caching, loading state and live listeners, without hand-written useEffect code.
 sidebar_label: Overview
 ---
 
+# Firebase React hooks for Firestore and Realtime Database
+
 [Read the API Reference »](/api/adapter-firebase/Functions/FirebaseAdapter.mdx)
 
-`@hyper-fetch/firebase` runs Firestore and Realtime Database operations through HyperFetch requests. You create requests
-with `createRequest`, send them with `send()`, and get the same typed responses, caching, deduplication and React hooks
-you use for HTTP. Live data comes through `@hyper-fetch/sockets` listeners.
+The Firebase JavaScript SDK has no React bindings, so firebase react hooks are something you write yourself or get from
+a library. `@hyper-fetch/firebase` is one way to get them. It runs Firestore and Realtime Database operations through
+HyperFetch requests: you create requests with `createRequest`, send them with `send()` or `useFetch`, and get the same
+typed responses, caching, deduplication and loading state you use for HTTP. Live data comes through
+`@hyper-fetch/sockets` listeners and the `useListener` hook.
 
 ---
 
@@ -21,6 +26,38 @@ you use for HTTP. Live data comes through `@hyper-fetch/sockets` listeners.
 5.  **No rejected promises**: Firebase errors come back in `response.error`, never as a thrown exception.
 
 :::
+
+---
+
+## Firebase in React without a library
+
+Without a helper, reading Firestore in a component looks like this:
+
+```tsx
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { useEffect, useState } from "react";
+
+function GreenTeas() {
+  const [teas, setTeas] = useState<Tea[]>([]);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const q = query(collection(db, "teas"), where("type", "==", "Green"));
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => setTeas(snapshot.docs.map((doc) => ({ __key: doc.id, ...doc.data() }) as Tea)),
+      setError,
+    );
+    return unsubscribe;
+  }, []);
+
+  // ...
+}
+```
+
+It works, and for one screen it is fine. The cost shows up when it repeats: every component writes its own loading and error
+state, one-off reads with `getDocs` have no cache between pages, and the data is only typed if you cast it or add a
+converter. The [React](#react) section below is the same component with this package.
 
 ---
 

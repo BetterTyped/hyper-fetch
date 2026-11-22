@@ -1,0 +1,460 @@
+---
+slug: hyper-fetch-10-core-react
+title: "Core and React in v10"
+authors: [maciej]
+tags: [Release, Core, React]
+date: 2026-11-21T16:00:00
+description: "HyperFetch 10 core and React: optimistic update helpers, infinite lists and server rendering with hydration, plus a hardened request core."
+---
+
+import { BlogPostImage, LinkCard } from "@site/src/components";
+
+<BlogPostImage
+  title="Core and React in v10"
+  description="Optimistic helpers, infinite lists, SSR hydration and a hardened core."
+  badge="feature"
+  href="/blog/hyper-fetch-10-core-react"
+  pattern="grid"
+  patternMask="top"
+  file="todos.ts"
+>
+
+```ts
+const toggleTodo = updateTodo.setOptimistic(({ params, payload }) => [
+  // Applied before the request is sent, refetched once it settles
+  optimistic(getTodos).patch(params.todoId, payload),
+]);
+```
+
+</BlogPostImage>
+
+Optimistic updates, infinite lists and server rendering are the parts of a data layer that every app rebuilds by hand.
+HyperFetch 10 ships them in `@hyper-fetch/core` and `@hyper-fetch/react`: helpers that describe an optimistic change
+while core handles the rollback, a `useInfiniteFetch` hook, a `Hydrate` component, retry backoff and offline queues
+that survive a reload. Under that sits two weeks of hardening of the cache, the dispatcher and every hook.
+
+{/* truncate */}
+
+:::info Version
+
+This post covers **HyperFetch 10**. Read the [release overview](/blog/hyper-fetch-10-0) for the rest of the series.
+
+:::
+
+:::success What's new
+
+1. **Optimistic helpers**: `optimistic(getTodos).patch(...)` describes the change, core applies it, rolls it back and
+   refetches.
+2. **Infinite lists**: `useInfiniteFetch` pages through lists with page numbers, offsets or cursors.
+3. **Hydrate**: server data renders on the first paint and is not fetched again in the browser.
+4. **Retry backoff**: `retryTime` takes a function, and `exponentialBackoff()` builds one.
+5. **Persistent queues**: dispatcher queues in IndexedDB or AsyncStorage, sent again after a reload.
+6. **Binary downloads**: the `responseType` option of the fetch adapter returns a `Blob` or an `ArrayBuffer`.
+7. **Failures in the response**: failing mappers and throwing callbacks always settle `send()`.
+8. **Sharper types**: typed endpoints, `pathSegments` and compile errors for unreachable SDK keys.
+
+:::
+
+---
+
+## Optimistic updates without the bookkeeping
+
+An optimistic update has more steps than it looks: snapshot the cache, apply the change, undo it on failure, ignore
+responses that arrive in the meantime, then refetch. Each step is easy to get slightly wrong. Now you describe the
+change, and core runs the steps.
+
+```ts
+import { optimistic } from "@hyper-fetch/core";
+
+const getTodos = client.createRequest<{ response: Todo[] }>()({
+  endpoint: "/todos",
+});
+
+const toggleTodo = client
+  .createRequest<{ response: Todo; payload: { completed: boolean } }>()({
+    endpoint: "/todos/:todoId",
+    method: "PATCH",
+  })
+  .setOptimistic(({ params, payload }) => [
+    // highlight-next-line
+    optimistic(getTodos)
+      .patch(params.todoId, payload)
+      .rollback(({ data, previous }) => {
+        const before = previous.find(
+          (todo) => todo.id === Number(params.todoId),
+        );
+        return data.map((todo) =>
+          todo.id === Number(params.todoId) && before ? before : todo,
+        );
+      }),
+  ]);
+```
+
+The helpers are `set`, `patch`, `insert`, `remove` and `increment`. `.list("items")` targets an array inside an object
+response, and `optimistic.all(getTodos)` changes every cached variant of a request, whatever its query params, which
+includes every page of an infinite list. A plain `match` value is compared with the item's `id`, and `"1"` matches `1`,
+so route params work as they are.
+
+Core never guesses an undo. You write it in `.rollback()`, which gets the data as it is now and the `previous` data to
+look old values up. Without a rollback, the target is refetched instead. `.commit()` runs on success, for example to
+swap a temporary id for the one from the server.
+
+Once the mutation settles, core does the rest, also when the component that submitted it has unmounted:
+
+- On success each `.commit()` runs, on a final failure or an abort each `.rollback()` runs in reverse order.
+- While a retry is pending, or the request waits offline, the change stays.
+- Fetch responses that started before the mutation settled are not written to the changed targets, so the list does not
+  flicker back.
+- With several mutations pending on one target, it is refetched once, after the last of them.
+
+In React, `useSubmit` takes the same operations, so a component can override the request's optimistic change:
+
+```tsx
+const { submit } = useSubmit(toggleTodo, {
+  optimistic: ({ params, payload }) => [
+    optimistic(getTodos).patch(params.todoId, payload),
+  ],
+});
+```
+
+The hook option replaces `setOptimistic` for that hook, and `submit({ optimistic })` replaces both for a single call.
+
+---
+
+## Infinite lists with useInfiniteFetch
+
+Feeds, search results and admin tables load page by page. Keeping the pages, the next cursor, the end of the list and a
+filter change in sync is a lot of state for every list. `useInfiniteFetch` derives all of it from a description of the
+paging fields.
+
+```tsx
+import { useInfiniteFetch } from "@hyper-fetch/react";
+
+const getFeed = client.createRequest<{
+  response: { data: Post[]; nextCursor: string | null };
+  queryParams: { cursor?: string; topic?: string };
+}>()({ endpoint: "/feed" });
+
+function Feed({ topic }: { topic: string }) {
+  const { items, loading, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    useInfiniteFetch(
+      getFeed.setQueryParams({ topic }),
+      // highlight-next-line
+      { pagination: { cursor: "cursor", next: "nextCursor", items: "data" } },
+    );
+
+  if (loading) return <Spinner />;
+
+  return (
+    <>
+      {items.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
+      {hasNextPage && (
+        <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+          Load more
+        </button>
+      )}
+    </>
+  );
+}
+```
+
+Every key in `pagination` is checked against the request types, so a typo in `"nextCursor"` fails to compile. Page
+numbers (`page`), offsets (`offset` with `limit`) and cursors (`cursor` with `next`) are supported, in the query params,
+the URL params or the payload. A changed `topic` starts a new list on its own.
+
+Each page is a normal request under its own cache key. Deduplication, invalidation, persistence, optimistic updates and
+`Hydrate` work per page, and nothing extra is stored. The hook also has `fetchPreviousPage`, `maxPages` to keep a window
+of pages loaded, `uniqueBy` to drop items repeated across pages, and `select`.
+
+The paging logic is in core too. `fetchInfinite` fetches the first pages on the server for the `Hydrate` component
+below.
+
+---
+
+## Server rendering with Hydrate
+
+Data fetched on the server has to reach the hooks before their first render, or the page shows a loading state and
+fetches the same data again. `Hydrate` passes it down.
+
+```tsx title="users-list.tsx"
+"use client";
+
+import { Hydrate, useFetch } from "@hyper-fetch/react";
+import type { HydrateProps } from "@hyper-fetch/react";
+
+export const UsersList = ({
+  hydration,
+}: {
+  hydration: HydrateProps["data"];
+}) => (
+  // highlight-next-line
+  <Hydrate client={client} data={hydration}>
+    <Users />
+  </Hydrate>
+);
+
+const Users = () => {
+  // Renders the server data at once, without a request while it is fresh
+  const { data } = useFetch(getUsers);
+  return (
+    <ul>
+      {data?.map((user) => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
+};
+```
+
+The server component sends the request and passes `[getUsers.dehydrate({ response })]` as `hydration`. For lists, use
+`fetchInfinite(getFeed, { pagination, pages: 2 })` and pass its `dehydrated` result.
+
+- Hooks render the hydrated data on the first render, during server rendering too. On the server nothing is written to
+  the cache, so concurrent renders never share data.
+- In the browser the data reaches the cache before any hook mounts.
+- Newer cached data is never replaced by an older snapshot. `override: false` keeps existing data in every case.
+- Each `Hydrate` serves only its own client, so boundaries nest and several clients work side by side.
+
+---
+
+## Retry backoff
+
+A fixed `retryTime` retries a struggling server at a steady pace, and clients that failed together retry together.
+`retryTime` now also takes a function, and `exponentialBackoff()` builds one with jitter.
+
+```ts
+import { exponentialBackoff } from "@hyper-fetch/core";
+
+const getReport = client.createRequest<{ response: Report }>()({
+  endpoint: "/reports/:reportId",
+  retry: 5,
+  // highlight-next-line
+  retryTime: exponentialBackoff({ min: 500, max: 10_000 }),
+});
+
+const getStatus = client.createRequest<{ response: Status }>()({
+  endpoint: "/status",
+  retry: 3,
+  // Wait longer when the server says it is unavailable
+  retryTime: ({ attempt, response }) =>
+    response.status === 503 ? 5_000 : 1_000 * (attempt + 1),
+});
+```
+
+`attempt` starts at `0` for the first retry. A function that throws stops the retries, like a throwing `retryOnError`.
+The defaults of `exponentialBackoff` are `min: 500`, `max: 30_000` and `jitter: true`.
+
+---
+
+## Offline queues that survive a reload
+
+The offline queue kept requests in memory, or in a synchronous storage. IndexedDB and AsyncStorage are asynchronous, so a
+mutation made offline in those apps was lost when the app closed. The `Dispatcher` now takes a `lazyStorage`.
+
+```ts
+import { createStore, del, get, keys, set } from "idb-keyval";
+import { createClient, Dispatcher } from "@hyper-fetch/core";
+import type { DispatcherAsyncStorageType } from "@hyper-fetch/core";
+
+const store = createStore("hyper-fetch-queues", "queues");
+
+const queueStorage: DispatcherAsyncStorageType = {
+  set: (key, data) => set(key, data, store),
+  get: (key) => get(key, store),
+  keys: async () => (await keys(store)).map(String),
+  delete: (key) => del(key, store),
+};
+
+export const client = createClient({
+  url: "https://api.example.com",
+  // highlight-next-line
+  submitDispatcher: () => new Dispatcher({ lazyStorage: queueStorage }),
+});
+```
+
+Every change of the queues is written as JSON, in order. On start the dispatcher restores the persisted requests in
+front of the ones added meanwhile and sends them, once the adapter and plugins you chain after `createClient` are in
+place. A request the browser cancels because the page is closing stays in the queue for the next load. Requests are
+saved with `toJSON()`, so functions such as mappers or a function `retryTime` are not kept.
+
+On the reading side, `useFetch` with `revalidate: false` now waits for the cache `lazyStorage` before it decides to
+fetch. Fresh persisted data shows without a request, and only missing or stale data is fetched.
+
+---
+
+## Binary downloads
+
+The fetch adapter decoded every body as text, which corrupted images, archives and other binary files. The
+`responseType` option picks the shape of a successful body.
+
+```ts
+const downloadAvatar = client.createRequest<{ response: Blob }>()({
+  endpoint: "/users/:userId/avatar",
+  // highlight-next-line
+  options: { responseType: "blob" },
+});
+
+const { data } = await downloadAvatar.setParams({ userId: 1 }).send();
+
+if (data) {
+  image.src = URL.createObjectURL(data);
+}
+```
+
+The values are `"json"`, `"text"`, `"blob"` and `"arrayBuffer"`. Without it, bodies are parsed as before. Error bodies
+keep their JSON shape and download progress works for every type. The adapter docs now also spell out that `timeout`
+covers the whole download, so large files need a higher one.
+
+---
+
+## Failures always end up in the response
+
+`send()` resolves and reports failures through the response. A few paths broke that promise: a response mapper that
+threw left `send()` pending forever, and a callback that threw could stop the listener that resolves it.
+
+```ts
+const getUser = client
+  .createRequest<{ response: User }>()({ endpoint: "/users/:userId" })
+  .setResponseMapper((response) => {
+    if (!response.success) return response;
+    // A throw or a rejection here becomes the `error` of the response
+    return { ...response, data: parseUser(response.data) };
+  });
+```
+
+- A failing response mapper resolves `send()` with a failed response that carries the mapper error. Hooks call their
+  error callbacks and expose it in `error`.
+- Errors thrown by your callbacks, response listeners, plugins or rollbacks no longer stop the request. They are thrown
+  from a timer, where `window.onerror` or an `uncaughtException` handler sees them.
+- Aborted requests are reported as canceled whatever shape the adapter gives its errors. GraphQL aborts were reported
+  as failures and could even be retried. Adapter timeouts still count as failures.
+
+---
+
+## Sharper types
+
+**Typed endpoints.** An endpoint that carries the standard `__apiType` decoration, like a graphql-codegen
+`TypedDocumentNode` or a gql.tada document, types the response and the payload without generics. Core reads it
+structurally, with no GraphQL dependency, and generics you declare still win.
+
+```ts
+// response and payload come from the document
+const getUser = client.createRequest()({ endpoint: GetUserDocument });
+```
+
+**URL segments for SDK keys.** `camelCaseToKebabCase` turns `findByStatus` into `find-by-status`. APIs that mix both
+styles can map single keys with `pathSegments`:
+
+```ts
+const sdk = createSdk<typeof client, PetStoreSchema>(client, {
+  // highlight-next-line
+  pathSegments: { findByStatus: "findByStatus" },
+});
+
+await sdk.pet.findByStatus.$get.send(); // GET /pet/findByStatus
+```
+
+**Reserved SDK keys.** Below the top level, the SDK reads a key from the request before it treats it as a path. A
+procedure named `send` type-checked, but at runtime it was the request's own method. Such keys are now typed as `SdkReservedKeyError`, so the
+mistake fails to compile.
+
+**Query params callbacks.** Adapters can register `setQueryParamsResolver` to accept query params given as a function,
+for example a typed query builder. The resolver runs at once, so cache keys and `toJSON()` only ever see data. The
+Firebase adapters use it for typed constraints.
+
+---
+
+## Reliability fixes
+
+Most of the two weeks went into hardening core and the hooks. The infinite list specs were ported from the ones of
+TanStack Query and SWR. What now works:
+
+**Cache and requests**
+
+- When two requests of one cache key answer out of order, the newest data stays in the cache and in every hook.
+- Falsy payloads and response data (`0`, `false`, `""`) are kept, and `setPayload(null)` removes the payload.
+- `cache.update()` restarts the stale and cache time, so locally updated data is not refetched and dropped.
+- `cache.clear()` and `client.clear()` also empty the lazy storage, so the next user never sees the old data.
+- Scoped requests stay isolated in hooks and in suspense: no data, loading state or invalidation leaks between scopes.
+- Request and response interceptors are chained, each one receiving the result of the previous one.
+- `adapter.setAdapterDefaults()` applies to every request, and partial query params options keep their defaults.
+- Colons in GraphQL string documents are no longer read as URL params.
+- Clients with a custom adapter stay under the type instantiation depth limit of tsgo.
+
+**Dispatcher and retries**
+
+- A request removed from the queue stops retrying and its `send()` resolves.
+- A failed queued request no longer loops, and a paused queue holds its retries.
+- Requests with `offline: false` fail at once when sent offline.
+- A request added from a response listener no longer sends the answered request a second time.
+
+**Transfers**
+
+- Download progress of gzip responses stays within 100%, and 100 byte bodies reach 100%.
+- Upload progress starts at 0% and finishes when the body was sent, with real totals for `Blob`, `ArrayBuffer` and
+  `URLSearchParams` bodies.
+- Fetch implementations without a stream reader, such as older React Native ones, read text bodies again.
+- A rejected async adapter fetcher resolves `send()` with an error instead of an unhandled rejection.
+- A mocked request reports exactly one outcome.
+
+**React hooks**
+
+- `useFetch` stays `loading` while a retry is pending, and `abort()` also cancels a waiting retry.
+- `useFetch`, `useCache` and `useInfiniteFetch` no longer crash on `BigInt` payloads.
+- `useSubmit` stays `submitting` until its last request is done, and `abort()` calls `onSubmitAbort` and
+  `onSubmitFinished`.
+- Debounced and throttled `submit()` promises always settle, and a throwing callback no longer leaves the hook stuck.
+- No hook callbacks run after unmount, also when an async mapper resolves late.
+- `useQueue` mirrors the dispatcher queue, and `failed` is set only on the final failure.
+- `useStream` keeps the request options and stops reading the body on abort, reset and unmount.
+- `useListener` follows the socket of its listener.
+- `useInfiniteFetch` handles shrinking lists, bounce, StrictMode remounts and throwing pagination callbacks.
+
+---
+
+## Upgrading
+
+No export of `@hyper-fetch/core` or `@hyper-fetch/react` was removed or renamed, and the object form of `setOptimistic`
+works as before, so upgrading these two packages needs no code changes. Two fixes can surface in code that was already
+broken: an SDK key named like a request property now fails to compile, and errors thrown by plugins and optimistic
+rollbacks, which were only logged, now also reach the global error handlers. The breaking change of v10 is in `@hyper-fetch/sockets`, covered
+in the [sockets post](/blog/hyper-fetch-10-sockets#upgrading).
+
+---
+
+## Learn more
+
+<LinkCard
+  type="docs"
+  title="Optimistic Updates"
+  description="Helpers, rollback, commit and what happens when a mutation settles."
+  href="/docs/guides/react/basics/optimistic-approach"
+/>
+
+<LinkCard
+  type="docs"
+  title="useInfiniteFetch"
+  description="Page numbers, offsets and cursors, typed against your requests."
+  href="/docs/react/hooks/use-infinite-fetch"
+/>
+
+<LinkCard
+  type="docs"
+  title="Hydrate"
+  description="Pass server data to the hooks without a second fetch."
+  href="/docs/react/hydrate"
+/>
+
+<LinkCard
+  type="docs"
+  title="Persistence"
+  description="Persist the cache and the dispatcher queues in an async storage."
+  href="/docs/guides/core/advanced/persistence"
+/>
+
+- [Retries and backoff](/docs/guides/core/basics/retries)
+- [Adapter options and `responseType`](/docs/core/adapter)
+- [SDK options and `pathSegments`](/docs/core/sdk)
+- [useSubmit](/docs/react/hooks/use-submit)

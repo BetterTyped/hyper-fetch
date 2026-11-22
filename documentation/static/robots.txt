@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hyperfetch.bettertyped.com/sitemap.xml

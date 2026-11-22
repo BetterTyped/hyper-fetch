@@ -1,24 +1,62 @@
 ---
 sidebar_position: 4
-title: Guide - Query Params
+title: Query Parameters in Fetch Requests, Typed
+description: How to add query params to a fetch request with URLSearchParams, how arrays and dates get encoded, and how HyperFetch types and serializes them.
 sidebar_label: Query Params
 ---
 
-# Query Params
+# Query Parameters in Requests
 
-Query parameters are a fundamental part of making dynamic API requests, allowing you to filter, sort, and paginate data.
-Hyper-Fetch provides a powerful and type-safe way to handle query parameters, ensuring that your requests are both
-flexible and robust.
+Query params are the `?key=value` pairs at the end of a URL: `/search?query=hooks&page=2`. APIs use them to filter,
+sort and paginate. They look simple, but arrays, dates, empty values and encoding are where requests quietly break.
+This guide shows how to build query params for `fetch` by hand, then how HyperFetch types them and turns them into a
+query string for you.
 
 :::secondary What you'll learn
 
-1.  How to add and type-safe **query parameters**, including optional ones.
-2.  How to handle **array values** in query parameters.
-3.  How to set query parameters with the **`.send()`** method.
-4.  How to **customize the serialization** of query parameters for arrays, dates, and objects.
-5.  What are the **precedence rules** when setting parameters in multiple ways.
+1.  How to add **fetch query params** with `URLSearchParams`.
+2.  How to add and type-safe **query parameters**, including optional ones.
+3.  How to handle **array values** in query parameters.
+4.  How to set query parameters with the **`.send()`** method.
+5.  How to **customize the serialization** of query parameters for arrays, dates, and objects.
+6.  What are the **precedence rules** when setting parameters in multiple ways.
 
 :::
+
+---
+
+## Fetch query params with URLSearchParams
+
+`fetch` has no `params` option. You build the query string yourself, and
+[`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) does the encoding:
+
+```ts
+const url = new URL("https://api.example.com/search");
+url.searchParams.set("query", "react hooks"); // spaces and & are encoded for you
+url.searchParams.set("page", String(2));
+
+const response = await fetch(url);
+// GET https://api.example.com/search?query=react+hooks&page=2
+```
+
+Three things trip people up:
+
+- **Everything is a string.** Numbers and booleans need `String()`, and `undefined` becomes the literal text
+  `"undefined"` if you don't skip it.
+- **Arrays have no standard format.** Backends expect different shapes, and you have to pick one:
+
+| Format          | Query string            | HyperFetch `arrayFormat` |
+| --------------- | ----------------------- | ------------------------- |
+| Repeated key    | `?tags=a&tags=b`        | `"none"`                  |
+| Brackets        | `?tags[]=a&tags[]=b`    | `"bracket"` (default)     |
+| Indexed         | `?tags[0]=a&tags[1]=b`  | `"index"`                 |
+| Comma-separated | `?tags=a,b`             | `"comma"`                 |
+| Custom separator | `?tags=a\|b`           | `"separator"`             |
+
+- **Dates and objects** need an agreed format, like ISO dates or JSON.
+
+Axios has a `params` option that does the stringifying for you, but the shape is still untyped. In HyperFetch query
+params are part of the request type, so the compiler checks them, and the adapter turns them into a query string.
 
 ---
 
@@ -29,7 +67,7 @@ To get started, you need to define the shape of your query parameters in the `cr
 
 ### Basic Query Parameters
 
-Once typed, use `setQueryParams` to add them to your request. Hyper Fetch automatically appends them to the URL.
+Once typed, use `setQueryParams` to add them to your request. HyperFetch automatically appends them to the URL.
 
 ```ts
 // 1. Define the query parameters type
@@ -69,8 +107,9 @@ console.log("Query Params with page:", requestWithPage.queryParams); // { query:
 
 ### Array Query Parameters
 
-Hyper Fetch supports arrays in query parameters, which is common for multi-select filters. They are automatically
-serialized into a format the server can understand (e.g., `?tags=a&tags=b`).
+HyperFetch supports arrays in query parameters, which is common for multi-select filters. By default they use the
+bracket format (`?tags[]=a&tags[]=b`). You can switch to another format, shown in
+[customizing the format](#customizing-query-param-format) below.
 
 ```ts
 const searchByTags = client.createRequest<{ queryParams: { tags: string[] } }>()({
@@ -103,7 +142,7 @@ const response = searchRequest.send({
 
 ## Customizing Query Param Format
 
-By default, Hyper-Fetch stringifies query parameters using standard conventions. However, some APIs may require a
+By default, HyperFetch stringifies query parameters using standard conventions. However, some APIs may require a
 different format. You can easily customize this behavior using `setQueryParamsMapperConfig` on the client's adapter instance.
 
 This configuration is applied globally to all requests made with that client.
@@ -189,7 +228,7 @@ const request = getArticles.setQueryParams({ filter: { id: 1, value: "hyper-fetc
 
 ## Parameter Precedence
 
-It's important to understand what happens when you set parameters in multiple places. Hyper Fetch does not allow you to
+It's important to understand what happens when you set parameters in multiple places. HyperFetch does not allow you to
 pass parameters that are already defined in the request.
 
 If you ignore Typescript - parameters passed directly to `send` will always override those set with `setParams` or
@@ -217,9 +256,15 @@ request.send({
 
 ---
 
+For URL path params like `/users/:userId`, see [parameters](./parameters.mdx). For typing query params in depth, see
+[query params types](../../typescript/query-params.mdx), and for a full paginated list built on them, see
+[pagination in React](../../react/01-basics/pagination.mdx).
+
+---
+
 :::success Congratulations!
 
-You've now mastered handling query parameters with Hyper-Fetch!
+You've now mastered handling query parameters with HyperFetch!
 
 - You can add **Query Parameters** using `createRequest` generics, supporting optional (`?`) and array (`[]`) types, and
   setting them with `.setQueryParams({ ... })`.

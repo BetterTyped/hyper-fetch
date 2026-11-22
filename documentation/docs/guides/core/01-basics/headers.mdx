@@ -1,20 +1,21 @@
 ---
 sidebar_position: 5
-title: Guide - Headers
+title: Request headers in TypeScript fetch calls
+description: "Set request headers in HyperFetch globally on the client, per request, or at runtime with setHeaders(), and see the order in which all headers get merged."
 sidebar_label: Headers
 ---
 
 # Headers
 
 In HTTP requests, headers are a crucial component, carrying additional information between the client and the server.
-They can be used for authentication, content type specification, caching control, and more. Hyper-fetch provides a
+They can be used for authentication, content type specification, caching control, and more. HyperFetch provides a
 flexible and powerful way to manage headers for your requests.
 
 ---
 
 :::secondary What you'll learn
 
-1. How to set **global headers** on the Hyper-fetch client.
+1. How to set **global headers** on the HyperFetch client.
 2. How to set **static headers** when creating a request.
 3. How to add or override headers **dynamically** before sending a request.
 4. How to set headers for a **single specific execution** of a request.
@@ -27,7 +28,7 @@ flexible and powerful way to manage headers for your requests.
 
 ## Setting Headers
 
-Hyper-fetch offers multiple levels for setting headers, giving you fine-grained control over how they are applied.
+HyperFetch offers multiple levels for setting headers, giving you fine-grained control over how they are applied.
 Headers are merged in a specific order of precedence, allowing you to set defaults and override them when needed.
 
 ### 1. Global Headers
@@ -145,7 +146,7 @@ console.log("Original request headers:", updateUser.headers);
 
 ### Headers Precedence
 
-Hyper-fetch merges headers from different sources in a specific order. Each subsequent level overrides the previous one
+HyperFetch merges headers from different sources in a specific order. Each subsequent level overrides the previous one
 in case of duplicate header keys:
 
 1.  **Client Headers**: The base level, providing default headers for all requests.
@@ -168,7 +169,7 @@ using to see if it supports headers.
 
 :::success Congratulations!
 
-You now know how to manage headers in Hyper-fetch like a pro!
+You now know how to manage headers in HyperFetch like a pro!
 
 - You can set **global headers** on the client for all requests.
 - You can define **static headers** on a request for consistent values.

@@ -1,11 +1,12 @@
 ---
 title: Mapping
+description: "Map HyperFetch responses and requests: transform incoming data, run async mappers, hydrate class models, convert payloads to FormData and add headers."
 sidebar_label: Mapping
 ---
 
 # Mapping
 
-In Hyper-fetch, you can intercept and modify both outgoing requests and incoming responses. This powerful feature, known
+In HyperFetch, you can intercept and modify both outgoing requests and incoming responses. This powerful feature, known
 as mapping, allows you to transform data, add or modify headers, and even hydrate data into class models, all without
 affecting the core cached data. Mappers can be synchronous or asynchronous, giving you the flexibility to perform
 complex data manipulations, such as fetching additional data to enrich a response.
@@ -169,7 +170,7 @@ export const postUser = client
 
 :::success Congratulations!
 
-You've mastered request and response mapping in Hyper-fetch!
+You've mastered request and response mapping in HyperFetch!
 
 - You can **transform incoming data** using `.setResponseMapper()` without affecting the cache.
 - You can **enrich responses** by making additional requests within an asynchronous mapper.

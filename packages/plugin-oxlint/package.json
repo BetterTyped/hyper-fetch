@@ -1,9 +1,9 @@
 {
   "name": "oxlint-plugin-hyper-fetch",
   "version": "0.0.0",
-  "description": "Oxlint plugin for HyperFetch",
+  "description": "Oxlint plugin for HyperFetch: the same rules as the ESLint plugin, for Oxlint",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/integrations/plugin-oxlint/",
   "license": "Apache-2.0",
   "type": "module",
   "main": "dist/index.js",
@@ -60,6 +60,7 @@
     "oxlint",
     "oxc",
     "lint",
-    "hyper-fetch"
+    "typescript",
+    "hyperfetch"
   ]
 }

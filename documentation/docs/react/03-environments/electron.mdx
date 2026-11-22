@@ -1,11 +1,12 @@
 ---
 sidebar_position: 3
 title: Electron
+description: "Use HyperFetch in Electron. It runs in the renderer like a browser, and you can wire Electron APIs for online, offline and focus state."
 sidebar_label: Electron
 ---
 
-**`Electron`** is also supported by `Hyper Fetch`. This library was designed to work with many environments, which is
-why we kept the structure of the base library very generic and modular. While `Hyper Fetch` works out-of-the-box in
+**`Electron`** is also supported by `HyperFetch`. This library was designed to work with many environments, which is
+why we kept the structure of the base library very generic and modular. While `HyperFetch` works out-of-the-box in
 Electron's renderer process due to its browser-like nature, you can leverage Electron's APIs for more robust
 integrations.
 
@@ -23,7 +24,7 @@ integrations.
 The default events that handle online/offline status in the library are based on the events available in the web browser
 environment. These work in Electron but can sometimes be unreliable for determining actual internet connectivity. For a
 more accurate connection status, you can use Electron's utilities in the main process and communicate with the renderer
-process where `Hyper Fetch` is running.
+process where `HyperFetch` is running.
 
 For example, you can use a library like `is-online` in the main process to periodically check for a connection and
 notify the renderer process via IPC.
@@ -129,6 +130,6 @@ export const client = new Client({
 
 :::success That's it!
 
-Your app is now ready to fully use all of the features of Hyper Fetch.
+Your app is now ready to fully use all of the features of HyperFetch.
 
 :::

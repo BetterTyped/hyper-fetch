@@ -1,0 +1,313 @@
+---
+slug: hyper-fetch-10-graphql
+title: "GraphQL in HyperFetch 10"
+authors: [maciej]
+tags: [Release, GraphQL]
+date: 2026-11-21T14:00:00
+description: "HyperFetch 10 infers GraphQL result and variable types from typed documents, and adds automatic persisted queries and graphql-ws subscriptions."
+---
+
+import { BlogPostImage, LinkCard } from "@site/src/components";
+
+<BlogPostImage
+  title="GraphQL in HyperFetch 10"
+  description="Typed documents, persisted queries and subscriptions."
+  badge="feature"
+  href="/blog/hyper-fetch-10-graphql"
+  pattern="dots"
+  patternMask="right"
+  file="user.ts"
+>
+
+```ts
+const getUser = client.createRequest()({
+  endpoint: GetUserDocument, // typed by graphql-codegen or gql.tada
+  options: { persistedQueries: true },
+});
+
+const { data } = await getUser.send({ payload: { id: "1" } });
+```
+
+</BlogPostImage>
+
+Your GraphQL documents already know their result and variables types. HyperFetch 10 reads them straight from the
+document, sends hashes instead of full queries, keeps partial data when you want it, refetches every variant of an
+operation after a mutation, and listens to subscriptions over `graphql-ws`.
+
+{/* truncate */}
+
+:::info Version
+
+This post covers **HyperFetch 10**. Read the [release overview](/blog/hyper-fetch-10-0) for the rest of the series.
+
+:::
+
+:::success What's new
+
+1. **Typed documents**: a `TypedDocumentNode` or gql.tada document types the request without generics.
+2. **Error policy**: `errorPolicy: "all"` keeps partial data as a success, with the errors in `extra.errors`.
+3. **Persisted queries**: `persistedQueries` sends the SHA-256 hash of the query instead of the text.
+4. **Operation refetch**: `matchGqlOperation` invalidates every variant of an operation at once.
+5. **Subscriptions**: `GraphqlWsAdapter` speaks `graphql-transport-ws` on the shared reconnection engine.
+6. **Spec alignment**: `operationName`, the GraphQL over HTTP `Accept` header and the right content type.
+7. **Separate cache keys**: other variables or other selections never share a cache entry or a request.
+
+:::
+
+---
+
+## Typed documents
+
+With graphql-codegen or gql.tada every document carries its types, but a request still needed them written again as
+generics, and the two could drift apart. `createRequest` now reads them from the `__apiType` decoration of the
+endpoint.
+
+```ts title="requests.ts"
+import { createClient } from "@hyper-fetch/core";
+import { GraphqlAdapter, type GraphqlErrorType } from "@hyper-fetch/graphql";
+import { GetUserDocument, GetUsersDocument } from "./gql/graphql"; // generated
+
+export const client = createClient<{ error: GraphqlErrorType }>({
+  url: "http://localhost:4000/graphql",
+}).setAdapter(GraphqlAdapter());
+
+// highlight-next-line
+export const getUser = client.createRequest()({ endpoint: GetUserDocument });
+
+const { data } = await getUser.send({ payload: { id: "1" } }); // data and payload typed by the document
+
+// A document without variables needs no payload
+await client.createRequest()({ endpoint: GetUsersDocument }).send();
+```
+
+- Generics you declare win over the document. `createRequest<{ response: UserView }>()` keeps the variables of the
+  document and uses your response type.
+- Core reads the decoration structurally and has no GraphQL dependency. Any adapter whose endpoint carries `__apiType`
+  gets the same inference.
+- An untyped `DocumentNode` or string keeps the `undefined` response and payload, so declare them with generics.
+
+When the document goes in the `document` option, the `endpoint` is a URL path. Read the types with
+`GraphqlDocumentTypes` then:
+
+```ts
+import { type GraphqlDocumentTypes } from "@hyper-fetch/graphql";
+
+const getUserByPath = client.createRequest<
+  GraphqlDocumentTypes<typeof GetUserDocument>
+>()({
+  endpoint: "/User",
+  document: GetUserDocument,
+});
+```
+
+---
+
+## Error policy
+
+A GraphQL response can hold both `data` and `errors` when only some fields failed. A dashboard with one broken widget
+should still show the other widgets. The `errorPolicy` adapter option decides what such a response resolves to.
+
+```ts
+const getDashboard = client.createRequest()({
+  endpoint: GetDashboardDocument,
+  // highlight-next-line
+  options: { errorPolicy: "all" },
+});
+
+const { data, extra } = await getDashboard.send();
+
+if (extra?.errors) {
+  // Show the data, and mark the fields listed in extra.errors[].path as unavailable
+}
+```
+
+- `"none"` (default) fails the request: `data` is `null` and `error` holds the errors. This is the behavior of 9.
+- `"all"` succeeds with the partial `data`. A response without `data`, or with a 4xx or 5xx status, still fails.
+- The server errors are in `extra.errors` with both policies, whenever the response has any.
+
+Set it for every request with `GraphqlAdapter().setAdapterDefaults(() => ({ errorPolicy: "all" }))`. The request
+`options` still win.
+
+---
+
+## Automatic persisted queries
+
+Large queries make every request heavy, and `GET` requests with the full query in the URL are too long for many CDNs to
+cache. With `persistedQueries`, the request sends the SHA-256 hash of the query in `extensions.persistedQuery` instead.
+
+```ts
+import { GraphqlMethod } from "@hyper-fetch/graphql";
+
+const getUser = client.createRequest()({
+  endpoint: GetUserDocument,
+  method: GraphqlMethod.GET, // short hashed urls, so a CDN can cache the response
+  // highlight-next-line
+  options: { persistedQueries: true },
+});
+```
+
+- When the server answers `PersistedQueryNotFound`, the request is sent again with the query, so the server stores it.
+  You get the response of that second request.
+- When the server answers `PersistedQueryNotSupported`, the request is sent again with the query, and the adapter sends
+  full queries from then on.
+- Without Web Crypto (`crypto.subtle` is missing on insecure origins) the full query is sent.
+- One `timeout` covers the hashed request and the one that registers the query.
+
+Turn it on for every request with `GraphqlAdapter().setAdapterDefaults(() => ({ persistedQueries: true }))`. Without
+the option nothing changes: the request flow, the timeout and the progress events are the same as before.
+
+---
+
+## Refetch every variant of an operation
+
+After `UpdateUser`, every `GetUser` in the cache may be stale: `id: 1`, `id: 2`, and whatever else the app loaded.
+`cache.invalidate(request)` reaches only one combination of variables. `matchGqlOperation` returns a RegExp that matches
+the cache keys of every request of a document, like `refetchQueries` in Apollo.
+
+```ts
+import { matchGqlOperation } from "@hyper-fetch/graphql";
+
+const updateUser = client.createRequest()({ endpoint: UpdateUserDocument });
+
+const { success } = await updateUser.send({
+  payload: { id: "1", name: "Ann" },
+});
+
+if (success) {
+  // highlight-next-line
+  client.cache.invalidate(matchGqlOperation(GetUserDocument));
+}
+```
+
+- It matches any variables, params, query params and method. A document matches its requests on every URL path of the
+  `document` option, a request only on its own path.
+- Documents with the same operation name but other selections are other operations, so they are not matched.
+- `invalidate` takes a list, so one mutation can refetch several operations.
+
+---
+
+## Subscriptions over graphql-ws
+
+Queries and mutations had a home in HyperFetch, subscriptions did not. `GraphqlWsAdapter` connects a `Socket` to
+GraphQL subscriptions over WebSocket. It speaks `graphql-transport-ws`, the protocol of the `graphql-ws` library that
+Apollo Server, GraphQL Yoga, Mercurius, Hot Chocolate and Hasura support.
+
+```ts title="subscriptions.ts"
+import { Socket } from "@hyper-fetch/sockets";
+import { GraphqlWsAdapter } from "@hyper-fetch/graphql";
+import { OnMessageDocument } from "./gql/graphql";
+
+const socket = new Socket({
+  url: "wss://api.example.com/graphql",
+  adapter: GraphqlWsAdapter(),
+  // A function runs on every connection attempt, so a reconnect sends a fresh token
+  adapterOptions: {
+    connectionParams: async () => ({ token: await auth.getFreshToken() }),
+  },
+});
+
+// highlight-start
+export const onMessage = socket.createListener()({
+  topic: "OnMessage",
+  options: { document: OnMessageDocument },
+});
+// highlight-end
+
+onMessage
+  .setPayload({ room: "general" })
+  .listen(({ data }) => console.log(data.onMessage.text));
+```
+
+The typed document types the data and makes the variables a required payload, the same way it types requests. In React,
+`useListener(onMessage.setPayload({ room }))` subscribes again when the room changes and reports `status` and `error`.
+
+- **One subscription per document and variables.** Listeners with the same variables share it, and the last one to stop
+  sends `complete`.
+- **Ready after the acknowledgement.** The connection counts as open once the server acknowledged `connection_init`, so
+  `connectionTimeout` covers the whole handshake. Subscriptions started before wait for it.
+- **Restarted after a reconnect.** Every running subscription is sent again with a new id. Close codes a retry can't
+  fix, like `4400` or `4401`, stay closed, like in the `graphql-ws` client. `shouldReconnectGraphqlWs` keeps those
+  rules in a custom `shouldReconnect`.
+- **Two kinds of errors.** Errors of one event arrive in `extra.errors` and the subscription goes on. An `error` message
+  ends the listener with a `GraphqlSubscriptionError` in `onEnd`.
+- **Connection control.** The adapter answers the server's `ping`. `keepAlive` pings a quiet connection to notice one
+  that died behind a proxy, and `lazy` holds a connection only while there are subscriptions.
+
+The adapter runs on the reconnection engine every socket adapter shares, with typed payloads and the listener lifecycle
+from the [sockets post](/blog/hyper-fetch-10-sockets). Listener delivery strategies work too, so `batch` delivers arrays
+of the document's data.
+
+---
+
+## What goes over the wire
+
+Each operation follows the [GraphQL over HTTP](https://graphql.github.io/graphql-over-http/) format more closely:
+
+- The body, or the query string for `GET`, holds `operationName`, the name of the first operation in the document.
+- The `Accept` header asks for `application/graphql-response+json` with `application/json` as the fallback, so servers
+  that follow the spec answer invalid requests with a 4xx status. An `Accept` header you set wins.
+- `POST` requests always send `Content-Type: application/json`, also without variables. `GET` requests send none, since
+  the header only triggered a CORS preflight. A content type you set wins.
+- Cache and query keys contain the operation name, a fingerprint of the document and the variables.
+
+---
+
+## Reliability fixes
+
+- `GetUser(id: 1)` and `GetUser(id: 2)` no longer share a cache entry or get deduplicated into one request. The
+  variables are part of the cache and query keys.
+- Two documents with one operation name but other selections no longer share a cache entry. A deduplicated request used
+  to hand the second caller the data of the first.
+- Queries without variables are sent as JSON. They went out as `text/plain`, and servers answered 415.
+- A string document like `mutation DeleteUser($id: ID!) { ... }` no longer asks for a URL param named after the text
+  after the colon, so `send({ payload })` compiles.
+- An empty `errors` list is no longer a failure.
+- Network, abort and timeout failures arrive as a list with one `Error`, like every other GraphQL error, so
+  `GraphqlErrorType` covers them all.
+- The upload of a request is reported as finished only once the body was sent.
+
+---
+
+## Upgrading
+
+- `graphql` is a peer dependency now, and `@hyper-fetch/sockets` is one too, for `GraphqlWsAdapter`. Install both next
+  to `@hyper-fetch/graphql`:
+
+```bash
+npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/graphql graphql
+```
+
+- Cache keys of GraphQL requests contain the document fingerprint and the variables. Data persisted in cache storage
+  under the keys of earlier versions is not read again, so the first requests after the upgrade go to the
+  network.
+- If you wrote the response and payload generics only to mirror a typed document, you can delete them. Keeping them
+  still works, since declared generics win.
+
+---
+
+## Learn more
+
+<LinkCard
+  type="integrations"
+  title="GraphQL Adapter"
+  description="Typed documents, persisted queries, error policy and URL paths per operation."
+  href="/docs/integrations/adapter-graphql/overview"
+/>
+<LinkCard
+  type="integrations"
+  title="GraphQL Subscriptions"
+  description="GraphqlWsAdapter, connection params, errors and reconnecting."
+  href="/docs/integrations/adapter-graphql/subscriptions"
+/>
+<LinkCard
+  type="integrations"
+  title="Mutations"
+  description="Refetch the queries a mutation changed with matchGqlOperation."
+  href="/docs/integrations/adapter-graphql/mutations"
+/>
+<LinkCard
+  type="integrations"
+  title="Queries"
+  description="Fetch data with GraphQL queries and variables."
+  href="/docs/integrations/adapter-graphql/queries"
+/>

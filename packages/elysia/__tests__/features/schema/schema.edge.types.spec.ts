@@ -9,14 +9,14 @@ import type {
 import { Elysia } from "elysia";
 import { expectTypeOf } from "vitest";
 
-import type { ElysiaAppToHyperFetch } from "../../../src";
+import type { ElysiaSchema } from "../../../src";
 import type { edgeApp, rootParamApp } from "../../utils/edge-app";
 
-type Schema = ElysiaAppToHyperFetch<typeof edgeApp>;
+type Schema = ElysiaSchema<typeof edgeApp>;
 
 type ValidationError = { type: "validation" };
 
-describe("ElysiaAppToHyperFetch [ Paths ]", () => {
+describe("ElysiaSchema [ Paths ]", () => {
   it("should keep every HTTP route and leave out the mounted handler", () => {
     expectTypeOf<keyof Schema>().toEqualTypeOf<
       | "$get"
@@ -122,7 +122,7 @@ describe("ElysiaAppToHyperFetch [ Paths ]", () => {
   });
 
   it("should put a root param at the top level", () => {
-    type RootSchema = ElysiaAppToHyperFetch<typeof rootParamApp>;
+    type RootSchema = ElysiaSchema<typeof rootParamApp>;
 
     expectTypeOf<keyof RootSchema>().toEqualTypeOf<"$id">();
     expectTypeOf<ExtractEndpointType<RootSchema["$id"]["$get"]>>().toEqualTypeOf<"/:id">();
@@ -149,7 +149,7 @@ describe("ElysiaAppToHyperFetch [ Paths ]", () => {
     const deep = new Elysia()
       .get("/1/2/3/4/5/6/7/8/9", () => 9 as const)
       .get("/a/2/3/4/5/6/7/8/9/10", () => 10 as const);
-    type DeepSchema = ElysiaAppToHyperFetch<typeof deep>;
+    type DeepSchema = ElysiaSchema<typeof deep>;
 
     expectTypeOf<ExtractResponseType<DeepSchema[1][2][3][4][5][6][7][8][9]["$get"]>>().toEqualTypeOf<9>();
     expectTypeOf<keyof DeepSchema>().toEqualTypeOf<"1">();
@@ -163,7 +163,7 @@ describe("ElysiaAppToHyperFetch [ Paths ]", () => {
   });
 });
 
-describe("ElysiaAppToHyperFetch [ Responses ]", () => {
+describe("ElysiaSchema [ Responses ]", () => {
   it("should keep literal and primitive responses", () => {
     expectTypeOf<ExtractResponseType<Schema["number"]["$get"]>>().toEqualTypeOf<1>();
     expectTypeOf<ExtractResponseType<Schema["true"]["$get"]>>().toEqualTypeOf<boolean>();
@@ -244,7 +244,7 @@ describe("ElysiaAppToHyperFetch [ Responses ]", () => {
   });
 });
 
-describe("ElysiaAppToHyperFetch [ Payloads ]", () => {
+describe("ElysiaSchema [ Payloads ]", () => {
   it("should resolve a body schema referenced by its model name", () => {
     expectTypeOf<ExtractPayloadType<Schema["deep"]["nested"]["mirror"]["$post"]>>().toEqualTypeOf<{
       username: string;
@@ -287,7 +287,7 @@ describe("ElysiaAppToHyperFetch [ Payloads ]", () => {
   });
 });
 
-describe("ElysiaAppToHyperFetch [ Query params ]", () => {
+describe("ElysiaSchema [ Query params ]", () => {
   it("should type transformed, literal and array query fields", () => {
     expectTypeOf<ExtractQueryParamsType<Schema["queryTypes"]["$get"]>>().toEqualTypeOf<{
       day: Date;
@@ -317,7 +317,7 @@ describe("ElysiaAppToHyperFetch [ Query params ]", () => {
   });
 });
 
-describe("ElysiaAppToHyperFetch [ createSdk inputs ]", () => {
+describe("ElysiaSchema [ createSdk inputs ]", () => {
   const client = createClient({ url: "http://localhost" });
   const sdk = createSdk<typeof client, Schema>(client);
 

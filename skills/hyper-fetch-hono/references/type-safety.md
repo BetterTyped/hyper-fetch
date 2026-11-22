@@ -8,7 +8,7 @@ errors. Every statement here is checked against the package's type tests.
 ```
 new Hono().get(...).post(...).route(...)     backend: one chain, Hono records every route in its schema type
         │ typeof app
-HonoAppToHyperFetch<typeof app>               "path → $method → endpoint" record → nested SDK schema
+HonoSchema<typeof app>                        "path → $method → endpoint" record → nested SDK schema
         │ import type { AppSchema }
 createSdk<typeof client, AppSchema>(client)   injects the client type into every Request (10 levels deep)
         │
@@ -17,7 +17,7 @@ sdk.users.$userId.$get                        Request<Output, Json, Query, undef
 send() / useFetch() / useSubmit()             data, error, payload, params, queryParams all typed
 ```
 
-`HonoAppToHyperFetch` matches `HonoBase<any, Schema, any, any>`, so it works for `new Hono()`, apps returned by
+`HonoSchema` matches `HonoBase<any, Schema, any, any>`, so it works for `new Hono()`, apps returned by
 `.route()`, apps with `basePath()`, apps with a typed environment (`new Hono<Env>()`), and apps wrapped in Hono's
 `PickResponseByStatusCode` or `ApplyGlobalResponse`. Anything else (a plain object, a constructor type) resolves to
 `{}`.
@@ -113,7 +113,7 @@ Ways to keep the output clean:
 
 ```ts
 import type { PickResponseByStatusCode } from "hono/client";
-import type { HonoAppToHyperFetch } from "@hyper-fetch/hono";
+import type { HonoSchema } from "@hyper-fetch/hono";
 
 const user: User = { id: "1", name: "Ann" };
 
@@ -122,7 +122,7 @@ const app = new Hono().get("/users/:userId", (c) => {
   return c.json(user, 200);
 });
 
-export type AppSchema = HonoAppToHyperFetch<PickResponseByStatusCode<typeof app, 200 | 201>>;
+export type AppSchema = HonoSchema<PickResponseByStatusCode<typeof app, 200 | 201>>;
 // ExtractResponseType<AppSchema["users"]["$userId"]["$get"]> is User
 ```
 
@@ -174,17 +174,17 @@ expectTypeOf<ExtractEndpointType<AppSchema["auth"]["googleLogin"]["$get"]>>().to
 
 ## Patterns that lose inference
 
-| Pattern                                                       | Result                                                                | Fix                                                 |
-| ------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------- |
-| `const app = new Hono(); app.get(...)` (separate statements)  | Schema `{}`, no routes                                                | Chain: `const app = new Hono().get(...)`            |
-| `const app: Hono = new Hono().get(...)` or `app as Hono`      | Annotation widens to an empty schema                                  | Let TypeScript infer, export `typeof app`           |
-| `HonoAppToHyperFetch<typeof Hono>` or a factory function type | `{}`                                                                  | `typeof app` of the instance                        |
-| `validator("form", ...)`, `header`, `cookie` validators       | `payload` is `undefined`                                              | A `json` validator, or a hand-typed `createRequest` |
-| `c.json(JSON.parse(...))` or other `any` bodies               | `response` becomes `{}`                                               | `c.json<User>(...)`                                 |
-| `c.newResponse(...)`, `c.notFound()`                          | `response` is `{}`                                                    | Return `c.json(...)` for typed bodies               |
-| Route nested deeper than 10 levels                            | Request keeps `ClientInstance`, no global error, no `$configure` keys | Flatten the path                                    |
-| Importing the runtime `app` into the frontend                 | Server code in the bundle                                             | `import type { AppSchema }`                         |
-| `hono` not installed where the frontend type-checks           | Schema degrades to `any` / errors                                     | Add `hono` as a dev dependency                      |
-| camelCase Hono path (`/userProfile`)                          | Types fine, runtime URL `/user-profile`                               | kebab-case paths                                    |
-| `createSdk(client, { camelCaseToKebabCase: false })`          | Types fine, runtime URL `/auth/googleLogin`                           | Keep the default                                    |
-| `/users/` registered with a trailing slash                    | Types fine, runtime 404 in strict mode                                | `/users`, or `appendTrailingSlash()`                |
+| Pattern                                                      | Result                                                                | Fix                                                 |
+| ------------------------------------------------------------ | --------------------------------------------------------------------- | --------------------------------------------------- |
+| `const app = new Hono(); app.get(...)` (separate statements) | Schema `{}`, no routes                                                | Chain: `const app = new Hono().get(...)`            |
+| `const app: Hono = new Hono().get(...)` or `app as Hono`     | Annotation widens to an empty schema                                  | Let TypeScript infer, export `typeof app`           |
+| `HonoSchema<typeof Hono>` or a factory function type         | `{}`                                                                  | `typeof app` of the instance                        |
+| `validator("form", ...)`, `header`, `cookie` validators      | `payload` is `undefined`                                              | A `json` validator, or a hand-typed `createRequest` |
+| `c.json(JSON.parse(...))` or other `any` bodies              | `response` becomes `{}`                                               | `c.json<User>(...)`                                 |
+| `c.newResponse(...)`, `c.notFound()`                         | `response` is `{}`                                                    | Return `c.json(...)` for typed bodies               |
+| Route nested deeper than 10 levels                           | Request keeps `ClientInstance`, no global error, no `$configure` keys | Flatten the path                                    |
+| Importing the runtime `app` into the frontend                | Server code in the bundle                                             | `import type { AppSchema }`                         |
+| `hono` not installed where the frontend type-checks          | Schema degrades to `any` / errors                                     | Add `hono` as a dev dependency                      |
+| camelCase Hono path (`/userProfile`)                         | Types fine, runtime URL `/user-profile`                               | kebab-case paths                                    |
+| `createSdk(client, { camelCaseToKebabCase: false })`         | Types fine, runtime URL `/auth/googleLogin`                           | Keep the default                                    |
+| `/users/` registered with a trailing slash                   | Types fine, runtime 404 in strict mode                                | `/users`, or `appendTrailingSlash()`                |

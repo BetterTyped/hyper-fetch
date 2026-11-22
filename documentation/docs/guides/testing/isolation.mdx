@@ -1,6 +1,7 @@
 ---
 sidebar_position: 2
 title: Testing Isolation
+description: "Isolate HyperFetch tests by calling client.clear() before each test and resetting the module cache in Jest, so cached data and queues never leak between tests."
 sidebar_label: Isolation
 ---
 
@@ -19,7 +20,7 @@ where the client is a global module, we need to bring some of our attention to i
 
 ## Why Isolation is Important
 
-The `Client` in Hyper Fetch is often used as a global singleton. While this is great for application development, it can
+The `Client` in HyperFetch is often used as a global singleton. While this is great for application development, it can
 cause problems during testing, especially when running tests in parallel. Without proper isolation, state from one test
 (like cached data or queued requests) can leak into another, leading to unpredictable and flaky tests.
 
@@ -90,7 +91,7 @@ the cache, dispatchers and managers, so subscribe again after calling it.
 
 :::success Congratulations!
 
-You've learned how to properly isolate your tests in Hyper Fetch!
+You've learned how to properly isolate your tests in HyperFetch!
 
 - You can use **`client.clear()`** to reset the client state.
 - You understand the importance of **clearing the module cache** for full isolation.

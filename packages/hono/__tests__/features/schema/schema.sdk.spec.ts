@@ -3,10 +3,10 @@ import type { ServerType } from "@hono/node-server";
 import { createClient, createSdk } from "@hyper-fetch/core";
 import type { AddressInfo } from "node:net";
 
-import type { HonoAppToHyperFetch } from "../../../src";
+import type { HonoSchema } from "../../../src";
 import { app } from "../../utils/app";
 
-type Schema = HonoAppToHyperFetch<typeof app>;
+type Schema = HonoSchema<typeof app>;
 
 const startServer = () =>
   new Promise<ServerType>((resolve) => {
@@ -18,7 +18,7 @@ const stopServer = (server: ServerType) =>
     server.close((error) => (error ? reject(error) : resolve()));
   });
 
-describe("HonoAppToHyperFetch [ Requests against a Hono server ]", () => {
+describe("HonoSchema [ Requests against a Hono server ]", () => {
   let server: ServerType;
   let url: string;
 

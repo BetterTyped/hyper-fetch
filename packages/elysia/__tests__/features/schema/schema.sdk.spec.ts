@@ -3,10 +3,10 @@ import type { ServerType } from "@hono/node-server";
 import { createClient, createSdk } from "@hyper-fetch/core";
 import type { AddressInfo } from "node:net";
 
-import type { ElysiaAppToHyperFetch } from "../../../src";
+import type { ElysiaSchema } from "../../../src";
 import { app } from "../../utils/app";
 
-type Schema = ElysiaAppToHyperFetch<typeof app>;
+type Schema = ElysiaSchema<typeof app>;
 
 // `app.fetch` is the web standard handler Elysia runs on every runtime, served here on a free port
 const startServer = () =>
@@ -19,7 +19,7 @@ const stopServer = (server: ServerType) =>
     server.close((error) => (error ? reject(error) : resolve()));
   });
 
-describe("ElysiaAppToHyperFetch [ Requests against an Elysia server ]", () => {
+describe("ElysiaSchema [ Requests against an Elysia server ]", () => {
   let server: ServerType;
   let url: string;
 

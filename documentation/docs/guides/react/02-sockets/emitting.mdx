@@ -1,12 +1,13 @@
 ---
 sidebar_position: 2
-title: React - Socket Emitting
+title: Socket emitting in React with useEmitter
+description: "Send WebSocket events from React components with the HyperFetch useEmitter hook: call emit, track connection state and handle failed sends with onEmitError."
 sidebar_label: Emitting
 ---
 
 # Socket Emitting
 
-While listening for events is crucial, your application also needs to send data to the server. Hyper-fetch's
+While listening for events is crucial, your application also needs to send data to the server. HyperFetch's
 `useEmitter` hook provides a clean and efficient way to emit socket events. It gives you a dedicated `emit` function to
 trigger events on demand, along with helpers to track the connection state and react to messages that could not be
 sent. This hook is perfect for actions like sending messages, updating user status, or any other client-to-server communication.

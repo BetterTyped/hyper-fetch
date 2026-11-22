@@ -1,5 +1,6 @@
 ---
-title: Guide - Validation
+title: API response and request validation with Zod
+description: "Validate API responses and request payloads in HyperFetch with mappers that throw, using Zod or any schema library to turn bad data into request errors."
 sidebar_label: Validation
 ---
 
@@ -7,8 +8,8 @@ Data validation is a critical aspect of building robust and reliable application
 through your application, both from the server and from user inputs, adheres to a predefined structure and set of rules.
 Without proper validation, you risk encountering unexpected errors, data corruption, and security vulnerabilities.
 
-Hyper Fetch provides a powerful and flexible way to handle validation by leveraging mappers. When a mapper throws an
-error, Hyper Fetch catches it and treats it as a request error. This mechanism allows you to integrate any validation
+HyperFetch provides a powerful and flexible way to handle validation by leveraging mappers. When a mapper throws an
+error, HyperFetch catches it and treats it as a request error. This mechanism allows you to integrate any validation
 library, like [Zod](https://zod.dev/), to validate request and response data seamlessly.
 
 :::secondary What you'll learn
@@ -28,7 +29,7 @@ Response validation is the process of verifying that the data received from the 
 is crucial for preventing runtime errors in your application when an API returns an unexpected response.
 
 We can use the `.setResponseMapper()` method on a request to inspect the raw response and validate its structure. If the
-validation fails, we can throw an error, which Hyper Fetch will catch and place in the `error` state of the request.
+validation fails, we can throw an error, which HyperFetch will catch and place in the `error` state of the request.
 
 Let's see an example using `zod`:
 
@@ -53,7 +54,7 @@ const getUser = client
   .setResponseMapper((response) => {
     if (response.data) {
       // Validate the parsed response data against our schema.
-      // If parsing fails, Zod throws an error that Hyper Fetch will catch.
+      // If parsing fails, Zod throws an error that HyperFetch will catch.
       UserSchema.parse(response.data);
     }
 
@@ -75,7 +76,7 @@ const getUser = client
 ```
 
 In this example, if the data received from `/users/:userId` does not conform to the `UserSchema`,
-`UserSchema.parse(data)` will throw a `ZodError`. Hyper Fetch will catch this error, stop the request processing, and
+`UserSchema.parse(data)` will throw a `ZodError`. HyperFetch will catch this error, stop the request processing, and
 you will get the `ZodError` instance in the `error` property of the request's return value.
 
 ---
@@ -150,7 +151,7 @@ error. The request will be aborted before it is sent, and the error will be retu
 
 ---
 
-:::success Congratulations! You've learned how to implement robust data validation in Hyper Fetch!
+:::success Congratulations! You've learned how to implement data validation in HyperFetch!
 
 1.  You can perform **response validation** using `.setResponseMapper()` to ensure data from the server is safe to use.
 2.  You can implement **request validation** with `.setRequestMapper()` to prevent sending invalid data.

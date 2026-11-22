@@ -1,12 +1,13 @@
 ---
 sidebar_position: 1
-title: Guide - Fetching
+title: Fetching data with typed TypeScript requests
+description: "Send requests in HyperFetch with send(), pass payload, params and query params, read the response object, set a cache policy and abort requests in flight."
 sidebar_label: Fetching
 ---
 
 # Fetching
 
-Fetching is the process of executing a request to communicate with a server. In Hyper-Fetch, this is primarily done
+Fetching is the process of executing a request to communicate with a server. In HyperFetch, this is primarily done
 using the `send` method on a request instance. This guide will walk you through the various ways to dispatch requests,
 pass data, and handle their lifecycle events.
 
@@ -30,7 +31,7 @@ a promise that resolves with the request's outcome, including data, error, and s
 
 :::note Promises never reject
 
-One of Hyper-Fetch's design principles is that `send()` **never rejects**. Whether the request succeeds or fails, the
+One of HyperFetch's design principles is that `send()` **never rejects**. Whether the request succeeds or fails, the
 promise always resolves with a response object containing `data`, `error`, `success`, and `status`. This eliminates the
 need for `try...catch` blocks around your requests.
 
@@ -77,7 +78,7 @@ The `send` method resolves with an object containing the following properties:
 
 ## Passing Data to Requests
 
-Hyper-Fetch provides flexible ways to pass data, parameters, and query parameters to your requests.
+HyperFetch provides flexible ways to pass data, parameters, and query parameters to your requests.
 
 ### 1. Using Setter Methods
 
@@ -327,7 +328,7 @@ const { data } = await getUsers.send({
 
 :::success Congratulations!
 
-You've learned the fundamentals of dispatching requests with Hyper-Fetch!
+You've learned the fundamentals of dispatching requests with HyperFetch!
 
 - You can execute any request by calling its **`send`** method, which returns a rich response object.
 - You can pass data to a request using **setter methods** or directly within the **`send`** method's options.

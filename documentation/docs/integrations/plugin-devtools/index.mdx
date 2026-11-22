@@ -1,26 +1,49 @@
 ---
 sidebar_position: 1
-title: DevTools Plugin
+title: React Query Devtools Alternative for HyperFetch
+description: Inspect requests, cache and queues of a HyperFetch app in HyperFlow, a desktop devtools app. How it compares to React Query Devtools and React DevTools.
 sidebar_label: Overview
 ---
 
+# A React Query devtools alternative for HyperFetch
+
 [Read the API Reference »](/docs/api/plugin-devtools/Functions/DevtoolsPlugin.mdx)
 
-Devtools plugin allow you to connect your application to a [HyperFlow](/docs/hyper-flow). It allows you to inspect the
-requests and responses, inspect and modify cache and to control the requests.
+If you came looking for react query devtools, this is the HyperFetch equivalent. The devtools plugin connects your
+client to [HyperFlow](/docs/hyper-flow), a desktop app for macOS, Windows and Linux. HyperFlow shows every request and
+response, lets you inspect, edit, invalidate and delete cache entries, and stops, starts and clears the request queues.
+It is not a browser extension and it does not render inside your page.
 
 ---
 
 :::tip Purpose
 
-1.  **Real-time Request Inspection**: Monitor all incoming and outgoing requests and their corresponding responses
-    within your application in real-time.
-2.  **Advanced Cache Management**: Gain full control over the cache, allowing you to inspect, modify, and clear cached
-    data on the fly.
-3.  **Interactive Request Control**: Manage your application's data flow with options to cancel, pause, and resume
-    requests directly from the devtools.
+1.  **Real-time request inspection**: See every request your client sends and the response or error it got.
+2.  **Cache control**: Inspect cached data, change it, invalidate it or delete it, and watch the app react.
+3.  **Queue control**: Stop, start and clear the fetch and submit queues to test slow or offline flows.
+4.  **Sockets and backends**: Inspect sockets next to requests, and connect Node.js services as well as browsers.
 
 :::
+
+---
+
+## React Query Devtools, React DevTools and HyperFlow
+
+Three tools with similar names do different jobs:
+
+| Tool                        | What it is                                                          | What it shows                                    |
+| --------------------------- | ------------------------------------------------------------------- | ------------------------------------------------ |
+| React Query Devtools        | A React component from `@tanstack/react-query-devtools`, rendered inside your app as a floating or embedded panel | The TanStack Query cache: queries, their state and data |
+| React DevTools (Chrome, Firefox, Edge) | A browser extension from the React team                  | The component tree, props, state, hooks and the profiler |
+| HyperFlow                   | A desktop app that your client connects to through this plugin      | HyperFetch requests, cache, queues and sockets   |
+
+[React Query Devtools](https://tanstack.com/query/latest/docs/framework/react/devtools) is the right tool for a
+TanStack Query app. It mounts in the page, and by default it is only included in development builds. Chrome's React
+DevTools does not show network traffic or a data cache at all. It answers "why did this component render", not "what did
+this request return".
+
+HyperFlow runs outside the browser. The plugin opens a WebSocket to the app on `ws://localhost:2137`, so the same window
+can show a browser tab and a Node.js backend side by side, each under its `appName`.
 
 ---
 
@@ -114,6 +137,24 @@ const client = new Client({ url: "http://localhost:3000" }).addPlugin(
   }),
 );
 ```
+
+---
+
+## Only in development
+
+The plugin connects whenever it is added, so add it only in builds where you want HyperFlow to see the traffic:
+
+```tsx
+const client = new Client({ url: "http://localhost:3000" });
+
+if (process.env.NODE_ENV === "development") {
+  client.addPlugin(DevtoolsPlugin({ appName: "My App" }));
+}
+```
+
+If you changed the port in HyperFlow, pass the address with the `url` option. Set `debug: true` to log what the plugin
+sends. Read [connecting HyperFlow](../../hyper-flow/connecting.mdx) for the full setup and the
+[network inspector](../../hyper-flow/features/network.mdx) for what you see once it connects.
 
 <LinkCard
   type="promo"

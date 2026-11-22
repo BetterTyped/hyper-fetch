@@ -1,15 +1,19 @@
 ---
 sidebar_position: 1
-title: Hono
+title: Hono Client with Types from Your Hono App
+description: A typed Hono client for the frontend. Read routes and validators from your Hono app type and call them with caching, retries and React hooks.
 sidebar_label: Overview
 ---
 
-[Read the API Reference »](/docs/api/hono/Types/HonoAppToHyperFetch.mdx)
+# Hono client with types from your Hono app
 
-`@hyper-fetch/hono` converts the type of a [Hono](https://hono.dev/) app into a schema for
-[`createSdk`](/docs/core/sdk). The frontend then calls the backend through a typed SDK whose responses, payloads, query
-params and URL params come from your Hono routes and validators. The package exports types only and adds no code to your
-bundle. For WebSocket and Server-Sent Events routes, see [Realtime](/docs/integrations/hono/realtime).
+[Read the API Reference »](/docs/api/hono/Types/HonoSchema.mdx)
+
+`@hyper-fetch/hono` gives you a typed hono client built on HyperFetch. It converts the type of a
+[Hono](https://hono.dev/) app into a schema for [`createSdk`](/docs/core/sdk), so the frontend calls the backend through
+an SDK whose responses, payloads, query params and URL params come from your Hono routes and validators. The package
+exports types only and adds no code to your bundle. For WebSocket and Server-Sent Events routes, see
+[Realtime](/docs/integrations/hono/realtime).
 
 :::tip Purpose
 
@@ -20,6 +24,27 @@ bundle. For WebSocket and Server-Sent Events routes, see [Realtime](/docs/integr
 4. **Full HyperFetch features**: Every route is a regular `Request` with cache, retries, deduplication and React hooks.
 
 :::
+
+---
+
+## Hono RPC client or HyperFetch
+
+Hono ships its own [RPC client](https://hono.dev/docs/guides/rpc). You export `typeof app` as `AppType`, create a
+client with `hc<AppType>(url)` from `hono/client`, and call routes as `client.users.$get()`. It is small, it comes with
+Hono, and it reads the same route types this package reads. If you only need typed calls, it is a good choice.
+
+`hc` returns a `fetch` response and stops there. Caching, retries, deduplication, loading state and offline handling
+are up to you or another library. This package keeps the same route types and puts every route behind a HyperFetch
+`Request` instead:
+
+| Need                             | `hc` from `hono/client`        | `@hyper-fetch/hono`                                        |
+| -------------------------------- | ------------------------------ | ---------------------------------------------------------- |
+| Types from the Hono app          | Yes                            | Yes                                                        |
+| Call shape                       | `client.users.$get()`          | `sdk.users.$get.send()`                                    |
+| Response cache                   | Not built in                   | [Built-in cache](../../core/cache.mdx)                     |
+| Retries and deduplication        | Not built in                   | Request options                                            |
+| React hooks                      | Not built in                   | `useFetch` and `useSubmit` from `@hyper-fetch/react`       |
+| WebSocket routes                 | `$ws()` on the route           | A `Socket` with a typed URL, see [Realtime](./realtime.mdx) |
 
 ---
 
@@ -41,7 +66,7 @@ npm install @hyper-fetch/core @hyper-fetch/hono
 ```ts title="backend/src/app.ts"
 import { Hono } from "hono";
 import { validator } from "hono/validator";
-import type { HonoAppToHyperFetch } from "@hyper-fetch/hono";
+import type { HonoSchema } from "@hyper-fetch/hono";
 
 const users = new Hono()
   .get("/", (c) => c.json([{ id: "1", name: "Ann" }]))
@@ -55,7 +80,7 @@ const users = new Hono()
 export const app = new Hono().route("/users", users);
 
 // highlight-next-line
-export type AppSchema = HonoAppToHyperFetch<typeof app>;
+export type AppSchema = HonoSchema<typeof app>;
 ```
 
 2. Pass the schema to `createSdk` on the frontend. Use `import type` so no backend code reaches the client bundle.
@@ -188,10 +213,19 @@ const { error } = await sdk.users.$get.send();
 
 :::secondary What you learned
 
-- `HonoAppToHyperFetch<typeof app>` turns a chained Hono app into a schema for `createSdk`.
+- `HonoSchema<typeof app>` turns a chained Hono app into a schema for `createSdk`.
 - Paths, params, kebab-case segments, mounted routers and `basePath()` all map to nested SDK properties.
 - `json` and `query` validators type the payload and query params of each request.
 - The package ships types only, so import it with `import type` on the frontend.
+
+:::
+
+---
+
+:::note Renamed types
+
+Earlier releases called `HonoSchema` and `HonoSocketPath` `HonoAppToHyperFetch` and `HonoWebSocketPath`. The old
+names still work and are marked `@deprecated`.
 
 :::
 

@@ -1,22 +1,48 @@
 ---
-title: Implementing Infinite Scroll
+title: Infinite Scroll in React with useInfiniteFetch
+description: Build infinite scroll in React with page, offset or cursor pagination, a Load More button or an IntersectionObserver. A useInfiniteQuery alternative.
 sidebar_label: Infinite Scroll
 ---
 
-# Infinite Scroll
+# Infinite Scroll in React
 
 Infinite scroll loads a long list in small parts: as the user reaches the end, the next page is added to the list.
-[`useInfiniteFetch`](/react/04-hooks/use-infinite-fetch.mdx) handles the page values, the end of the list and restarting
-when filters change. Your component only decides when to load more.
+Building infinite scroll in React by hand means tracking the next page, merging pages, knowing when the list ends,
+avoiding double requests while a page loads, and starting over when a filter changes.
+[`useInfiniteFetch`](../../../react/04-hooks/use-infinite-fetch.mdx) handles all of that. Your component only decides
+when to load more.
 
 :::secondary What you'll learn
 
-1.  How to describe a paginated request with the **`pagination`** option.
-2.  How to build a **"Load More"** button.
-3.  How to load pages **automatically while scrolling**.
-4.  How **filters** restart the list.
+1.  How infinite scroll works and which **pagination style** fits it.
+2.  How to describe a paginated request with the **`pagination`** option.
+3.  How to build a **"Load More"** button.
+4.  How to load pages **automatically while scrolling**.
+5.  How **filters** restart the list.
+6.  How it compares to React Query's **`useInfiniteQuery`**.
 
 :::
+
+---
+
+## Page, offset or cursor
+
+An infinite list needs a way to ask the server for "the next part". APIs do it in one of three ways, and
+`useInfiniteFetch` supports all of them through the `pagination` option:
+
+| Style  | Request                     | Good for                                     | `pagination` option                      |
+| ------ | --------------------------- | -------------------------------------------- | ---------------------------------------- |
+| Page   | `?page=3&limit=20`          | Simple lists, numbered pages                 | `{ page: "page", limit: "limit" }`       |
+| Offset | `?offset=40&limit=20`       | SQL-backed lists                             | `{ offset: "offset", limit: "limit" }`   |
+| Cursor | `?cursor=abc123`            | Feeds where items are added while you scroll | `{ cursor: "cursor", next: "nextCursor" }` |
+
+Page and offset lists can skip or repeat items when new rows are inserted while the user scrolls, because every page
+moves by one. Cursor lists don't have that problem, which is why most feeds use them. With page and offset, set
+`uniqueBy: "id"` to drop the repeats.
+
+Every key in `pagination` is checked against the request's types, so a typo in a field name is a compile error.
+
+---
 
 ## Load More button
 
@@ -58,7 +84,8 @@ function PostList() {
 
 ### How it works
 
-1.  The hook fetches the first page on mount. Each page is a normal request with its own cache key.
+1.  The hook fetches the first page on mount. Each page is a normal request with its own cache key, so the usual
+    [cache rules](../../core/02-advanced/cache-revalidation.mdx) apply.
 2.  `items` holds the items of all the loaded pages, in order.
 3.  `fetchNextPage` requests the next page. Calling it again while the page loads does not send another request.
 4.  Declaring `limit` lets the hook end the list on a short page, without requesting an empty one.
@@ -124,9 +151,55 @@ The previous results stay visible until the new ones arrive, and `bounce` waits 
 
 ---
 
+## Cursor pagination
+
+For a feed that returns `{ data: Post[], nextCursor: string | null }`, point `items` at the array and `next` at the
+cursor field. The list ends when `nextCursor` is `null`.
+
+```tsx
+const getFeed = client.createRequest<{
+  response: { data: Post[]; nextCursor: string | null };
+  queryParams: { cursor?: string };
+}>()({ endpoint: "/feed" });
+
+function Feed() {
+  const { items, hasNextPage, fetchNextPage } = useInfiniteFetch(getFeed, {
+    // highlight-next-line
+    pagination: { cursor: "cursor", next: "nextCursor", items: "data" },
+    maxPages: 10, // keep at most 10 pages in memory
+  });
+
+  // render items and a trigger, as above
+}
+```
+
+---
+
+## useInfiniteQuery alternative
+
+If you know React Query, `useInfiniteFetch` plays the role of
+[`useInfiniteQuery`](https://tanstack.com/query/latest/docs/framework/react/guides/infinite-queries). The difference is
+where the paging rules live. `useInfiniteQuery` takes an `initialPageParam` and a `getNextPageParam` function, and gives
+you `data.pages`, which you flatten yourself. `useInfiniteFetch` takes a declarative `pagination` object that is checked
+against your request types, and gives you `items` already merged.
+
+| Need                       | `useInfiniteQuery`                    | `useInfiniteFetch`                          |
+| -------------------------- | ------------------------------------- | ------------------------------------------- |
+| Describe the next page     | `initialPageParam`, `getNextPageParam` | `pagination: { page }`, `{ offset }`, `{ cursor, next }` |
+| Read the items             | `data.pages.flatMap(...)`             | `items` (also `pages`)                      |
+| Load more                  | `fetchNextPage`, `hasNextPage`        | `fetchNextPage`, `hasNextPage`              |
+| Loading the next page      | `isFetchingNextPage`                  | `isFetchingNextPage`                        |
+| Limit pages in memory      | `maxPages`                            | `maxPages`                                  |
+| Drop duplicate items       | Write it in `select`                  | `uniqueBy`                                  |
+
+For a classic table with numbered pages instead of a growing list, use `useFetch` and change the page. See
+[pagination in React](./pagination.mdx).
+
+---
+
 :::success Congratulations!
 
-You've learned how to build an infinite scroll feature with Hyper-fetch!
+You've learned how to build an infinite scroll feature with HyperFetch!
 
 - You can describe paging with the **`pagination`** option.
 - You can load more data from a **button or while scrolling**.

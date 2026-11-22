@@ -1,10 +1,11 @@
 ---
 sidebar_position: 8
 title: Managers
+description: "HyperFetch managers handle app-wide state: the AppManager tracks online and focus state, the RequestManager tracks request events and aborts."
 sidebar_label: Managers
 ---
 
-**Managers** are core subsystems in Hyper Fetch that handle essential app-wide concerns—like network status, request
+**Managers** are core subsystems in HyperFetch that handle essential app-wide concerns, like network status, request
 lifecycle, and logging. They provide powerful, centralized APIs for managing state, events, and behaviors across your
 application, making advanced features like offline support, cancellation, and debugging easy to implement and maintain
 in other environments like React, Node.js, etc.
@@ -47,7 +48,7 @@ unmountOfflineListener();
 
 :::info
 
-Hyper Fetch event listeners always return unmounting callbacks for easier cleanup handling.
+HyperFetch event listeners always return unmounting callbacks for easier cleanup handling.
 
 :::
 

@@ -7,7 +7,7 @@ import { createSocketSdk, Socket } from "@hyper-fetch/sockets";
 import { cleanup, renderHook, waitFor } from "@testing-library/react";
 import { StrictMode, useEffect } from "react";
 
-import type { HonoWebSocketPath } from "../../../src";
+import type { HonoSocketPath } from "../../../src";
 import type { ChatMessage, RealtimeApp, RealtimeServer } from "../../utils/realtime-server";
 import { createRealtimeServer } from "../../utils/realtime-server";
 
@@ -51,7 +51,7 @@ describe("Hono realtime [ React ]", () => {
   let server: RealtimeServer;
   let sockets: Socket[] = [];
 
-  const createApi = (path: HonoWebSocketPath<RealtimeApp> = "/ws") => {
+  const createApi = (path: HonoSocketPath<RealtimeApp> = "/ws") => {
     const socket = new Socket({ url: `${server.wsUrl}${path}`, reconnectTime: 10 });
     sockets.push(socket);
     return { socket, sdk: createSocketSdk<typeof socket, ChatSchema>(socket) };

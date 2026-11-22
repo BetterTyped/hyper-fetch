@@ -1,0 +1,261 @@
+---
+slug: hyper-fetch-10-firebase
+title: "Typed Firebase Queries"
+authors: [maciej]
+tags: [Release, Firebase]
+date: 2026-11-21T13:00:00
+description: "HyperFetch 10 checks Firebase query constraints against your document types, so a typo in a where clause fails to compile instead of matching nothing."
+---
+
+import { BlogPostImage, LinkCard } from "@site/src/components";
+
+<BlogPostImage
+  title="Typed Firebase Queries"
+  description="Constraints checked against your documents, and writes you can trust."
+  badge="feature"
+  href="/blog/hyper-fetch-10-firebase"
+  pattern="flickering"
+  patternMask="bottom"
+  file="teas.ts"
+>
+
+```ts
+const { data } = await getTeas.send({
+  queryParams: (c) =>
+    c.where("type", "==", "Green").orderBy("year", "desc").limit(20),
+});
+```
+
+</BlogPostImage>
+
+A Firestore query is a list of strings and values that nobody checks until it runs. A typo in a field name returns an
+empty list, not an error. In HyperFetch 10, `@hyper-fetch/firebase` and `@hyper-fetch/firebase-admin` build constraints
+in a typed callback, and a long list of fixes makes writes and listeners behave the way the docs always said they did.
+
+{/* truncate */}
+
+:::info Version
+
+This post covers **HyperFetch 10**. Read the [release overview](/blog/hyper-fetch-10-0) for the rest of the series.
+
+:::
+
+:::success What's new
+
+1. **Typed constraints**: a `queryParams` callback checks field names, values and cursors against the document type.
+2. **Constraints array**: `queryParams` takes the constraints directly, without the `{ constraints }` wrapper.
+3. **Listener query params**: listeners filter with the same callback as requests.
+4. **Reliable writes**: every write method sends its payload again, in both packages.
+5. **Reliable listeners**: each snapshot arrives once, and stopping one listener leaves the others running.
+6. **Tested in CI**: the emulator suites of both packages now run on every change.
+
+:::
+
+---
+
+## Typed constraints
+
+Constraints used to be untyped helpers. `$where("yaer", ">=", "2020")` compiled, ran and quietly matched nothing, and the
+only hint was an empty screen.
+
+```ts
+import type { FirestoreQueryParams } from "@hyper-fetch/firebase";
+
+type Tea = {
+  name: string;
+  type: "Green" | "Black";
+  year: number;
+  origin: { country: string };
+};
+
+const getTeas = client.createRequest<{
+  response: (Tea & { __key: string })[];
+  // highlight-next-line
+  queryParams?: FirestoreQueryParams<Tea>;
+}>()({
+  endpoint: "teas",
+  method: "getDocs",
+});
+
+getTeas.setQueryParams((c) => c.where("year", ">=", 2020)); // ✓
+getTeas.setQueryParams((c) => c.where("yaer", ">=", "2020")); // ✗ unknown field, and year is a number
+getTeas.setQueryParams((c) => c.where("origin.country", "==", "Japan")); // ✓ nested fields use dots
+```
+
+The chain follows Firebase's own rules in its types:
+
+- `where` checks the value against the field, so `"in"` takes an array and `"array-contains"` takes one element.
+- Firestore cursors take one value per `orderBy`, in order. `orderBy("year").orderBy("name").startAfter(2023, "Sencha")`
+  compiles, a third value does not.
+- A Realtime Database query allows one `orderBy*`, and its cursors and `equalTo` are typed by the ordered value.
+
+```ts
+import type { RealtimeDBQueryParams } from "@hyper-fetch/firebase";
+
+type Message = { text: string; sentAt: number };
+
+const getMessages = client.createRequest<{
+  response: (Message & { __key: string })[];
+  queryParams?: RealtimeDBQueryParams<Message>;
+}>()({
+  endpoint: "rooms/general/messages",
+  method: "get",
+});
+
+const { data } = await getMessages.send({
+  queryParams: (c) => c.orderByChild("sentAt").limitToLast(50),
+});
+```
+
+The callback runs the moment you set it, and the request stores the constraints it returns. Cache keys, query keys and
+`toJSON()` only ever see plain data, so each combination of filters gets its own cache entry. Rules the types cannot see, such as a missing composite index, come back in `response.error`.
+
+This works through two new hooks: `setQueryParamsResolver()` on the core `Adapter` and
+`setListenerQueryParamsResolver()` on the `SocketAdapter`. Custom adapters can use them to accept their own query params
+callbacks.
+
+---
+
+## Constraints as an array
+
+Some queries are built step by step, from filters a user toggles on screen. A callback is awkward there, and the old
+`{ constraints: [...] }` wrapper was a key with nothing beside it.
+
+```ts
+import { $orderBy, $where } from "@hyper-fetch/firebase";
+import type { FirestoreConstraint } from "@hyper-fetch/firebase";
+
+const constraints: FirestoreConstraint[] = [];
+if (onlyGreen) constraints.push($where("type", "==", "Green"));
+constraints.push($orderBy("year", "desc"));
+
+// highlight-next-line
+getTeas.setQueryParams(constraints);
+```
+
+The array is what the callback resolves to, so both forms share the cache. Constraints apply in order. `RealtimeDBConstraint`
+types the Realtime Database helpers, such as `$orderByChild` and `$limitToLast`, and mixing the two databases' helpers is
+a type error.
+
+---
+
+## Listeners use the same query params
+
+Listeners took their constraints in `options`, apart from everything else that described the query. Now they use the
+same `setQueryParams` as requests.
+
+```ts
+import { Socket } from "@hyper-fetch/sockets";
+import { FirebaseSocketsAdapter } from "@hyper-fetch/firebase";
+
+const socket = new Socket({
+  url: "",
+  adapter: FirebaseSocketsAdapter(getFirestore(app)),
+});
+
+const onGreenTeas = socket
+  .createListener<(Tea & { __key: string })[]>()({
+    topic: "teas",
+    options: { groupByChangeType: true },
+  })
+  // highlight-next-line
+  .setQueryParams((c) =>
+    c.where("type", "==", "Green").orderBy("year", "desc").limit(20),
+  );
+
+onGreenTeas.listen(({ data, extra }) => {
+  render(data); // the full current result, every time
+  extra.status; // "success" or "emptyResource", now typed
+});
+```
+
+`options` keeps what is not part of the query: `groupByChangeType` for Firestore and `onlyOnce` for Realtime Database.
+`useListener` from `@hyper-fetch/react` takes the listener as it is.
+
+---
+
+## Upgrading
+
+Nothing breaks. The `{ constraints }` object on requests and `options.constraints` on listeners still work and are
+marked `@deprecated`, so your editor points at every place to update.
+
+```ts title="Requests"
+const { data } = await getTeas.send({
+  // diff-remove-start
+  queryParams: {
+    constraints: [$where("type", "==", "Green"), $orderBy("year"), $limit(20)],
+  },
+  // diff-remove-end
+  // diff-add-next-line
+  queryParams: (c) => c.where("type", "==", "Green").orderBy("year").limit(20),
+});
+```
+
+```ts title="Listeners"
+const onGreenTeas = socket
+  .createListener<Tea[]>()({
+    topic: "teas",
+    // diff-remove-next-line
+    options: { constraints: [$where("type", "==", "Green")] },
+  })
+  // diff-add-next-line
+  .setQueryParams((c) => c.where("type", "==", "Green"));
+```
+
+To keep the `$`-helpers, pass the array itself: `queryParams: [$where("type", "==", "Green"), $limit(20)]`. Field names
+are checked only by the callback on a request typed with `FirestoreQueryParams<Doc>` or `RealtimeDBQueryParams<Doc>`.
+
+---
+
+## Reliability fixes
+
+The emulator suites of both packages had been left out of CI, and they had drifted. Each fix below came with a spec that
+failed first, and both suites now run in CI on every change, with the release waiting for them.
+
+- **Writes send the payload.** `setDoc`, `addDoc`, `updateDoc`, `set`, `push` and `update` sent `undefined` since v7.
+  They send the payload again, in `@hyper-fetch/firebase` and `@hyper-fetch/firebase-admin`.
+- **Each snapshot arrives once.** Socket listeners delivered every snapshot twice.
+- **Stopping a listener stops only that listener.** In `@hyper-fetch/firebase-admin`, unsubscribing a Realtime Database
+  listener removed every `value` listener on the same path.
+- **Cursors match.** Firestore cursors with several values matched nothing, and Realtime Database cursors dropped the
+  optional key. Both now reach Firebase as written, and `$equalTo` takes the optional key too.
+- **Document listeners with `groupByChangeType`** deliver again, with `extra.groupedResult` set to `null`.
+  Collection listeners keep the `added`, `modified` and `removed` groups.
+- **`extra.status` is typed** on Firestore and Realtime Database listeners.
+- **Realtime Database requests default to `get`.** A request without a `method` used to fail, and a method the database
+  does not have now resolves with `status: "error"`.
+- **Types come from `firebase`.** The published declarations no longer import the internal `@firebase/*` packages, so
+  projects that install only `firebase` typecheck.
+
+The docs were rewritten alongside the fixes, with every example checked against the emulator or the type checker.
+
+---
+
+## Learn more
+
+<LinkCard
+  type="integrations"
+  title="Firebase"
+  description="Setup, paths, responses and typed queries for the web SDK."
+  href="/docs/integrations/adapter-firebase/overview"
+/>
+<LinkCard
+  type="docs"
+  title="Firestore"
+  description="Every Firestore method, typed constraints and cursor pagination."
+  href="/docs/integrations/adapter-firebase/firestore"
+/>
+<LinkCard
+  type="docs"
+  title="Realtime listening"
+  description="Listeners with query params, grouped changes and React."
+  href="/docs/integrations/adapter-firebase/realtime-queries"
+/>
+<LinkCard
+  type="integrations"
+  title="Firebase Admin"
+  description="The same requests and listeners on the server, with the Admin SDK."
+  href="/docs/integrations/adapter-firebase-admin/overview"
+/>
+
+Try it in the [Firebase example](/examples/integrations/firebase).

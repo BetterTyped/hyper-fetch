@@ -1,17 +1,18 @@
 ---
 sidebar_position: 3
 title: Mocking
+description: "Mock API requests in tests with request.setMock() in HyperFetch, keep mocks in one test SDK, override responses per test, mock sockets, or use MSW instead."
 sidebar_label: Mocking
 ---
 
 Mocking is a technique used to replace real API calls with controlled, fake responses during testing. This is crucial
-for creating fast, reliable, and deterministic tests, as you don't have to rely on a real backend. With Hyper Fetch, you
+for creating fast, reliable, and deterministic tests, as you don't have to rely on a real backend. With HyperFetch, you
 can leverage your existing request definitions to create mocks easily.
 
 :::secondary What you'll learn
 
 1.  **Why mocking** is essential for robust testing.
-2.  How to create **reusable mock handlers** based on your Hyper Fetch requests.
+2.  How to create **reusable mock handlers** based on your HyperFetch requests.
 3.  How to write **tests using mocked** API responses.
 4.  How to **centralize mocks** with SDK `$configure` and inject them into tests.
 5.  How to create **per-test overrides** for error states, empty states, and edge cases.
@@ -87,7 +88,7 @@ it("should render a list of users", async () => {
 });
 ```
 
-By using Hyper Fetch you can create a powerful and maintainable testing setup where your mocks are always in sync with
+By using HyperFetch you can create a powerful and maintainable testing setup where your mocks are always in sync with
 your application code.
 
 ---
@@ -250,12 +251,12 @@ export const testSocketSdk = socketSdk.$configure({
 
 ---
 
-## Using MSW with Hyper Fetch
+## Using MSW with HyperFetch
 
 We recommend using [MSW (Mock Service Worker)](https://mswjs.io/) for mocking API requests. It's a powerful library that
 intercepts requests on the network level, meaning your application doesn't even know it's not talking to a real server.
 
-The best part is that you can use your existing Hyper Fetch requests to configure MSW, which keeps your mocks in sync
+The best part is that you can use your existing HyperFetch requests to configure MSW, which keeps your mocks in sync
 with your actual API definitions.
 
 :::note Work in progress
@@ -268,14 +269,14 @@ We are working on the MSW integration docs.
 
 :::success Congratulations!
 
-You've learned how to mock API requests in your Hyper Fetch application!
+You've learned how to mock API requests in your HyperFetch application!
 
 - You can explain the **benefits of mocking** for testing.
 - You can create **type-safe mock handlers** that stay in sync with your API.
 - You can **centralize all test mocks** using SDK `$configure` with `setMock`.
 - You can **inject a test SDK** into components and create **per-test overrides** for specific scenarios.
 - You can mock **Socket SDK** listeners and emitters with the same `$configure` pattern.
-- You can set up **MSW** to work with your Hyper Fetch requests.
+- You can set up **MSW** to work with your HyperFetch requests.
 - You are able to write **isolated and reliable tests** for your components.
 
 :::

@@ -1,11 +1,14 @@
 ---
 sidebar_position: 2
-title: Working with Firestore
+title: Firestore with the Firebase Admin SDK in Node.js
+description: Read, write and query Firestore from Node.js with the Firebase Admin SDK, using typed requests for getDocs, setDoc, updateDoc and constraints.
 sidebar_label: Firestore
 ---
+# Firestore with the Firebase Admin SDK in Node.js
 
-Firestore operations from server code are HyperFetch requests with a Firestore `method`. They behave like the
-[web package](/docs/integrations/adapter-firebase/firestore), with the Admin SDK underneath.
+To use Firestore from the firebase admin sdk node side, this package turns each operation into a HyperFetch request with
+a Firestore `method`. Requests behave like the [web package](/docs/integrations/adapter-firebase/firestore), with the
+Admin SDK underneath, so security rules do not apply and your code decides who may do what.
 
 ---
 

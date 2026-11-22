@@ -3,12 +3,12 @@ import type { ClientInstance, ExtractClientType, ExtractEndpointType, ExtractRes
 import { Hono } from "hono";
 import { expectTypeOf } from "vitest";
 
-import type { HonoAppToHyperFetch } from "../../../src";
+import type { HonoSchema } from "../../../src";
 import type { pathsApp, rootOptionalApp } from "../../utils/paths.app";
 
-type Schema = HonoAppToHyperFetch<typeof pathsApp>;
+type Schema = HonoSchema<typeof pathsApp>;
 
-describe("HonoAppToHyperFetch [ Optional params ]", () => {
+describe("HonoSchema [ Optional params ]", () => {
   it("should add a route with an optional param both without and with the param", () => {
     expectTypeOf<keyof Schema["files"]>().toEqualTypeOf<"$get" | "$fileId">();
     expectTypeOf<ExtractEndpointType<Schema["files"]["$get"]>>().toEqualTypeOf<"/files">();
@@ -32,7 +32,7 @@ describe("HonoAppToHyperFetch [ Optional params ]", () => {
   });
 
   it("should put the route without an optional root param at the top level", () => {
-    type RootSchema = HonoAppToHyperFetch<typeof rootOptionalApp>;
+    type RootSchema = HonoSchema<typeof rootOptionalApp>;
 
     expectTypeOf<keyof RootSchema>().toEqualTypeOf<"$get" | "$lang">();
     expectTypeOf<ExtractEndpointType<RootSchema["$get"]>>().toEqualTypeOf<"/">();
@@ -49,7 +49,7 @@ describe("HonoAppToHyperFetch [ Optional params ]", () => {
   });
 });
 
-describe("HonoAppToHyperFetch [ Regex params ]", () => {
+describe("HonoSchema [ Regex params ]", () => {
   it("should drop the pattern from the key and the endpoint", () => {
     expectTypeOf<keyof Schema["posts"]>().toEqualTypeOf<"$postId">();
     expectTypeOf<ExtractEndpointType<Schema["posts"]["$postId"]["$get"]>>().toEqualTypeOf<"/posts/:postId">();
@@ -66,7 +66,7 @@ describe("HonoAppToHyperFetch [ Regex params ]", () => {
 
   it("should drop a pattern that holds a slash", () => {
     const app = new Hono().get("/docs/:path{.+/.+}/raw", (c) => c.json({ path: c.req.param("path") }));
-    type DocsSchema = HonoAppToHyperFetch<typeof app>;
+    type DocsSchema = HonoSchema<typeof app>;
 
     expectTypeOf<keyof DocsSchema["docs"]>().toEqualTypeOf<"$path">();
     expectTypeOf<ExtractEndpointType<DocsSchema["docs"]["$path"]["raw"]["$get"]>>().toEqualTypeOf<"/docs/:path/raw">();
@@ -75,7 +75,7 @@ describe("HonoAppToHyperFetch [ Regex params ]", () => {
 
   it("should split an optional regex param into two routes", () => {
     const app = new Hono().get("/pages/:page{[0-9]+}?", (c) => c.json({ page: c.req.param("page") ?? "1" }));
-    type PagesSchema = HonoAppToHyperFetch<typeof app>;
+    type PagesSchema = HonoSchema<typeof app>;
 
     expectTypeOf<keyof PagesSchema["pages"]>().toEqualTypeOf<"$get" | "$page">();
     expectTypeOf<ExtractEndpointType<PagesSchema["pages"]["$page"]["$get"]>>().toEqualTypeOf<"/pages/:page">();
@@ -83,7 +83,7 @@ describe("HonoAppToHyperFetch [ Regex params ]", () => {
   });
 });
 
-describe("HonoAppToHyperFetch [ Methods ]", () => {
+describe("HonoSchema [ Methods ]", () => {
   it("should expand an .all() route into every standard method", () => {
     expectTypeOf<keyof Schema["echo"]>().toEqualTypeOf<
       "$get" | "$post" | "$put" | "$delete" | "$options" | "$patch" | "$query"
@@ -105,7 +105,7 @@ describe("HonoAppToHyperFetch [ Methods ]", () => {
     const app = new Hono()
       .all("/hook", (c) => c.json({ any: true as const }))
       .get("/hook", (c) => c.json({ read: true as const }));
-    type HookSchema = HonoAppToHyperFetch<typeof app>;
+    type HookSchema = HonoSchema<typeof app>;
 
     expectTypeOf<ExtractResponseType<HookSchema["hook"]["$get"]>>().toEqualTypeOf<{ read: true }>();
     expectTypeOf<ExtractResponseType<HookSchema["hook"]["$post"]>>().toEqualTypeOf<{ any: true }>();
@@ -127,7 +127,7 @@ describe("HonoAppToHyperFetch [ Methods ]", () => {
 
   it("should keep a custom method of app.on()", () => {
     const app = new Hono().on("PURGE", "/cache", (c) => c.json({ purged: true as const }));
-    type CacheSchema = HonoAppToHyperFetch<typeof app>;
+    type CacheSchema = HonoSchema<typeof app>;
 
     expectTypeOf<keyof CacheSchema["cache"]>().toEqualTypeOf<"$purge">();
     expect(true).toBe(true);
@@ -140,7 +140,7 @@ describe("HonoAppToHyperFetch [ Methods ]", () => {
   });
 });
 
-describe("HonoAppToHyperFetch [ Path shapes ]", () => {
+describe("HonoSchema [ Path shapes ]", () => {
   it("should give a path registered without a leading slash the endpoint createSdk sends", () => {
     expectTypeOf<ExtractEndpointType<Schema["plain"]["$get"]>>().toEqualTypeOf<"/plain">();
     expect(true).toBe(true);
@@ -188,7 +188,7 @@ describe("HonoAppToHyperFetch [ Path shapes ]", () => {
         new Hono().get("", (c) => c.json({ name: "hono" })),
       ),
     );
-    type MeSchema = HonoAppToHyperFetch<typeof app>;
+    type MeSchema = HonoSchema<typeof app>;
 
     expectTypeOf<ExtractEndpointType<MeSchema["api"]["v1"]["me"]["$get"]>>().toEqualTypeOf<"/api/v1/me">();
     expect(true).toBe(true);
@@ -196,7 +196,7 @@ describe("HonoAppToHyperFetch [ Path shapes ]", () => {
 
   it("should prefix routes added after basePath()", () => {
     const app = new Hono().basePath("/api").get("/search", (c) => c.json({ ok: true as const }));
-    type SearchSchema = HonoAppToHyperFetch<typeof app>;
+    type SearchSchema = HonoSchema<typeof app>;
 
     expectTypeOf<ExtractEndpointType<SearchSchema["api"]["search"]["$get"]>>().toEqualTypeOf<"/api/search">();
     expect(true).toBe(true);
@@ -205,7 +205,7 @@ describe("HonoAppToHyperFetch [ Path shapes ]", () => {
   it("should prefix a router mounted after basePath()", () => {
     const book = new Hono().get("/", (c) => c.json({ ok: true as const }));
     const app = new Hono().basePath("/v1").route("/book", book);
-    type BookSchema = HonoAppToHyperFetch<typeof app>;
+    type BookSchema = HonoSchema<typeof app>;
 
     expectTypeOf<ExtractEndpointType<BookSchema["v1"]["book"]["$get"]>>().toEqualTypeOf<"/v1/book">();
     expect(true).toBe(true);
@@ -215,7 +215,7 @@ describe("HonoAppToHyperFetch [ Path shapes ]", () => {
     type Env = { Bindings: { TOKEN: string }; Variables: { userId: string } };
     const api = new Hono<Env>().get("/me", (c) => c.json({ userId: c.get("userId") }));
     const app = new Hono<Env>().route("/api", api);
-    type EnvSchema = HonoAppToHyperFetch<typeof app>;
+    type EnvSchema = HonoSchema<typeof app>;
 
     expectTypeOf<ExtractResponseType<EnvSchema["api"]["me"]["$get"]>>().toEqualTypeOf<{ userId: string }>();
     expect(true).toBe(true);
