@@ -1,0 +1,34 @@
+---
+sidebar_position: 3
+title: DbProvider
+sidebar_label: DbProvider and useDb
+---
+
+# DbProvider and useDb
+
+> `DbProvider` gives components a [`@hyper-fetch/db`](/docs/db/overview) db, and `useDb` reads it. A server renders
+> each request with its own db, so one user's rows never reach another user's page.
+
+---
+
+## Usage
+
+```tsx
+import { DbProvider, useDb, useLiveQuery } from "@hyper-fetch/react";
+
+type AppDb = ReturnType<typeof createAppDb>;
+
+const Posts = ({ teamId }: { teamId: number }) => {
+  const db = useDb<AppDb>();
+  const { data } = useLiveQuery(db.post.where((post) => eq(post.teamId, teamId)));
+  return <ul>{data?.map((post) => <li key={post.id}>{post.title}</li>)}</ul>;
+};
+
+<DbProvider db={db}>
+  <Posts teamId={1} />
+</DbProvider>;
+```
+
+- `useDb` throws when no `DbProvider` is above the component.
+- An app that renders only in the browser may keep a module-level db and skip the provider.
+- See [Server rendering](/docs/db/server-rendering) for creating and hydrating a db per request.

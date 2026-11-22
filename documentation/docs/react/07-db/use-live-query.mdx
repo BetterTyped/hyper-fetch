@@ -1,0 +1,52 @@
+---
+sidebar_position: 1
+title: Live queries
+sidebar_label: useLiveQuery
+---
+
+# useLiveQuery
+
+The `useLiveQuery` hook reads a [`@hyper-fetch/db`](/docs/db/overview) query and keeps the component current as the
+collection changes. It is exported from `@hyper-fetch/react`, with `@hyper-fetch/db` as an optional peer dependency.
+
+---
+
+## Usage
+
+```tsx
+import { eq } from "@hyper-fetch/db";
+import { useLiveQuery } from "@hyper-fetch/react";
+
+const {
+  data,
+  status,
+  error,
+  stale,
+  isFetching,
+  hasNextPage,
+  refetch,
+  fetchNextPage,
+} = useLiveQuery(
+  db.post
+    .where((post) => eq(post.teamId, teamId))
+    .select((post) => ({ id: post.id, title: post.title })),
+);
+```
+
+- A query is data, so one rebuilt on every render with the same structure is the same query. The hook takes no
+  dependency array, and a changed `teamId` starts a new query.
+- `status` is `"loading"`, `"ready"`, or `"error"` when a first load failed and there is nothing to show. A refresh that
+  fails keeps the rows and sets `error`.
+- `stale` is true while the rows may be out of date, and `isFetching` while a request is in flight.
+- The hook does not compile for a query no loader of the collection can serve.
+
+---
+
+## List and detail
+
+```tsx
+const header = useLiveQuery(db.postSummary.findOne(postId).local());
+const body = useLiveQuery(db.post.findOne(postId));
+```
+
+The header renders from the list's summary at once, and the body waits for the full post.

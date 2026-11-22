@@ -80,6 +80,37 @@ one line here in the same change.
 - **Outage**: the reconnection attempts between losing a connection and having one that stayed up for `minUptime`.
   `reconnect` limits the attempts of one outage, `reconnectDelay` receives the attempt number and time within it.
 
+## Database (proposed, `@hyper-fetch/db`, see ADR 0002)
+
+- **Collection**: a typed set of complete rows defined by a schema and a key, the source of truth for data read through
+  the db. Components query it directly, as in `db.post.where(...)`.
+- **Loader**: a request a collection loads complete rows through, with the filters it can send and how its response maps
+  to rows.
+- **Sync**: a listener whose `insert`, `update` or `delete` events change collection rows within the filters it covers.
+  A changes sync (`syncChanges`) reads several changes from one event, such as a Firestore snapshot.
+- **Ingest**: writing the rows of another request's response into a collection, without making it a loader.
+- **Link**: two collections declared to hold the same records in different shapes, such as `post` and `postSummary`. A
+  write or optimistic change to one changes the fields the other has.
+- **Normalize**: writing the rows nested in a collection's rows into another collection, such as a post's author into
+  `user`.
+- **Join**: adding to each query result the row of another collection whose key a field holds, as a left join.
+- **Notation**: how a loader or sync sends operators to its backend, such as `likes_gt=10` or a Firestore `where`.
+- **Server-only operator**: an operator such as `op("search", ...)` that the loader must send and the client never
+  evaluates.
+- **Infinite query**: a window over an ordered query, widened page by page with `fetchNextPage`, from `query.infinite()`
+  or `useLiveInfiniteQuery`.
+- **Transaction**: writes grouped into one optimistic layer with `db.transaction`. A named transaction sends them
+  through one `mutationFn` declared in `createDb`.
+- **Dehydrated state**: the server rows and loaded subsets `db.dehydrate()` returns for server rendering, passed back as
+  `createDb(collections, { state })`.
+- **Plan**: how the db serves a query: answered from held rows, or through a loader, with the syncs that keep it live.
+  `query.explain()` returns it.
+- **Operator**: a helper such as `eq` or `gt` that builds a filter expression. Loaders map it to their backend's
+  notation, and the db evaluates it on the rows it holds.
+- **Live query**: a query over a collection whose result stays current as the collection changes.
+- **Loaded subset**: the rows one loader returned for one filter, order and range. It owns those rows until released.
+- **Outbox**: the persisted, ordered transactions written offline and replayed when the connection returns.
+
 ## Tooling
 
 - **HyperFlow**: the desktop devtools app in `packages/hyper-flow`.

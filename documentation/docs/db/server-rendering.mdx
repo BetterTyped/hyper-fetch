@@ -1,0 +1,74 @@
+---
+sidebar_position: 5
+title: DB Server Rendering
+sidebar_label: Server Rendering
+---
+
+# Server rendering
+
+> On the server, each request gets its own db. Queries load before rendering, `db.dehydrate()` captures their rows,
+> and the client's db starts from them, so its first render matches the server's.
+
+:::tip Purpose
+
+1. **No shared rows**: one db per request keeps users apart.
+2. **No loading flash**: the client shows the server's rows on its first render.
+3. **Still live**: hydrated rows refetch when used, and their syncs start.
+
+:::
+
+---
+
+## Server
+
+```tsx
+import { createDb, eq } from "@hyper-fetch/db";
+import type { DbOptions } from "@hyper-fetch/db";
+import { DbProvider } from "@hyper-fetch/react";
+
+export const createAppDb = (options?: DbOptions) => createDb(collections, options);
+
+const db = createAppDb();
+await db.post.where((post) => eq(post.teamId, 1)).get();
+
+const html = renderToString(
+  <DbProvider db={db}>
+    <App />
+  </DbProvider>,
+);
+const state = db.dehydrate(); // send it with the page, for example as JSON
+```
+
+- Collections are definitions, so every request's db uses the same ones.
+- `query.get()` loads a query and resolves with its first state that is not loading.
+- `db.dehydrate()` holds the server rows and loaded subsets as type-tagged JSON, so `Date`, `bigint`, `Map` and `Set`
+  values survive the trip. Pending writes, the outbox and syncs are never included, and collections that hold nothing
+  are left out.
+
+---
+
+## Client
+
+```tsx
+const db = createAppDb({ state });
+
+hydrateRoot(
+  root,
+  <DbProvider db={db}>
+    <App />
+  </DbProvider>,
+);
+```
+
+- Hydrated queries are `ready` on the first render and `stale`. When a component subscribes, they refetch and start
+  their syncs, and rows the server no longer returns leave.
+- Values of other types need a codec: `createDb(collections, { codecs: [...] })`, on both sides.
+
+---
+
+:::secondary Summary
+
+- Create a db per request on the server, load with `query.get()`, and send `db.dehydrate()` with the page.
+- Start the client's db with `createDb(collections, { state })`, and give it to components with `DbProvider`.
+
+:::
