@@ -281,11 +281,17 @@ const config: Config = {
         //   className: "github",
         // },
         {
+          type: "custom-versionTag",
+          position: "right",
+          to: "/blog/hyper-fetch-10-0",
+          label: "v10",
+        },
+        {
           type: "custom-githubStarButton",
           position: "right",
           owner: "BetterTyped",
           repo: "hyper-fetch",
-          stars: 1300,
+          fallbackStars: 1300,
           variant: "navbar",
         },
         // {

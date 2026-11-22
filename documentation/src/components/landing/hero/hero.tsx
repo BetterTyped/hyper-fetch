@@ -28,17 +28,17 @@ const quick = (i: number) => ({
 
 const HeroBadge = ({ className }: { className?: string }) => (
   <Link
-    to="/docs/integrations/adapter-graphql/overview"
+    to="/blog/hyper-fetch-10-0"
     className={cn(
       "group inline-flex h-8 items-center gap-2.5 rounded-full bg-white/[0.04] pl-1 pr-3 !no-underline ring-1 ring-inset ring-white/10 backdrop-blur-md transition-colors duration-200 hover:bg-white/[0.07] hover:ring-white/20",
       className,
     )}
   >
     <span className="rounded-full bg-[#fbc646]/10 px-2 py-0.5 text-[11px] font-semibold !text-[#fbc646] ring-1 ring-inset ring-[#fbc646]/25">
-      New
+      v10
     </span>
     <span className="text-[13px] font-medium !text-zinc-300">
-      GraphQL subscriptions over WebSocket
+      HyperFetch 10 is out. See what is new
     </span>
     <ArrowRight className="size-3.5 text-zinc-500 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-zinc-200" />
   </Link>
@@ -46,11 +46,11 @@ const HeroBadge = ({ className }: { className?: string }) => (
 
 const titleBase =
   "!m-0 [font-family:Figtree] font-extrabold !leading-[1.02] tracking-[-0.045em] text-[2.4rem] sm:text-[4rem] md:text-[5rem] lg:text-[6rem]";
-const white = "bg-none !text-zinc-50";
-/* The accent, the same solid colour as the Get Started button */
-const accent = "bg-none !text-[#f9b233]";
-/* A shade under white, so the typed word reads a touch quieter */
-const soft = "bg-none !text-zinc-300";
+/* The section title look: a zinc gradient that fades at the top and bottom of each word */
+const titleGradient =
+  "bg-clip-text !text-transparent bg-gradient-to-b from-zinc-200/60 via-zinc-200 to-zinc-200/60";
+/* The accent, the gold of the BetterTyped numbers. The padding keeps the descenders inside the clipped gradient */
+const accent = "bt-gold-text pb-[0.08em]";
 
 const Line = ({
   className,
@@ -87,7 +87,7 @@ const SQUIGGLE =
 
 const Squiggle = ({
   children,
-  className = white,
+  className = titleGradient,
 }: {
   children: React.ReactNode;
   className?: string;
@@ -119,12 +119,12 @@ const Squiggle = ({
 const HeroTitle = () => (
   <h1 className={titleBase}>
     <Line className="">
-      <Word className={white}>Fetch </Word>
+      <Word className={titleGradient}>Fetch </Word>
       <Word className={accent}>anything.</Word>
     </Line>
     <Line className="">
-      <Word className={white}>Type </Word>
-      <Squiggle className={soft}>everything.</Squiggle>
+      <Word className={titleGradient}>Type </Word>
+      <Squiggle>everything.</Squiggle>
     </Line>
   </h1>
 );

@@ -21,6 +21,10 @@ export interface GitHubStarButtonProps {
    */
   stars?: number;
   /**
+   * Shown when the GitHub API cannot be reached, for example once the anonymous rate limit is spent.
+   */
+  fallbackStars?: number;
+  /**
    * Additional CSS classes for the button
    */
   className?: string;
@@ -67,17 +71,12 @@ const GitHubIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+/* The exact count, grouped the same way on the server and in every browser */
 function formatNumber(num: number): string {
-  if (num >= 1000000) {
-    return `${(num / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
-  }
-  if (num >= 1000) {
-    return `${(num / 1000).toFixed(1).replace(/\.0$/, "")}k`;
-  }
-  return num.toLocaleString();
+  return num.toLocaleString("en-US");
 }
 
-function useGitHubStars(owner: string, repo: string, manualStars?: number) {
+function useGitHubStars(owner: string, repo: string, manualStars?: number, fallbackStars?: number) {
   const [stars, setStars] = React.useState<number>(manualStars ?? 0);
   const [loading, setLoading] = React.useState(!manualStars);
 
@@ -95,8 +94,11 @@ function useGitHubStars(owner: string, repo: string, manualStars?: number) {
     getRepository
       .send({ params: { owner, repo } })
       .then(({ data }) => {
-        if (isMounted && data && typeof data.stargazers_count === "number") {
+        if (!isMounted) return;
+        if (data && typeof data.stargazers_count === "number") {
           setStars(data.stargazers_count);
+        } else if (fallbackStars !== undefined) {
+          setStars(fallbackStars);
         }
       })
       .catch(console.error)
@@ -109,7 +111,7 @@ function useGitHubStars(owner: string, repo: string, manualStars?: number) {
     return () => {
       isMounted = false;
     };
-  }, [owner, repo, manualStars]);
+  }, [owner, repo, manualStars, fallbackStars]);
 
   return { stars, loading };
 }
@@ -196,10 +198,11 @@ export function GitHubStarButton({
   owner,
   repo,
   stars: manualStars,
+  fallbackStars,
   className,
   variant = "default",
 }: GitHubStarButtonProps) {
-  const { stars, loading } = useGitHubStars(owner, repo, manualStars);
+  const { stars, loading } = useGitHubStars(owner, repo, manualStars, fallbackStars);
   const [localStars, setLocalStars] = React.useState(0);
   const [isHovered, setIsHovered] = React.useState(false);
   const [isStarred, setIsStarred] = React.useState(false);

@@ -67,7 +67,7 @@ export const BentoCard = ({
               className={cn("relative z-10", split && "lg:w-[40%] lg:shrink-0")}
             >
               {n && (
-                <div className="mb-5 font-mono text-[12px] text-[#fbc646]">
+                <div className="bt-gold-text mb-5 font-mono text-[12px] font-semibold">
                   {n}
                 </div>
               )}

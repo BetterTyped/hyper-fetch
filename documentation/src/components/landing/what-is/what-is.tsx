@@ -5,13 +5,16 @@ import {
   Code2,
   Database,
   FileCode2,
+  MousePointerClick,
   Radio,
   RefreshCw,
   Send,
   Server,
+  Table2,
   Wifi,
   WifiOff,
   X,
+  Zap,
 } from "lucide-react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import React, { useEffect, useRef, useState } from "react";
@@ -104,7 +107,7 @@ const Checklist = ({ items }: { items: { name: string; value: string }[] }) => (
         <span className="flex-1 text-[15px] font-semibold text-zinc-100">
           {it.name}
         </span>
-        <span className="font-mono text-[13px] font-semibold text-[#fbc646]">
+        <span className="bt-gold-text font-mono text-[13px] font-semibold">
           {it.value}
         </span>
       </motion.div>
@@ -249,7 +252,7 @@ const Flow = ({
 const tabs = [
   { key: "core", icon: Boxes, name: "Core" },
   { key: "sockets", icon: Radio, name: "Sockets" },
-  { key: "db", icon: Database, name: "DB", soon: true },
+  { key: "db", icon: Database, name: "DB" },
 ] as const;
 
 const CoreCards = () => (
@@ -430,16 +433,16 @@ const DbCards = () => (
       split
       i={0}
       className="lg:col-span-7"
-      title="One store"
-      line="Every entity lives once. Every request reads it."
+      title="Collections"
+      line="Each row lives once. Every query reads it."
       visualClassName="lg:h-[290px]"
     >
       <Stack
-        icon={Database}
+        icon={Table2}
         items={[
-          { name: "User:42", label: "Stored once" },
-          { name: "getUser", label: "Reads User:42" },
-          { name: "onUserUpdate", label: "Updates it everywhere" },
+          { name: "posts", label: "Typed rows by id" },
+          { name: "users", label: "Joined to posts" },
+          { name: "comments", label: "Loaded per post" },
         ]}
       />
     </BentoCard>
@@ -447,23 +450,64 @@ const DbCards = () => (
       n="02"
       i={1}
       className="lg:col-span-5"
-      title="Coming soon"
-      line="Normalized data for every protocol."
+      title="Live queries"
+      line="The server filters what it can. Memory does the rest."
       visualClassName="h-[220px]"
     >
-      <div className="flex h-full items-end">
-        <div
-          className={cn(
-            raised,
-            "flex w-full items-center justify-center gap-2.5 px-4 py-3",
-          )}
-        >
-          <Database className="size-5 text-[#fbc646]" />
-          <span className="font-mono text-[14px] text-zinc-100">
-            @hyper-fetch/db
-          </span>
-        </div>
-      </div>
+      <Checklist
+        items={[
+          { name: "teamId = 1", value: "server" },
+          { name: "likes > 10", value: "local" },
+          { name: "Newest first", value: "server" },
+          { name: "Socket update", value: "live" },
+        ]}
+      />
+    </BentoCard>
+    <BentoCard
+      n="03"
+      i={2}
+      className="lg:col-span-4"
+      title="Any source"
+      line="REST, GraphQL, Firebase or sockets."
+      visualClassName="h-[150px]"
+    >
+      <Tiles
+        items={[
+          { id: "rest" },
+          { id: "graphql" },
+          { id: "firebase" },
+          { id: "sockets" },
+        ]}
+      />
+    </BentoCard>
+    <BentoCard
+      n="04"
+      i={3}
+      className="lg:col-span-4"
+      title="Optimistic"
+      line="The change shows before the server answers."
+      visualClassName="h-[150px]"
+    >
+      <Flow
+        from={{ icon: MousePointerClick, label: "Write" }}
+        to={{ icon: Server, label: "Server" }}
+        mark={{ tone: "emerald", icon: Zap, label: "Shown now" }}
+      />
+    </BentoCard>
+    <BentoCard
+      n="05"
+      i={4}
+      className="lg:col-span-4"
+      title="Offline"
+      line="Writes wait for the network."
+      visualClassName="h-[150px]"
+    >
+      <Answers
+        items={[
+          { name: "insert()", value: "Queued" },
+          { name: "Back online", value: "Replayed" },
+        ]}
+      />
     </BentoCard>
   </>
 );
@@ -516,11 +560,6 @@ export const WhatIs = () => {
                   >
                     {p.name}
                   </span>
-                  {"soon" in p && p.soon && (
-                    <span className="rounded-full bg-[#fbc646]/10 px-2 py-0.5 text-[11px] font-medium text-[#fbc646]">
-                      Soon
-                    </span>
-                  )}
                 </button>
               );
             })}
