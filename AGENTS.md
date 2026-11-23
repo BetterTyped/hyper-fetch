@@ -82,7 +82,8 @@ pnpm exec firebase emulators:exec "npx vitest run __tests__/features/constraints
 1. **Every bug fix ships with a regression test** that was seen failing first.
 2. **Never make a test pass by retrying, skipping or widening a timeout.** Find the cause.
 3. **No new `as any`, no dynamic imports** in `packages/*/src`.
-4. **Requests report failure through the response.** `send()` resolves, it does not reject.
+4. **Requests report failure through the response.** `send()` resolves, it does not reject. The only exception is the
+   opt-in `throwOnError` request option.
 5. **Exported API changes update TSDoc and documentation in the same change.**
 6. **The commit type decides the release.** `feat`, `fix`, `perf` and `revert` publish every package to npm. Read
    `.cursor/rules/commit-conventions.mdc` before committing.

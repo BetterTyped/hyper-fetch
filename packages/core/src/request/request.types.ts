@@ -205,6 +205,7 @@ export type RequestJSON<Request extends RequestInstance> = {
   deduplicate: boolean;
   deduplicateTime: number | null;
   structuralSharing: boolean;
+  throwOnError: boolean;
   scope: string | null;
   isMockerEnabled: boolean;
   hasMock: boolean;
@@ -319,6 +320,14 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
    * Deeply equal responses keep the previous data reference, which limits rerenders and recalculations.
    */
   structuralSharing?: boolean;
+  /**
+   * Make `send()` and `exec()` reject with the `error` of a failed response instead of resolving with it - for code
+   * which tells failures by a rejected promise, like the query functions of React Query or the fetchers of SWR. A
+   * successful response resolves the same way as without it. The thrown value is not typed, narrow it where you catch
+   * it. Set it per request, for many requests with the adapter's `setRequestDefaults`, or per call.
+   * @default false
+   */
+  throwOnError?: boolean;
 };
 
 export type PayloadMapperType<Payload> = <NewDataType>(payload: Payload) => NewDataType;
@@ -443,6 +452,12 @@ export type RequestDynamicSendOptionsType<Request extends RequestInstance> = Omi
    * Replaces the request's own optimistic callback for this call.
    */
   optimistic?: OptimisticSendOptionType<Request>;
+  /**
+   * Aborts this call - like `request.abort()`, but only this one. A running request is canceled, a queued one or one
+   * waiting for its retry is not sent, and an already aborted signal sends nothing. The call resolves with the abort
+   * error and `onResponse` gets `details.isCanceled`. Other calls deduplicated into the same request keep it running.
+   */
+  signal?: AbortSignal;
 };
 
 // Request making

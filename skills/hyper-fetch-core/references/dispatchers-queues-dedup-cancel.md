@@ -54,7 +54,9 @@ client.requestManager.abortAll(); // everything of this client
 ```
 
 - Default `abortKey` is `method_endpointTemplate_cancelable`, so `getUser.setParams({ userId: 1 }).abort()` also aborts
-  in-flight requests for other user ids. Set a custom `abortKey` for finer groups.
+  in-flight requests for other user ids. Set a custom `abortKey` for finer groups, or pass a `signal` to abort one call:
+  `getUser.send({ signal })`. The signal triggers the controller of that call only; a queued call or one waiting for a
+  retry is removed without being sent, and a deduplicated caller only stops waiting.
 - Aborted requests are not retried and not written to the cache.
 - Deduplicated callers share the aborted response.
 - `client.setUrl(url, { abort: true })` aborts everything in flight for the old base url.

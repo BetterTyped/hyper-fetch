@@ -1,4 +1,4 @@
-import type { ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
+import type { RequestResponseType, ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
 import type { ClientInstance } from "client";
 import { Time } from "constants/time.constants";
 import type { MockerConfigType, MockResponseType } from "mocker";
@@ -16,6 +16,7 @@ import type {
   HydrateDataType,
   SyncOrAsync,
 } from "types";
+import { runUserCode } from "utils";
 
 import type { RequestHooks } from "./request.hooks";
 import { createRequestHooks } from "./request.hooks";
@@ -37,7 +38,14 @@ import type {
   RetryOnErrorCallbackType,
   OptimisticCallback,
 } from "./request.types";
-import { mapResponseForSend, resolveQueryParams, sendRequest, scopeKey } from "./request.utils";
+import {
+  linkAbortSignal,
+  mapResponseForSend,
+  resolveQueryParams,
+  scopeKey,
+  sendRequest,
+  subscribeRequestCallbacks,
+} from "./request.utils";
 
 type ClientAdapterOptions<C extends ClientInstance> = ExtractAdapterOptionsType<ExtractClientAdapterType<C>>;
 type ClientAdapterMethod<C extends ClientInstance> = ExtractAdapterMethodType<ExtractClientAdapterType<C>>;
@@ -100,6 +108,7 @@ export class Request<
   deduplicate: boolean;
   deduplicateTime: number | null;
   structuralSharing: boolean;
+  throwOnError: boolean;
   scope: string | null;
 
   /**
@@ -193,6 +202,7 @@ export class Request<
       deduplicate = false,
       deduplicateTime = null,
       structuralSharing = true,
+      throwOnError = false,
     } = configuration;
     this.endpoint = initialRequestConfiguration?.endpoint ?? endpoint;
     this.headers = initialRequestConfiguration?.headers ?? headers;
@@ -217,6 +227,7 @@ export class Request<
     this.deduplicate = initialRequestConfiguration?.deduplicate ?? deduplicate;
     this.deduplicateTime = initialRequestConfiguration?.deduplicateTime ?? deduplicateTime;
     this.structuralSharing = initialRequestConfiguration?.structuralSharing ?? structuralSharing;
+    this.throwOnError = initialRequestConfiguration?.throwOnError ?? throwOnError;
     this.scope = initialRequestConfiguration?.scope ?? null;
     this.updatedAbortKey = initialRequestConfiguration?.updatedAbortKey ?? false;
     this.updatedCacheKey = initialRequestConfiguration?.updatedCacheKey ?? false;
@@ -379,6 +390,14 @@ export class Request<
     return this.clone({ structuralSharing });
   };
 
+  /**
+   * Make `send()` and `exec()` reject with the `error` of a failed response instead of resolving with it - for the
+   * query functions of React Query, the fetchers of SWR and other code which tells failures by a rejected promise.
+   */
+  public setThrowOnError = (throwOnError: boolean) => {
+    return this.clone({ throwOnError });
+  };
+
   /** Mark the request as used (prevents automatic refetching in hooks). */
   public setUsed = (used: boolean) => {
     return this.clone({ used });
@@ -531,6 +550,7 @@ export class Request<
       deduplicate: this.deduplicate,
       deduplicateTime: this.deduplicateTime,
       structuralSharing: this.structuralSharing,
+      throwOnError: this.throwOnError,
       scope: this.scope,
       isMockerEnabled: this.isMockerEnabled,
       hasMock: !!this.unstable_mock,
@@ -697,32 +717,72 @@ export class Request<
   }
 
   /**
-   * Method to use the request WITHOUT adding it to cache and queues. This mean it will make simple request without queue side effects.
+   * Send the request straight to the adapter, WITHOUT the dispatcher and the cache: it is not queued, deduplicated,
+   * retried or cached. Lifecycle callbacks, `$hooks`, interceptors and the response mapper work like in `send()`.
+   * Use it when something else owns caching and retries, like React Query or SWR - with `signal` and `throwOnError`.
    * @param options
    * @disableReturns
    * @returns
    * ```tsx
-   * Promise<[Data | null, Error | null, HttpStatus]>
+   * Promise<{ data: Data | null, error: Error | null, status: HttpStatus, ... }>
    * ```
    */
   public exec: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
+    const { signal, ...configuration } = options || {};
     const { adapter, requestManager } = this.client;
-    const request = this.clone(options);
+    const request = this.clone(configuration) as unknown as this;
+    const { $hooks } = request;
 
     const requestId = this.client.unstable_requestIdMapper(this);
-
-    const scopedAbortKey = scopeKey(this.abortKey, this.scope);
+    // The adapter finds the controller by the key of the request it sends - the one of this call
+    const abortKey = scopeKey(request.abortKey, request.scope);
+    const triggerTimestamp = Date.now();
 
     // Listen for aborting
-    requestManager.addAbortController(scopedAbortKey, requestId);
+    requestManager.addAbortController(abortKey, requestId);
+    const unmountCallbacks = subscribeRequestCallbacks({ request, requestId, options });
+
+    const beforeSentData = { requestId, request };
+    runUserCode(() => options?.onBeforeSent?.(beforeSentData));
+    runUserCode(() => $hooks.__emit("onBeforeSent", beforeSentData));
+
+    // The signal of the caller only triggers the controller of this call
+    const unlinkSignal = linkAbortSignal(signal, () => requestManager.abortByRequestId(abortKey, requestId));
 
     const response = await adapter.fetch(request, requestId);
 
+    // Read before the controller is dropped
+    const isCanceled = requestManager.isCanceled(abortKey, requestId);
+    unlinkSignal();
+    unmountCallbacks();
     // Stop listening for aborting
-    requestManager.removeAbortController(scopedAbortKey, requestId);
+    requestManager.removeAbortController(abortKey, requestId);
 
     // A throwing response mapper gives the error response, the same way as in `send()`
-    return mapResponseForSend(request, response);
+    const mappedResponse = await mapResponseForSend(request, response);
+
+    const responseData = {
+      requestId,
+      request,
+      response,
+      details: {
+        retries: 0,
+        isCanceled,
+        isOffline: false,
+        willRetry: false,
+        addedTimestamp: triggerTimestamp,
+        triggerTimestamp,
+        requestTimestamp: response.requestTimestamp,
+        responseTimestamp: response.responseTimestamp,
+      },
+    };
+    runUserCode(() => options?.onResponse?.(responseData));
+    runUserCode(() => $hooks.__emit("onResponse", responseData));
+
+    if (request.throwOnError && !mappedResponse.success) {
+      throw mappedResponse.error;
+    }
+    return mappedResponse;
   };
 
   /**
@@ -740,6 +800,7 @@ export class Request<
       dispatcherType: _dispatcherType,
       cachePolicy = "network-only",
       optimistic: _optimistic,
+      signal: _signal,
       ...configuration
     } = options || {};
 
@@ -747,29 +808,37 @@ export class Request<
 
     const sendRequestOptions = options === undefined ? undefined : { ...options, cachePolicy: undefined };
 
-    if (cachePolicy === "network-only") {
-      return sendRequest(request, sendRequestOptions);
-    }
+    const getResponse = async (): Promise<RequestResponseType<this>> => {
+      if (cachePolicy === "network-only") {
+        return sendRequest(request, sendRequestOptions);
+      }
 
-    const cached = request.read();
+      const cached = request.read();
 
-    if (cachePolicy === "cache-first") {
+      if (cachePolicy === "cache-first") {
+        if (cached) {
+          return mapResponseForSend(request, cached);
+        }
+        return sendRequest(request, sendRequestOptions);
+      }
+
+      // revalidate
       if (cached) {
-        return mapResponseForSend(request, cached);
+        const resolved = await mapResponseForSend(request, cached);
+        // Background revalidation; promise from send() already resolved with cache snapshot
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        sendRequest(request, sendRequestOptions);
+        return resolved;
       }
       return sendRequest(request, sendRequestOptions);
-    }
+    };
 
-    // revalidate
-    if (cached) {
-      const resolved = await mapResponseForSend(request, cached);
-      // Background revalidation; promise from send() already resolved with cache snapshot
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      sendRequest(request, sendRequestOptions);
-      return resolved;
-    }
+    const response = await getResponse();
 
-    return sendRequest(request, sendRequestOptions);
+    if (request.throwOnError && !response.success) {
+      throw response.error;
+    }
+    return response;
   };
 
   /** Reconstruct a Request instance from a previously serialized JSON representation. */

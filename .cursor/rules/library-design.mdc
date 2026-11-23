@@ -41,7 +41,8 @@ Prefer a lot of behavior behind a small interface.
 ## Errors
 
 - Requests report failure through the response. Do not make `send()` reject, and do not add a new throwing path to the
-  request lifecycle.
+  request lifecycle. The opt-in `throwOnError` request option is the one exception: it rejects at the end of `send()`
+  and `exec()`, after the lifecycle. Code inside the library that sends requests passes `throwOnError: false`.
 - Never swallow an error. A `catch` that only logs is wrong.
 - A `catch` is justified when it converts the failure into a response, cleans up and rethrows, or keeps an optional
   capability such as persistent storage from taking down the request.

@@ -87,6 +87,7 @@ export type SdkRequestDefaults = {
   deduplicate?: boolean;
   deduplicateTime?: number | null;
   structuralSharing?: boolean;
+  throwOnError?: boolean;
 };
 
 /**
@@ -206,6 +207,9 @@ const applyObjectDefaults = (request: RequestInstance, config: SdkRequestDefault
   }
   if (config.structuralSharing !== undefined) {
     result = result.setStructuralSharing(config.structuralSharing);
+  }
+  if (config.throwOnError !== undefined) {
+    result = result.setThrowOnError(config.throwOnError);
   }
   return result;
 };

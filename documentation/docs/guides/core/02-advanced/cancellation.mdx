@@ -15,7 +15,7 @@ requests on its own, abort requests by hand and time them out.
 
 1. How **AbortController** cancels a `fetch` call.
 2. How to **cancel stale requests** with `cancelable`.
-3. How to **abort** requests by `abortKey` or by id.
+3. How to **abort** requests by `abortKey`, by id or with your own **signal**.
 4. How to put a **timeout** on a request.
 5. The difference between **aborting** a request and **stopping** a queue.
 
@@ -123,6 +123,32 @@ counting it as an error.
 
 ---
 
+## Abort one call with a signal
+
+Pass your own `AbortSignal` to `send()` or `exec()`. It does not replace the controller HyperFetch keeps: it triggers
+the controller of that one call, so the call ends like `abort()` ends it and the other calls with the same key keep
+running. Route loaders, TanStack Query and `useSubmit`'s `submit()` can pass theirs.
+
+```ts title="src/search.ts"
+const controller = new AbortController();
+const promise = searchUsers.send({ signal: controller.signal });
+
+controller.abort();
+
+const { error } = await promise; // AbortError, not retried
+```
+
+| Where the call is                              | What the signal does                               |
+| ---------------------------------------------- | -------------------------------------------------- |
+| Running                                        | Aborts it, `onResponse` gets `details.isCanceled`  |
+| Queued, or waiting for a retry or the network | Removes it from the queue, it is never sent        |
+| Not started, the signal is aborted already     | Sends nothing and skips the optimistic update      |
+| Deduplicated into another call                 | Stops waiting, the shared request keeps running    |
+
+The listener is removed once the call settles, so a long-lived signal does not leak.
+
+---
+
 ## Time out slow requests
 
 The fetch adapter aborts a request after `timeout` milliseconds, 5000 by default, and resolves with a `TimeoutError`.
@@ -162,6 +188,7 @@ You've learned how to cancel requests.
 - You know how **AbortController** cancels a `fetch` call.
 - You can **cancel stale requests** with `cancelable: true` and a shared `queryKey`.
 - You can **abort** requests by `abortKey`, by id or all at once.
+- You can abort **one call** with the `signal` option.
 - You can set a **timeout** with the `timeout` adapter option.
 
 :::

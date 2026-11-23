@@ -6,9 +6,9 @@ sidebar_label: Error Handling
 
 # Error handling
 
-HyperFetch requests never reject. `send()` resolves with `error` and `status` next to `data` for every failure: an HTTP
-error, a timeout, an abort or a dropped connection. This guide shows the kinds of errors you get, how to type them and
-where to handle them.
+HyperFetch requests do not reject by default. `send()` resolves with `error` and `status` next to `data` for every
+failure: an HTTP error, a timeout, an abort or a dropped connection. This guide shows the kinds of errors you get, how to
+type them, where to handle them and how to reject when your code needs it.
 
 :::secondary What you'll learn
 
@@ -16,6 +16,7 @@ where to handle them.
 2. Which **kinds of errors** a request returns.
 3. How to type a **global error** on the client and a **local error** per request.
 4. How to **narrow** the error union and handle errors **in one place**.
+5. How to **reject** on errors with `throwOnError`.
 
 :::
 
@@ -48,7 +49,7 @@ Prefer checking `data` over `success`. `success` does not narrow the types, so `
 | The server answered 4xx or 5xx           | The parsed response body              | The HTTP status |
 | No connection, DNS or CORS failure       | The `fetch` error, usually `TypeError` | `0`            |
 | Timeout (fetch adapter, default 5000 ms) | `TimeoutError`                        | `0`            |
-| Aborted with `abort()` or `cancelable`   | `AbortError`                          | `0`            |
+| Aborted with `abort()`, `cancelable` or a `signal` | `AbortError`                | `0`            |
 | Removed from the queue before it ended   | `DeletedError`                        | `null`         |
 | A mapper or interceptor threw            | The thrown value                      | The response status |
 
@@ -146,6 +147,35 @@ To turn errors of another shape into yours, map them in `setResponseMapper`, see
 
 ---
 
+## Reject on errors with throwOnError
+
+Some code tells failures by a rejected promise: query functions of TanStack Query, fetchers of SWR, route loaders and
+`Promise.all`. Set `throwOnError` and `send()` or `exec()` rejects with the `error` of a failed response. A successful
+response resolves as usual. Default `false`: change it per call, per request or for many requests at once.
+
+```ts title="src/api/client.ts"
+// Per call
+const { data } = await getUser.send({ throwOnError: true });
+
+// Per request
+const getUser = client
+  .createRequest<{ response: User }>()({ endpoint: "/users/:id" })
+  .setThrowOnError(true);
+
+// For many requests. This replaces the adapter's defaults,
+// so keep deduplication of reads, which the fetch adapter sets.
+client.adapter.setRequestDefaults((options) => ({
+  deduplicate: (options.method ?? "GET") === "GET",
+  throwOnError: options.endpoint.startsWith("/admin"),
+}));
+```
+
+The call wins over the request, and the request wins over the defaults. TypeScript does not type rejections, so narrow
+the caught value like `error` above. The React hooks ignore the option and keep errors in their state. To throw into
+an error boundary, use the `throwOnError` option of `useFetch`.
+
+---
+
 :::success Congratulations!
 
 You've learned how to handle errors.
@@ -154,6 +184,7 @@ You've learned how to handle errors.
 - You can tell **API errors** from **system errors** such as `TimeoutError` and `AbortError`.
 - You can type a **global** error on the client and a **local** error per request.
 - You can handle errors **in one place** with `client.onError`.
+- You can make `send()` and `exec()` **reject** with `throwOnError`.
 
 :::
 

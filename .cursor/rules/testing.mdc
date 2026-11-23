@@ -81,7 +81,7 @@ If behavior could be tested and you chose not to, say so and ask before finishin
   `__tests__/utils`.
 - Vitest globals are enabled. Import from `vitest` only for types such as `Mock`, and for `expectTypeOf`.
 - `jest-extended` matchers are available, for example `toBeFalse()`.
-- Requests never reject, so assert on the resolved response instead of using `try/catch`.
+- Requests never reject unless `throwOnError` is set, so assert on the resolved response instead of using `try/catch`.
 
 ## No `as any` in tests
 

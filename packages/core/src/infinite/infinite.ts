@@ -46,8 +46,9 @@ export const fetchInfinite = async <R extends RequestInstance, const P extends P
   for (let index = 0; index < pageCount; index += 1) {
     const pageRequest = getPageRequest(request, pagination, param);
     // Pages depend on each other, so they cannot be requested at the same time
+    // A failed page ends the loop below - it must not reject, whatever `throwOnError` the request has
     // eslint-disable-next-line no-await-in-loop
-    const response = await (pageRequest as RequestInstance).exec({});
+    const response = await (pageRequest as RequestInstance).exec({ throwOnError: false });
 
     result.responses.push(response);
 

@@ -14,6 +14,7 @@ import type {
   ProgressEventType,
   RequestInstance,
   RequestJSON,
+  RequestSendActionsType,
   RequestSendOptionsType,
   RetryTimeFunctionType,
 } from "./request.types";
@@ -202,6 +203,87 @@ export const mapResponseForSend = async <Request extends RequestInstance>(
   return (mapping || response) as RequestResponseType<Request>;
 };
 
+/**
+ * Passes the lifecycle events of one request id to the callbacks given to `send()` / `exec()` and to the request
+ * `$hooks`. Returns the function that removes the listeners.
+ */
+export const subscribeRequestCallbacks = <Request extends RequestInstance>({
+  request,
+  requestId,
+  options,
+  mutationContext,
+}: {
+  request: Request;
+  requestId: string;
+  options: RequestSendActionsType<Request> | undefined;
+  mutationContext?: OptimisticCallbackResult<any>;
+}) => {
+  const { requestManager } = request.client;
+  const { $hooks } = request;
+
+  const unmounts = [
+    requestManager.events.onRequestStartById<Request>(requestId, (data) => {
+      const enriched = { ...data, mutationContext };
+      runUserCode(() => options?.onRequestStart?.(enriched));
+      runUserCode(() => $hooks.__emit("onRequestStart", enriched));
+    }),
+    requestManager.events.onResponseStartById<Request>(requestId, (data) => {
+      const enriched = { ...data, mutationContext };
+      runUserCode(() => options?.onResponseStart?.(enriched));
+      runUserCode(() => $hooks.__emit("onResponseStart", enriched));
+    }),
+    requestManager.events.onUploadProgressById<Request>(requestId, (data) => {
+      const enriched = { ...data, mutationContext };
+      runUserCode(() => options?.onUploadProgress?.(enriched));
+      runUserCode(() => $hooks.__emit("onUploadProgress", enriched));
+    }),
+    requestManager.events.onDownloadProgressById<Request>(requestId, (data) => {
+      const enriched = { ...data, mutationContext };
+      runUserCode(() => options?.onDownloadProgress?.(enriched));
+      runUserCode(() => $hooks.__emit("onDownloadProgress", enriched));
+    }),
+    // Failed attempts which are retried do not reach `onResponse` - this is how they are announced
+    requestManager.events.onRetryById<Request>(requestId, (data) => {
+      const enriched = { ...data, mutationContext };
+      runUserCode(() => options?.onRetry?.(enriched));
+      runUserCode(() => $hooks.__emit("onRetry", enriched));
+    }),
+  ];
+
+  return () => unmounts.forEach((unmount) => unmount());
+};
+
+/**
+ * Calls `onAbort` once when the signal of the caller aborts - right away when it is aborted already. The signal only
+ * triggers the abort controller HyperFetch keeps for the request, so it ends like `request.abort()` does. Returns the
+ * function that stops listening.
+ */
+export const linkAbortSignal = (signal: AbortSignal | undefined, onAbort: () => void) => {
+  if (!signal) {
+    return () => {};
+  }
+  if (signal.aborted) {
+    onAbort();
+    return () => {};
+  }
+  signal.addEventListener("abort", onAbort, { once: true });
+  return () => signal.removeEventListener("abort", onAbort);
+};
+
+/** Response of a call that was aborted before the adapter could answer it - the same as the adapter gives an abort */
+export const getAbortedResponse = <Request extends RequestInstance>(request: Request): RequestResponseType<Request> => {
+  const { adapter } = request.client;
+  return {
+    data: null,
+    error: adapter.unstable_internalErrorMapping(getErrorMessage("abort")) as ExtractErrorType<Request>,
+    status: adapter.systemErrorStatus,
+    success: false,
+    extra: adapter.systemErrorExtra,
+    requestTimestamp: Date.now(),
+    responseTimestamp: Date.now(),
+  };
+};
+
 export const sendRequest = async <Request extends RequestInstance>(
   request: Request,
   options?: RequestSendOptionsType<Request>,
@@ -209,6 +291,12 @@ export const sendRequest = async <Request extends RequestInstance>(
   const { client } = request;
   const { requestManager } = client;
   const [dispatcher] = getRequestDispatcher(request, options?.dispatcherType);
+  const signal = options?.signal;
+
+  // Nothing is queued, sent or optimistically changed for a call that was aborted before it started
+  if (signal?.aborted) {
+    return getAbortedResponse(request);
+  }
 
   let mutationContext: OptimisticCallbackResult<any> | undefined;
   let pendingOptimistic: OptimisticPendingType | undefined;
@@ -252,8 +340,14 @@ export const sendRequest = async <Request extends RequestInstance>(
     let isResolved = false;
     let isDelivered = false;
     let isSettled = false;
-    const requestId = dispatcher.add(request);
     const queryKey = scopeKey(request.queryKey, request.scope);
+    // A deduplicated call gets the id of the request it joined, which was in the queue before
+    const queuedIds = signal ? new Set(dispatcher.getQueue(queryKey).requests.map((item) => item.requestId)) : null;
+    const requestId = dispatcher.add(request);
+    const isJoined = !!queuedIds?.has(requestId);
+    // Set when the signal of the caller took the request out of the queue before it was sent
+    let isRemovedBySignal = false;
+    let unlinkSignal = () => {};
     const { $hooks } = request;
 
     // Failed attempts stay in the dispatcher queue when they are going to be sent again
@@ -311,36 +405,7 @@ export const sendRequest = async <Request extends RequestInstance>(
     runUserCode(() => options?.onBeforeSent?.(beforeSentData));
     runUserCode(() => $hooks.__emit("onBeforeSent", beforeSentData));
 
-    const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (data) => {
-      const enriched = { ...data, mutationContext };
-      runUserCode(() => options?.onRequestStart?.(enriched));
-      runUserCode(() => $hooks.__emit("onRequestStart", enriched));
-    });
-
-    const unmountResponseStart = requestManager.events.onResponseStartById<Request>(requestId, (data) => {
-      const enriched = { ...data, mutationContext };
-      runUserCode(() => options?.onResponseStart?.(enriched));
-      runUserCode(() => $hooks.__emit("onResponseStart", enriched));
-    });
-
-    const unmountUpload = requestManager.events.onUploadProgressById<Request>(requestId, (data) => {
-      const enriched = { ...data, mutationContext };
-      runUserCode(() => options?.onUploadProgress?.(enriched));
-      runUserCode(() => $hooks.__emit("onUploadProgress", enriched));
-    });
-
-    const unmountDownload = requestManager.events.onDownloadProgressById<Request>(requestId, (data) => {
-      const enriched = { ...data, mutationContext };
-      runUserCode(() => options?.onDownloadProgress?.(enriched));
-      runUserCode(() => $hooks.__emit("onDownloadProgress", enriched));
-    });
-
-    // Failed attempts which are retried do not reach `onResponse` - this is how they are announced
-    const unmountRetry = requestManager.events.onRetryById<Request>(requestId, (data) => {
-      const enriched = { ...data, mutationContext };
-      runUserCode(() => options?.onRetry?.(enriched));
-      runUserCode(() => $hooks.__emit("onRetry", enriched));
-    });
+    const unmountCallbacks = subscribeRequestCallbacks({ request, requestId, options, mutationContext });
 
     // When resolved
     const unmountResponse = requestManager.events.onResponseById<Request>(requestId, (values) => {
@@ -390,23 +455,33 @@ export const sendRequest = async <Request extends RequestInstance>(
         isResolved = true;
         isDelivered = true;
 
+        // Taken out of the queue by the signal of the caller, it ends the same way an aborted request does
+        const removedResponse: RequestResponseType<Request> = isRemovedBySignal
+          ? getAbortedResponse(request)
+          : {
+              data: null,
+              status: null,
+              success: false,
+              error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
+              extra: request.client.adapter.defaultExtra,
+              requestTimestamp: Date.now(),
+              responseTimestamp: Date.now(),
+            };
+
         if (pendingOptimistic && !isSettled) {
           isSettled = true;
-          settleOptimistic(pendingOptimistic, { type: "rollback", reason: "removed", request });
+          settleOptimistic(
+            pendingOptimistic,
+            isRemovedBySignal
+              ? { type: "rollback", reason: "abort", response: removedResponse, request }
+              : { type: "rollback", reason: "removed", request },
+          );
         }
 
         const enriched = { ...data, mutationContext };
         runUserCode(() => options?.onRemove?.(enriched));
         runUserCode(() => $hooks.__emit("onRemove", enriched));
-        resolve({
-          data: null,
-          status: null,
-          success: false,
-          error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
-          extra: request.client.adapter.defaultExtra,
-          requestTimestamp: Date.now(),
-          responseTimestamp: Date.now(),
-        });
+        resolve(removedResponse);
 
         // Unmount Listeners
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -414,15 +489,42 @@ export const sendRequest = async <Request extends RequestInstance>(
       }
     });
 
+    // Linked last - an abort can remove the request synchronously and the listeners above have to observe it
+    unlinkSignal = linkAbortSignal(signal, () => {
+      if (isDelivered) {
+        return;
+      }
+      // The joined request belongs to the other callers as well - only this call stops waiting for it
+      if (isJoined) {
+        isResolved = true;
+        isDelivered = true;
+        const aborted = getAbortedResponse(request);
+        if (pendingOptimistic && !isSettled) {
+          isSettled = true;
+          settleOptimistic(pendingOptimistic, { type: "rollback", reason: "abort", response: aborted, request });
+        }
+        resolve(aborted);
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        umountAll();
+        return;
+      }
+      const abortKey = scopeKey(request.abortKey, request.scope);
+      // A running request is aborted like `request.abort()` does, only this one by its id
+      if (dispatcher.hasRunningRequest(queryKey, requestId)) {
+        requestManager.abortByRequestId(abortKey, requestId);
+        return;
+      }
+      // A queued one, or one waiting for its retry or for the connection, is not sent at all
+      isRemovedBySignal = true;
+      dispatcher.delete(queryKey, requestId, abortKey);
+    });
+
     function umountAll() {
       unmountSettlement?.();
-      unmountRequestStart();
-      unmountResponseStart();
-      unmountUpload();
-      unmountDownload();
-      unmountRetry();
+      unmountCallbacks();
       unmountResponse();
       unmountRemoveQueueElement();
+      unlinkSignal();
     }
   });
 };

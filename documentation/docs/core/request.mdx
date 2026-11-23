@@ -116,7 +116,7 @@ await getUser.setParams({ userId: 1 }).send(); // correct
 
 `send()` goes through the [dispatcher](/docs/core/dispatcher), the adapter and the cache. It resolves with
 `{ data, error, status, success, extra, requestTimestamp, responseTimestamp }` for every outcome, including HTTP errors,
-timeouts and aborts, so you never need `try/catch`.
+timeouts and aborts, so you never need `try/catch`. The one exception is `throwOnError`, below.
 
 ```ts title="src/get-user.ts"
 const { data, error, status } = await getUser.send({ params: { userId: 1 } });
@@ -132,11 +132,24 @@ else console.error(status, error);
 | `cachePolicy`    | `"network-only"` | `"cache-first"` returns a cached entry, fresh or stale, else fetches. `"revalidate"` returns the cached entry and refetches in the background. |
 | `dispatcherType` | `"auto"`         | `"auto"` sends GET and QUERY through `fetchDispatcher`, the rest through `submitDispatcher`. Force one with `"fetch"` or `"submit"`. |
 | `optimistic`     | none             | [Optimistic changes](#update-the-cache-optimistically) for this call only.                     |
+| `signal`         | none             | An `AbortSignal` that aborts only this call. Also taken by `exec()`.                            |
 
 Neither cache policy looks at `staleTime`. `request.read()` returns the cached response without a network call.
 
-`exec()` sends straight through the adapter: interceptors and mappers run, but there is no deduplication, queue, retry,
-offline handling or cache write. Use it for one-off server calls. See the [fetching guide](/docs/guides/core/basics/fetching).
+`exec()` sends straight through the adapter: interceptors, mappers, lifecycle callbacks and `$hooks` run, but there is
+no deduplication, queue, retry, offline handling or cache write. Use it for one-off server calls, or when TanStack Query
+or SWR owns the cache. See the [fetching guide](/docs/guides/core/basics/fetching).
+
+`throwOnError` makes `send()` and `exec()` reject with the `error` of a failed response, for code that expects a
+rejected promise. A successful response resolves as usual. It is a request option, default `false`: change it per call,
+with `setThrowOnError(true)`, or for many requests with `client.adapter.setRequestDefaults`.
+
+```ts title="src/get-user.ts"
+const { data } = await getUser.exec({
+  params: { userId: 1 },
+  throwOnError: true,
+});
+```
 
 ---
 
@@ -154,7 +167,8 @@ The dispatcher reads these options from the request. Each has a setter, such as 
 
 1. The fetch adapter turns deduplication on for GET and QUERY. Other methods and adapters default to `false`.
 
-Abort in-flight requests with `request.abort()`, which aborts every request with the same `abortKey`.
+Abort in-flight requests with `request.abort()`, which aborts every request with the same `abortKey`. To abort one call,
+pass `signal` to `send()` or `exec()`: it triggers the controller of that call only, and a queued call is never sent.
 
 ```tsx live title="Cancel the previous call" size="small"
 const cancelableRequest =
@@ -332,6 +346,13 @@ and [Cancellation](/examples/request-control/cancellation).
 />
 
 <LinkCard type="docs" title="Cache" description="How responses are stored, refreshed and invalidated." to="/docs/core/cache" />
+
+<LinkCard
+  type="guides"
+  title="TanStack Query and SWR"
+  description="Call requests from useQuery, useMutation and useSWR."
+  to="/docs/guides/react/basics/tanstack-query-and-swr"
+/>
 
 <LinkCard
   type="api"
