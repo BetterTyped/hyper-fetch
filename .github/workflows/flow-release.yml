@@ -7,8 +7,17 @@ name: HyperFlow Release
 # in `workflow.yml` (e.g. a job with `if: needs.release.outputs.released == 'true'` before calling the dispatch API).
 # When extending triggers or inputs, thread / validate that `released` state explicitly; ensure `GITHUB_TOKEN`
 # workflow permissions allow dispatch where automation is used.
-
-# Pipeline: install deps → `pnpm build` → `hyper-flow:make:app` → `hyper-flow:publish:app`
+#
+# Pipeline, once per OS: install hyper-flow's dependencies → `electron-forge publish`, which runs `make` itself and
+# uploads the installers to a draft GitHub release.
+#
+# Why it is this short:
+# - The app's Vite configs alias every `@hyper-fetch/*` package to its source and forge's Vite plugin bundles
+#   everything except Node builtins, so no workspace package is built first and Nx never loads the project graph.
+# - `--filter hyper-flow...` installs only the app and its workspace dependencies, not the docs site or the examples.
+# - `electron-forge publish` already runs `make`. A separate make step built, signed and notarized every installer twice.
+# - setup-node caches the pnpm store. On Windows the store sits on the workspace drive, so pnpm hard-links files
+#   instead of copying every one of them across drives.
 
 on:
   workflow_dispatch:
@@ -33,198 +42,86 @@ jobs:
             exit 1
           fi
 
-  publish_on_win:
-    name: Publish HyperFlow on Windows
+  publish:
+    name: Publish HyperFlow on ${{ matrix.name }}
     needs: verify-branch
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 40
+    strategy:
+      # One platform failing must not cancel the installers the others are about to upload.
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-latest
+          - name: Mac
+            os: macos-latest
+          - name: Windows
+            os: windows-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20.19.3"
-          cache: "pnpm"
-      - name: Restore node_modules
-        uses: actions/cache/restore@v3
-        id: cache-node-modules
-        with:
-          path: |
-            **/node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Install node_modules on cache miss
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
-      - name: Cache node_modules
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            '**/node_modules'
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Build monorepo packages
-        run: pnpm build
-      - name: Build native installers (electron-forge make)
-        run: pnpm nx run hyper-flow:make:app
-        env:
-          NODE_ENV: production
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          SIGN_ID: ${{ secrets.SIGN_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VITE_ENVIRONMENT: "production"
-          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
-          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
-          VITE_SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
-          VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      - name: Publish native apps
-        run: pnpm nx run hyper-flow:publish:app
-        env:
-          NODE_ENV: production
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          SIGN_ID: ${{ secrets.SIGN_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VITE_ENVIRONMENT: "production"
-          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
-          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
-          VITE_SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
-          VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      # Real-time scanning inspects every file pnpm writes into node_modules, which dominates install time on the
+      # Windows runners. The runner VM is thrown away after the job.
+      - name: Turn off Defender real-time scanning
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Set-MpPreference -DisableRealtimeMonitoring $true
 
-  publish_on_linux:
-    name: Publish HyperFlow on Linux
-    needs: verify-branch
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-    steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20.19.3"
-          cache: "pnpm"
-      - name: Restore node_modules
-        uses: actions/cache/restore@v3
-        id: cache-node-modules
-        with:
-          path: |
-            **/node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Install node_modules on cache miss
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
-      - name: Cache node_modules
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            '**/node_modules'
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Build monorepo packages
-        run: pnpm build
-      - name: Build native installers (electron-forge make)
-        run: pnpm nx run hyper-flow:make:app
-        env:
-          NODE_ENV: production
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          SIGN_ID: ${{ secrets.SIGN_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VITE_ENVIRONMENT: "production"
-          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
-          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
-          VITE_SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
-          VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      - name: Publish native apps
-        run: pnpm nx run hyper-flow:publish:app
-        env:
-          NODE_ENV: production
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          SIGN_ID: ${{ secrets.SIGN_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VITE_ENVIRONMENT: "production"
-          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
-          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
-          VITE_SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
-          VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
-  publish_on_mac:
-    name: Publish HyperFlow on Mac
-    needs: verify-branch
-    runs-on: macos-latest
-    timeout-minutes: 40
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+
+      # The workspace is on D: and the default store on C:. Across drives pnpm copies every file instead of
+      # hard-linking it. Runs before setup-node, which caches whatever `pnpm store path` returns.
+      - name: Keep the pnpm store on the workspace drive
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: pnpm config set store-dir (Join-Path (Split-Path $env:GITHUB_WORKSPACE) ".pnpm-store")
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.19.3"
+          node-version: "24.15.0"
           cache: "pnpm"
+
+      # MakerRpm needs rpmbuild and MakerDeb needs fakeroot. Forge refuses to make for Linux without them.
+      - name: Install Linux packaging tools
+        if: runner.os == 'Linux'
+        run: |
+          if ! command -v rpmbuild >/dev/null || ! command -v fakeroot >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends rpm fakeroot
+          fi
+
+      # MakerDMG loads macos-alias and fs-xattr, which pnpm compiles with node-gyp during install. Both are optional
+      # dependencies, so without node-gyp on PATH the install still passes and the DMG maker fails later.
       - name: Install Python
-        uses: actions/setup-python@v4
+        if: runner.os == 'macOS'
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install node-gyp
+        if: runner.os == 'macOS'
+        run: npm install --global node-gyp@11
+
       - name: Import codesign certs
+        if: runner.os == 'macOS'
         uses: apple-actions/import-codesign-certs@v3
         with:
           p12-file-base64: ${{ secrets.APPSTORE_CERTIFICATES_FILE_BASE64 }}
           p12-password: ${{ secrets.APPSTORE_CERTIFICATES_PASSWORD }}
-      - name: Restore node_modules
-        uses: actions/cache/restore@v3
-        id: cache-node-modules
-        with:
-          path: |
-            **/node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Install node_modules on cache miss
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
-      - name: Install macos-alias
-        run: pnpm add macos-alias@0.2.12 -w
-      - name: Rebuild native modules
-        run: |
-          npm install -g node-gyp
-          npm rebuild
-          pnpm install --frozen-lockfile
-      - name: Cache node_modules
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            '**/node_modules'
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Build monorepo packages
-        run: pnpm build
-      - name: Build native installers (electron-forge make)
-        run: pnpm nx run hyper-flow:make:app
-        env:
-          NODE_ENV: production
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          SIGN_ID: ${{ secrets.SIGN_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VITE_ENVIRONMENT: "production"
-          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
-          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
-          VITE_SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
-          VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      - name: Publish native apps
-        run: pnpm nx run hyper-flow:publish:app
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --filter "hyper-flow..."
+
+      - name: Check DMG native modules
+        if: runner.os == 'macOS'
+        working-directory: packages/hyper-flow
+        run: node -e "require('macos-alias'); require('fs-xattr')"
+
+      - name: Build and publish installers
+        run: pnpm --filter hyper-flow run publish:app
         env:
           NODE_ENV: production
           APPLE_ID: ${{ secrets.APPLE_ID }}

@@ -15,6 +15,7 @@ import TabItem from "@theme/TabItem";
 import Tabs from "@theme/Tabs";
 import { LinkCard } from "@site/src/components/link-card/link-card";
 import { ShowMore } from "@site/src/components/show-more/show-more";
+import { Screenshot } from "@site/src/components/screenshot/screenshot";
 
 /**
  * MDX components
@@ -44,6 +45,7 @@ const MDXComponents: MDXComponentsObject = {
   // Custom components
   LinkCard,
   ShowMore,
+  Screenshot,
 };
 
 // eslint-disable-next-line import/no-default-export

@@ -1,0 +1,135 @@
+---
+sidebar_position: 1
+title: ASP.NET Core with HyperFetch, a Typed TypeScript Client
+description: Generate a typed TypeScript SDK for your ASP.NET Core API from the OpenAPI document it builds for your endpoints.
+sidebar_label: Overview
+---
+
+# ASP.NET Core
+
+ASP.NET Core builds an OpenAPI document for your minimal APIs and controllers with
+`Microsoft.AspNetCore.OpenApi`. The HyperFetch CLI reads that document and writes a typed TypeScript SDK, so your
+frontend calls every endpoint with your C# records translated to TypeScript.
+
+---
+
+:::tip Purpose
+
+1.  **Built into .NET**: `AddOpenApi()` and `MapOpenApi()` are all the server needs.
+2.  **Records as TypeScript types**: Request bodies, responses and params follow your C# types.
+3.  **One command to resync**: Change an endpoint, regenerate, and the compiler shows every call to fix.
+
+:::
+
+---
+
+## How it fits together
+
+| Step | Where        | What happens                                                            |
+| ---- | ------------ | ----------------------------------------------------------------------- |
+| 1    | ASP.NET Core | `MapOpenApi()` serves `/openapi/v1.json` built from your endpoints      |
+| 2    | Terminal     | `@hyper-fetch/cli generate` reads it and writes `src/api/dotnet.sdk.ts` |
+| 3    | Frontend     | `createSdk(client)` gives you typed requests for every route            |
+
+---
+
+## 1. Serve the OpenAPI document
+
+On .NET 9 or newer, register the document and map its endpoint:
+
+```bash
+dotnet add package Microsoft.AspNetCore.OpenApi
+```
+
+```csharp title="Program.cs"
+var builder = WebApplication.CreateBuilder(args);
+// highlight-next-line
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+// highlight-next-line
+app.MapOpenApi();
+
+app.MapGet("/users/{id}", (int id) => new User(id, "Ada"));
+
+app.Run();
+
+record User(int Id, string Name);
+```
+
+The document is on `/openapi/v1.json`. On older versions, Swashbuckle serves it on `/swagger/v1/swagger.json`.
+
+---
+
+## 2. Generate the SDK
+
+Run the CLI in your frontend project:
+
+```bash
+npx @hyper-fetch/cli@latest generate --template openapi --url http://localhost:5000/openapi/v1.json --fileName dotnet.sdk.ts
+```
+
+It writes `dotnet.sdk.ts` to `src/api`. On the first run it also creates `api.json` with that location. Every path becomes a key
+and every method a `$`-prefixed key on it, so `GET /users/{id}` is `sdk.users.$id.$get`.
+
+---
+
+## 3. Call your API
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+
+import { createSdk } from "./api/dotnet.sdk";
+
+export const client = createClient({ url: "http://localhost:5000" });
+export const sdk = createSdk(client);
+
+// code-editor-split
+
+import { sdk } from "./client";
+
+// Typed from the User record
+const { data, error } = await sdk.users.$id.$get.setParams({ id: 42 }).send();
+```
+
+The same requests work with `useFetch` and `useSubmit` from `@hyper-fetch/react`, with caching, retries and deduplication included.
+
+---
+
+## Keep the SDK in sync
+
+Install the CLI in the frontend project and add a script, so regenerating is one command locally and in CI:
+
+```json title="package.json"
+{
+  "scripts": {
+    "api:generate": "hyper-fetch generate -t openapi -u http://localhost:5000/openapi/v1.json -f dotnet.sdk.ts -o"
+  }
+}
+```
+
+`-o` overwrites the old file without asking. To generate without a running server, `Microsoft.Extensions.ApiDescription.Server` writes the document to a file
+on build. Pass that path to `--url` instead.
+
+:::note When it's helpful
+
+- Your backend is .NET and your frontend is TypeScript.
+- You want changes to your C# types to show up as TypeScript errors.
+- You want caching, retries and React hooks on top of the generated client.
+
+:::
+
+<LinkCard
+  type="docs"
+  title="OpenAPI TypeScript client"
+  description="Everything the generated SDK can do, from React hooks to regenerating it in CI."
+  to="/docs/cli/openapi-typescript-client"
+/>
+
+:::secondary Summary
+
+- ASP.NET Core serves your endpoints as an OpenAPI document with `MapOpenApi()`.
+- `@hyper-fetch/cli generate` turns it into a typed SDK.
+- `createSdk(client)` gives you typed requests for `send()`, `useFetch` and `useSubmit`.
+
+:::

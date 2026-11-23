@@ -45,6 +45,8 @@ const getPackagesList = () => {
 
   return result
     .filter((item) => !item.includes("tokens"))
+    // A folder left behind by another branch (only dist or node_modules) has no sources to document
+    .filter((item) => fs.existsSync(path.join(item, "src/index.ts")))
     .map((dir) => {
       const title = path.basename(dir);
 

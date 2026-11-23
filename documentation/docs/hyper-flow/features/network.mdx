@@ -1,53 +1,87 @@
 ---
 sidebar_position: 2
 title: Network Inspector for HyperFetch Requests
-description: Inspect every HyperFetch request in HyperFlow, with headers, payload, response and timings, and filter by status, endpoint, method or cache key.
-sidebar_label: Network Inspector
+description: "Inspect every HyperFetch request in HyperFlow with its payload, params, headers, response and timings. Search by endpoint or key and filter by success, failure, in progress, paused, canceled or removed."
+sidebar_label: Network
 ---
 
-# Network inspector for HyperFetch requests
+# Network
 
-The network inspector lists every request your HyperFetch client sends, live, and opens any of them in a detail view.
-A browser's Network tab shows the HTTP call. This view also shows the request's query key, cache key and abort key, and
-whether it was paused in a queue or canceled, which the browser does not know about.
+The **Network** page lists every request your client sends, newest first, as it happens. Select a request to see what
+went out, what came back and how HyperFetch processed it. Beyond what a browser's Network tab shows, it lists requests
+that waited in a stopped queue, requests that were canceled or removed before they finished, and the cache, query and
+abort keys HyperFetch used.
 
-![Network Inspector](@site/static/img/previews/network.png)
-
----
-
-## Real-time Monitoring
-
-The inspector displays a list of all network requests, which you can filter and search to quickly find what you need.
-This is invaluable for:
-
-- **Debugging**: See if requests are being sent as expected.
-- **Quality Assurance**: Verify that the correct data is being transmitted.
-- **Performance Tuning**: Identify redundant or slow API calls.
-
-Each entry in the list provides a summary of the request, including the method, endpoint, status, and response time.
-Requests are listed as soon as they are queued, so requests waiting in a stopped queue show up as **Paused**. GraphQL
-requests are listed by their operation name instead of the whole document.
-
-### Search and filters
-
-- **Search** matches the endpoint, method, query key, cache key and abort key.
-- **Status filters** narrow the list to successful, failed, in progress, paused, canceled or removed requests, and work
-  together with the search.
-- **Clear network** empties the list but keeps your search and filter, so new requests are filtered the same way.
+<Screenshot
+  src="/img/hyper-flow/network.webp"
+  alt="The Network page of Acme Store: a search field, status filters from All to Removed, and a table of requests with their method, endpoint, cache state, time and response time."
+  caption="Every request of the app, newest first, with its status icon, cache state and response time."
+/>
 
 ---
 
-## Detailed Request Inspection
+## Find a request
 
-When you need a closer look, you can select any request to open a detailed view. This view is organized into several
-tabs, giving you access to all information about the request and its response.
+Type in **Search by endpoint, method or key** to match the endpoint, the HTTP method, the query key, the cache key or the
+abort key. The status filters narrow the list further and work together with the search.
 
-### What you can inspect:
+| Filter          | Shows requests that                                                              |
+| --------------- | -------------------------------------------------------------------------------- |
+| **All**         | Were sent, in any state                                                          |
+| **Success**     | Finished with a successful response                                              |
+| **Failed**      | Finished with an error, such as a `4xx` or `5xx` status, a timeout or a network error |
+| **In progress** | Are being sent or waiting for a response                                         |
+| **Paused**      | Wait in a [stopped queue](/docs/hyper-flow/features/queues.mdx)                  |
+| **Canceled**    | Were aborted, for example by `request.abort()` or a newer `cancelable` request   |
+| **Removed**     | Were removed from a queue before they finished                                   |
 
-- **Headers**: View the full set of request and response headers.
-- **Payload**: Examine the data sent with `POST`, `PUT`, or `PATCH` requests.
-- **Response**: See the raw response body from the server.
-- **Timings**: Analyze the time spent in each phase of the request lifecycle.
+Click the **Endpoint**, **Cache** or **Timestamp** column header to sort by it. Click again to reverse the order, and a
+third time to go back to the default order.
 
-This level of detail makes it easy to spot issues with authentication, data formatting, or server responses, helping you
-resolve bugs faster.
+<Screenshot
+  src="/img/hyper-flow/network-failed.webp"
+  alt="The Network page filtered to Failed requests, showing only requests that ended with an error."
+  caption="The Failed filter keeps only requests that ended with an error."
+/>
+
+**Clear network** empties the list in HyperFlow and keeps your search and filter, so new requests are filtered the same
+way. It does not change anything in your app, and the [dashboard](/docs/hyper-flow/features/dashboard.mdx) statistics
+keep counting.
+
+GraphQL requests are listed by their operation name instead of the whole document.
+
+---
+
+## Inspect a request
+
+Select a row to open the details panel next to the list. Drag its edge to resize it, and close it with the **X** in its
+toolbar.
+
+<Screenshot
+  src="/img/hyper-flow/network-details.webp"
+  alt="The details panel of a failed GET /customers/7 request with status 404, showing its tabs Payload, Response, Processing Details and Request Details."
+  caption="The details of a request that failed with a 404."
+/>
+
+The header shows the method and endpoint, with a **Retried Request** badge and the number of retries when HyperFetch
+retried it, and a **Mocked** badge when the response came from `request.setMock()`. Under it you see the status, the
+status code and when the response arrived.
+
+| Tab                    | What it shows                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------- |
+| **Payload**            | The payload, params, query params and headers that were sent                          |
+| **Response**           | The response data, error, status and extra details such as response headers           |
+| **Processing Details** | Timestamps of each step, retries and whether the request was canceled or offline       |
+| **Request Details**    | The whole request configuration, including `cacheKey`, `queryKey`, `abortKey`, `staleTime` and `retry` |
+
+**Response** and **Processing Details** stay empty until the response arrives. Every value has a copy button, so you
+can paste a payload or response into a test.
+
+**Actions** › **Remove** deletes the request from HyperFlow's list. Your app is not affected.
+
+---
+
+## History limit
+
+HyperFlow keeps the latest 1,000 requests per app and drops the oldest as new ones arrive. Change the limit with
+**Network History Limit** in the app's [settings](/docs/hyper-flow/features/settings.mdx#network-history-limit).
