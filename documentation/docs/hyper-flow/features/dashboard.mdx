@@ -1,46 +1,75 @@
 ---
 sidebar_position: 1
 title: HyperFlow Dashboard for Request and Cache Stats
-description: The HyperFlow dashboard shows request success rates, cache efficiency, queue status and slow endpoints of a HyperFetch app in real time.
-sidebar_label: Dashboard
+description: "The HyperFlow app page sums up a connected HyperFetch app: request totals and success rate, recent requests, traffic and errors by endpoint, p50 to p99 response times, slowest endpoints and cache usage."
+sidebar_label: App dashboard
 ---
 
-# HyperFlow dashboard for request and cache stats
+# App dashboard
 
-The dashboard is the first screen of a connected app. It sums up network activity, cache usage and queue status, so
-you can see at a glance whether requests fail, how often the cache answers, and which endpoints are slow.
+The **App** page is the first screen you see when you open a connected app. Its three tabs answer the first questions
+of any debugging session: are requests failing, which endpoints are slow, and is the cache doing its job.
 
-![Dashboard](@site/static/img/previews/dashboard.png)
+| Tab             | Answers                                                                         |
+| --------------- | ------------------------------------------------------------------------------- |
+| **General**     | How many requests ran, how many succeeded, what ran last and what fails most    |
+| **Performance** | How fast responses are, which endpoint is slowest and how often requests fail   |
+| **Cache**       | How much of the traffic is cached, how big the cache is and what is not cached  |
 
----
-
-## Project Overview
-
-The main dashboard offers a big-picture look at your application. It features visualizations and key statistics to help
-you quickly assess the state of your data layer.
-
-### Key Metrics
-
-- **Network Activity**: Monitor incoming and outgoing requests, success rates, and error occurrences.
-- **Cache Efficiency**: Track cache hits, misses, and the overall size of your cached data.
-- **Queue Status**: Keep an eye on the number of active and pending requests in your queues.
-
-This overview helps you spot trends, catch anomalies, and understand your application's behavior at a glance.
+The header shows the app's name, its base URL and its environment badge. All numbers update live and cover everything
+HyperFlow received since the app connected.
 
 ---
 
-## Performance Insights
+## General
 
-For a deeper analysis, the performance section allows you to drill down into specific metrics related to speed and
-efficiency.
+<Screenshot
+  src="/img/hyper-flow/app-general.webp"
+  alt="General tab of the Acme Store app with the Network Overview card on the left and the Recent Requests table on the right."
+/>
 
-![Performance Insights](@site/static/img/previews/dashboard-performance.png)
+- **Network Overview** shows the adapter, the total and successful requests, the data received and sent, the average
+  response and payload sizes, and the success rate.
+- **Recent Requests** lists the last 8 requests with their status, endpoint, cache state, time and response time.
+  **View All Requests** opens the [Network](/docs/hyper-flow/features/network.mdx) page.
+- **Top traffic by Endpoint** ranks the 10 endpoints that received the most requests, with their share of all traffic.
+- **Error Summary** lists the 5 endpoints and status codes that failed most often.
 
-### What you can analyze:
+---
 
-- **Request Timings**: Identify slow requests by analyzing response times and processing durations.
-- **Throughput**: Measure the rate of data transfer to and from your application.
-- **Resource Usage**: Understand how different parts of your application are consuming network and cache resources.
+## Performance
 
-By using these insights, you can pinpoint bottlenecks, optimize slow queries, and deliver a faster, more responsive
-experience to your users.
+<Screenshot
+  src="/img/hyper-flow/app-performance.webp"
+  alt="Performance tab with request patterns, response time percentiles, a chart of average response time by method and the slowest endpoints table."
+/>
+
+- **Request Patterns** names the most used request, the slowest request with its average time, and the error rate.
+- **Response Times** shows the average, p50, p95 and p99 response times over the last 1,000 requests, the average
+  response size and a chart of the average response time per HTTP method.
+- **Slowest Endpoints** ranks 10 endpoints by average response time, next to their average processing time and
+  response size.
+
+:::tip Find a slow endpoint
+
+Sort out a slow screen in two steps: check **Slowest Endpoints** for the endpoint the screen calls, then open it on the
+[Network](/docs/hyper-flow/features/network.mdx) page and compare the timings of single requests.
+
+:::
+
+---
+
+## Cache
+
+<Screenshot
+  src="/img/hyper-flow/app-cache.webp"
+  alt="Cache tab with cache usage, cache size and entry count, a treemap of the cache distribution, and tables of the most cached endpoints and requests that are not cached."
+/>
+
+- **Cache Metrics** shows the share of requests stored in the cache, the cache size, the number of entries and a map of
+  which entries take the most space.
+- **Most Cached Endpoints** lists the endpoints with the most entries and their size. Many entries for one endpoint
+  usually mean many param or query param combinations.
+- **Not Cached Requests** lists requests sent with the cache turned off.
+
+For a list of every entry with its freshness and observers, open the [Cache](/docs/hyper-flow/features/cache.mdx) page.

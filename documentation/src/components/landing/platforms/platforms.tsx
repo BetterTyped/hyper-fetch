@@ -1,9 +1,12 @@
 import { HighlighterItem } from "@site/src/components";
 import { cn } from "@site/src/lib/utils";
 import {
+  Activity,
   Bot,
+  Braces,
   Database,
   Globe,
+  Layers,
   Monitor,
   Plus,
   Radio,
@@ -39,11 +42,21 @@ const platforms: { title: string; icon: React.ElementType; items: Item[] }[] = [
     ],
   },
   {
+    title: "Native",
+    icon: Smartphone,
+    items: [
+      { name: "React Native", logo: "react" },
+      { name: "Electron", logo: "electron" },
+      { name: "Hybrid apps", glyph: Smartphone },
+    ],
+  },
+  {
     title: "Runtime",
     icon: Server,
     items: [
       { name: "Node.js", logo: "node" },
       { name: "Bun", logo: "bun" },
+      { name: "Deno", logo: "deno" },
       { name: "Edge", logo: "edge" },
     ],
   },
@@ -57,11 +70,13 @@ const platforms: { title: string; icon: React.ElementType; items: Item[] }[] = [
     ],
   },
   {
-    title: "Mobile",
-    icon: Smartphone,
+    title: "Protocols",
+    icon: Braces,
     items: [
-      { name: "React Native", logo: "react" },
-      { name: "Hybrid apps", glyph: Smartphone },
+      { name: "OpenAPI", logo: "openapi" },
+      { name: "GraphQL", logo: "graphql" },
+      { name: "tRPC", logo: "trpc" },
+      { name: "oRPC", logo: "orpc-dark" },
     ],
   },
   {
@@ -74,15 +89,37 @@ const platforms: { title: string; icon: React.ElementType; items: Item[] }[] = [
     ],
   },
   {
-    title: "Backend",
+    title: "TypeScript backends",
     icon: Database,
     items: [
-      { name: "OpenAPI", logo: "openapi" },
-      { name: "GraphQL", logo: "graphql" },
-      { name: "tRPC", logo: "trpc" },
-      { name: "oRPC", logo: "orpc-dark" },
+      { name: "NestJS", logo: "nest" },
+      { name: "Express", logo: "express-dark" },
+      { name: "Fastify", logo: "fastify-dark" },
       { name: "Hono", logo: "hono" },
+      { name: "Elysia", logo: "elysia" },
       { name: "more", more: true },
+    ],
+  },
+  {
+    title: "Any backend",
+    icon: Layers,
+    items: [
+      { name: "FastAPI", logo: "fastapi" },
+      { name: "Django", logo: "django-dark" },
+      { name: "Spring", logo: "spring" },
+      { name: ".NET", logo: "dotnet" },
+      { name: "Laravel", logo: "laravel" },
+      { name: "Rails", logo: "rails" },
+    ],
+  },
+  {
+    title: "Tooling",
+    icon: Activity,
+    items: [
+      { name: "Sentry", logo: "sentry" },
+      { name: "ESLint", logo: "eslint" },
+      { name: "Oxlint", logo: "oxlint" },
+      { name: "Devtools", logo: "hyper-fetch" },
     ],
   },
 ];

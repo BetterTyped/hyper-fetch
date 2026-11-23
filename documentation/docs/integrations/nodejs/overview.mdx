@@ -1,0 +1,118 @@
+---
+sidebar_position: 1
+title: HyperFetch on Node.js, Typed Requests on the Server
+description: Run HyperFetch on Node.js 18 and newer with the built-in fetch. Share request definitions with the frontend and keep user data apart on the server.
+sidebar_label: Overview
+---
+
+# Node.js
+
+HyperFetch runs on Node.js 18 and newer. Its default adapter calls the `fetch` built into the runtime, so there is no
+polyfill and no Node-specific adapter to install. `createClient`, `createRequest` and `send()` work the same way they do
+in the browser.
+
+---
+
+:::tip Purpose
+
+1.  **Nothing extra to install**: `@hyper-fetch/core` uses the runtime's own `fetch`.
+2.  **Same requests on both sides**: Share request definitions between your server and your frontend.
+3.  **Typed third-party APIs**: Generate an SDK from any OpenAPI document and call it from scripts, jobs and backends.
+
+:::
+
+---
+
+## Getting started
+
+```bash
+npm install @hyper-fetch/core
+```
+
+```ts title="sync-users.ts"
+import { createClient } from "@hyper-fetch/core";
+
+const client = createClient({ url: "https://api.example.com" });
+
+const getUsers = client.createRequest<{
+  response: { id: number; name: string }[];
+}>()({
+  endpoint: "/users",
+});
+
+const { data, error, status } = await getUsers.setRetry(2).send();
+
+if (error) {
+  console.error(status, error);
+} else {
+  console.log(`${data.length} users`);
+}
+```
+
+`send()` resolves with the result instead of throwing, so a failed call never crashes the process with an unhandled
+rejection. Requests time out after 5 seconds by default. Change it with `setOptions({ timeout: 30_000 })`.
+
+---
+
+## Servers: one client per user
+
+The cache and the deduplication of a client are shared by everything that uses it. That is what you want in a browser,
+where one person uses the app. On a server, a request sent with one user's token could answer another user's identical
+request. When calls carry the user's credentials, create the client inside the handler:
+
+```ts title="server.ts"
+import express from "express";
+import { createClient } from "@hyper-fetch/core";
+
+const app = express();
+
+app.get("/dashboard", async (req, res) => {
+  // highlight-next-line
+  const client = createClient({ url: "https://api.example.com" });
+  const getProfile = client.createRequest<{ response: { name: string } }>()({
+    endpoint: "/me",
+  });
+
+  const { data, error } = await getProfile
+    .setHeaders({ Authorization: req.headers.authorization ?? "" })
+    .send();
+
+  if (error) return res.status(502).json(error);
+  return res.json(data);
+});
+```
+
+Calls that are the same for everyone, like a public price list, can share one client and its cache.
+
+---
+
+## Generate an SDK for an API
+
+The CLI turns any OpenAPI document into a typed SDK, which is handy for the third-party APIs a backend talks to:
+
+```bash
+npx @hyper-fetch/cli@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --fileName petstore.sdk.ts
+```
+
+<LinkCard
+  type="docs"
+  title="OpenAPI TypeScript client"
+  description="Generate a typed SDK from an OpenAPI document and call it with send()."
+  to="/docs/cli/openapi-typescript-client"
+/>
+
+:::note When it's helpful
+
+- Backends, scripts and cron jobs that call other APIs and need retries and typed responses.
+- Monorepos where the server and the frontend should share the same request definitions.
+- Server-side rendering, where requests run on the server first. See [hydration](/docs/react/06-hydrate.mdx).
+
+:::
+
+:::secondary Summary
+
+- HyperFetch runs on Node.js 18+ with the built-in `fetch`, with no extra adapter.
+- `send()` resolves with `data` or `error`, so a failed call never throws.
+- On servers, create a client per user request when calls carry the user's credentials.
+
+:::

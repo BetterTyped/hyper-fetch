@@ -1,0 +1,138 @@
+---
+sidebar_position: 1
+title: Ruby on Rails with HyperFetch, a Typed TypeScript Client
+description: Write the OpenAPI document of your Rails API from rswag specs and call it through a typed HyperFetch SDK.
+sidebar_label: Overview
+---
+
+# Ruby on Rails
+
+rswag describes your Rails API in request specs and writes an OpenAPI document from them. The HyperFetch CLI reads
+that document and writes a typed TypeScript SDK, so your frontend calls every endpoint with the shapes your specs
+check.
+
+---
+
+:::tip Purpose
+
+1.  **Tested contract**: The document comes from specs that run against your API.
+2.  **Typed client**: Responses, bodies and params follow the schemas in your specs.
+3.  **One command to resync**: Change a spec, regenerate, and the compiler shows every call to fix.
+
+:::
+
+---
+
+## How it fits together
+
+| Step | Where         | What happens                                                           |
+| ---- | ------------- | ---------------------------------------------------------------------- |
+| 1    | Ruby on Rails | rswag writes `openapi.json` from your request specs                    |
+| 2    | Terminal      | `@hyper-fetch/cli generate` reads it and writes `src/api/rails.sdk.ts` |
+| 3    | Frontend      | `createSdk(client)` gives you typed requests for every route           |
+
+---
+
+## 1. Serve the OpenAPI document
+
+Add rswag to your Gemfile and run its installer:
+
+```ruby title="Gemfile"
+gem "rswag-specs", group: [:development, :test]
+gem "rswag-api"
+```
+
+The CLI reads JSON, so set the output format in `spec/swagger_helper.rb`:
+
+```ruby title="spec/swagger_helper.rb"
+RSpec.configure do |config|
+  config.openapi_root = Rails.root.join("swagger").to_s
+  config.openapi_specs = {
+    "v1/openapi.json" => { openapi: "3.0.1", info: { title: "Shop API", version: "v1" }, paths: {} }
+  }
+  # highlight-next-line
+  config.openapi_format = :json
+end
+```
+
+Describe each endpoint in a spec, then write the document:
+
+```bash
+rails rswag:specs:swaggerize
+```
+
+It lands in `swagger/v1/openapi.json`, and `rswag-api` serves it on `/api-docs/v1/openapi.json`.
+
+---
+
+## 2. Generate the SDK
+
+Run the CLI in your frontend project:
+
+```bash
+npx @hyper-fetch/cli@latest generate --template openapi --url http://localhost:3000/api-docs/v1/openapi.json --fileName rails.sdk.ts
+```
+
+It writes `rails.sdk.ts` to `src/api`. On the first run it also creates `api.json` with that location. Every path becomes a key
+and every method a `$`-prefixed key on it, so `GET /users/{id}` is `sdk.users.$id.$get`.
+
+---
+
+## 3. Call your API
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+
+import { createSdk } from "./api/rails.sdk";
+
+export const client = createClient({ url: "http://localhost:3000" });
+export const sdk = createSdk(client);
+
+// code-editor-split
+
+import { sdk } from "./client";
+
+// Typed from the response schema in your spec
+const { data, error } = await sdk.users.$id.$get.setParams({ id: 42 }).send();
+```
+
+The same requests work with `useFetch` and `useSubmit` from `@hyper-fetch/react`, with caching, retries and deduplication included.
+
+---
+
+## Keep the SDK in sync
+
+Install the CLI in the frontend project and add a script, so regenerating is one command locally and in CI:
+
+```json title="package.json"
+{
+  "scripts": {
+    "api:generate": "hyper-fetch generate -t openapi -u http://localhost:3000/api-docs/v1/openapi.json -f rails.sdk.ts -o"
+  }
+}
+```
+
+`-o` overwrites the old file without asking. To generate without a running server, pass the path of `swagger/v1/openapi.json` to `--url` instead.
+
+:::note When it's helpful
+
+- Your backend is Rails and your frontend is a TypeScript app.
+- You want the client types to come from specs that run in CI.
+- You want caching, retries and React hooks on top of the generated client.
+
+:::
+
+<LinkCard
+  type="docs"
+  title="OpenAPI TypeScript client"
+  description="Everything the generated SDK can do, from React hooks to regenerating it in CI."
+  to="/docs/cli/openapi-typescript-client"
+/>
+
+:::secondary Summary
+
+- rswag writes an OpenAPI document from your request specs.
+- `@hyper-fetch/cli generate` turns it into a typed SDK.
+- `createSdk(client)` gives you typed requests for `send()`, `useFetch` and `useSubmit`.
+
+:::

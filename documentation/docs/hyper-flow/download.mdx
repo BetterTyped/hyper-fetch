@@ -1,13 +1,13 @@
 ---
 sidebar_position: 2
 title: Download HyperFlow Devtools for macOS, Windows, Linux
-description: Download HyperFlow, the desktop devtools app for HyperFetch, for macOS, Windows or Linux, and install it with the dmg, exe, deb or rpm build.
-sidebar_label: Download
+description: "Download HyperFlow, the desktop devtools app for HyperFetch, for macOS, Windows or Linux. Install it from the dmg, exe, deb or rpm build, and learn how updates work."
+sidebar_label: Download and install
 ---
 
 import { HyperFlowDownloads } from "@site/src/components";
 
-# Download HyperFlow devtools
+# Download and install
 
 HyperFlow runs on macOS, Windows and Linux. The button below picks the build for your system, and every other build of
 the newest version is listed under it.
@@ -16,20 +16,74 @@ the newest version is listed under it.
 
 ---
 
-## Installing
+## Install
 
-1. **macOS**: open the `.dmg` and drag HyperFlow to Applications. The `.zip` holds the same app without an installer.
-2. **Windows**: run the `.exe` installer. The `.zip` is a portable build that runs without installing.
-3. **Linux**: install the `.deb` on Debian or Ubuntu (`sudo apt install ./hyperflow_*.deb`) or the `.rpm` on Fedora
-   or RHEL (`sudo dnf install ./HyperFlow-*.rpm`). The `.zip` holds the app for other distributions.
+<Tabs groupId="operating-system">
+<TabItem value="macos" label="macOS">
 
-Once it runs, [connect your application](/docs/hyper-flow/connecting) with the devtools plugin.
+1. Open the downloaded `.dmg`.
+2. Drag **HyperFlow** to **Applications**.
+3. Open HyperFlow from Applications or Spotlight.
+
+The macOS build is signed and notarized by Apple, so it opens without a security prompt. The `.zip` holds the same app
+without the installer window.
+
+</TabItem>
+<TabItem value="windows" label="Windows">
+
+1. Run the downloaded `.exe`. It installs HyperFlow for your user and opens it.
+2. Find HyperFlow later in the Start menu.
+
+If SmartScreen shows "Windows protected your PC", choose **More info**, then **Run anyway**. The `.zip` is a portable
+build that runs without installing.
+
+</TabItem>
+<TabItem value="linux" label="Linux">
+
+Install the package for your distribution:
+
+```bash title="Debian, Ubuntu"
+sudo apt install ./hyperflow_*.deb
+```
+
+```bash title="Fedora, RHEL"
+sudo dnf install ./HyperFlow-*.rpm
+```
+
+Then start HyperFlow from your applications menu. The `.zip` holds the app for other distributions.
+
+</TabItem>
+</Tabs>
 
 ---
 
-:::caution Alpha Version
+## First launch
 
-HyperFlow is in an early stage of development, so you may run into bugs or missing features. Your feedback helps us
-improve it.
+HyperFlow opens on the **Applications** screen and starts its local server on port `2137`. The list stays empty until
+an app connects, so the next step is to [connect your application](/docs/hyper-flow/connecting.mdx).
+
+<Screenshot
+  src="/img/hyper-flow/applications.webp"
+  alt="The HyperFlow Applications screen with three apps: Acme Store and Checkout Service connected, Admin Panel disconnected, and a card explaining how to connect an app."
+  caption="Once apps connect, each one gets a card with its adapter, environment and connection status."
+/>
+
+If port `2137` is taken by another program, HyperFlow shows "Server is not running". Pick another port in
+[Settings](/docs/hyper-flow/features/settings.mdx#server-port) and pass it to the plugin.
+
+---
+
+## Updates
+
+On macOS and Windows, HyperFlow checks for a new version every hour, downloads it in the background and asks you to
+restart when it is ready. On Linux, download the new `.deb` or `.rpm` from this page and install it over the old one.
+
+The version you run shows next to the logo on the home screen. Alpha builds show **Next** instead of a number.
+
+:::caution Alpha
+
+HyperFlow is in an early stage of development, so you may run into bugs or missing features. Report them on
+[GitHub Issues](https://github.com/BetterTyped/hyper-fetch/issues). The **Support** and **Feedback** links at the bottom
+of the HyperFlow sidebar open the same places.
 
 :::

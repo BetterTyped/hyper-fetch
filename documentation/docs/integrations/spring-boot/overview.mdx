@@ -1,0 +1,136 @@
+---
+sidebar_position: 1
+title: Spring Boot with HyperFetch, a Typed TypeScript Client
+description: Generate a typed TypeScript SDK for your Spring Boot API from the OpenAPI document springdoc-openapi serves for your controllers.
+sidebar_label: Overview
+---
+
+# Spring Boot
+
+`springdoc-openapi` describes your Spring Boot controllers as an OpenAPI document, with your DTOs as schemas. The
+HyperFetch CLI reads that document and writes a typed TypeScript SDK, so your frontend calls every endpoint with your
+Java types translated to TypeScript.
+
+---
+
+:::tip Purpose
+
+1.  **One dependency on the server**: `springdoc-openapi` serves the document with no configuration.
+2.  **DTOs as TypeScript types**: Request bodies, responses and params follow your Java classes.
+3.  **One command to resync**: Change a controller, regenerate, and the compiler shows every call to fix.
+
+:::
+
+---
+
+## How it fits together
+
+| Step | Where       | What happens                                                            |
+| ---- | ----------- | ----------------------------------------------------------------------- |
+| 1    | Spring Boot | `springdoc-openapi` serves `/v3/api-docs` built from your controllers   |
+| 2    | Terminal    | `@hyper-fetch/cli generate` reads it and writes `src/api/spring.sdk.ts` |
+| 3    | Frontend    | `createSdk(client)` gives you typed requests for every route            |
+
+---
+
+## 1. Serve the OpenAPI document
+
+Add the starter that matches your stack. For Spring MVC:
+
+```xml title="pom.xml"
+<dependency>
+  <groupId>org.springdoc</groupId>
+  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+  <version>2.8.9</version>
+</dependency>
+```
+
+For WebFlux, use `springdoc-openapi-starter-webflux-ui`. Your controllers need no changes:
+
+```java title="UserController.java"
+@RestController
+@RequestMapping("/users")
+class UserController {
+  @GetMapping("/{id}")
+  UserDto getUser(@PathVariable long id) {
+    return users.find(id);
+  }
+}
+```
+
+The document is on `http://localhost:8080/v3/api-docs`.
+
+---
+
+## 2. Generate the SDK
+
+Run the CLI in your frontend project:
+
+```bash
+npx @hyper-fetch/cli@latest generate --template openapi --url http://localhost:8080/v3/api-docs --fileName spring.sdk.ts
+```
+
+It writes `spring.sdk.ts` to `src/api`. On the first run it also creates `api.json` with that location. Every path becomes a key
+and every method a `$`-prefixed key on it, so `GET /users/{id}` is `sdk.users.$id.$get`.
+
+---
+
+## 3. Call your API
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+
+import { createSdk } from "./api/spring.sdk";
+
+export const client = createClient({ url: "http://localhost:8080" });
+export const sdk = createSdk(client);
+
+// code-editor-split
+
+import { sdk } from "./client";
+
+// Typed from UserDto
+const { data, error } = await sdk.users.$id.$get.setParams({ id: 42 }).send();
+```
+
+The same requests work with `useFetch` and `useSubmit` from `@hyper-fetch/react`, with caching, retries and deduplication included.
+
+---
+
+## Keep the SDK in sync
+
+Install the CLI in the frontend project and add a script, so regenerating is one command locally and in CI:
+
+```json title="package.json"
+{
+  "scripts": {
+    "api:generate": "hyper-fetch generate -t openapi -u http://localhost:8080/v3/api-docs -f spring.sdk.ts -o"
+  }
+}
+```
+
+`-o` overwrites the old file without asking. To generate without a running server, the `springdoc-openapi-maven-plugin` and the Gradle plugin write the
+document to a file during the build. Pass that path to `--url` instead.
+
+:::note When it's helpful
+
+- Your backend is Java or Kotlin and your frontend is TypeScript.
+- You want DTO changes to show up as TypeScript errors.
+- You want caching, retries and React hooks on top of the generated client.
+
+:::
+
+<LinkCard
+  type="docs"
+  title="OpenAPI TypeScript client"
+  description="Everything the generated SDK can do, from React hooks to regenerating it in CI."
+  to="/docs/cli/openapi-typescript-client"
+/>
+
+:::secondary Summary
+
+- `springdoc-openapi` serves your controllers as an OpenAPI document at `/v3/api-docs`.
+- `@hyper-fetch/cli generate` turns it into a typed SDK.
+- `createSdk(client)` gives you typed requests for `send()`, `useFetch` and `useSubmit`.
+
+:::
