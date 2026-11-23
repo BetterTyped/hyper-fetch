@@ -75,6 +75,30 @@ describe("Client [ Configuration ]", () => {
       expect(resolveClientMode("auto")).toBe("server");
     });
 
+    it("should resolve the automatic mode to the client one in React Native", () => {
+      // React Native defines window but no document, and marks itself on navigator.product
+      removeGlobal("document");
+      vi.stubGlobal("navigator", { product: "ReactNative" });
+
+      expect(new Client({ url: "shared-base-url" }).mode).toBe("client");
+      expect(resolveClientMode("auto")).toBe("client");
+      expect(resolveClientMode("server")).toBe("server");
+    });
+
+    it("should resolve the automatic mode to the client one in the Electron main process", () => {
+      removeGlobal("window");
+      removeGlobal("document");
+      Object.assign(process.versions, { electron: "33.0.0" });
+
+      try {
+        expect(new Client({ url: "shared-base-url" }).mode).toBe("client");
+        expect(resolveClientMode("auto")).toBe("client");
+        expect(resolveClientMode("server")).toBe("server");
+      } finally {
+        delete (process.versions as Partial<NodeJS.ProcessVersions>).electron;
+      }
+    });
+
     it("should create the client without the window", () => {
       removeGlobal("window");
 

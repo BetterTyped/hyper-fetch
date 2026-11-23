@@ -54,7 +54,8 @@ export type ClientOptionsType<C extends ClientInstance> = {
   /**
    * How the effective {@link ClientMode} is chosen for cache behavior.
    *
-   * - `"auto"` (default when omitted): browser → `"client"`, otherwise `"server"`.
+   * - `"auto"` (default when omitted): `"client"` in a browser, React Native and Electron (main process included),
+   *   because they serve one user. `"server"` elsewhere, like Node.js, Deno, Bun or edge runtimes.
    * - `"client"` / `"server"`: force that mode regardless of environment (tests, SSR overrides, etc.).
    */
   mode?: ClientModeOption;
