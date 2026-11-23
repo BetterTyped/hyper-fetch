@@ -31,7 +31,9 @@ import { socket } from "./api/socket";
 
 type ChatMessage = { id: string; text: string };
 
-export const onChatMessage = socket.createListener<ChatMessage>()({ topic: "chat-message" });
+export const onChatMessage = socket.createListener<ChatMessage>()({
+  topic: "chat-message",
+});
 
 function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -90,7 +92,9 @@ Register callbacks by calling them in the render body; the latest closure is use
 const { onReconnecting, onReconnectingFailed } = useListener(onChatMessage);
 
 onReconnecting(({ attempts }) => toast(`Reconnecting (attempt ${attempts})`));
-onReconnectingFailed(({ attempts }) => toast(`Could not reconnect after ${attempts} attempts`));
+onReconnectingFailed(({ attempts }) =>
+  toast(`Could not reconnect after ${attempts} attempts`),
+);
 ```
 
 ---
@@ -115,9 +119,12 @@ listener's payload or params, to subscribe again. `onStart` runs when the subscr
 
 ```tsx title="Job progress over a server subscription"
 function Progress({ jobId }: { jobId: string }) {
-  const { data, status, error, listen } = useListener(onJobProgress.setPayload({ jobId }));
+  const { data, status, error, listen } = useListener(
+    onJobProgress.setPayload({ jobId }),
+  );
 
-  if (status === "failed") return <button onClick={listen}>Retry: {error?.message}</button>;
+  if (status === "failed")
+    return <button onClick={listen}>Retry: {error?.message}</button>;
   return <progress value={data?.percent ?? 0} max={100} />;
 }
 ```
@@ -150,7 +157,9 @@ every render.
 
 ```tsx title="One symbol's price"
 function SymbolPrice({ id }: { id: string }) {
-  const { data: price } = useListener(onPrices, { select: (prices) => prices[id]?.price });
+  const { data: price } = useListener(onPrices, {
+    select: (prices) => prices[id]?.price,
+  });
 
   return <span>{price}</span>;
 }

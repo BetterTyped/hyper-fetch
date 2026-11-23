@@ -35,11 +35,19 @@ const Post = collection(PostSchema, { key: "id" }).load(getTeamPosts, {
 });
 
 // ✅ Summaries are their own collection, linked to the full one
-const PostSummary = collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
-  rows: (response) => response.items,
-  where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
-});
-const db = createDb({ post: Post, postSummary: PostSummary }, { links: [["post", "postSummary"]] });
+const PostSummary = collection(PostSummarySchema, { key: "id" }).load(
+  getTeamPosts,
+  {
+    rows: (response) => response.items,
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
+  },
+);
+const db = createDb(
+  { post: Post, postSummary: PostSummary },
+  { links: [["post", "postSummary"]] },
+);
 ```
 
 Filling missing fields with placeholders makes the types lie: every component would trust an empty `body`. See
@@ -63,7 +71,8 @@ collection(rowType<Draft>(), { key: "id" });
 // ❌ Expecting the new post to appear in summary lists through the link
 await db.post.insert(newPost);
 
-// ✅ Summaries come from the lists that load them, or from a sync or ingest of the summary collection
+// ✅ Summaries come from the lists that load them, or from a sync or ingest of
+// the summary collection
 collection(PostSummarySchema, { key: "id" }).sync(onPostCreated, {
   type: "insert",
   row: ({ body, ...summary }) => summary,
@@ -79,8 +88,11 @@ A link only changes fields of rows both collections already hold. Rows of a summ
 ### Putting a required filter inside `or`
 
 ```ts
-// ❌ Does not compile: no loader can serve it, because teamId is not a top-level eq
-db.postSummary.where((post) => or(eq(post.teamId, "t1"), eq(post.teamId, "t2")));
+// ❌ Does not compile: no loader can serve it, because teamId is not a top-level
+// eq
+db.postSummary.where((post) =>
+  or(eq(post.teamId, "t1"), eq(post.teamId, "t2")),
+);
 
 // ✅ One query per value of a required filter
 db.postSummary.where((post) => eq(post.teamId, "t1"));
@@ -102,11 +114,16 @@ useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
 
 ```tsx
 // ❌ Unnecessary: the query is identified by its structure
-const query = useMemo(() => db.postSummary.where((post) => eq(post.teamId, teamId)), [teamId]);
+const query = useMemo(
+  () => db.postSummary.where((post) => eq(post.teamId, teamId)),
+  [teamId],
+);
 const { data } = useLiveQuery(query);
 
 // ✅ Build it inline
-const { data } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+const { data } = useLiveQuery(
+  db.postSummary.where((post) => eq(post.teamId, teamId)),
+);
 ```
 
 ### A paginated list without an order
@@ -120,7 +137,9 @@ useLiveInfiniteQuery(
 
 // ✅ Order by a field the loader can send
 useLiveInfiniteQuery(
-  db.feed.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+  db.feed
+    .where((post) => eq(post.teamId, teamId))
+    .orderBy((post) => post.createdAt, "desc"),
   { pageSize: 20 },
 );
 ```
@@ -135,7 +154,9 @@ one, but new rows only join them once the backend has no more pages.
 const { data } = useFetch(getTeamPosts.setParams({ teamId }));
 
 // ✅ Read records through the db everywhere
-const { data } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+const { data } = useLiveQuery(
+  db.postSummary.where((post) => eq(post.teamId, teamId)),
+);
 ```
 
 ---
@@ -182,11 +203,14 @@ db.post.update(postId, { archivedAt: null });
 ### Keying React elements by a key that can change
 
 ```tsx
-// ❌ A row inserted without a key remounts when the server's key replaces the temporary one
+// ❌ A row inserted without a key remounts when the server's key replaces the
+// temporary one
 data?.map((post) => <PostCard key={post.id} post={post} />);
 
 // ✅ The render key stays the same
-data?.map((post) => <PostCard key={db.postSummary.renderKey(post.id)} post={post} />);
+data?.map((post) => (
+  <PostCard key={db.postSummary.renderKey(post.id)} post={post} />
+));
 ```
 
 Only needed when the server assigns keys. With client keys, `post.id` never changes.
@@ -194,7 +218,8 @@ Only needed when the server assigns keys. With client keys, `post.id` never chan
 ### Offline inserts without a key
 
 ```ts
-// ❌ Resolves with an error while offline: the server cannot assign a key it never sees
+// ❌ Resolves with an error while offline: the server cannot assign a key it
+// never sees
 db.post.insert(draftWithoutId);
 
 // ✅ Generate keys on the client
@@ -204,17 +229,22 @@ db.post.insert({ ...draft, id: crypto.randomUUID() });
 ### Replaying offline writes without an idempotency key
 
 ```ts
-// ❌ A write sent just before the app closed is sent again on restart, and may apply twice
+// ❌ A write sent just before the app closed is sent again on restart, and may
+// apply twice
 insert: { request: createPost, map: (row) => ({ payload: row }) },
 
 // ✅ Send the write's id, which stays the same across replays
-insert: { request: createPost, map: (row, { id }) => ({ payload: { ...row, idempotencyKey: id } }) },
+insert: {
+  request: createPost,
+  map: (row, { id }) => ({ payload: { ...row, idempotencyKey: id } }),
+},
 ```
 
 ### Patching other collections by hand after a write
 
 ```ts
-// ❌ Fighting the db: the next refetch or event overwrites this, and failures are not reverted
+// ❌ Fighting the db: the next refetch or event overwrites this, and failures
+// are not reverted
 await db.post.update(postId, { title });
 await db.postSummary.update(postId, { title });
 
@@ -229,11 +259,13 @@ createDb(collections, { links: [["post", "postSummary"]] });
 ### One db for every request on the server
 
 ```ts
-// ❌ A module-level db on the server shares one user's rows with the next user's render
+// ❌ A module-level db on the server shares one user's rows with the next user's
+// render
 export const db = createDb(collections);
 
 // ✅ A db per request on the server, from shared collections
-export const createAppDb = (options?: DbOptions) => createDb(collections, options);
+export const createAppDb = (options?: DbOptions) =>
+  createDb(collections, options);
 ```
 
 A client-only app may keep a module-level db. See [server rendering](/docs/guides/db/patterns/server-rendering).
@@ -252,10 +284,13 @@ await signOut();
 ### Swallowing failures
 
 ```ts
-// ❌ A rows mapping that breaks after an API change shows up as "missing data" weeks later
+// ❌ A rows mapping that breaks after an API change shows up as "missing data"
+// weeks later
 
 // ✅ Report every failure
-db.onError(({ type, error, collection }) => reportError(error, { tags: { type, collection } }));
+db.onError(({ type, error, collection }) =>
+  reportError(error, { tags: { type, collection } }),
+);
 ```
 
 ---

@@ -32,12 +32,17 @@ type ApiUser = { id: number; user_name: string; is_active: boolean };
 type User = { id: number; name: string; isActive: boolean };
 
 export const getUser = client
-  .createRequest<{ response: { data: ApiUser } }>()({ endpoint: "/users/:userId" })
+  .createRequest<{ response: { data: ApiUser } }>()({
+    endpoint: "/users/:userId",
+  })
   .setResponseMapper((response) => {
     if (!response.data) return response;
 
     const { id, user_name, is_active } = response.data.data;
-    return { ...response, data: { id, name: user_name, isActive: is_active } satisfies User };
+    return {
+      ...response,
+      data: { id, name: user_name, isActive: is_active } satisfies User,
+    };
   });
 
 const { data } = await getUser.send({ params: { userId: 1 } });
@@ -55,7 +60,9 @@ The cache stores the **raw** adapter response, and each request runs its own map
 mappers but the same endpoint share one cache entry and deduplicate with each other.
 
 ```ts title="src/api/users.ts"
-const getUserRaw = client.createRequest<{ response: ApiUser }>()({ endpoint: "/users/:userId" });
+const getUserRaw = client.createRequest<{ response: ApiUser }>()({
+  endpoint: "/users/:userId",
+});
 
 // Same cacheKey, different shapes
 export const getUserName = getUserRaw.setResponseMapper((response) => {
@@ -80,7 +87,10 @@ Because the cache holds raw data, `client.cache.update` and `request.read()` wor
 
 ```ts title="src/api/profile.ts"
 export const updateProfile = client
-  .createRequest<{ response: User; payload: { username: string; avatar: File } }>()({
+  .createRequest<{
+    response: User;
+    payload: { username: string; avatar: File };
+  }>()({
     endpoint: "/profile",
     method: "POST",
   })
@@ -105,7 +115,10 @@ usual setters. It runs after the client's `onRequest` and `onAuth` interceptors,
 
 ```ts title="src/api/orders.ts"
 export const createOrder = client
-  .createRequest<{ response: Order; payload: OrderInput }>()({ endpoint: "/orders", method: "POST" })
+  .createRequest<{ response: Order; payload: OrderInput }>()({
+    endpoint: "/orders",
+    method: "POST",
+  })
   // A stable key per call, so the server can drop duplicates of a retried order
   .setRequestMapper((request, requestId) =>
     request.setHeaders({ ...request.headers, "Idempotency-Key": requestId }),
@@ -126,7 +139,10 @@ export const api = sdk.$configure({
     request.setResponseMapper((response) => {
       // Leaves are typed loosely here, so narrow on success
       if (!response.success) return response;
-      return { ...response, data: { id: response.data.id, name: response.data.user_name } };
+      return {
+        ...response,
+        data: { id: response.data.id, name: response.data.user_name },
+      };
     }),
 });
 ```

@@ -34,10 +34,23 @@ import { getUser } from "../api/users";
 
 export function LifecycleLog() {
   const [logs, setLogs] = useState<string[]>([]);
-  const log = (message: string) => setLogs((prev) => [`${new Date().toLocaleTimeString()} ${message}`, ...prev]);
+  const log = (message: string) =>
+    setLogs((prev) => [
+      `${new Date().toLocaleTimeString()} ${message}`,
+      ...prev,
+    ]);
 
-  const { refetch, abort, onRequestStart, onResponseStart, onSuccess, onError, onAbort, onOfflineError, onFinished } =
-    useFetch(getUser.setParams({ userId: 1 }));
+  const {
+    refetch,
+    abort,
+    onRequestStart,
+    onResponseStart,
+    onSuccess,
+    onError,
+    onAbort,
+    onOfflineError,
+    onFinished,
+  } = useFetch(getUser.setParams({ userId: 1 }));
 
   onRequestStart(({ requestId }) => log(`Started ${requestId}`));
   onResponseStart(() => log("Response is arriving"));

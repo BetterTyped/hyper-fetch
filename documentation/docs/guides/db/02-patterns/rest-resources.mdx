@@ -41,8 +41,15 @@ const Post = collection(PostSchema, { key: "id" })
   .load(getPost, { byKey: (id) => ({ params: { postId: id } }) })
   .mutate({
     insert: { request: createPost, map: (row) => ({ payload: row }) },
-    update: { request: updatePost, map: (key, changes) => ({ params: { postId: key }, payload: changes }) },
-    delete: { request: deletePost, map: (key) => ({ params: { postId: key } }), onSuccess: "keep" },
+    update: {
+      request: updatePost,
+      map: (key, changes) => ({ params: { postId: key }, payload: changes }),
+    },
+    delete: {
+      request: deletePost,
+      map: (key) => ({ params: { postId: key } }),
+      onSuccess: "keep",
+    },
   });
 ```
 
@@ -63,10 +70,18 @@ type ApiSchema = {
       response: Post[];
       queryParams?: { teamId?: string; status?: Post["status"]; sort?: string };
     }>;
-    $post: RequestModel<{ endpoint: "/posts"; response: Post; payload: Post & { idempotencyKey?: string } }>;
+    $post: RequestModel<{
+      endpoint: "/posts";
+      response: Post;
+      payload: Post & { idempotencyKey?: string };
+    }>;
     $postId: {
       $get: RequestModel<{ endpoint: "/posts/:postId"; response: Post }>;
-      $patch: RequestModel<{ endpoint: "/posts/:postId"; response: Post; payload: Partial<Post> }>;
+      $patch: RequestModel<{
+        endpoint: "/posts/:postId";
+        response: Post;
+        payload: Partial<Post>;
+      }>;
       $delete: RequestModel<{ endpoint: "/posts/:postId"; response: null }>;
     };
   };
@@ -76,7 +91,10 @@ export const sdk = createSdk<typeof client, ApiSchema>(client);
 ```
 
 ```ts title="src/db.ts"
-const Post = collection(PostSchema, { key: "id", version: "updatedAt" }).resource(sdk.posts, {
+const Post = collection(PostSchema, {
+  key: "id",
+  version: "updatedAt",
+}).resource(sdk.posts, {
   item: "$postId",
   list: { where: ["teamId", "status"] },
 });
@@ -105,7 +123,9 @@ Queries and writes are the same as with hand-written loaders:
 
 ```tsx title="src/team-feed.tsx"
 const { data } = useLiveQuery(
-  db.post.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+  db.post
+    .where((post) => eq(post.teamId, teamId))
+    .orderBy((post) => post.createdAt, "desc"),
 );
 
 await db.post.update(postId, { title: "Renamed" });
@@ -142,16 +162,27 @@ Teamboard's team feed returns posts without `body`. Those are not complete `Post
 collection. Turn the derived list off with `list: false`, and load the summaries as a collection of their own:
 
 ```ts title="src/db.ts"
-const Post = collection(PostSchema, { key: "id" }).resource(sdk.posts, { item: "$postId", list: false });
-
-const PostSummary = collection(PostSummarySchema, { key: "id" }).load(sdk.teams.$teamId.posts.$get, {
-  rows: (response) => response.items,
-  cursor: (response) => response.next,
-  page: (cursor) => ({ queryParams: { cursor } }),
-  where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+const Post = collection(PostSchema, { key: "id" }).resource(sdk.posts, {
+  item: "$postId",
+  list: false,
 });
 
-export const db = createDb({ post: Post, postSummary: PostSummary }, { links: [["post", "postSummary"]] });
+const PostSummary = collection(PostSummarySchema, { key: "id" }).load(
+  sdk.teams.$teamId.posts.$get,
+  {
+    rows: (response) => response.items,
+    cursor: (response) => response.next,
+    page: (cursor) => ({ queryParams: { cursor } }),
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
+  },
+);
+
+export const db = createDb(
+  { post: Post, postSummary: PostSummary },
+  { links: [["post", "postSummary"]] },
+);
 ```
 
 `post` still reads by key and writes, and the link keeps the summaries in step with every write. The
@@ -210,7 +241,10 @@ Writes declared with `.mutate()` replace the derived ones, for example to send t
 const Post = collection(PostSchema, { key: "id" })
   .resource(sdk.posts, { item: "$postId" })
   .mutate({
-    insert: { request: sdk.posts.$post, map: (row, { id }) => ({ payload: { ...row, idempotencyKey: id } }) },
+    insert: {
+      request: sdk.posts.$post,
+      map: (row, { id }) => ({ payload: { ...row, idempotencyKey: id } }),
+    },
   });
 ```
 
@@ -220,8 +254,14 @@ To send orders or other operators, replace the list. Turn the derived list off a
 const Post = collection(PostSchema, { key: "id" })
   .resource(sdk.posts, { item: "$postId", list: false })
   .load(sdk.posts.$get, {
-    where: { teamId: { eq: (teamId) => ({ queryParams: { teamId } }), required: true } },
-    orderBy: { createdAt: (direction) => ({ queryParams: { sort: `createdAt:${direction}` } }) },
+    where: {
+      teamId: { eq: (teamId) => ({ queryParams: { teamId } }), required: true },
+    },
+    orderBy: {
+      createdAt: (direction) => ({
+        queryParams: { sort: `createdAt:${direction}` },
+      }),
+    },
   });
 ```
 

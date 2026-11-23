@@ -40,9 +40,15 @@ For a server that only pushes data over HTTP, pass the Server-Sent Events adapte
 throws, because SSE is one-way.
 
 ```ts title="src/api/events.ts"
-import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+import {
+  createSocketClient,
+  ServerSentEventsAdapter,
+} from "@hyper-fetch/sockets";
 
-export const events = createSocketClient({ url: "https://api.example.com/events", adapter: ServerSentEventsAdapter() });
+export const events = createSocketClient({
+  url: "https://api.example.com/events",
+  adapter: ServerSentEventsAdapter(),
+});
 ```
 
 ---
@@ -59,18 +65,27 @@ import { socket } from "./socket";
 
 type ChatMessage = { id: string; author: string; text: string };
 
-export const onChatMessage = socket.createListener<ChatMessage>()({ topic: "chat/:roomId" });
-export const sendChatMessage = socket.createEmitter<{ text: string }>()({ topic: "chat/:roomId" });
+export const onChatMessage = socket.createListener<ChatMessage>()({
+  topic: "chat/:roomId",
+});
+export const sendChatMessage = socket.createEmitter<{ text: string }>()({
+  topic: "chat/:roomId",
+});
 ```
 
 Use them anywhere in the app:
 
 ```ts title="src/chat.ts"
-const unlisten = onChatMessage.setParams({ roomId: "general" }).listen(({ data }) => {
-  console.log(`${data.author}: ${data.text}`);
-});
+const unlisten = onChatMessage
+  .setParams({ roomId: "general" })
+  .listen(({ data }) => {
+    console.log(`${data.author}: ${data.text}`);
+  });
 
-sendChatMessage.emit({ params: { roomId: "general" }, payload: { text: "Hello" } });
+sendChatMessage.emit({
+  params: { roomId: "general" },
+  payload: { text: "Hello" },
+});
 
 unlisten(); // stop listening when the screen closes
 ```
@@ -92,8 +107,14 @@ import type { EmitterModel, ListenerModel } from "@hyper-fetch/sockets";
 type ChatSchema = {
   chat: {
     messages: {
-      $listener: ListenerModel<{ response: ChatMessage; topic: "chat/messages" }>;
-      $emitter: EmitterModel<{ payload: { text: string }; topic: "chat/messages" }>;
+      $listener: ListenerModel<{
+        response: ChatMessage;
+        topic: "chat/messages";
+      }>;
+      $emitter: EmitterModel<{
+        payload: { text: string };
+        topic: "chat/messages";
+      }>;
     };
   };
 };

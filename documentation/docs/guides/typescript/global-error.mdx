@@ -28,9 +28,13 @@ import { createClient } from "@hyper-fetch/core";
 
 export type ApiError = { message: string; code: string };
 
-export const client = createClient<{ error: ApiError | Error }>({ url: "https://api.example.com" });
+export const client = createClient<{ error: ApiError | Error }>({
+  url: "https://api.example.com",
+});
 
-const getUser = client.createRequest<{ response: User }>()({ endpoint: "/users/:userId" });
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+});
 
 const { error } = await getUser.send({ params: { userId: 1 } });
 // error: ApiError | Error | null

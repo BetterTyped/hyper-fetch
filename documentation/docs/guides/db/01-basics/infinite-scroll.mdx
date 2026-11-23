@@ -33,12 +33,20 @@ A loader becomes paginated when it declares `cursor` or `limit`. Teamboard's fee
 ```ts title="src/db.ts"
 const getTeamPosts = client.createRequest<{
   response: { items: PostSummary[]; next: string | null };
-  queryParams?: { status?: "draft" | "published"; sort?: string; cursor?: string };
+  queryParams?: {
+    status?: "draft" | "published";
+    sort?: string;
+    cursor?: string;
+  };
 }>()({ endpoint: "/teams/:teamId/posts" });
 
-const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" }).load(getTeamPosts, {
+const PostSummary = collection(PostSummarySchema, {
+  key: "id",
+  version: "updatedAt",
+}).load(getTeamPosts, {
   rows: (response) => response.items,
-  // Reads the next page's cursor. `null` or `undefined` means there are no more pages.
+  // Reads the next page's cursor. `null` or `undefined` means there are no more
+  // pages.
   cursor: (response) => response.next,
   // Sends a cursor to load the page after it
   page: (cursor) => ({ queryParams: { cursor } }),
@@ -46,7 +54,11 @@ const PostSummary = collection(PostSummarySchema, { key: "id", version: "updated
     teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
     status: { eq: (status) => ({ queryParams: { status } }) },
   },
-  orderBy: { createdAt: (direction) => ({ queryParams: { sort: `createdAt:${direction}` } }) },
+  orderBy: {
+    createdAt: (direction) => ({
+      queryParams: { sort: `createdAt:${direction}` },
+    }),
+  },
 });
 ```
 
@@ -54,7 +66,9 @@ const PostSummary = collection(PostSummarySchema, { key: "id", version: "updated
 
 ```tsx title="src/team-feed.tsx"
 const { data, hasNextPage, fetchNextPage } = useLiveQuery(
-  db.postSummary.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+  db.postSummary
+    .where((post) => eq(post.teamId, teamId))
+    .orderBy((post) => post.createdAt, "desc"),
 );
 ```
 
@@ -66,8 +80,11 @@ condition and every order**, and anything else does not compile:
 
 ```ts
 useLiveQuery(
-  // error-next-line
-  db.postSummary.where((post) => eq(post.teamId, teamId)).where((post) => gt(post.likes, 10)),
+  // error-start
+  db.postSummary
+    .where((post) => eq(post.teamId, teamId))
+    .where((post) => gt(post.likes, 10)),
+  // error-end
 );
 // The paginated loader cannot send `likes`, so no loader can serve the query
 ```
@@ -86,10 +103,13 @@ import { eq } from "@hyper-fetch/db";
 import { useLiveInfiniteQuery } from "@hyper-fetch/react";
 
 const TeamFeed = ({ teamId }: { teamId: string }) => {
-  const { pages, hasNextPage, fetchNextPage, isFetchingNextPage, status } = useLiveInfiniteQuery(
-    db.postSummary.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
-    { pageSize: 20 },
-  );
+  const { pages, hasNextPage, fetchNextPage, isFetchingNextPage, status } =
+    useLiveInfiniteQuery(
+      db.postSummary
+        .where((post) => eq(post.teamId, teamId))
+        .orderBy((post) => post.createdAt, "desc"),
+      { pageSize: 20 },
+    );
 
   if (status === "loading") return <p>Loading posts...</p>;
 
@@ -125,7 +145,9 @@ Replace the button with an element at the end of the list, and load when it scro
 ```tsx title="src/scrolling-feed.tsx"
 const ScrollingFeed = ({ teamId }: { teamId: string }) => {
   const { data, hasNextPage, fetchNextPage } = useLiveInfiniteQuery(
-    db.postSummary.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+    db.postSummary
+      .where((post) => eq(post.teamId, teamId))
+      .orderBy((post) => post.createdAt, "desc"),
     { pageSize: 20 },
   );
   const sentinel = useRef<HTMLDivElement>(null);
@@ -161,12 +183,17 @@ The [reference](/docs/react/db/use-live-infinite-query#how-pages-load) lists how
 A loader with `limit` and no cursor is sent the window size plus one:
 
 ```ts title="src/db.ts"
-const getTopPosts = client.createRequest<{ response: PostSummary[]; queryParams?: { limit?: number } }>()({
+const getTopPosts = client.createRequest<{
+  response: PostSummary[];
+  queryParams?: { limit?: number };
+}>()({
   endpoint: "/teams/:teamId/top-posts",
 });
 
 const TopPost = collection(PostSummarySchema, { key: "id" }).load(getTopPosts, {
-  where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+  where: {
+    teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+  },
   // Uses the db-wide `orderBy` notation from createDb, see the Loaders guide
   orderBy: { likes: true },
   // Pages of 10: sends limit=11, then limit=21, ...

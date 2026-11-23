@@ -10,7 +10,8 @@ get one TypeScript file with every model and operation type and a `createSdk` fa
 the base URL, auth and plugins.
 
 ```bash
-npx @hyper-fetch/cli@latest generate --template openapi --url ./openapi.json --fileName api.sdk.ts
+npx @hyper-fetch/cli@latest generate --template openapi --url ./openapi.json \
+  --fileName api.sdk.ts
 ```
 
 ```ts title="src/api/index.ts"

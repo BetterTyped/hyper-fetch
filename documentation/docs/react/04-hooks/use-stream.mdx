@@ -28,7 +28,9 @@ import { useStream } from "@hyper-fetch/react";
 import { chatCompletion } from "./api/ai";
 
 function AiChat({ prompt }: { prompt: string }) {
-  const { text, streaming, done, start, abort } = useStream(chatCompletion.setPayload({ prompt }));
+  const { text, streaming, done, start, abort } = useStream(
+    chatCompletion.setPayload({ prompt }),
+  );
 
   return (
     <div>
@@ -94,7 +96,9 @@ function BuildLog() {
 `reset()` aborts a running stream and clears `text`, `chunks` and the flags. Call `start()` after it to stream again.
 
 ```tsx title="Regenerate an answer"
-const { text, done, start, reset } = useStream(chatCompletion.setPayload({ prompt }));
+const { text, done, start, reset } = useStream(
+  chatCompletion.setPayload({ prompt }),
+);
 
 const regenerate = () => {
   reset();

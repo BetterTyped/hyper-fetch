@@ -87,7 +87,8 @@ Ten components asking for the same data at once make one request. For search-as-
 
 ```ts
 // GET requests share one in-flight call by default
-await Promise.all([getUsers.send(), getUsers.send(), getUsers.send()]); // 1 request
+// 1 request
+await Promise.all([getUsers.send(), getUsers.send(), getUsers.send()]);
 
 // Every new call aborts the previous one with the same key
 // highlight-next-line
@@ -126,7 +127,12 @@ Interceptors on the client add tokens, refresh them on `401` and resend the orig
 ```ts
 client
   // highlight-start
-  .onAuth((request) => request.setHeaders({ ...request.headers, Authorization: `Bearer ${tokens.access}` }))
+  .onAuth((request) =>
+    request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${tokens.access}`,
+    }),
+  )
   .onError(async (response, request) => {
     // highlight-end
     if (response.status !== 401 || request.used) return response;

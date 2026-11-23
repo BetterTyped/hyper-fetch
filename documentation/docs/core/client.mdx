@@ -25,10 +25,15 @@ import { createClient } from "@hyper-fetch/core";
 
 type ApiError = { message: string; code: number };
 
-// Keep Error in the union: timeouts, aborts and network failures arrive as Error instances
-export const client = createClient<{ error: ApiError | Error }>({ url: "https://api.example.com" });
+// Keep Error in the union: timeouts, aborts and network failures arrive as
+// Error instances
+export const client = createClient<{ error: ApiError | Error }>({
+  url: "https://api.example.com",
+});
 
-export const getUser = client.createRequest<{ response: { id: number; name: string } }>()({
+export const getUser = client.createRequest<{
+  response: { id: number; name: string };
+}>()({
   endpoint: "/users/:userId",
 });
 ```
@@ -46,7 +51,12 @@ needs. Mark public endpoints `auth: false` to skip it.
 ```ts title="api/client.ts"
 client.onAuth((request) => {
   const token = localStorage.getItem("token");
-  return token ? request.setHeaders({ ...request.headers, Authorization: `Bearer ${token}` }) : request;
+  return token
+    ? request.setHeaders({
+        ...request.headers,
+        Authorization: `Bearer ${token}`,
+      })
+    : request;
 });
 
 const getHealth = client.createRequest()({ endpoint: "/health", auth: false });
@@ -93,10 +103,12 @@ client.adapter
   .setRequestDefaults((options) => {
     const method = options.method ?? "GET";
     // The callback replaces the built-in default, so keep deduplication for reads
-    if (method === "GET" || method === "QUERY") return { deduplicate: true, retry: 2 };
+    if (method === "GET" || method === "QUERY")
+      return { deduplicate: true, retry: 2 };
     return { retry: 0 };
   })
-  .setAdapterDefaults(() => ({ timeout: 10_000 })); // fetch options, the timeout is 5000 ms by default
+  // fetch options, the timeout is 5000 ms by default
+  .setAdapterDefaults(() => ({ timeout: 10_000 }));
 ```
 
 Call both before you create requests: defaults are read when a request is created. See
@@ -130,7 +142,10 @@ In `"server"` mode nothing is cached unless the request has a scope, so one user
 
 ```ts title="server.ts"
 // Cached for this session only
-const { data } = await getUser.setParams({ userId: 1 }).setScope(session.id).send();
+const { data } = await getUser
+  .setParams({ userId: 1 })
+  .setScope(session.id)
+  .send();
 ```
 
 See [Cache](/docs/core/cache#scope-the-cache-on-the-server) for scopes.

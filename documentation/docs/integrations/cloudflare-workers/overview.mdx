@@ -41,12 +41,17 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     // highlight-next-line
     const client = createClient({ url: env.API_URL });
-    const getProduct = client.createRequest<{ response: { id: string; price: number } }>()({
+    const getProduct = client.createRequest<{
+      response: { id: string; price: number };
+    }>()({
       endpoint: "/products/:id",
     });
 
     const id = new URL(request.url).searchParams.get("id") ?? "";
-    const { data, error } = await getProduct.setParams({ id }).setRetry(1).send();
+    const { data, error } = await getProduct
+      .setParams({ id })
+      .setRetry(1)
+      .send();
 
     return Response.json(error ?? data, { status: error ? 502 : 200 });
   },
@@ -64,7 +69,8 @@ unless a request has a scope, so one user's response never answers another's. To
 `setScope(userId)`. For a typed SDK of the API you call, generate it with the CLI and create it from the client:
 
 ```bash
-npx @hyper-fetch/cli@latest generate --template openapi --fileName upstream.sdk.ts --overwrite \
+npx @hyper-fetch/cli@latest generate --template openapi \
+  --fileName upstream.sdk.ts --overwrite \
   --url https://api.example.com/openapi.json
 ```
 

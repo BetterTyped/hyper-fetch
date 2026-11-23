@@ -91,7 +91,9 @@ Pass your sockets in `sockets` to inspect their connection, messages and errors 
 inspect their collections, loaded subsets, live queries and outbox, see the [db inspector](/docs/hyper-flow/features/db).
 
 ```ts title="src/api/client.ts"
-client.addPlugin(DevtoolsPlugin({ appName: "My App", sockets: [socket], dbs: [db] }));
+client.addPlugin(
+  DevtoolsPlugin({ appName: "My App", sockets: [socket], dbs: [db] }),
+);
 ```
 
 ---

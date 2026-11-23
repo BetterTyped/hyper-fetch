@@ -38,7 +38,9 @@ import { createClient } from "@hyper-fetch/core";
 
 export const client = createClient({ url: "https://api.example.com" });
 
-export const getProjects = client.createRequest<{ response: { id: string; name: string }[] }>()({
+export const getProjects = client.createRequest<{
+  response: { id: string; name: string }[];
+}>()({
   endpoint: "/projects",
 });
 ```
@@ -61,14 +63,18 @@ import { createClient } from "@hyper-fetch/core";
 // highlight-next-line
 const client = createClient({ url: "https://api.example.com", mode: "client" });
 
-const getProjects = client.createRequest<{ response: { id: string; name: string }[] }>()({
+const getProjects = client.createRequest<{
+  response: { id: string; name: string }[];
+}>()({
   endpoint: "/projects",
 });
 
 ipcMain.handle("projects:list", async () => {
   // readToken() reads the token from the system keychain
   const token = await readToken();
-  const { data, error } = await getProjects.setHeaders({ Authorization: `Bearer ${token}` }).send();
+  const { data, error } = await getProjects
+    .setHeaders({ Authorization: `Bearer ${token}` })
+    .send();
   return { data, error };
 });
 ```

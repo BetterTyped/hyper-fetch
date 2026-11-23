@@ -41,22 +41,29 @@ import { AppManager, createClient } from "@hyper-fetch/core";
 
 export const client = createClient({
   url: "https://api.example.com",
-  // React Native has no document, so the cache would be off in the default "server" mode
+  // React Native has no document, so the cache would be off in the default
+  // "server" mode
   mode: "client",
   // highlight-start
   appManager: () =>
     new AppManager({
-      initiallyOnline: () => NetInfo.fetch().then((state) => !!state.isConnected),
-      onlineEvent: (setOnline) => NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
+      initiallyOnline: () =>
+        NetInfo.fetch().then((state) => !!state.isConnected),
+      onlineEvent: (setOnline) =>
+        NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
       focusEvent: (setFocused) => {
-        const subscription = AppState.addEventListener("change", (status) => setFocused(status === "active"));
+        const subscription = AppState.addEventListener("change", (status) =>
+          setFocused(status === "active"),
+        );
         return () => subscription.remove();
       },
     }),
   // highlight-end
 });
 
-export const getUsers = client.createRequest<{ response: { id: number; name: string }[] }>()({
+export const getUsers = client.createRequest<{
+  response: { id: number; name: string }[];
+}>()({
   endpoint: "/users",
 });
 ```

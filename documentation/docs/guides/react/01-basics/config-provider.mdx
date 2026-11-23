@@ -70,7 +70,14 @@ export function DataSaverToggle() {
   const { config, setConfig } = useProvider();
 
   const enableDataSaver = () =>
-    setConfig({ ...config, useFetchConfig: { ...config.useFetchConfig, refetchOnFocus: false, refresh: false } });
+    setConfig({
+      ...config,
+      useFetchConfig: {
+        ...config.useFetchConfig,
+        refetchOnFocus: false,
+        refresh: false,
+      },
+    });
 
   return <button onClick={enableDataSaver}>Data saver</button>;
 }

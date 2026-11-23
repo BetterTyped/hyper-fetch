@@ -26,7 +26,11 @@ type User = { id: string; name: string };
 
 type ApiSchema = {
   users: {
-    $get: RequestModel<{ response: User[]; queryParams?: { page?: number } | null; endpoint: "/users" }>;
+    $get: RequestModel<{
+      response: User[];
+      queryParams?: { page?: number } | null;
+      endpoint: "/users";
+    }>;
     $userId: {
       $get: RequestModel<{ response: User; endpoint: "/users/:userId" }>;
       $delete: RequestModel<{ response: User; endpoint: "/users/:userId" }>;
@@ -38,7 +42,9 @@ export const client = createClient({ url: "https://api.example.com" });
 export const sdk = createSdk<typeof client, ApiSchema>(client);
 
 // GET /users/123
-const { data } = await sdk.users.$userId.$get.send({ params: { userId: "123" } });
+const { data } = await sdk.users.$userId.$get.send({
+  params: { userId: "123" },
+});
 ```
 
 Every leaf is a regular [request](/docs/core/request): `send()`, `setParams`, `useFetch` and `useSubmit` all work with it.
@@ -73,7 +79,9 @@ Both describe requests at the type level, for opposite jobs.
 type GetUsers = RequestModel<{ response: User[]; endpoint: "/users" }>;
 
 // Any request that returns User[], whatever its payload or query params
-function countCachedUsers<T extends RequestInstance<{ response: User[] }>>(request: T) {
+function countCachedUsers<T extends RequestInstance<{ response: User[] }>>(
+  request: T,
+) {
   return request.read()?.data?.length ?? 0;
 }
 ```
@@ -91,7 +99,8 @@ that receives the request and returns a changed one, with access to every setter
 export const api = sdk.$configure({
   "*": { retry: 2 }, // every request
   "/users/*": { staleTime: 60_000 }, // /users/:userId and deeper
-  "users.$userId.$delete": (request) => request.setCancelable(true), // one SDK leaf
+  // one SDK leaf
+  "users.$userId.$delete": (request) => request.setCancelable(true),
 });
 ```
 

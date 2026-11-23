@@ -20,11 +20,14 @@ It is in memory by default, with optional persistent storage.
 :::
 
 ```ts title="api/notes.ts"
-const getNotes = client.createRequest<{ response: { text: string }[] }>()({ endpoint: "/notes" });
+const getNotes = client.createRequest<{ response: { text: string }[] }>()({
+  endpoint: "/notes",
+});
 
 await getNotes.send(); // every successful send() writes to the cache
 
-const cached = getNotes.read(); // the cached response, if any, without a network call
+// the cached response, if any, without a network call
+const cached = getNotes.read();
 
 client.cache.invalidate(getNotes); // mark it stale, mounted hooks refetch
 ```
@@ -138,7 +141,8 @@ export const client = createClient({
   url: "https://api.example.com",
   cache: () =>
     new Cache({
-      version: "2", // bump when response shapes change, old persisted entries are dropped
+      // bump when response shapes change, old persisted entries are dropped
+      version: "2",
       lazyStorage: {
         get: (key) => get(key),
         set: (key, value) => set(key, value),

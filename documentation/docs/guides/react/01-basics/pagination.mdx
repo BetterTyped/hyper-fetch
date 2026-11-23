@@ -30,14 +30,20 @@ Put `page` and `limit` on the request with `setQueryParams`. When `page` changes
 ```tsx title="components/paginated-posts.tsx"
 import { useState } from "react";
 import { useFetch } from "@hyper-fetch/react";
-import { getPosts } from "../api/posts"; // queryParams: { page?: number; limit?: number }
+// queryParams: { page?: number; limit?: number }
+import { getPosts } from "../api/posts";
 
 const LIMIT = 10;
 
 export function PaginatedPosts() {
   const [page, setPage] = useState(1);
-  // highlight-next-line
-  const { data: posts, loading, error } = useFetch(getPosts.setQueryParams({ page, limit: LIMIT }));
+  // highlight-start
+  const {
+    data: posts,
+    loading,
+    error,
+  } = useFetch(getPosts.setQueryParams({ page, limit: LIMIT }));
+  // highlight-end
 
   if (error) return <p className="p-4 text-red-500">{error.message}</p>;
 
@@ -58,7 +64,10 @@ export function PaginatedPosts() {
         <button onClick={() => setPage((p) => p - 1)} disabled={page === 1}>
           Previous
         </button>
-        <button onClick={() => setPage((p) => p + 1)} disabled={isLastPage || loading}>
+        <button
+          onClick={() => setPage((p) => p + 1)}
+          disabled={isLastPage || loading}
+        >
           Next
         </button>
       </div>
@@ -94,7 +103,9 @@ Send the next page ahead of time and it lands in the cache, so the Next click re
 ```tsx title="Prefetch on page change"
 useEffect(() => {
   if (!isLastPage) {
-    getPosts.setQueryParams({ page: page + 1, limit: LIMIT }).send({ cachePolicy: "cache-first" });
+    getPosts
+      .setQueryParams({ page: page + 1, limit: LIMIT })
+      .send({ cachePolicy: "cache-first" });
   }
 }, [page, isLastPage]);
 ```

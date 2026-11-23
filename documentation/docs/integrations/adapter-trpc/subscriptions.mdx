@@ -49,7 +49,10 @@ export const appRouter = t.router({
     onMessage: t.procedure
       .input((value) => value as { room: string; lastEventId?: string })
       .subscription(async function* ({ input, signal }) {
-        for await (const message of messages(input.room, { after: input.lastEventId, signal })) {
+        for await (const message of messages(input.room, {
+          after: input.lastEventId,
+          signal,
+        })) {
           yield tracked(message.id, message);
         }
       }),
@@ -66,15 +69,23 @@ import type { TrpcSocketSchema } from "@hyper-fetch/trpc";
 
 import type { AppRouter } from "../server/router";
 
-export const socket = new Socket({ url: "http://localhost:3000/trpc", adapter: TrpcSseAdapter() });
+export const socket = new Socket({
+  url: "http://localhost:3000/trpc",
+  adapter: TrpcSseAdapter(),
+});
 
-export const realtime = createSocketSdk<typeof socket, TrpcSocketSchema<AppRouter>>(socket, {
+export const realtime = createSocketSdk<
+  typeof socket,
+  TrpcSocketSchema<AppRouter>
+>(socket, {
   camelCaseToKebabCase: false,
 });
 
-const stop = realtime.chat.onMessage.$listener.setPayload({ room: "general" }).listen(({ data, extra }) => {
-  console.log(data.text, extra.eventId);
-});
+const stop = realtime.chat.onMessage.$listener
+  .setPayload({ room: "general" })
+  .listen(({ data, extra }) => {
+    console.log(data.text, extra.eventId);
+  });
 ```
 
 Every subscription gets its own `EventSource`, opened as `GET {url}/chat.onMessage?input=...`. The socket counts as
@@ -99,7 +110,10 @@ applyWSSHandler({ wss: new WebSocketServer({ port: 3001 }), router: appRouter })
 ```ts title="api/socket.ts"
 import { TrpcWebsocketAdapter } from "@hyper-fetch/trpc";
 
-export const socket = new Socket({ url: "ws://localhost:3001", adapter: TrpcWebsocketAdapter() });
+export const socket = new Socket({
+  url: "ws://localhost:3001",
+  adapter: TrpcWebsocketAdapter(),
+});
 ```
 
 Pick SSE when you already serve tRPC over HTTP, behind proxies or on serverless platforms. Pick WebSocket when a client
@@ -115,8 +129,12 @@ changes the socket.
 mutations are left out, send them with the [`TrpcAdapter`](/docs/integrations/adapter-trpc/overview).
 
 ```ts title="api/chat.ts"
-realtime.chat.onMessage.$listener.setPayload({ room: "general" }).listen(onMessage);
-realtime.chat.onMessage.$listener.listen(onMessage, { payload: { room: "general" } });
+realtime.chat.onMessage.$listener
+  .setPayload({ room: "general" })
+  .listen(onMessage);
+realtime.chat.onMessage.$listener.listen(onMessage, {
+  payload: { room: "general" },
+});
 ```
 
 - Listeners with the same input share one server subscription. The last one to leave stops it (`subscription.stop`
@@ -146,13 +164,16 @@ import { useListener } from "@hyper-fetch/react";
 import { realtime } from "./api/socket";
 
 export const ChatRoom = ({ room }: { room: string }) => {
-  const { data, extra, status, error } = useListener(realtime.chat.onMessage.$listener.setPayload({ room }));
+  const { data, extra, status, error } = useListener(
+    realtime.chat.onMessage.$listener.setPayload({ room }),
+  );
 
   if (status === "failed") return <p>{error?.message}</p>;
 
   return (
     <p>
-      {status === "listening" ? "Live" : "Connecting..."} {data?.text} ({extra?.eventId})
+      {status === "listening" ? "Live" : "Connecting..."} {data?.text} (
+      {extra?.eventId})
     </p>
   );
 };
@@ -173,7 +194,8 @@ import { TrpcSocketError } from "@hyper-fetch/trpc";
 
 socket.onError(({ error }) => {
   if (error instanceof TrpcSocketError) {
-    console.log(error.topic, error.payload, error.shape.data.code); // topic is null when the whole connection failed
+    // topic is null when the whole connection failed
+    console.log(error.topic, error.payload, error.shape.data.code);
   }
 });
 ```
@@ -190,10 +212,14 @@ socket.onError(({ error }) => {
 The server confirms every subscription and tells when it is over. Pass `onStart` and `onEnd` to `listen()`.
 
 ```ts title="api/chat.ts"
-realtime.chat.onMessage.$listener.setPayload({ room: "general" }).listen(onMessage, {
-  onStart: ({ topic }) => {}, // accepted by the server, and again after every reconnect
-  onEnd: ({ topic, error }) => {}, // the procedure returned (error is null) or failed with a TrpcSocketError
-});
+realtime.chat.onMessage.$listener
+  .setPayload({ room: "general" })
+  .listen(onMessage, {
+    // accepted by the server, and again after every reconnect
+    onStart: ({ topic }) => {},
+    // the procedure returned (error is null) or failed with a TrpcSocketError
+    onEnd: ({ topic, error }) => {},
+  });
 ```
 
 | Event               | WebSocket                 | Server-Sent Events                                      |
@@ -232,7 +258,10 @@ the URL of every stream. For a fresh token per attempt, change them in `socket.o
 ```ts title="api/socket.ts"
 socket.onConnect(async ({ connection }) => ({
   ...connection,
-  adapterOptions: { ...connection.adapterOptions, connectionParams: { token: await refreshToken() } },
+  adapterOptions: {
+    ...connection.adapterOptions,
+    connectionParams: { token: await refreshToken() },
+  },
 }));
 ```
 
@@ -256,7 +285,10 @@ Pass the server's transformer to the adapter factory. It handles inputs, events 
 ```ts title="api/socket.ts"
 import superjson from "superjson";
 
-export const socket = new Socket({ url: "ws://localhost:3001", adapter: TrpcWebsocketAdapter({ transformer: superjson }) });
+export const socket = new Socket({
+  url: "ws://localhost:3001",
+  adapter: TrpcWebsocketAdapter({ transformer: superjson }),
+});
 ```
 
 ---

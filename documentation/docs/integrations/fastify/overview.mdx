@@ -46,18 +46,30 @@ import swagger from "@fastify/swagger";
 
 const app = Fastify();
 
-// highlight-next-line
-await app.register(swagger, { openapi: { info: { title: "Shop API", version: "1.0.0" } } });
+// highlight-start
+await app.register(swagger, {
+  openapi: { info: { title: "Shop API", version: "1.0.0" } },
+});
+// highlight-end
 
 const userSchema = {
-  params: { type: "object", properties: { id: { type: "string" } }, required: ["id"] },
+  params: {
+    type: "object",
+    properties: { id: { type: "string" } },
+    required: ["id"],
+  },
   response: {
-    200: { type: "object", properties: { id: { type: "string" }, name: { type: "string" } } },
+    200: {
+      type: "object",
+      properties: { id: { type: "string" }, name: { type: "string" } },
+    },
   },
 };
 
-app.get<{ Params: { id: string } }>("/users/:id", { schema: userSchema }, async (request) =>
-  getUser(request.params.id),
+app.get<{ Params: { id: string } }>(
+  "/users/:id",
+  { schema: userSchema },
+  async (request) => getUser(request.params.id),
 );
 
 // hide: true keeps this route out of the document
@@ -74,8 +86,8 @@ await app.listen({ port: 3000 });
 Run the CLI in the frontend project while the server is running:
 
 ```bash title="frontend"
-npx hyper-fetch generate --template openapi --fileName fastify.sdk.ts --overwrite \
-  --url http://localhost:3000/openapi.json
+npx hyper-fetch generate --template openapi --fileName fastify.sdk.ts \
+  --overwrite --url http://localhost:3000/openapi.json
 ```
 
 It writes `src/api/fastify.sdk.ts`. The folder comes from `api.json`, which the first run creates. Every path becomes

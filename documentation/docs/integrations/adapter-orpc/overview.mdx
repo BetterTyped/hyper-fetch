@@ -42,7 +42,9 @@ npm install @hyper-fetch/core @hyper-fetch/orpc @orpc/client
 import { createClient } from "@hyper-fetch/core";
 import { OrpcAdapter } from "@hyper-fetch/orpc";
 
-export const client = createClient({ url: "http://localhost:3000/rpc" }).setAdapter(OrpcAdapter());
+export const client = createClient({
+  url: "http://localhost:3000/rpc",
+}).setAdapter(OrpcAdapter());
 ```
 
 2. Describe the router with `OrpcSchema` and create the SDK. `camelCaseToKebabCase: false` keeps procedure names as
@@ -55,7 +57,9 @@ import type { OrpcSchema } from "@hyper-fetch/orpc";
 import type { router } from "../server/router";
 import { client } from "./client";
 
-export const api = createSdk<typeof client, OrpcSchema<typeof router>>(client, { camelCaseToKebabCase: false });
+export const api = createSdk<typeof client, OrpcSchema<typeof router>>(client, {
+  camelCaseToKebabCase: false,
+});
 ```
 
 3. Call procedures with `send()` or the hooks. Every procedure is available as `$query` and `$mutation`, and its input
@@ -73,7 +77,10 @@ export const Planet = ({ id }: { id: number }) => {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <button disabled={submitting} onClick={() => submit({ payload: { name: "Mars" } })}>
+    <button
+      disabled={submitting}
+      onClick={() => submit({ payload: { name: "Mars" } })}
+    >
       Add a planet next to {data?.name}
     </button>
   );
@@ -109,7 +116,10 @@ Without the SDK, create the request yourself:
 ```ts title="api/planets.ts"
 type Planet = { id: number; name: string };
 
-export const findPlanet = client.createRequest<{ response: Planet; payload: { id: number } }>()({
+export const findPlanet = client.createRequest<{
+  response: Planet;
+  payload: { id: number };
+}>()({
   endpoint: "planet/find",
   method: "QUERY",
 });
@@ -128,11 +138,15 @@ Request `options` are passed to `fetch` (except `method`, `headers`, `body` and 
 milliseconds (default `5000`) and a per-request `queryMethod`.
 
 ```ts title="api/client.ts"
-export const client = createClient({ url: "http://localhost:3000/rpc" }).setAdapter(
+export const client = createClient({
+  url: "http://localhost:3000/rpc",
+}).setAdapter(
   OrpcAdapter({ queryMethod: "GET", customJsonSerializers: [moneySerializer] }),
 );
 
-const { data } = await api.planet.list.$query.setOptions({ queryMethod: "POST", timeout: 10000 }).send();
+const { data } = await api.planet.list.$query
+  .setOptions({ queryMethod: "POST", timeout: 10000 })
+  .send();
 ```
 
 With `queryMethod: "GET"`, queries go as `GET {url}/planet/find?data=...`, so browsers, proxies and CDNs can cache them.
@@ -148,11 +162,20 @@ Failed procedures resolve with the error the server sent and the HTTP status. Wi
 their code and data types, so checking `error.defined` and `error.code` narrows `error.data`.
 
 ```ts title="planet.ts"
-const { error, status } = await api.planet.find.$query.setPayload({ id: 999 }).send();
+const { error, status } = await api.planet.find.$query
+  .setPayload({ id: 999 })
+  .send();
 
-// `error` also includes the client's global error (`Error` by default), so check for the oRPC shape first
-if (error && "defined" in error && error.defined && error.code === "NOT_FOUND") {
-  console.log(status, error.message, error.data); // 404, "Planet not found", { id: 999 }
+// `error` also includes the client's global error (`Error` by default), so
+// check for the oRPC shape first
+if (
+  error &&
+  "defined" in error &&
+  error.defined &&
+  error.code === "NOT_FOUND"
+) {
+  // 404, "Planet not found", { id: 999 }
+  console.log(status, error.message, error.data);
 }
 ```
 

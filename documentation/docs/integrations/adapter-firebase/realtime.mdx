@@ -31,9 +31,14 @@ import { FirebaseAdapter } from "@hyper-fetch/firebase";
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 
-const app = initializeApp({ projectId: "my-project", databaseURL: "https://my-project.firebaseio.com" });
+const app = initializeApp({
+  projectId: "my-project",
+  databaseURL: "https://my-project.firebaseio.com",
+});
 
-export const client = createClient({ url: "" }).setAdapter(FirebaseAdapter(getDatabase(app)));
+export const client = createClient({ url: "" }).setAdapter(
+  FirebaseAdapter(getDatabase(app)),
+);
 
 export type Message = { text: string; author: string; sentAt: number };
 ```
@@ -58,7 +63,9 @@ The Realtime Database is one JSON tree addressed by path, and its queries order 
 ### Read
 
 ```ts title="api/messages.ts"
-export const getMessages = client.createRequest<{ response: (Message & { __key: string })[] | null }>()({
+export const getMessages = client.createRequest<{
+  response: (Message & { __key: string })[] | null;
+}>()({
   endpoint: "rooms/:roomId/messages",
 });
 
@@ -71,21 +78,30 @@ const { data } = await getMessages.setParams({ roomId: "general" }).send();
 `update` writes only the given children and keeps the others.
 
 ```ts title="api/messages.ts"
-export const sendMessage = client.createRequest<{ response: Message & { __key: string }; payload: Message }>()({
+export const sendMessage = client.createRequest<{
+  response: Message & { __key: string };
+  payload: Message;
+}>()({
   endpoint: "rooms/:roomId/messages",
   method: "push",
 });
 
-export const editMessage = client.createRequest<{ response: Partial<Message>; payload: Partial<Message> }>()({
+export const editMessage = client.createRequest<{
+  response: Partial<Message>;
+  payload: Partial<Message>;
+}>()({
   endpoint: "rooms/:roomId/messages/:messageId",
   method: "update",
 });
 
 const { data } = await sendMessage
   .setParams({ roomId: "general" })
-  .send({ payload: { text: "Hi", author: "ann", sentAt: Date.now() } }); // data.__key is the generated key
+  // data.__key is the generated key
+  .send({ payload: { text: "Hi", author: "ann", sentAt: Date.now() } });
 
-await editMessage.setParams({ roomId: "general", messageId: data!.__key }).send({ payload: { text: "Hi all" } });
+await editMessage
+  .setParams({ roomId: "general", messageId: data!.__key })
+  .send({ payload: { text: "Hi all" } });
 ```
 
 ---
@@ -149,7 +165,11 @@ const page1 = await listMessages.setParams({ roomId: "general" }).send({
 const last = page1.data?.at(-1);
 
 const page2 = await listMessages.setParams({ roomId: "general" }).send({
-  queryParams: (c) => c.orderByChild("sentAt").startAfter(last!.sentAt, last!.__key).limitToFirst(50),
+  queryParams: (c) =>
+    c
+      .orderByChild("sentAt")
+      .startAfter(last!.sentAt, last!.__key)
+      .limitToFirst(50),
 });
 ```
 
@@ -171,7 +191,9 @@ import { listMessages } from "./api/messages";
 
 export const LastMessages = ({ roomId }: { roomId: string }) => {
   const { data } = useFetch(
-    listMessages.setParams({ roomId }).setQueryParams((c) => c.orderByChild("sentAt").limitToLast(50)),
+    listMessages
+      .setParams({ roomId })
+      .setQueryParams((c) => c.orderByChild("sentAt").limitToLast(50)),
   );
 
   return data?.map((message) => <p key={message.__key}>{message.text}</p>);

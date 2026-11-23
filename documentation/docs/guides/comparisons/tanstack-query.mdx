@@ -78,7 +78,9 @@ import { useFetch } from "@hyper-fetch/react";
 export const client = createClient({ url: "https://api.example.com" });
 
 // Defined once, outside components. The cache key comes from the request.
-export const getTodos = client.createRequest<{ response: Todo[] }>()({ endpoint: "/todos" });
+export const getTodos = client.createRequest<{ response: Todo[] }>()({
+  endpoint: "/todos",
+});
 
 function Todos() {
   // Non-2xx responses land in `error`, there is no `response.ok` check
@@ -118,7 +120,10 @@ never throws.
 ```tsx title="add-todo.tsx"
 import { useSubmit } from "@hyper-fetch/react";
 
-export const createTodo = client.createRequest<{ response: Todo; payload: { title: string } }>()({
+export const createTodo = client.createRequest<{
+  response: Todo;
+  payload: { title: string };
+}>()({
   endpoint: "/todos",
   method: "POST",
 });
@@ -130,7 +135,10 @@ function AddTodo() {
   onSubmitSuccess(() => client.cache.invalidate(getTodos));
 
   return (
-    <button disabled={submitting} onClick={() => submit({ payload: { title: "Buy milk" } })}>
+    <button
+      disabled={submitting}
+      onClick={() => submit({ payload: { title: "Buy milk" } })}
+    >
       Add
     </button>
   );
@@ -151,7 +159,10 @@ function AddTodo() {
   });
 
   return (
-    <button disabled={mutation.isPending} onClick={() => mutation.mutate({ title: "Buy milk" })}>
+    <button
+      disabled={mutation.isPending}
+      onClick={() => mutation.mutate({ title: "Buy milk" })}
+    >
       Add
     </button>
   );

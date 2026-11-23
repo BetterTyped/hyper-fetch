@@ -74,7 +74,8 @@ export const searchUsers = client.createRequest<{
 ```ts title="src/search.ts"
 searchUsers.send({ queryParams: { search: "M" } });
 searchUsers.send({ queryParams: { search: "Ma" } }); // aborts "M"
-const { data } = await searchUsers.send({ queryParams: { search: "Mac" } }); // aborts "Ma"
+// aborts "Ma"
+const { data } = await searchUsers.send({ queryParams: { search: "Mac" } });
 ```
 
 Only the last response reaches the UI. To skip sending every keystroke, debounce as well, for example with `bounce` in
@@ -107,7 +108,10 @@ The [RequestManager](/docs/core/managers) holds the controllers and aborts them 
 ```ts title="src/upload.ts"
 let requestId = "";
 
-uploadFile.send({ payload: formData, onBeforeSent: (event) => (requestId = event.requestId) });
+uploadFile.send({
+  payload: formData,
+  onBeforeSent: (event) => (requestId = event.requestId),
+});
 
 // Abort this call only
 client.requestManager.abortByRequestId(uploadFile.abortKey, requestId);

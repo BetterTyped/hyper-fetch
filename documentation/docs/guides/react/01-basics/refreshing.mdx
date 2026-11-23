@@ -34,7 +34,11 @@ import { getActivities } from "../api/activities";
 
 export function LiveActivity() {
   // highlight-start
-  const { data: activities, loading, responseTimestamp } = useFetch(getActivities, {
+  const {
+    data: activities,
+    loading,
+    responseTimestamp,
+  } = useFetch(getActivities, {
     refresh: true,
     refreshTime: Time.SEC * 5,
   });
@@ -44,7 +48,9 @@ export function LiveActivity() {
     <div className="border rounded-md">
       <div className="p-4 border-b flex justify-between">
         <h2 className="text-xl font-bold">Live activity</h2>
-        <p className="text-sm text-gray-500">Updated {responseTimestamp?.toLocaleTimeString() ?? "-"}</p>
+        <p className="text-sm text-gray-500">
+          Updated {responseTimestamp?.toLocaleTimeString() ?? "-"}
+        </p>
       </div>
       {loading && !activities && <p className="p-4">Loading feed...</p>}
       <ul className="divide-y">
@@ -89,7 +95,10 @@ The [window focus and blur guide](/docs/guides/react/basics/window-focus-blur) c
 manual refresh. It bypasses deduplication, so the response is at least as new as the click.
 
 ```tsx title="Refresh button"
-const { data, refetch, loading } = useFetch(getActivities, { refresh: true, refreshTime: Time.MIN });
+const { data, refetch, loading } = useFetch(getActivities, {
+  refresh: true,
+  refreshTime: Time.MIN,
+});
 
 return (
   <button onClick={refetch} disabled={loading}>

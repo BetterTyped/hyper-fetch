@@ -77,7 +77,10 @@ The second argument controls timing:
 getUsers.setMock(() => ({ data: [], status: 200 }), { responseTime: 1000 });
 
 // A timeout, to test the timeout message
-getUsers.setMock(() => ({ data: [], status: 200 }), { requestTime: 500, timeout: 100 });
+getUsers.setMock(() => ({ data: [], status: 200 }), {
+  requestTime: 500,
+  timeout: 100,
+});
 ```
 
 ---
@@ -118,10 +121,12 @@ SDK stays untouched, and the endpoint keys are checked against the schema.
 import { sdk } from "../src/api/sdk";
 
 export const testSdk = sdk.$configure({
-  "users.$get": (request) => request.setMock(() => ({ data: [{ id: 1, name: "Ann" }], status: 200 })),
+  "users.$get": (request) =>
+    request.setMock(() => ({ data: [{ id: 1, name: "Ann" }], status: 200 })),
   "users.$userId.$get": (request) =>
     request.setMock(({ request: sent }) => {
-      // Callback requests are typed loosely, so read the filled endpoint: "/users/1"
+      // Callback requests are typed loosely, so read the filled endpoint:
+      // "/users/1"
       const userId = Number(sent.endpoint.split("/").pop());
       return userId === 1
         ? { data: { id: 1, name: "Ann" }, status: 200 }
@@ -146,7 +151,8 @@ it("renders the users", async () => {
 ```tsx title="src/components/users.test.tsx"
 it("shows the empty state", async () => {
   const emptySdk = testSdk.$configure({
-    "users.$get": (request) => request.setMock(() => ({ data: [], status: 200 })),
+    "users.$get": (request) =>
+      request.setMock(() => ({ data: [], status: 200 })),
   });
 
   render(<Users sdk={emptySdk} />);
@@ -155,7 +161,11 @@ it("shows the empty state", async () => {
 
 it("shows the error state", async () => {
   const errorSdk = testSdk.$configure({
-    "users.$get": (request) => request.setMock(() => ({ error: new Error("Server error"), status: 500 })),
+    "users.$get": (request) =>
+      request.setMock(() => ({
+        error: new Error("Server error"),
+        status: 500,
+      })),
   });
 
   render(<Users sdk={errorSdk} />);

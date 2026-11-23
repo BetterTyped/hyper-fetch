@@ -34,10 +34,17 @@ import { getFirestore } from "firebase-admin/firestore";
 
 initializeApp();
 
-export const client = createClient({ url: "" }).setAdapter(FirebaseAdminAdapter(getFirestore()));
+export const client = createClient({ url: "" }).setAdapter(
+  FirebaseAdminAdapter(getFirestore()),
+);
 
-export type Order = { status: "open" | "paid"; total: number; createdAt: number };
-export type OrderDoc = Order & { __key: string }; // __key is the document id, added by the adapter
+export type Order = {
+  status: "open" | "paid";
+  total: number;
+  createdAt: number;
+};
+// __key is the document id, added by the adapter
+export type OrderDoc = Order & { __key: string };
 ```
 
 ---
@@ -50,7 +57,9 @@ default. Only `setDoc` returns something else: the Admin SDK `WriteResult` (with
 ### Read
 
 ```ts title="server/orders.ts"
-export const getOrder = client.createRequest<{ response: OrderDoc | null }>()({ endpoint: "orders/:orderId" });
+export const getOrder = client.createRequest<{ response: OrderDoc | null }>()({
+  endpoint: "orders/:orderId",
+});
 
 const { data } = await getOrder.setParams({ orderId: "a1" }).send();
 ```
@@ -60,23 +69,37 @@ const { data } = await getOrder.setParams({ orderId: "a1" }).send();
 ```ts title="server/orders.ts"
 import type { WriteResult } from "firebase-admin/firestore";
 
-export const addOrder = client.createRequest<{ response: OrderDoc; payload: Order }>()({
+export const addOrder = client.createRequest<{
+  response: OrderDoc;
+  payload: Order;
+}>()({
   endpoint: "orders",
   method: "addDoc",
 });
 
-export const saveOrder = client.createRequest<{ response: WriteResult; payload: Order }>()({
+export const saveOrder = client.createRequest<{
+  response: WriteResult;
+  payload: Order;
+}>()({
   endpoint: "orders/:orderId",
-  method: "setDoc", // add options: { merge: true } to merge into the existing document
+  // add options: { merge: true } to merge into the existing document
+  method: "setDoc",
 });
 
-export const markPaid = client.createRequest<{ response: Partial<Order>; payload: Partial<Order> }>()({
+export const markPaid = client.createRequest<{
+  response: Partial<Order>;
+  payload: Partial<Order>;
+}>()({
   endpoint: "orders/:orderId",
   method: "updateDoc",
 });
 
-const { data: created } = await addOrder.send({ payload: { status: "open", total: 40, createdAt: Date.now() } });
-const { error } = await markPaid.setParams({ orderId: created!.__key }).send({ payload: { status: "paid" } });
+const { data: created } = await addOrder.send({
+  payload: { status: "open", total: 40, createdAt: Date.now() },
+});
+const { error } = await markPaid
+  .setParams({ orderId: created!.__key })
+  .send({ payload: { status: "paid" } });
 ```
 
 ---
@@ -89,7 +112,10 @@ The chain and its typing match the [web package](/docs/integrations/adapter-fire
 ```ts title="server/orders.ts"
 import type { FirestoreQueryParams } from "@hyper-fetch/firebase-admin";
 
-export const listOrders = client.createRequest<{ response: OrderDoc[]; queryParams?: FirestoreQueryParams<Order> }>()({
+export const listOrders = client.createRequest<{
+  response: OrderDoc[];
+  queryParams?: FirestoreQueryParams<Order>;
+}>()({
   endpoint: "orders",
   method: "getDocs",
 });
@@ -98,11 +124,14 @@ export const listOrders = client.createRequest<{ response: OrderDoc[]; queryPara
 ### Pagination
 
 ```ts title="server/orders.ts"
-const page1 = await listOrders.send({ queryParams: (c) => c.orderBy("createdAt", "desc").limit(100) });
+const page1 = await listOrders.send({
+  queryParams: (c) => c.orderBy("createdAt", "desc").limit(100),
+});
 const last = page1.data?.at(-1);
 
 const page2 = await listOrders.send({
-  queryParams: (c) => c.orderBy("createdAt", "desc").startAfter(last!.createdAt).limit(100),
+  queryParams: (c) =>
+    c.orderBy("createdAt", "desc").startAfter(last!.createdAt).limit(100),
 });
 ```
 
@@ -123,7 +152,9 @@ import { markPaid } from "../orders";
 
 export async function payOrder(orderId: string, userId: string) {
   // check that userId owns orderId before writing
-  const { error, status } = await markPaid.setParams({ orderId }).send({ payload: { status: "paid" } });
+  const { error, status } = await markPaid
+    .setParams({ orderId })
+    .send({ payload: { status: "paid" } });
 
   return error ? { ok: false, status } : { ok: true };
 }

@@ -41,12 +41,14 @@ const TeamFeed = ({ teamId }: { teamId: string }) => {
     client.cache.update(getTeamPosts.setParams({ teamId }), (cached) => ({
       data: cached?.data && {
         ...cached.data,
-        items: cached.data.items.map((post) => (post.id === changes.id ? { ...post, ...changes } : post)),
+        items: cached.data.items.map((post) =>
+          post.id === changes.id ? { ...post, ...changes } : post,
+        ),
       },
     }));
-    // highlight-start
-    // ...and the detail page's copy, and the sidebar's, and every filtered variant of the feed
-    // highlight-end
+    // highlight-next-line
+    // ...and the detail page's copy, and the sidebar's, and every filtered
+    // variant of the feed
   });
 
   return data?.items.map((post) => <PostCard key={post.id} post={post} />);
@@ -72,14 +74,23 @@ import { collection, createDb } from "@hyper-fetch/db";
 
 const byTeam = { teamId: { eq: (teamId: string) => ({ params: { teamId } }) } };
 
-const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" })
+const PostSummary = collection(PostSummarySchema, {
+  key: "id",
+  version: "updatedAt",
+})
   // How rows load: the feed endpoint, which needs a team
   .load(getTeamPosts, {
     rows: (response) => response.items,
-    where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
   })
   // How rows stay live: one socket topic per team
-  .sync(onPostChanged, { type: "update", where: byTeam, row: ({ body, ...changes }) => changes });
+  .sync(onPostChanged, {
+    type: "update",
+    where: byTeam,
+    row: ({ body, ...changes }) => changes,
+  });
 
 export const db = createDb({ postSummary: PostSummary });
 ```
@@ -91,7 +102,9 @@ import { eq } from "@hyper-fetch/db";
 import { useLiveQuery } from "@hyper-fetch/react";
 
 const TeamFeed = ({ teamId }: { teamId: string }) => {
-  const { data } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+  const { data } = useLiveQuery(
+    db.postSummary.where((post) => eq(post.teamId, teamId)),
+  );
 
   return data?.map((post) => <PostCard key={post.id} post={post} />);
 };
@@ -163,7 +176,9 @@ A query only describes **what** to show. The db decides **how**, in four steps:
 ```ts
 import { and, eq, gt } from "@hyper-fetch/db";
 
-const popular = db.postSummary.where((post) => and(eq(post.teamId, "t1"), gt(post.likes, 10)));
+const popular = db.postSummary.where((post) =>
+  and(eq(post.teamId, "t1"), gt(post.likes, 10)),
+);
 
 popular.explain();
 // {

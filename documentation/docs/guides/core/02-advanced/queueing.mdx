@@ -27,7 +27,10 @@ Every `send()` adds the request to a queue in the [dispatcher](/docs/core/dispat
 `queued: true`, each request waits until the previous one in its queue finishes.
 
 ```ts title="src/api/files.ts"
-export const uploadFile = client.createRequest<{ response: { url: string }; payload: FormData }>()({
+export const uploadFile = client.createRequest<{
+  response: { url: string };
+  payload: FormData;
+}>()({
   endpoint: "/files",
   method: "POST",
   queued: true,
@@ -43,7 +46,8 @@ for (const file of files) {
   uploadFile.send({
     payload: formData,
     onRequestStart: () => console.log(`${file.name} started`),
-    onResponse: ({ response }) => console.log(`${file.name} ${response.success ? "done" : "failed"}`),
+    onResponse: ({ response }) =>
+      console.log(`${file.name} ${response.success ? "done" : "failed"}`),
   });
 }
 ```
@@ -67,7 +71,11 @@ client.adapter.setRequestDefaults((options) => {
 });
 
 // Opt a write out
-const ping = client.createRequest()({ endpoint: "/ping", method: "POST", queued: false });
+const ping = client.createRequest()({
+  endpoint: "/ping",
+  method: "POST",
+  queued: false,
+});
 ```
 
 See [global defaults](/docs/guides/core/basics/global-defaults).
@@ -108,9 +116,14 @@ priority option: order work with `queued`, separate `queryKey`s and these method
 change, each with a `...ByKey` variant for one queue:
 
 ```ts title="src/upload.ts"
-const unsubscribe = client.submitDispatcher.events.onQueueChangeByKey(uploadFile.queryKey, (queue) => {
-  console.log(`${queue.requests.length} uploads left, stopped: ${queue.stopped}`);
-});
+const unsubscribe = client.submitDispatcher.events.onQueueChangeByKey(
+  uploadFile.queryKey,
+  (queue) => {
+    console.log(
+      `${queue.requests.length} uploads left, stopped: ${queue.stopped}`,
+    );
+  },
+);
 ```
 
 In React, [`useQueue`](/docs/react/hooks/use-queue) returns the queue of a request with upload progress and

@@ -70,7 +70,9 @@ const ws = new WebSocket("wss://stream.example.com/prices", {
   headers: { Authorization: `Bearer ${process.env.STREAM_TOKEN}` },
 });
 
-ws.on("open", () => ws.send(JSON.stringify({ topic: "subscribe", data: { symbol: "BTC" } })));
+ws.on("open", () =>
+  ws.send(JSON.stringify({ topic: "subscribe", data: { symbol: "BTC" } })),
+);
 ws.on("message", (data) => console.log("Received:", data.toString()));
 ws.on("error", console.error);
 ws.on("close", (code) => console.log("Closed with code", code));
@@ -106,7 +108,12 @@ const wss = new WebSocketServer({ port: 8080 });
 
 wss.on("connection", (client) => {
   const timer = setInterval(() => {
-    client.send(JSON.stringify({ topic: "prices", data: { symbol: "BTC", price: 64000 } }));
+    client.send(
+      JSON.stringify({
+        topic: "prices",
+        data: { symbol: "BTC", price: 64000 },
+      }),
+    );
   }, 1000);
 
   client.on("close", () => clearInterval(timer));
@@ -133,7 +140,9 @@ export const socket = createSocketClient({
 });
 
 export const onPrice = socket.createListener<Price>()({ topic: "prices" });
-export const subscribe = socket.createEmitter<{ symbol: string }>()({ topic: "subscribe" });
+export const subscribe = socket.createEmitter<{ symbol: string }>()({
+  topic: "subscribe",
+});
 ```
 
 ```ts title="src/worker.ts"
@@ -183,13 +192,17 @@ import { WebSocket as NodeWebSocket } from "ws";
 
 class AuthorizedWebSocket extends NodeWebSocket {
   constructor(url: string, protocols?: string | string[]) {
-    super(url, protocols, { headers: { Authorization: `Bearer ${process.env.STREAM_TOKEN}` } });
+    super(url, protocols, {
+      headers: { Authorization: `Bearer ${process.env.STREAM_TOKEN}` },
+    });
   }
 }
 
 export const socket = createSocketClient({
   url: "wss://stream.example.com/ws",
-  adapterOptions: { WebSocket: AuthorizedWebSocket as unknown as typeof WebSocket },
+  adapterOptions: {
+    WebSocket: AuthorizedWebSocket as unknown as typeof WebSocket,
+  },
 });
 ```
 

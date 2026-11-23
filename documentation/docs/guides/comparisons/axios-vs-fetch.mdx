@@ -154,7 +154,9 @@ import { AxiosAdapter } from "@hyper-fetch/axios";
 // Native fetch by default. Add .setAdapter(AxiosAdapter) to switch to Axios.
 export const client = createClient({ url: "https://api.example.com" });
 
-export const getUser = client.createRequest<{ response: User }>()({ endpoint: "/users/:userId" });
+export const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+});
 
 // Resolves with `error` and `status` on 404 or 500, never throws
 const { data, error, status } = await getUser.setParams({ userId: 1 }).send();

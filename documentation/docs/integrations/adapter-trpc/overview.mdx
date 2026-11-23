@@ -43,7 +43,9 @@ npm install @hyper-fetch/core @hyper-fetch/trpc
 import { createClient } from "@hyper-fetch/core";
 import { TrpcAdapter } from "@hyper-fetch/trpc";
 
-export const client = createClient({ url: "http://localhost:3000/trpc" }).setAdapter(TrpcAdapter());
+export const client = createClient({
+  url: "http://localhost:3000/trpc",
+}).setAdapter(TrpcAdapter());
 ```
 
 2. Describe the router with `TrpcSchema` and create the SDK. `camelCaseToKebabCase: false` keeps procedure names as
@@ -56,7 +58,9 @@ import type { TrpcSchema } from "@hyper-fetch/trpc";
 import type { AppRouter } from "../server/router";
 import { client } from "./client";
 
-export const api = createSdk<typeof client, TrpcSchema<AppRouter>>(client, { camelCaseToKebabCase: false });
+export const api = createSdk<typeof client, TrpcSchema<AppRouter>>(client, {
+  camelCaseToKebabCase: false,
+});
 ```
 
 3. Call queries under `$query` and mutations under `$mutation`. The procedure input is the payload.
@@ -73,7 +77,10 @@ export const User = ({ id }: { id: number }) => {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <button disabled={submitting} onClick={() => submit({ payload: { name: "John" } })}>
+    <button
+      disabled={submitting}
+      onClick={() => submit({ payload: { name: "John" } })}
+    >
       Invite a friend of {data?.name}
     </button>
   );
@@ -105,7 +112,10 @@ Without the SDK, create the request yourself:
 ```ts title="api/users.ts"
 type User = { id: number; name: string };
 
-export const getUser = client.createRequest<{ response: User; payload: { id: number } }>()({
+export const getUser = client.createRequest<{
+  response: User;
+  payload: { id: number };
+}>()({
   endpoint: "user.byId",
   method: "QUERY",
 });
@@ -122,9 +132,9 @@ output and the errors. Any object with `serialize` and `deserialize` works; for 
 ```ts title="api/client.ts"
 import superjson from "superjson";
 
-export const client = createClient({ url: "http://localhost:3000/trpc" }).setAdapter(
-  TrpcAdapter({ transformer: superjson }),
-);
+export const client = createClient({
+  url: "http://localhost:3000/trpc",
+}).setAdapter(TrpcAdapter({ transformer: superjson }));
 ```
 
 Request `options` are passed to `fetch` (except `method`, `headers`, `body` and `signal`), plus `timeout` in
@@ -145,11 +155,15 @@ Failed procedures resolve with the error the server sent and the HTTP status. Wi
 the router, including a custom `errorFormatter`. For requests created by hand, use `TrpcErrorType`.
 
 ```ts title="user.ts"
-const { error, status } = await api.user.byId.$query.setPayload({ id: 999 }).send();
+const { error, status } = await api.user.byId.$query
+  .setPayload({ id: 999 })
+  .send();
 
-// `error` also includes the client's global error (`Error` by default), so check for the tRPC shape first
+// `error` also includes the client's global error (`Error` by default), so
+// check for the tRPC shape first
 if (error && "data" in error) {
-  console.log(status, error.message, error.data.code); // 404, "User not found", "NOT_FOUND"
+  // 404, "User not found", "NOT_FOUND"
+  console.log(status, error.message, error.data.code);
 }
 ```
 

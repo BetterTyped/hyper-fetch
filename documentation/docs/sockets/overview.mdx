@@ -19,15 +19,24 @@ export const socket = createSocketClient({ url: "wss://api.example.com/ws" });
 type ChatMessage = { id: string; text: string; author: string };
 
 // highlight-start
-export const onChatMessage = socket.createListener<ChatMessage>()({ topic: "chat/:roomId" });
-export const sendChatMessage = socket.createEmitter<{ text: string }>()({ topic: "chat/:roomId" });
+export const onChatMessage = socket.createListener<ChatMessage>()({
+  topic: "chat/:roomId",
+});
+export const sendChatMessage = socket.createEmitter<{ text: string }>()({
+  topic: "chat/:roomId",
+});
 // highlight-end
 
-const unlisten = onChatMessage.setParams({ roomId: "general" }).listen(({ data }) => {
-  console.log(data.author, data.text); // data: ChatMessage
-});
+const unlisten = onChatMessage
+  .setParams({ roomId: "general" })
+  .listen(({ data }) => {
+    console.log(data.author, data.text); // data: ChatMessage
+  });
 
-sendChatMessage.emit({ params: { roomId: "general" }, payload: { text: "Hello" } });
+sendChatMessage.emit({
+  params: { roomId: "general" },
+  payload: { text: "Hello" },
+});
 ```
 
 The WebSocket adapter connects as soon as the socket is created. `listen()` returns the function that stops listening.
@@ -42,7 +51,9 @@ The WebSocket adapter connects as soon as the socket is created. `listen()` retu
 Topic params come from the topic string, and payloads from the emitter's type. Both are checked before anything is sent.
 
 ```ts
-const sendToRoom = socket.createEmitter<{ text: string }>()({ topic: "rooms/:roomId" });
+const sendToRoom = socket.createEmitter<{ text: string }>()({
+  topic: "rooms/:roomId",
+});
 
 // error-next-line
 sendToRoom.emit({ payload: { text: "hi" } });
@@ -101,7 +112,10 @@ onTrade.listen(({ data }) => data.length); // data: Trade[]
 WebSocket is the default. Swap the adapter for Server-Sent Events or another protocol, and keep your listeners.
 
 ```ts
-import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+import {
+  createSocketClient,
+  ServerSentEventsAdapter,
+} from "@hyper-fetch/sockets";
 
 const events = createSocketClient({
   url: "https://api.example.com/events",
@@ -125,7 +139,9 @@ const events = createSocketClient({
 Write realtime updates into the HTTP cache, and every component showing that request updates without a refetch.
 
 ```ts
-const getNote = client.createRequest<{ response: Note }>()({ endpoint: "/notes/:noteId" });
+const getNote = client.createRequest<{ response: Note }>()({
+  endpoint: "/notes/:noteId",
+});
 const onNoteChange = socket.createListener<Note>()({ topic: "notes" });
 
 onNoteChange.listen(({ data }) => {

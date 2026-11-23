@@ -25,7 +25,9 @@ The built-in adapter uses `fetch` and runs in browsers, Node.js 18+, Bun and Den
 import { createClient } from "@hyper-fetch/core";
 import { GraphqlAdapter } from "@hyper-fetch/graphql";
 
-export const client = createClient({ url: "https://api.example.com/graphql" }).setAdapter(GraphqlAdapter());
+export const client = createClient({
+  url: "https://api.example.com/graphql",
+}).setAdapter(GraphqlAdapter());
 ```
 
 Available adapters: Axios, GraphQL, Firebase, Firebase Admin, tRPC and oRPC. See
@@ -53,7 +55,9 @@ client.adapter
   .setRequestDefaults((options) => {
     const method = options.method ?? "GET";
     // Replaces the built-in default, so keep deduplication for reads
-    return method === "GET" || method === "QUERY" ? { deduplicate: true, retry: 2 } : {};
+    return method === "GET" || method === "QUERY"
+      ? { deduplicate: true, retry: 2 }
+      : {};
   });
 ```
 
@@ -97,7 +101,9 @@ With `streaming: true`, `data` is the raw `ReadableStream` of the body instead o
 [`useStream`](/docs/react/hooks/use-stream) hook reads it for you.
 
 ```ts title="Stream a completion"
-const streamChat = client.createRequest<{ response: ReadableStream<Uint8Array> }>()({
+const streamChat = client.createRequest<{
+  response: ReadableStream<Uint8Array>;
+}>()({
   endpoint: "/chat",
   method: "POST",
   options: { streaming: true },

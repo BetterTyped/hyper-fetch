@@ -65,8 +65,8 @@ The document is on `/openapi/v1.json`.
 Run the CLI in the frontend project while the server is running:
 
 ```bash title="frontend"
-npx hyper-fetch generate --template openapi --fileName dotnet.sdk.ts --overwrite \
-  --url http://localhost:5000/openapi/v1.json
+npx hyper-fetch generate --template openapi --fileName dotnet.sdk.ts \
+  --overwrite --url http://localhost:5000/openapi/v1.json
 ```
 
 It writes `src/api/dotnet.sdk.ts`. The folder comes from `api.json`, which the first run creates. Every path becomes

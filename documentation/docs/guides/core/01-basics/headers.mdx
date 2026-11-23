@@ -41,7 +41,10 @@ export const getReport = client.createRequest<{ response: Report }>()({
 
 ```ts title="src/app.ts"
 // Keep the request's headers and add one
-const traced = getReport.setHeaders({ ...getReport.headers, "X-Request-Id": crypto.randomUUID() });
+const traced = getReport.setHeaders({
+  ...getReport.headers,
+  "X-Request-Id": crypto.randomUUID(),
+});
 
 // Or for one call only
 await getReport.send({
@@ -65,8 +68,15 @@ The client has no `headers` option. Add shared headers in an interceptor that ru
 
 ```ts title="src/api/client.ts"
 export const client = createClient({ url: "https://api.example.com" })
-  .onRequest((request) => request.setHeaders({ "Accept-Language": getLocale(), ...request.headers }))
-  .onAuth((request) => request.setHeaders({ ...request.headers, Authorization: `Bearer ${getToken()}` }));
+  .onRequest((request) =>
+    request.setHeaders({ "Accept-Language": getLocale(), ...request.headers }),
+  )
+  .onAuth((request) =>
+    request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${getToken()}`,
+    }),
+  );
 ```
 
 The order of the spread decides who wins. In `onRequest` above, a header set on the request overrides the shared one. In

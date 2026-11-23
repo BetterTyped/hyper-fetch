@@ -29,7 +29,10 @@ Add a `payload` generic next to `response`. A request with a `payload` type requ
 type User = { id: number; name: string; email: string };
 type CreateUserPayload = Omit<User, "id">;
 
-export const createUser = client.createRequest<{ response: User; payload: CreateUserPayload }>()({
+export const createUser = client.createRequest<{
+  response: User;
+  payload: CreateUserPayload;
+}>()({
   endpoint: "/users",
   method: "POST",
 });
@@ -51,10 +54,15 @@ and send it later, or hand it to a hook.
 
 ```ts title="src/app.ts"
 // At call time, the common case
-const { data, error } = await createUser.send({ payload: { name: "Ann", email: "ann@example.com" } });
+const { data, error } = await createUser.send({
+  payload: { name: "Ann", email: "ann@example.com" },
+});
 
 // Prepared ahead
-const prepared = createUser.setPayload({ name: "Ann", email: "ann@example.com" });
+const prepared = createUser.setPayload({
+  name: "Ann",
+  email: "ann@example.com",
+});
 await prepared.send();
 ```
 
@@ -96,7 +104,10 @@ export const updateAvatar = client
   });
 
 // Callers still pass a typed object
-await updateAvatar.send({ params: { userId: 1 }, payload: { name: "Ann", avatar: file } });
+await updateAvatar.send({
+  params: { userId: 1 },
+  payload: { name: "Ann", avatar: file },
+});
 ```
 
 The mapper does not change the payload type, so callers keep the object shape. To map the payload of every request,

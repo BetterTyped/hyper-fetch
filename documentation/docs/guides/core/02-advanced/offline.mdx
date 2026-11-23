@@ -49,7 +49,10 @@ Every request has an `offline` option, and it is `true` by default. A request se
 because the connection dropped) is kept and sent again when the network comes back:
 
 ```ts title="src/api/posts.ts"
-const createPost = client.createRequest<{ response: Post; payload: { title: string; content: string } }>()({
+const createPost = client.createRequest<{
+  response: Post;
+  payload: { title: string; content: string };
+}>()({
   endpoint: "/posts",
   method: "POST",
   // highlight-next-line
@@ -102,7 +105,11 @@ export function OfflineBanner() {
   const { isOnline } = useAppManager(client);
 
   if (isOnline) return null;
-  return <div className="p-2 text-center text-sm">You're offline. Changes will sync when you're back.</div>;
+  return (
+    <div className="p-2 text-center text-sm">
+      You're offline. Changes will sync when you're back.
+    </div>
+  );
 }
 ```
 
@@ -133,7 +140,8 @@ export const client = createClient({
       // Read the state once on start
       initiallyOnline: async () => !!(await NetInfo.fetch()).isConnected,
       // Report every change, and return the unsubscribe function for cleanup
-      onlineEvent: (setOnline) => NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
+      onlineEvent: (setOnline) =>
+        NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
     }),
 });
 ```

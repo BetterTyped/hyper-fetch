@@ -35,8 +35,14 @@ import { getFirestore } from "firebase/firestore";
 
 import { app } from "./firebase";
 
-export const firestoreSocket = new Socket({ url: "", adapter: FirebaseSocketsAdapter(getFirestore(app)) });
-export const realtimeSocket = new Socket({ url: "", adapter: FirebaseSocketsAdapter(getDatabase(app)) });
+export const firestoreSocket = new Socket({
+  url: "",
+  adapter: FirebaseSocketsAdapter(getFirestore(app)),
+});
+export const realtimeSocket = new Socket({
+  url: "",
+  adapter: FirebaseSocketsAdapter(getDatabase(app)),
+});
 ```
 
 ---
@@ -47,12 +53,23 @@ The listener path is `socket.url + topic`, and topic params work like endpoint p
 stops the Firebase subscription.
 
 ```ts title="api/teas.ts"
-type TeaDoc = { __key: string; name: string; type: "Green" | "Black"; year: number };
+type TeaDoc = {
+  __key: string;
+  name: string;
+  type: "Green" | "Black";
+  year: number;
+};
 
-export const onTeas = firestoreSocket.createListener<TeaDoc[]>()({ topic: "teas" });
-export const onTea = firestoreSocket.createListener<TeaDoc | null>()({ topic: "teas/:teaId" });
+export const onTeas = firestoreSocket.createListener<TeaDoc[]>()({
+  topic: "teas",
+});
+export const onTea = firestoreSocket.createListener<TeaDoc | null>()({
+  topic: "teas/:teaId",
+});
 
-const stop = onTea.setParams({ teaId: "sencha" }).listen(({ data }) => render(data));
+const stop = onTea
+  .setParams({ teaId: "sencha" })
+  .listen(({ data }) => render(data));
 stop();
 ```
 
@@ -75,7 +92,9 @@ Listeners take query params like requests: a callback that builds the constraint
 ```ts title="api/live.ts"
 export const onGreenTeas = firestoreSocket
   .createListener<TeaDoc[]>()({ topic: "teas" })
-  .setQueryParams((c) => c.where("type", "==", "Green").orderBy("year", "desc").limit(20));
+  .setQueryParams((c) =>
+    c.where("type", "==", "Green").orderBy("year", "desc").limit(20),
+  );
 
 export const onLastMessages = realtimeSocket
   .createListener<Message[]>()({ topic: "rooms/general/messages" })
@@ -114,7 +133,10 @@ onTeasChanges.listen(({ data, extra }) => {
 ### Reading once
 
 ```ts title="api/live.ts"
-const onConfig = realtimeSocket.createListener<Config | null>()({ topic: "config", options: { onlyOnce: true } });
+const onConfig = realtimeSocket.createListener<Config | null>()({
+  topic: "config",
+  options: { onlyOnce: true },
+});
 ```
 
 ---

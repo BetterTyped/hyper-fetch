@@ -30,13 +30,17 @@ queued while the socket is offline. Disable the send button while `connected` is
 ```tsx title="components/chat-input.tsx"
 import { useState } from "react";
 import { useEmitter } from "@hyper-fetch/react";
-import { sendChatMessage } from "../api/socket"; // socket.createEmitter<{ text: string }>()({ topic: "rooms/:roomId" })
+// socket.createEmitter<{ text: string }>()({ topic: "rooms/:roomId" })
+import { sendChatMessage } from "../api/socket";
 
 export function ChatInput({ roomId }: { roomId: string }) {
   const [text, setText] = useState("");
   const [warning, setWarning] = useState<string | null>(null);
-  // highlight-next-line
-  const { emit, connected, onEmitError } = useEmitter(sendChatMessage.setParams({ roomId }));
+  // highlight-start
+  const { emit, connected, onEmitError } = useEmitter(
+    sendChatMessage.setParams({ roomId }),
+  );
+  // highlight-end
 
   onEmitError(({ error }) => setWarning(`Not sent: ${error.message}`));
 
@@ -50,7 +54,11 @@ export function ChatInput({ roomId }: { roomId: string }) {
 
   return (
     <form onSubmit={onSubmit} className="flex gap-2">
-      <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Write a message..." />
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Write a message..."
+      />
       <button type="submit" disabled={!connected}>
         Send
       </button>
@@ -88,7 +96,8 @@ in the payload and match it in a [`useListener`](/docs/guides/react/sockets/list
 export function SaveDraft({ draft }: { draft: Draft }) {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const { emit, connected } = useEmitter(saveDraft);
-  const { onEvent } = useListener(onDraftSaved); // topic "drafts/saved", data: { requestId: string }
+  // topic "drafts/saved", data: { requestId: string }
+  const { onEvent } = useListener(onDraftSaved);
 
   onEvent(({ data }) => {
     if (data.requestId === pendingId) setPendingId(null);

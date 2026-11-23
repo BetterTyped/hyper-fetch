@@ -74,10 +74,14 @@ Mark single keys optional with `?` as usual. Arrays are typed like any other val
 the request is sent.
 
 ```ts title="src/app.ts"
-const request = getArticles.setQueryParams({ search: "hooks", tags: ["react", "typescript"] });
+const request = getArticles.setQueryParams({
+  search: "hooks",
+  tags: ["react", "typescript"],
+});
 
 console.log(request.endpoint); // "/articles"
-console.log(request.queryParams); // { search: "hooks", tags: ["react", "typescript"] }
+// { search: "hooks", tags: ["react", "typescript"] }
+console.log(request.queryParams);
 
 await request.send();
 // GET /articles?search=hooks&tags[]=react&tags[]=typescript
@@ -86,7 +90,9 @@ await request.send();
 Pass them to `send()` when they come from user input at call time:
 
 ```ts title="src/app.ts"
-const { data } = await getArticles.send({ queryParams: { search: "hooks", page: 2 } });
+const { data } = await getArticles.send({
+  queryParams: { search: "hooks", page: 2 },
+});
 ```
 
 As with [params](/docs/guides/core/basics/parameters#params-set-twice), a request that already has query params set no

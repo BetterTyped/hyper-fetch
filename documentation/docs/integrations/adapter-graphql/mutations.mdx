@@ -69,7 +69,9 @@ export const updateUser = client.createRequest<{
   `,
 });
 
-const { data, error } = await updateUser.send({ payload: { id: "1", name: "Ann" } });
+const { data, error } = await updateUser.send({
+  payload: { id: "1", name: "Ann" },
+});
 // or: await updateUser.setPayload({ id: "1", name: "Ann" }).send();
 ```
 
@@ -85,7 +87,9 @@ generics.
 ```ts title="api/users.ts"
 import { UpdateUserDocument } from "./gql/graphql"; // generated
 
-export const updateUser = client.createRequest()({ endpoint: UpdateUserDocument });
+export const updateUser = client.createRequest()({
+  endpoint: UpdateUserDocument,
+});
 ```
 
 ---
@@ -103,7 +107,10 @@ export const RenameButton = ({ id }: { id: string }) => {
   const { submit, submitting } = useSubmit(updateUser);
 
   return (
-    <button disabled={submitting} onClick={() => submit({ payload: { id, name: "Ann" } })}>
+    <button
+      disabled={submitting}
+      onClick={() => submit({ payload: { id, name: "Ann" } })}
+    >
       Rename
     </button>
   );

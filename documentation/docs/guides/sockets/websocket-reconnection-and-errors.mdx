@@ -205,12 +205,17 @@ The default retries every close code except `1000`. That is wrong for codes wher
 extend the default instead of rewriting it:
 
 ```ts title="src/socket.ts"
-import { createSocketClient, defaultShouldReconnect } from "@hyper-fetch/sockets";
+import {
+  createSocketClient,
+  defaultShouldReconnect,
+} from "@hyper-fetch/sockets";
 
 export const socket = createSocketClient({
   url: "wss://example.com/ws",
-  // highlight-next-line
-  shouldReconnect: (loss) => defaultShouldReconnect(loss) && loss.code !== 1003 && loss.code !== 1009,
+  // highlight-start
+  shouldReconnect: (loss) =>
+    defaultShouldReconnect(loss) && loss.code !== 1003 && loss.code !== 1009,
+  // highlight-end
 });
 ```
 
@@ -244,7 +249,13 @@ listeners on the socket:
 import { useListener } from "@hyper-fetch/react";
 
 function ConnectionBanner() {
-  const { connected, connecting, onError, onReconnecting, onReconnectingFailed } = useListener(onNotification);
+  const {
+    connected,
+    connecting,
+    onError,
+    onReconnecting,
+    onReconnectingFailed,
+  } = useListener(onNotification);
 
   onError<{ error: Error }>(({ error }) => console.warn(error.message));
   onReconnecting(({ attempts }) => console.log("Reconnect attempt", attempts));

@@ -28,7 +28,9 @@ import { useState } from "react";
 import { useEmitter } from "@hyper-fetch/react";
 import { socket } from "./api/socket";
 
-export const emitMessage = socket.createEmitter<{ text: string }>()({ topic: "chat-message" });
+export const emitMessage = socket.createEmitter<{ text: string }>()({
+  topic: "chat-message",
+});
 
 function MessageForm() {
   const [text, setText] = useState("");
@@ -101,7 +103,9 @@ its own topic with [`useListener`](/docs/react/sockets/use-listener).
 const { onEmit, onReconnectingFailed } = useEmitter(emitMessage);
 
 onEmit((emitter) => console.log("Sending to", emitter.topic));
-onReconnectingFailed(({ attempts }) => toast(`Could not reconnect after ${attempts} attempts`));
+onReconnectingFailed(({ attempts }) =>
+  toast(`Could not reconnect after ${attempts} attempts`),
+);
 ```
 
 ---

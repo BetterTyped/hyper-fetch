@@ -49,7 +49,9 @@ const { data } = useQuery({
 
 ```tsx title="HyperFetch"
 // The request is defined once, the key is derived from it
-const getTodo = client.createRequest<{ response: Todo }>()({ endpoint: "/todos/:todoId" });
+const getTodo = client.createRequest<{ response: Todo }>()({
+  endpoint: "/todos/:todoId",
+});
 
 const { data } = useFetch(getTodo.setParams({ todoId }));
 ```
@@ -112,9 +114,14 @@ To get close to TanStack's behaviour:
 ```tsx title="app.tsx"
 import { Provider } from "@hyper-fetch/react";
 
-// Refetch when the tab gets focus or the network comes back, for every useFetch in the tree
+// Refetch when the tab gets focus or the network comes back, for every useFetch
+// in the tree
 export const App = () => (
-  <Provider config={{ useFetchConfig: { refetchOnFocus: true, refetchOnReconnect: true } }}>
+  <Provider
+    config={{
+      useFetchConfig: { refetchOnFocus: true, refetchOnReconnect: true },
+    }}
+  >
     <Routes />
   </Provider>
 );
@@ -142,7 +149,13 @@ The feature: a list of to-dos, a button that adds one, and the list refreshing a
 ### Before: TanStack Query
 
 ```tsx title="todos.tsx"
-import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 type Todo = { id: number; title: string };
@@ -167,7 +180,11 @@ const createTodo = async (title: string): Promise<Todo> => {
 
 function Todos() {
   const queryClient = useQueryClient();
-  const { data, isPending, error } = useQuery({ queryKey: ["todos"], queryFn: fetchTodos, staleTime: 30_000 });
+  const { data, isPending, error } = useQuery({
+    queryKey: ["todos"],
+    queryFn: fetchTodos,
+    staleTime: 30_000,
+  });
   const addTodo = useMutation({
     mutationFn: createTodo,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
@@ -178,8 +195,15 @@ function Todos() {
 
   return (
     <div>
-      <ul>{data.map((todo) => <li key={todo.id}>{todo.title}</li>)}</ul>
-      <button disabled={addTodo.isPending} onClick={() => addTodo.mutate("Write the docs")}>
+      <ul>
+        {data.map((todo) => (
+          <li key={todo.id}>{todo.title}</li>
+        ))}
+      </ul>
+      <button
+        disabled={addTodo.isPending}
+        onClick={() => addTodo.mutate("Write the docs")}
+      >
         Add
       </button>
     </div>
@@ -218,7 +242,10 @@ export const getTodos = client
   .createRequest<{ response: Todo[] }>()({ endpoint: "/todos" })
   .setStaleTime(30 * Time.SEC);
 
-export const createTodo = client.createRequest<{ response: Todo; payload: { title: string } }>()({
+export const createTodo = client.createRequest<{
+  response: Todo;
+  payload: { title: string };
+}>()({
   endpoint: "/todos",
   method: "POST",
 });
@@ -232,8 +259,13 @@ import { useFetch, useSubmit } from "@hyper-fetch/react";
 import { client, createTodo, getTodos } from "./api";
 
 export function Todos() {
-  // diff-remove-next-line
-  const { data, isPending, error } = useQuery({ queryKey: ["todos"], queryFn: fetchTodos, staleTime: 30_000 });
+  // diff-remove-start
+  const { data, isPending, error } = useQuery({
+    queryKey: ["todos"],
+    queryFn: fetchTodos,
+    staleTime: 30_000,
+  });
+  // diff-remove-end
   // diff-add-next-line
   const { data, loading, error } = useFetch(getTodos);
   // diff-add-next-line
@@ -247,8 +279,15 @@ export function Todos() {
 
   return (
     <div>
-      <ul>{data?.map((todo) => <li key={todo.id}>{todo.title}</li>)}</ul>
-      <button disabled={submitting} onClick={() => submit({ payload: { title: "Write the docs" } })}>
+      <ul>
+        {data?.map((todo) => (
+          <li key={todo.id}>{todo.title}</li>
+        ))}
+      </ul>
+      <button
+        disabled={submitting}
+        onClick={() => submit({ payload: { title: "Write the docs" } })}
+      >
         Add
       </button>
     </div>
@@ -264,7 +303,9 @@ If the server returns the new item, you can skip the refetch and patch the list 
 
 ```tsx title="todos.tsx"
 onSubmitSuccess(({ response }) => {
-  client.cache.update(getTodos, (previous) => ({ data: [...(previous?.data ?? []), response.data] }));
+  client.cache.update(getTodos, (previous) => ({
+    data: [...(previous?.data ?? []), response.data],
+  }));
 });
 ```
 
@@ -320,9 +361,10 @@ const { data } = useFetch(getTodos, { suspense: true });
 `useInfiniteFetch` takes the names of the paging fields instead and returns a flat `items` list:
 
 ```tsx title="Infinite list"
-const { items, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteFetch(getFeed, {
-  pagination: { cursor: "cursor", next: "nextCursor", items: "data" },
-});
+const { items, hasNextPage, isFetchingNextPage, fetchNextPage } =
+  useInfiniteFetch(getFeed, {
+    pagination: { cursor: "cursor", next: "nextCursor", items: "data" },
+  });
 ```
 
 Page numbers, offsets and cursors are covered in the [infinite scroll guide](/docs/guides/react/basics/infinite-scroll) and the

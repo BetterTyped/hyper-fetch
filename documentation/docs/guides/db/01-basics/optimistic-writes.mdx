@@ -41,8 +41,10 @@ useMutation({
     );
     return { previous };
   },
-  onError: (error, changes, context) => queryClient.setQueryData(["posts", teamId], context.previous),
-  onSettled: () => queryClient.invalidateQueries({ queryKey: ["posts", teamId] }),
+  onError: (error, changes, context) =>
+    queryClient.setQueryData(["posts", teamId], context.previous),
+  onSettled: () =>
+    queryClient.invalidateQueries({ queryKey: ["posts", teamId] }),
 });
 ```
 
@@ -104,7 +106,11 @@ With a typed REST SDK, `.resource()` derives the loaders and all three mutations
 
 ```tsx title="src/like-button.tsx"
 const LikeButton = ({ post }: { post: PostSummary }) => {
-  return <button onClick={() => db.post.update(post.id, { likes: post.likes + 1 })}>♥ {post.likes}</button>;
+  return (
+    <button onClick={() => db.post.update(post.id, { likes: post.likes + 1 })}>
+      ♥ {post.likes}
+    </button>
+  );
 };
 ```
 
@@ -126,12 +132,17 @@ const RenameForm = ({ post }: { post: Post }) => {
   const save = async () => {
     setError(null);
     const result = await db.post.update(post.id, { title });
-    if (!result.success) setError("Could not rename the post. Your change was undone.");
+    if (!result.success)
+      setError("Could not rename the post. Your change was undone.");
   };
 
   return (
     <div className="flex flex-col gap-2">
-      <input className="rounded border px-2" value={title} onChange={(e) => setTitle(e.target.value)} />
+      <input
+        className="rounded border px-2"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
       <button onClick={save}>Rename</button>
       {error && <p className="text-red-600">{error}</p>}
     </div>
@@ -171,7 +182,10 @@ Many endpoints answer a write with `204 No Content`, `{ ok: true }` or some othe
 the collection, so it needs to know what to do instead. Leaving it out does not compile:
 
 ```ts title="src/db.ts"
-const archivePost = client.createRequest<{ response: { ok: boolean }; payload: Partial<Post> }>()({
+const archivePost = client.createRequest<{
+  response: { ok: boolean };
+  payload: Partial<Post>;
+}>()({
   endpoint: "/posts/:postId/archive",
   method: "POST",
 });
@@ -220,7 +234,8 @@ Writes to different rows run in parallel, unless they go through the
 
 ```ts
 const created = db.post.insert(newPost);
-db.comment.insert(firstComment, { dependsOn: [created] }); // dropped if the post is rejected
+// dropped if the post is rejected
+db.comment.insert(firstComment, { dependsOn: [created] });
 ```
 
 Writes are also ordered against everything else that writes rows. A list response that was in flight while a write or
@@ -255,7 +270,9 @@ key in the meantime wait, then use the server's key.
 Use `renderKey` for React keys, so a row does not remount when its temporary key is swapped:
 
 ```tsx
-data?.map((post) => <PostCard key={db.postSummary.renderKey(post.id)} post={post} />);
+data?.map((post) => (
+  <PostCard key={db.postSummary.renderKey(post.id)} post={post} />
+));
 ```
 
 :::caution Things that resolve with an error and send nothing

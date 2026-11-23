@@ -34,10 +34,17 @@ import { getFirestore } from "firebase/firestore";
 
 const app = initializeApp({ projectId: "my-project" });
 
-export const client = createClient({ url: "" }).setAdapter(FirebaseAdapter(getFirestore(app)));
+export const client = createClient({ url: "" }).setAdapter(
+  FirebaseAdapter(getFirestore(app)),
+);
 
-export type Tea = { name: string; type: "Green" | "Black" | "Oolong"; year: number };
-export type TeaDoc = Tea & { __key: string }; // __key is the document id, added by the adapter
+export type Tea = {
+  name: string;
+  type: "Green" | "Black" | "Oolong";
+  year: number;
+};
+// __key is the document id, added by the adapter
+export type TeaDoc = Tea & { __key: string };
 ```
 
 ---
@@ -59,9 +66,14 @@ export type TeaDoc = Tea & { __key: string }; // __key is the document id, added
 ### Read
 
 ```ts title="api/teas.ts"
-export const getTeas = client.createRequest<{ response: TeaDoc[] }>()({ endpoint: "teas", method: "getDocs" });
+export const getTeas = client.createRequest<{ response: TeaDoc[] }>()({
+  endpoint: "teas",
+  method: "getDocs",
+});
 
-export const getTea = client.createRequest<{ response: TeaDoc | null }>()({ endpoint: "teas/:teaId" });
+export const getTea = client.createRequest<{ response: TeaDoc | null }>()({
+  endpoint: "teas/:teaId",
+});
 
 const { data } = await getTea.setParams({ teaId: "sencha" }).send();
 // { __key: "sencha", name: "Sencha", ... }, or null with status "emptyResource"
@@ -74,20 +86,32 @@ it with `options: { merge: true }`. `updateDoc` changes the given fields and fai
 when the document does not exist.
 
 ```ts title="api/teas.ts"
-export const addTea = client.createRequest<{ response: TeaDoc; payload: Tea }>()({
+export const addTea = client.createRequest<{
+  response: TeaDoc;
+  payload: Tea;
+}>()({
   endpoint: "teas",
   method: "addDoc",
 });
 
-export const mergeTea = client.createRequest<{ response: Partial<Tea>; payload: Partial<Tea> }>()({
+export const mergeTea = client.createRequest<{
+  response: Partial<Tea>;
+  payload: Partial<Tea>;
+}>()({
   endpoint: "teas/:teaId",
   method: "setDoc",
   options: { merge: true },
 });
 
-export const deleteTea = client.createRequest<{ response: null }>()({ endpoint: "teas/:teaId", method: "deleteDoc" });
+export const deleteTea = client.createRequest<{ response: null }>()({
+  endpoint: "teas/:teaId",
+  method: "deleteDoc",
+});
 
-const { data } = await addTea.send({ payload: { name: "Sencha", type: "Green", year: 2024 } }); // data.__key is the new id
+// data.__key is the new id
+const { data } = await addTea.send({
+  payload: { name: "Sencha", type: "Green", year: 2024 },
+});
 await mergeTea.setParams({ teaId: "sencha" }).send({ payload: { year: 2025 } });
 ```
 
@@ -101,13 +125,21 @@ checked.
 ```ts title="api/teas.ts"
 import type { FirestoreQueryParams } from "@hyper-fetch/firebase";
 
-export const listTeas = client.createRequest<{ response: TeaDoc[]; queryParams?: FirestoreQueryParams<Tea> }>()({
+export const listTeas = client.createRequest<{
+  response: TeaDoc[];
+  queryParams?: FirestoreQueryParams<Tea>;
+}>()({
   endpoint: "teas",
   method: "getDocs",
 });
 
 const { data } = await listTeas.send({
-  queryParams: (c) => c.where("type", "==", "Green").where("year", ">=", 2020).orderBy("year", "desc").limit(20),
+  queryParams: (c) =>
+    c
+      .where("type", "==", "Green")
+      .where("year", ">=", 2020)
+      .orderBy("year", "desc")
+      .limit(20),
 });
 ```
 
@@ -128,11 +160,18 @@ Cursors take one value per `orderBy`, in the same order. To load the next page, 
 Each page has its own cache entry.
 
 ```ts title="api/teas.ts"
-const page1 = await listTeas.send({ queryParams: (c) => c.orderBy("year", "desc").orderBy("name").limit(20) });
+const page1 = await listTeas.send({
+  queryParams: (c) => c.orderBy("year", "desc").orderBy("name").limit(20),
+});
 const last = page1.data?.at(-1);
 
 const page2 = await listTeas.send({
-  queryParams: (c) => c.orderBy("year", "desc").orderBy("name").startAfter(last!.year, last!.name).limit(20),
+  queryParams: (c) =>
+    c
+      .orderBy("year", "desc")
+      .orderBy("name")
+      .startAfter(last!.year, last!.name)
+      .limit(20),
 });
 ```
 
@@ -164,15 +203,24 @@ import { useFetch, useSubmit } from "@hyper-fetch/react";
 import { addTea, listTeas } from "./api/teas";
 
 export const TeaList = () => {
-  const { data, loading } = useFetch(listTeas.setQueryParams((c) => c.where("type", "==", "Green")));
+  const { data, loading } = useFetch(
+    listTeas.setQueryParams((c) => c.where("type", "==", "Green")),
+  );
   const { submit, submitting } = useSubmit(addTea);
 
   if (loading) return <p>Loading...</p>;
 
   return (
     <div>
-      {data?.map((tea) => <p key={tea.__key}>{tea.name}</p>)}
-      <button disabled={submitting} onClick={() => submit({ payload: { name: "Sencha", type: "Green", year: 2024 } })}>
+      {data?.map((tea) => (
+        <p key={tea.__key}>{tea.name}</p>
+      ))}
+      <button
+        disabled={submitting}
+        onClick={() =>
+          submit({ payload: { name: "Sencha", type: "Green", year: 2024 } })
+        }
+      >
         Add tea
       </button>
     </div>

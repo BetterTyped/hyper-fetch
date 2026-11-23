@@ -65,11 +65,17 @@ a variable typed `string`, turns the checks off: any params are accepted, includ
 const base: string = "/users";
 
 // Params unchecked
-// diff-remove-next-line
-const getUserLoose = client.createRequest<{ response: User }>()({ endpoint: `${base}/:userId` });
+// diff-remove-start
+const getUserLoose = client.createRequest<{ response: User }>()({
+  endpoint: `${base}/:userId`,
+});
+// diff-remove-end
 // Params checked
-// diff-add-next-line
-const getUserStrict = client.createRequest<{ response: User }>()({ endpoint: "/users/:userId" });
+// diff-add-start
+const getUserStrict = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+});
+// diff-add-end
 ```
 
 Write the endpoint inline, or as a `const` without a `string` annotation.

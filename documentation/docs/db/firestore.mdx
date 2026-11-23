@@ -33,9 +33,17 @@ import { FirebaseAdapter, FirebaseSocketsAdapter } from "@hyper-fetch/firebase";
 import { firestoreCollection } from "@hyper-fetch/firebase/db";
 
 const client = new Client({ url: "" }).setAdapter(FirebaseAdapter(firestore));
-const socket = new Socket({ url: "", adapter: FirebaseSocketsAdapter(firestore) });
+const socket = new Socket({
+  url: "",
+  adapter: FirebaseSocketsAdapter(firestore),
+});
 
-const Post = firestoreCollection(PostSchema, { client, socket, path: "posts", key: "id" });
+const Post = firestoreCollection(PostSchema, {
+  client,
+  socket,
+  path: "posts",
+  key: "id",
+});
 
 export const db = createDb({ post: Post });
 ```
@@ -66,7 +74,12 @@ query.explain(); // { kind: "list", loader: 0, local: [], ... }
 ## Writes
 
 ```ts title="Write posts"
-await db.post.insert({ id: crypto.randomUUID(), teamId: 1, title: "New", likes: 0 });
+await db.post.insert({
+  id: crypto.randomUUID(),
+  teamId: 1,
+  title: "New",
+  likes: 0,
+});
 await db.post.update(id, { title: "Renamed" });
 await db.post.delete(id);
 ```

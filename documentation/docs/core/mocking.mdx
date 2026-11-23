@@ -33,7 +33,12 @@ getNotes.setMock(
     };
   },
   // Timing and progress
-  { requestTime: 500, responseTime: 500, totalUploaded: 1000, totalDownloaded: 1000 },
+  {
+    requestTime: 500,
+    responseTime: 500,
+    totalUploaded: 1000,
+    totalDownloaded: 1000,
+  },
 );
 
 const response = await getNotes.send();
@@ -48,13 +53,18 @@ The mock callback receives `{ request, requestId }` and returns a response with 
 be async. Return an `error` to simulate a failure.
 
 ```ts
-const getUser = client.createRequest<{ response: User }>()({ endpoint: "/users/:userId" });
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+});
 
 getUser.setMock(({ request }) => {
   if (request.params?.userId === 0) {
     return { error: new Error("Not found"), status: 404 };
   }
-  return { data: { id: Number(request.params?.userId), name: "Ann" }, status: 200 };
+  return {
+    data: { id: Number(request.params?.userId), name: "Ann" },
+    status: 200,
+  };
 });
 ```
 
@@ -113,7 +123,8 @@ console.log(response.error);
 return a clone. Clones made later copy the mock, clones made earlier do not. Set the mock on the base request first.
 
 ```ts
-const getFirstUser = getUser.setParams({ userId: 1 }); // made before the mock: not mocked
+// made before the mock: not mocked
+const getFirstUser = getUser.setParams({ userId: 1 });
 
 getUser.setMock(() => ({ data: { id: 2, name: "Mocked" }, status: 200 }));
 
@@ -134,8 +145,10 @@ import type { RequestInstance } from "@hyper-fetch/core";
 import { sdk } from "../src/api/sdk";
 
 export const testSdk = sdk.$configure({
-  "users.$get": (request: RequestInstance) => request.setMock(() => ({ data: [{ id: 1, name: "John" }], status: 200 })),
-  "posts.$get": (request: RequestInstance) => request.setMock(() => ({ data: [], status: 200 })),
+  "users.$get": (request: RequestInstance) =>
+    request.setMock(() => ({ data: [{ id: 1, name: "John" }], status: 200 })),
+  "posts.$get": (request: RequestInstance) =>
+    request.setMock(() => ({ data: [], status: 200 })),
 });
 ```
 

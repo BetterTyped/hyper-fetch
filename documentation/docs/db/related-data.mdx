@@ -27,7 +27,10 @@ A list that returns summaries is its own collection, so the same post lives in `
 db that both hold the same records:
 
 ```ts title="db.ts"
-const db = createDb({ post: Post, postSummary: PostSummary }, { links: [["post", "postSummary"]] });
+const db = createDb(
+  { post: Post, postSummary: PostSummary },
+  { links: [["post", "postSummary"]] },
+);
 
 // The summary in every list shows the new title at once
 await db.post.update(1, { title: "Renamed" });
@@ -90,10 +93,16 @@ Options go in an object, with the field as `by`:
 
 ```ts title="Inner and one-to-many joins"
 // Only posts whose author the db holds
-db.postSummary.join("author", db.user, { by: (post) => post.authorId, type: "inner" });
+db.postSummary.join("author", db.user, {
+  by: (post) => post.authorId,
+  type: "inner",
+});
 
 // Every comment of each post, as an array
-db.postSummary.join("comments", db.comment, { by: (post) => post.id, on: "postId" });
+db.postSummary.join("comments", db.comment, {
+  by: (post) => post.id,
+  on: "postId",
+});
 ```
 
 - `type: "inner"` leaves out results without a joined row, also while it loads, and types the row as present.

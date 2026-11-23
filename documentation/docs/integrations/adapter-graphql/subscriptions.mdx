@@ -52,7 +52,10 @@ import { Socket } from "@hyper-fetch/sockets";
 import { GraphqlWsAdapter } from "@hyper-fetch/graphql";
 import gql from "graphql-tag";
 
-export const socket = new Socket({ url: "ws://localhost:4000/graphql", adapter: GraphqlWsAdapter() });
+export const socket = new Socket({
+  url: "ws://localhost:4000/graphql",
+  adapter: GraphqlWsAdapter(),
+});
 
 type Message = { onMessage: { id: string; text: string } };
 
@@ -70,7 +73,9 @@ export const onMessage = socket.createListener<Message, { room: string }>()({
   },
 });
 
-const stop = onMessage.setPayload({ room: "general" }).listen(({ data }) => console.log(data.onMessage.text));
+const stop = onMessage
+  .setPayload({ room: "general" })
+  .listen(({ data }) => console.log(data.onMessage.text));
 ```
 
 - The `topic` names the listener in devtools and `socket.events`. The operation name is a good choice.
@@ -87,9 +92,14 @@ passed to `createListener` win over it.
 ```ts title="socket.ts"
 import { OnMessageDocument } from "./gql/graphql"; // generated
 
-export const onMessage = socket.createListener()({ topic: "OnMessage", options: { document: OnMessageDocument } });
+export const onMessage = socket.createListener()({
+  topic: "OnMessage",
+  options: { document: OnMessageDocument },
+});
 
-onMessage.setPayload({ room: "general" }).listen(({ data }) => data.onMessage.text);
+onMessage
+  .setPayload({ room: "general" })
+  .listen(({ data }) => data.onMessage.text);
 ```
 
 ---
@@ -158,7 +168,8 @@ onMessage.setPayload({ room: "general" }).listen(
   },
   {
     onEnd: ({ error }) => {
-      if (error instanceof GraphqlSubscriptionError) console.error(error.errors, error.payload);
+      if (error instanceof GraphqlSubscriptionError)
+        console.error(error.errors, error.payload);
     },
   },
 );
@@ -177,8 +188,10 @@ The protocol has no confirmation, so a subscription counts as started once it is
 
 ```ts title="chat.ts"
 onMessage.setPayload({ room: "general" }).listen(renderMessages, {
-  onStart: ({ topic }) => {}, // sent to the server, and again after every reconnect
-  onEnd: ({ topic, error }) => {}, // completed (error is null) or failed with a GraphqlSubscriptionError
+  // sent to the server, and again after every reconnect
+  onStart: ({ topic }) => {},
+  // completed (error is null) or failed with a GraphqlSubscriptionError
+  onEnd: ({ topic, error }) => {},
 });
 ```
 
@@ -203,7 +216,9 @@ with `4005` and is not retried.
 export const socket = new Socket({
   url: "wss://api.example.com/graphql",
   adapter: GraphqlWsAdapter(),
-  adapterOptions: { connectionParams: async () => ({ token: await auth.getFreshToken() }) },
+  adapterOptions: {
+    connectionParams: async () => ({ token: await auth.getFreshToken() }),
+  },
 });
 ```
 
@@ -244,7 +259,11 @@ for example behind a proxy. With `lazy`, the connection opens with the first sub
 export const socket = new Socket({
   url: "wss://api.example.com/graphql",
   adapter: GraphqlWsAdapter(),
-  adapterOptions: { keepAlive: { enabled: true }, lazy: true, lazyCloseTimeout: 3000 },
+  adapterOptions: {
+    keepAlive: { enabled: true },
+    lazy: true,
+    lazyCloseTimeout: 3000,
+  },
 });
 ```
 

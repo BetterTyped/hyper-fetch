@@ -70,8 +70,12 @@ payload or query params is valid. TypeScript rejects a generic with no known key
 typo next to it is legal:
 
 ```ts title="api/users.ts"
-// No TypeScript error: `payload` is valid, so `rsponse` is an extra key and `data` gets the default type
-const updateUser = client.createRequest<{ rsponse: User; payload: UserInput }>()({
+// No TypeScript error: `payload` is valid, so `rsponse` is an extra key and
+// `data` gets the default type
+const updateUser = client.createRequest<{
+  rsponse: User;
+  payload: UserInput;
+}>()({
   endpoint: "/users/:id",
   method: "PATCH",
 });

@@ -18,19 +18,35 @@ import { useLiveQuery } from "@hyper-fetch/react";
 // A collection: complete rows of one schema, loaded by an existing request
 // highlight-start
 const Post = collection(PostSchema, { key: "id" })
-  .load(getTeamPosts, { where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } } })
-  .mutate({ update: { request: updatePost, map: (id, changes) => ({ params: { postId: id }, payload: changes }) } });
+  .load(getTeamPosts, {
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
+  })
+  .mutate({
+    update: {
+      request: updatePost,
+      map: (id, changes) => ({ params: { postId: id }, payload: changes }),
+    },
+  });
 // highlight-end
 
 export const db = createDb({ post: Post });
 
 const TeamPosts = ({ teamId }: { teamId: number }) => {
-  // highlight-next-line
-  const { data } = useLiveQuery(db.post.where((post) => eq(post.teamId, teamId)));
+  // highlight-start
+  const { data } = useLiveQuery(
+    db.post.where((post) => eq(post.teamId, teamId)),
+  );
+  // highlight-end
 
   return data?.map((post) => (
-    // Shows in this list, in every other query with this post, and reverts if the request fails
-    <p key={post.id} onClick={() => db.post.update(post.id, { title: "Renamed" })}>
+    // Shows in this list, in every other query with this post, and reverts if
+    // the request fails
+    <p
+      key={post.id}
+      onClick={() => db.post.update(post.id, { title: "Renamed" })}
+    >
       {post.title}
     </p>
   ));
@@ -92,7 +108,8 @@ Zod, Valibot or ArkType schema, and a key. Every row has every field of the sche
 import { collection, createDb, rowType } from "@hyper-fetch/db";
 
 const Post = collection(PostSchema, { key: "id", version: "updatedAt" });
-const Draft = collection(rowType<Draft>(), { key: "id" }); // no schema, writes are not validated
+// no schema, writes are not validated
+const Draft = collection(rowType<Draft>(), { key: "id" });
 
 const db = createDb({ post: Post, draft: Draft });
 ```
@@ -145,7 +162,8 @@ const query = db.post
   .orderBy((post) => post.createdAt, "desc")
   .select((post) => ({ id: post.id, title: post.title }));
 
-query.explain(); // the loader, what is sent, what runs locally and which syncs keep it live
+// the loader, what is sent, what runs locally and which syncs keep it live
+query.explain();
 ```
 
 - The db splits `where` at its top-level `and`: conditions the loader declares go to the backend, the rest run on the
@@ -181,9 +199,14 @@ subset is fresh while its syncs deliver all three, and refetches after a reconne
 ## Related data
 
 ```ts
-const db = createDb({ post: Post, postSummary: PostSummary, user: User }, { links: [["post", "postSummary"]] });
+const db = createDb(
+  { post: Post, postSummary: PostSummary, user: User },
+  { links: [["post", "postSummary"]] },
+);
 
-db.postSummary.where((post) => eq(post.teamId, 1)).join("author", db.user, (post) => post.authorId);
+db.postSummary
+  .where((post) => eq(post.teamId, 1))
+  .join("author", db.user, (post) => post.authorId);
 ```
 
 Links keep two shapes of the same record in step, `normalize` writes nested records into their own collections, and

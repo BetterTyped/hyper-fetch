@@ -75,7 +75,9 @@ import { useFetch } from "@hyper-fetch/react";
 import { getTeas } from "./api/teas";
 
 export const GreenTeas = () => {
-  const { data, loading, error } = useFetch(getTeas.setQueryParams((c) => c.where("type", "==", "Green")));
+  const { data, loading, error } = useFetch(
+    getTeas.setQueryParams((c) => c.where("type", "==", "Green")),
+  );
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error.message}</p>;
@@ -140,7 +142,8 @@ part of the cache key, so two queries never share a cached response.
 
 ```ts title="api/teas.ts"
 const { data } = await getTeas.send({
-  queryParams: (c) => c.where("type", "==", "Green").orderBy("year", "desc").limit(20),
+  queryParams: (c) =>
+    c.where("type", "==", "Green").orderBy("year", "desc").limit(20),
 });
 ```
 
@@ -167,9 +170,14 @@ import { FirebaseSocketsAdapter } from "@hyper-fetch/firebase";
 import { db } from "./firebase";
 import type { Tea } from "./teas";
 
-export const socket = new Socket({ url: "", adapter: FirebaseSocketsAdapter(db) });
+export const socket = new Socket({
+  url: "",
+  adapter: FirebaseSocketsAdapter(db),
+});
 
-export const onTeas = socket.createListener<(Tea & { __key: string })[]>()({ topic: "teas" });
+export const onTeas = socket.createListener<(Tea & { __key: string })[]>()({
+  topic: "teas",
+});
 // const stop = onTeas.listen(({ data }) => render(data));
 ```
 

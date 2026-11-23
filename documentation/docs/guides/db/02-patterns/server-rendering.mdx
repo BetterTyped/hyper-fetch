@@ -45,7 +45,8 @@ import type { DbOptions } from "@hyper-fetch/db";
 
 const collections = { post: Post, postSummary: PostSummary };
 
-export const createAppDb = (options?: DbOptions) => createDb(collections, options);
+export const createAppDb = (options?: DbOptions) =>
+  createDb(collections, options);
 export type AppDb = ReturnType<typeof createAppDb>;
 ```
 
@@ -63,7 +64,11 @@ import { eq } from "@hyper-fetch/db";
 import { createAppDb } from "@/db";
 import { TeamFeedRoot } from "./team-feed";
 
-export default async function TeamPage({ params }: { params: Promise<{ teamId: string }> }) {
+export default async function TeamPage({
+  params,
+}: {
+  params: Promise<{ teamId: string }>;
+}) {
   const { teamId } = await params;
 
   const db = createAppDb();
@@ -93,7 +98,13 @@ import type { DehydratedDb } from "@hyper-fetch/db";
 import { DbProvider, useDb, useLiveQuery } from "@hyper-fetch/react";
 import { createAppDb, type AppDb } from "@/db";
 
-export function TeamFeedRoot({ state, teamId }: { state: DehydratedDb; teamId: string }) {
+export function TeamFeedRoot({
+  state,
+  teamId,
+}: {
+  state: DehydratedDb;
+  teamId: string;
+}) {
   // highlight-next-line
   const [db] = useState(() => createAppDb({ state }));
 
@@ -107,7 +118,9 @@ export function TeamFeedRoot({ state, teamId }: { state: DehydratedDb; teamId: s
 function TeamFeed({ teamId }: { teamId: string }) {
   const db = useDb<AppDb>();
   const { data, isFetching } = useLiveQuery(
-    db.postSummary.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+    db.postSummary
+      .where((post) => eq(post.teamId, teamId))
+      .orderBy((post) => post.createdAt, "desc"),
   );
 
   return (
@@ -156,7 +169,8 @@ Type-tagged JSON keeps `Date`, `bigint`, `Map` and `Set` values intact through `
 class needs a codec, and the codec has to be passed on **both** sides:
 
 ```ts title="src/db.ts"
-export const createAppDb = (options?: DbOptions) => createDb(collections, { codecs: [money], ...options });
+export const createAppDb = (options?: DbOptions) =>
+  createDb(collections, { codecs: [money], ...options });
 ```
 
 Putting codecs in the factory is the simplest way to never forget one side. State for a collection the client db does
@@ -179,7 +193,11 @@ The pattern does not depend on the App Router. With the Pages Router, dehydrate 
 the page:
 
 ```tsx title="pages/teams/[teamId].tsx"
-export const getServerSideProps = async ({ params }: { params: { teamId: string } }) => {
+export const getServerSideProps = async ({
+  params,
+}: {
+  params: { teamId: string };
+}) => {
   const db = createAppDb();
   await db.postSummary.where((post) => eq(post.teamId, params.teamId)).get();
   const state = db.dehydrate();
@@ -188,7 +206,13 @@ export const getServerSideProps = async ({ params }: { params: { teamId: string 
   return { props: { state, teamId: params.teamId } };
 };
 
-export default function TeamPage({ state, teamId }: { state: DehydratedDb; teamId: string }) {
+export default function TeamPage({
+  state,
+  teamId,
+}: {
+  state: DehydratedDb;
+  teamId: string;
+}) {
   return <TeamFeedRoot state={state} teamId={teamId} />;
 }
 ```

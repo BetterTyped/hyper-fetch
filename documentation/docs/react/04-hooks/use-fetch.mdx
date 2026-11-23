@@ -103,8 +103,11 @@ time.
 
 ```tsx title="Params on the request, extra values in dependencies"
 function UserPosts({ userId, version }: { userId: number; version: number }) {
-  // Refetches when userId changes (new cache key) or when version changes (dependency)
-  const { data } = useFetch(getUserPosts.setParams({ userId }), { dependencies: [version] });
+  // Refetches when userId changes (new cache key) or when version changes
+  // (dependency)
+  const { data } = useFetch(getUserPosts.setParams({ userId }), {
+    dependencies: [version],
+  });
 
   return <PostsList posts={data ?? []} />;
 }
@@ -133,7 +136,11 @@ function App() {
 
   return (
     <div>
-      <TextField label="Search" placeholder="Type to search by name" onChange={(e) => setSearch(e.target.value)} />
+      <TextField
+        label="Search"
+        placeholder="Type to search by name"
+        onChange={(e) => setSearch(e.target.value)}
+      />
       {data && <Table data={data} loading={loading} />}
     </div>
   );
@@ -150,8 +157,12 @@ disabled and `loading` is `false`. It sends as soon as `disabled` becomes `false
 ```tsx title="Dependent request"
 function Profile() {
   const { data: user } = useFetch(getCurrentUser);
-  // The placeholder param keeps the request typed; nothing is sent until user exists
-  const { data: posts } = useFetch(getUserPosts.setParams({ userId: user?.id ?? 0 }), { disabled: !user });
+  // The placeholder param keeps the request typed; nothing is sent until user
+  // exists
+  const { data: posts } = useFetch(
+    getUserPosts.setParams({ userId: user?.id ?? 0 }),
+    { disabled: !user },
+  );
 
   return <PostsList posts={posts ?? []} />;
 }
@@ -182,7 +193,11 @@ const UsersListPage = () => {
   const { data, loading, onSuccess, onError, onFinished } = useFetch(getUsers);
 
   onSuccess(({ response }) => {
-    toast({ title: "Success", message: `Fetched ${response.data.length} users`, type: "success" });
+    toast({
+      title: "Success",
+      message: `Fetched ${response.data.length} users`,
+      type: "success",
+    });
   });
 
   onError(({ response }) => {
@@ -210,7 +225,9 @@ function UsersList() {
   const [message, setMessage] = useState("");
   const { data, onRetry, onFinished } = useFetch(getUsersWithRetries);
 
-  onRetry(({ retry, delay }) => setMessage(`Retry ${retry} of 3 in ${delay / 1000}s`));
+  onRetry(({ retry, delay }) =>
+    setMessage(`Retry ${retry} of 3 in ${delay / 1000}s`),
+  );
   onFinished(({ details }) => {
     if (!details.willRetry) setMessage("");
   });
@@ -269,10 +286,17 @@ while the new request runs. Default `"auto"`, change it with `keepPreviousData`.
 ```tsx title="Page buttons"
 function UsersPage() {
   const [page, setPage] = useState(1);
-  // Only a query param changes, so "auto" keeps the old page visible while the next one loads
+  // Only a query param changes, so "auto" keeps the old page visible while the
+  // next one loads
   const { data, loading } = useFetch(getUsers.setQueryParams({ page }));
 
-  return <UsersTable users={data ?? []} dimmed={loading} onNext={() => setPage((p) => p + 1)} />;
+  return (
+    <UsersTable
+      users={data ?? []}
+      dimmed={loading}
+      onNext={() => setPage((p) => p + 1)}
+    />
+  );
 }
 ```
 
@@ -286,7 +310,9 @@ and the cache keep the full response.
 
 ```tsx title="Subscribe to one price"
 function Price({ symbol }: { symbol: string }) {
-  const { data: price } = useFetch(getQuotes, { select: (quotes) => quotes[symbol]?.price });
+  const { data: price } = useFetch(getQuotes, {
+    select: (quotes) => quotes[symbol]?.price,
+  });
 
   return <span>{price}</span>;
 }
@@ -314,7 +340,11 @@ function UsersList() {
 
 export function App() {
   return (
-    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <button onClick={resetErrorBoundary}>Retry</button>}>
+    <ErrorBoundary
+      fallbackRender={({ resetErrorBoundary }) => (
+        <button onClick={resetErrorBoundary}>Retry</button>
+      )}
+    >
       <Suspense fallback={<p>Loading users...</p>}>
         <UsersList />
       </Suspense>

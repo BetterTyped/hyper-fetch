@@ -37,7 +37,9 @@ import { createClient } from "npm:@hyper-fetch/core";
 
 const client = createClient({ url: "https://api.example.com" });
 
-const getUsers = client.createRequest<{ response: { id: number; name: string }[] }>()({
+const getUsers = client.createRequest<{
+  response: { id: number; name: string }[];
+}>()({
   endpoint: "/users",
 });
 
@@ -60,12 +62,18 @@ caches nothing unless the request has a scope, so set one to cache per user:
 import { createClient } from "npm:@hyper-fetch/core";
 
 const client = createClient({ url: "https://api.example.com" });
-const getProfile = client.createRequest<{ response: { name: string } }>()({ endpoint: "/me" });
+const getProfile = client.createRequest<{ response: { name: string } }>()({
+  endpoint: "/me",
+});
 
 Deno.serve(async (req) => {
   const token = req.headers.get("Authorization") ?? "";
-  // highlight-next-line
-  const { data, error } = await getProfile.setHeaders({ Authorization: token }).setScope(token).send();
+  // highlight-start
+  const { data, error } = await getProfile
+    .setHeaders({ Authorization: token })
+    .setScope(token)
+    .send();
+  // highlight-end
 
   return Response.json(error ?? data, { status: error ? 502 : 200 });
 });

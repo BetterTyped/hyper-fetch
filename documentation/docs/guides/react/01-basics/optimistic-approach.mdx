@@ -45,7 +45,9 @@ Return the changes from `setOptimistic` on the mutation request. The callback re
 ```ts title="api/todos.ts"
 import { optimistic } from "@hyper-fetch/core";
 
-export const getTodos = client.createRequest<{ response: Todo[] }>()({ endpoint: "/todos" });
+export const getTodos = client.createRequest<{ response: Todo[] }>()({
+  endpoint: "/todos",
+});
 
 export const toggleTodo = client
   .createRequest<{ response: Todo; payload: { completed: boolean } }>()({
@@ -57,8 +59,12 @@ export const toggleTodo = client
       .patch(params.todoId, payload)
       // Restore only this item, built from the current data
       .rollback(({ data, previous }) => {
-        const before = previous.find((todo) => todo.id === Number(params.todoId));
-        return data.map((todo) => (todo.id === Number(params.todoId) && before ? before : todo));
+        const before = previous.find(
+          (todo) => todo.id === Number(params.todoId),
+        );
+        return data.map((todo) =>
+          todo.id === Number(params.todoId) && before ? before : todo,
+        );
       }),
   ]);
 ```
@@ -72,7 +78,15 @@ function Todos() {
   const { submit } = useSubmit(toggleTodo);
 
   return todos?.map((todo) => (
-    <div key={todo.id} onClick={() => submit({ params: { todoId: todo.id }, payload: { completed: !todo.completed } })}>
+    <div
+      key={todo.id}
+      onClick={() =>
+        submit({
+          params: { todoId: todo.id },
+          payload: { completed: !todo.completed },
+        })
+      }
+    >
       {todo.title}
     </div>
   ));
@@ -96,7 +110,9 @@ function Todos() {
 
 ```ts title="Matching items"
 optimistic(getTodos).remove(params.todoId);
-optimistic(getTodos).patch((todo) => todo.listId === params.listId, { archived: true });
+optimistic(getTodos).patch((todo) => todo.listId === params.listId, {
+  archived: true,
+});
 optimistic(getTodos).remove(params.slug, { key: "slug" });
 ```
 
@@ -132,7 +148,10 @@ optimistic(getStats)
   .rollback(({ data }) => ({ ...data, total: data.total + 1 }));
 
 // No .rollback(): on failure the user is refetched
-optimistic(getUser.setParams({ userId: params.userId })).set((user) => ({ ...user, ...payload }));
+optimistic(getUser.setParams({ userId: params.userId })).set((user) => ({
+  ...user,
+  ...payload,
+}));
 ```
 
 :::caution Build the result from data
@@ -151,13 +170,18 @@ passed to the callback, so `response` is typed with the mutation's response.
 
 ```ts title="api/todos.ts"
 export const createTodo = client
-  .createRequest<{ response: Todo; payload: { title: string } }>()({ endpoint: "/todos", method: "POST" })
+  .createRequest<{ response: Todo; payload: { title: string } }>()({
+    endpoint: "/todos",
+    method: "POST",
+  })
   .setOptimistic(({ payload, optimistic }) => {
     const temp = { id: -Date.now(), ...payload, completed: false };
     return [
       optimistic(getTodos)
         .insert(temp)
-        .commit(({ data, response }) => data.map((todo) => (todo.id === temp.id ? response.data : todo)))
+        .commit(({ data, response }) =>
+          data.map((todo) => (todo.id === temp.id ? response.data : todo)),
+        )
         .rollback(({ data }) => data.filter((todo) => todo.id !== temp.id)),
     ];
   });

@@ -9,7 +9,8 @@ The `generate` command reads an OpenAPI 3 or Swagger JSON schema and writes one 
 the types of every operation, an `SdkSchema` and a `createSdk` factory you call with your own client.
 
 ```bash
-npx @hyper-fetch/cli@latest generate --template openapi --url ./openapi.json --fileName pets.sdk.ts --overwrite
+npx @hyper-fetch/cli@latest generate --template openapi --url ./openapi.json \
+  --fileName pets.sdk.ts --overwrite
 ```
 
 :::tip Purpose
@@ -32,27 +33,75 @@ For this schema, with `Pet`, `NewPet` and `Error` in `components.schemas`:
     "/pets": {
       "get": {
         "operationId": "listPets",
-        "parameters": [{ "name": "limit", "in": "query", "schema": { "type": "integer" } }],
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer" } }
+        ],
         "responses": {
-          "200": { "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Pet" } } } } }
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Pet" }
+                }
+              }
+            }
+          }
         }
       },
       "post": {
         "operationId": "createPet",
-        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NewPet" } } } },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/NewPet" }
+            }
+          }
+        },
         "responses": {
-          "201": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Pet" } } } },
-          "422": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Pet" }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
         }
       }
     },
     "/pets/{petId}": {
       "get": {
         "operationId": "getPet",
-        "parameters": [{ "name": "petId", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
         "responses": {
-          "200": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Pet" } } } },
-          "404": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Pet" }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
         }
       }
     }
@@ -90,7 +139,11 @@ export type SdkSchema = {
       endpoint: "/pets";
     }>;
     $petId: {
-      $get: RequestModel<{ response: GetPetResponseType; error: GetPetErrorType; endpoint: "/pets/:petId" }>;
+      $get: RequestModel<{
+        response: GetPetResponseType;
+        error: GetPetErrorType;
+        endpoint: "/pets/:petId";
+      }>;
     };
   };
 };

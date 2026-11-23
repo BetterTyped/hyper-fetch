@@ -15,7 +15,9 @@ import { createClient } from "@hyper-fetch/core";
 
 export const client = createClient({ url: "https://api.example.com" });
 
-export const getUsers = client.createRequest<{ response: { id: number; name: string }[] }>()({
+export const getUsers = client.createRequest<{
+  response: { id: number; name: string }[];
+}>()({
   endpoint: "/users",
 });
 ```

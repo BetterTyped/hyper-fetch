@@ -67,7 +67,9 @@ import { createClient } from "@hyper-fetch/core";
 
 export type ApiError = { message: string; code: string };
 
-export const client = createClient<{ error: ApiError | Error }>({ url: "https://api.example.com" });
+export const client = createClient<{ error: ApiError | Error }>({
+  url: "https://api.example.com",
+});
 ```
 
 Every request of this client now has `error` typed as `ApiError | Error | null`. See
@@ -128,7 +130,11 @@ refreshing a token. Return the response, changed or not.
 ```ts title="src/api/client.ts"
 client.onError((response, request) => {
   if (response.status && response.status >= 500) {
-    reportToMonitoring({ endpoint: request.endpoint, status: response.status, error: response.error });
+    reportToMonitoring({
+      endpoint: request.endpoint,
+      status: response.status,
+      error: response.error,
+    });
   }
   return response;
 });

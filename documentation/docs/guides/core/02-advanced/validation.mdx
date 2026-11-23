@@ -35,7 +35,9 @@ const UserSchema = z.object({
 });
 
 export const getUser = client
-  .createRequest<{ response: z.input<typeof UserSchema> }>()({ endpoint: "/users/:userId" })
+  .createRequest<{ response: z.input<typeof UserSchema> }>()({
+    endpoint: "/users/:userId",
+  })
   .setResponseMapper((response) => {
     if (!response.data) return response;
     return { ...response, data: UserSchema.parse(response.data) };
@@ -62,7 +64,10 @@ const PostInput = z.object({
 });
 
 export const createPost = client
-  .createRequest<{ response: { id: number }; payload: z.infer<typeof PostInput> }>()({
+  .createRequest<{
+    response: { id: number };
+    payload: z.infer<typeof PostInput>;
+  }>()({
     endpoint: "/posts",
     method: "POST",
   })
@@ -79,7 +84,9 @@ export const createPost = client
 A `ZodError` is an `Error`, so check it with `instanceof` before reading your API's error shape.
 
 ```ts title="src/post-form.ts"
-const { data, error } = await createPost.send({ payload: { title: "Hi", body: "Too short" } });
+const { data, error } = await createPost.send({
+  payload: { title: "Hi", body: "Too short" },
+});
 
 if (error instanceof z.ZodError) {
   // Not sent: show the field messages

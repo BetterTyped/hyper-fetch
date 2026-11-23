@@ -35,8 +35,14 @@ import { getFirestore } from "firebase-admin/firestore";
 
 initializeApp({ databaseURL: process.env.FIREBASE_DATABASE_URL });
 
-export const firestoreSocket = new Socket({ url: "", adapter: FirebaseSocketsAdminAdapter(getFirestore()) });
-export const realtimeSocket = new Socket({ url: "", adapter: FirebaseSocketsAdminAdapter(getDatabase()) });
+export const firestoreSocket = new Socket({
+  url: "",
+  adapter: FirebaseSocketsAdminAdapter(getFirestore()),
+});
+export const realtimeSocket = new Socket({
+  url: "",
+  adapter: FirebaseSocketsAdminAdapter(getDatabase()),
+});
 ```
 
 ---
@@ -65,7 +71,9 @@ Same as the [web package](/docs/integrations/adapter-firebase/realtime-queries#f
 array, set with `setQueryParams`.
 
 ```ts title="server/workers/jobs.ts"
-const onQueuedJobs = onJobs.setQueryParams((c) => c.where("state", "==", "queued"));
+const onQueuedJobs = onJobs.setQueryParams((c) =>
+  c.where("state", "==", "queued"),
+);
 ```
 
 ---
@@ -81,7 +89,10 @@ The same `groupByChangeType` (Firestore) and `onlyOnce` (Realtime Database) opti
 documents have no `__key`.
 
 ```ts title="server/workers/jobs.ts"
-const onJobChanges = firestoreSocket.createListener<Job[]>()({ topic: "jobs", options: { groupByChangeType: true } });
+const onJobChanges = firestoreSocket.createListener<Job[]>()({
+  topic: "jobs",
+  options: { groupByChangeType: true },
+});
 
 onJobChanges.listen(({ extra }) => {
   const added = extra.groupedResult?.added ?? [];
@@ -94,7 +105,10 @@ onJobChanges.listen(({ extra }) => {
 `onlyOnce` uses `once("value")`: the listener receives the first value and stops.
 
 ```ts title="server/settings.ts"
-const onSettings = realtimeSocket.createListener<Settings | null>()({ topic: "settings", options: { onlyOnce: true } });
+const onSettings = realtimeSocket.createListener<Settings | null>()({
+  topic: "settings",
+  options: { onlyOnce: true },
+});
 ```
 
 ---

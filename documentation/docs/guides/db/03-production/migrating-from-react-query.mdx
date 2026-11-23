@@ -53,19 +53,28 @@ Teamboard's feed, built with TanStack Query: a list, a socket handler that patch
 
 ```tsx title="Before: TanStack Query"
 const useTeamPosts = (teamId: string) =>
-  useQuery({ queryKey: ["posts", teamId], queryFn: () => api.get(`/teams/${teamId}/posts`) });
+  useQuery({
+    queryKey: ["posts", teamId],
+    queryFn: () => api.get(`/teams/${teamId}/posts`),
+  });
 
 useEffect(() => {
   return socket.on(`teams/${teamId}/posts/changed`, (changes) => {
     queryClient.setQueryData(["posts", teamId], (old) =>
-      old?.map((post) => (post.id === changes.id ? { ...post, ...changes } : post)),
+      old?.map((post) =>
+        post.id === changes.id ? { ...post, ...changes } : post,
+      ),
     );
-    queryClient.setQueryData(["post", changes.id], (old) => old && { ...old, ...changes });
+    queryClient.setQueryData(
+      ["post", changes.id],
+      (old) => old && { ...old, ...changes },
+    );
   });
 }, [teamId]);
 
 const like = useMutation({
-  mutationFn: (post) => api.patch(`/posts/${post.id}`, { likes: post.likes + 1 }),
+  mutationFn: (post) =>
+    api.patch(`/posts/${post.id}`, { likes: post.likes + 1 }),
   onMutate: async (post) => {
     /* cancel, snapshot, setQueryData on every cached copy, return the snapshot */
   },
@@ -82,10 +91,15 @@ The db loads through HyperFetch requests, so start by declaring the endpoints yo
 SDK, you already have them.
 
 ```ts title="src/requests.ts"
-const getTeamPosts = client.createRequest<{ response: { items: PostSummary[] } }>()({
+const getTeamPosts = client.createRequest<{
+  response: { items: PostSummary[] };
+}>()({
   endpoint: "/teams/:teamId/posts",
 });
-const updatePost = client.createRequest<{ response: Post; payload: Partial<Post> }>()({
+const updatePost = client.createRequest<{
+  response: Post;
+  payload: Partial<Post>;
+}>()({
   endpoint: "/posts/:postId",
   method: "PATCH",
 });
@@ -96,9 +110,14 @@ const updatePost = client.createRequest<{ response: Post; payload: Partial<Post>
 The `queryFn` becomes a loader, and the variable part of the key, `teamId`, becomes a required filter:
 
 ```ts title="src/db.ts"
-const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" }).load(getTeamPosts, {
+const PostSummary = collection(PostSummarySchema, {
+  key: "id",
+  version: "updatedAt",
+}).load(getTeamPosts, {
   rows: (response) => response.items,
-  where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+  where: {
+    teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+  },
 });
 
 export const db = createDb({ postSummary: PostSummary });
@@ -109,8 +128,11 @@ export const db = createDb({ postSummary: PostSummary });
 ```tsx title="src/team-feed.tsx"
 // diff-remove-next-line
 const { data, isPending } = useTeamPosts(teamId);
-// diff-add-next-line
-const { data, status } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+// diff-add-start
+const { data, status } = useLiveQuery(
+  db.postSummary.where((post) => eq(post.teamId, teamId)),
+);
+// diff-add-end
 ```
 
 | React Query            | `useLiveQuery`                                            |
@@ -125,10 +147,15 @@ const { data, status } = useLiveQuery(db.postSummary.where((post) => eq(post.tea
 ### 4. Move the socket handler into a sync
 
 ```ts title="src/db.ts"
-const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" })
+const PostSummary = collection(PostSummarySchema, {
+  key: "id",
+  version: "updatedAt",
+})
   .load(getTeamPosts, {
     rows: (response) => response.items,
-    where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
   })
   // diff-add-start
   .sync(onPostChanged, {
@@ -146,7 +173,10 @@ changed post updates. See [real-time sync](/docs/guides/db/basics/realtime-sync)
 
 ```ts title="src/db.ts"
 collection(PostSchema, { key: "id", version: "updatedAt" }).mutate({
-  update: { request: updatePost, map: (key, changes) => ({ params: { postId: key }, payload: changes }) },
+  update: {
+    request: updatePost,
+    map: (key, changes) => ({ params: { postId: key }, payload: changes }),
+  },
 });
 ```
 

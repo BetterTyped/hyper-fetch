@@ -39,7 +39,9 @@ export function Inbox() {
     // highlight-end
   });
 
-  onSuccess(({ response }) => console.log(`Loaded ${response.data.length} messages`));
+  onSuccess(({ response }) =>
+    console.log(`Loaded ${response.data.length} messages`),
+  );
 
   return (
     <ul>

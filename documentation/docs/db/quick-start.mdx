@@ -55,7 +55,10 @@ const client = createClient({ url: "https://api.example.com" });
 const getTeamPosts = client.createRequest<{ response: Post[] }>()({
   endpoint: "/teams/:teamId/posts",
 });
-const updatePost = client.createRequest<{ response: Post; payload: Partial<Post> }>()({
+const updatePost = client.createRequest<{
+  response: Post;
+  payload: Partial<Post>;
+}>()({
   endpoint: "/posts/:postId",
   method: "PATCH",
 });
@@ -111,7 +114,9 @@ import { db } from "./db";
 export const TeamPosts = ({ teamId }: { teamId: number }) => {
   // highlight-start
   const { data, status } = useLiveQuery(
-    db.post.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+    db.post
+      .where((post) => eq(post.teamId, teamId))
+      .orderBy((post) => post.createdAt, "desc"),
   );
   // highlight-end
 

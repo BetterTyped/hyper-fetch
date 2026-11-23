@@ -21,8 +21,14 @@ type ChatMessage = { text: string; user: string };
 type ChatSchema = {
   chat: {
     messages: {
-      $listener: ListenerModel<{ response: ChatMessage; topic: "chat/messages" }>;
-      $emitter: EmitterModel<{ payload: { text: string }; topic: "chat/messages" }>;
+      $listener: ListenerModel<{
+        response: ChatMessage;
+        topic: "chat/messages";
+      }>;
+      $emitter: EmitterModel<{
+        payload: { text: string };
+        topic: "chat/messages";
+      }>;
     };
   };
 };
@@ -30,7 +36,9 @@ type ChatSchema = {
 export const socket = createSocketClient({ url: "wss://api.example.com/ws" });
 export const sdk = createSocketSdk<typeof socket, ChatSchema>(socket);
 
-sdk.chat.messages.$listener.listen(({ data }) => console.log(data.user, data.text));
+sdk.chat.messages.$listener.listen(({ data }) =>
+  console.log(data.user, data.text),
+);
 sdk.chat.messages.$emitter.emit({ payload: { text: "Hello" } });
 ```
 
@@ -64,14 +72,19 @@ Turn the kebab-case conversion off with `createSocketSdk(socket, { camelCaseToKe
 type RoomSchema = {
   chat: {
     $roomId: {
-      $listener: ListenerModel<{ response: ChatMessage; topic: "chat/:roomId" }>;
+      $listener: ListenerModel<{
+        response: ChatMessage;
+        topic: "chat/:roomId";
+      }>;
     };
   };
 };
 
 const rooms = createSocketSdk<typeof socket, RoomSchema>(socket);
 
-rooms.chat.$roomId.$listener.setParams({ roomId: "general" }).listen(({ data }) => console.log(data.text));
+rooms.chat.$roomId.$listener
+  .setParams({ roomId: "general" })
+  .listen(({ data }) => console.log(data.text));
 ```
 
 ---
@@ -95,15 +108,22 @@ callbacks receive, because a strategy configured at runtime cannot change schema
 ```ts title="trades.ts"
 type TradesSchema = {
   liveTrades: {
-    $listener: ListenerModel<{ response: Trade; topic: "live-trades"; delivered: Trade[] }>;
+    $listener: ListenerModel<{
+      response: Trade;
+      topic: "live-trades";
+      delivered: Trade[];
+    }>;
   };
 };
 
 const trades = createSocketSdk<typeof socket, TradesSchema>(socket, {
-  defaults: { "live-trades": { delivery: { strategy: "batch", interval: 100 } } },
+  defaults: {
+    "live-trades": { delivery: { strategy: "batch", interval: 100 } },
+  },
 });
 
-trades.liveTrades.$listener.listen(({ data }) => console.log(data.length)); // data: Trade[]
+// data: Trade[]
+trades.liveTrades.$listener.listen(({ data }) => console.log(data.length));
 ```
 
 ---
@@ -116,7 +136,8 @@ new SDK and merges with the defaults it already has.
 ```ts title="sdk.ts"
 const configured = sdk.$configure({
   "chat/*": { delivery: { strategy: "latest", interval: 50 } },
-  "chat.messages.$emitter": (emitter) => emitter.setPayloadMapper((payload) => ({ ...payload, sentAt: Date.now() })),
+  "chat.messages.$emitter": (emitter) =>
+    emitter.setPayloadMapper((payload) => ({ ...payload, sentAt: Date.now() })),
 });
 ```
 

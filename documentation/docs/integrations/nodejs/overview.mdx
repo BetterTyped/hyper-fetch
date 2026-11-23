@@ -35,7 +35,9 @@ import { createClient } from "@hyper-fetch/core";
 
 const client = createClient({ url: "https://api.example.com" });
 
-const getUsers = client.createRequest<{ response: { id: number; name: string }[] }>()({
+const getUsers = client.createRequest<{
+  response: { id: number; name: string }[];
+}>()({
   endpoint: "/users",
 });
 
@@ -65,7 +67,9 @@ import express from "express";
 import { createClient } from "@hyper-fetch/core";
 
 const client = createClient({ url: "https://api.example.com" });
-const getProfile = client.createRequest<{ response: { name: string } }>()({ endpoint: "/me" });
+const getProfile = client.createRequest<{ response: { name: string } }>()({
+  endpoint: "/me",
+});
 
 const app = express();
 

@@ -65,8 +65,8 @@ The document is on `http://localhost:8080/v3/api-docs`.
 Run the CLI in the frontend project while the server is running:
 
 ```bash title="frontend"
-npx hyper-fetch generate --template openapi --fileName spring.sdk.ts --overwrite \
-  --url http://localhost:8080/v3/api-docs
+npx hyper-fetch generate --template openapi --fileName spring.sdk.ts \
+  --overwrite --url http://localhost:8080/v3/api-docs
 ```
 
 It writes `src/api/spring.sdk.ts`. The folder comes from `api.json`, which the first run creates. Every path becomes

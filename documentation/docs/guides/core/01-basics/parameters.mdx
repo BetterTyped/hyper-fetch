@@ -101,7 +101,9 @@ contain `/`, `?`, `#` or spaces:
 ```ts title="src/app.ts"
 const getFile = client.createRequest()({ endpoint: "/files/:path" });
 
-await getFile.send({ params: { path: encodeURIComponent("docs/report 2024.pdf") } });
+await getFile.send({
+  params: { path: encodeURIComponent("docs/report 2024.pdf") },
+});
 // GET /files/docs%2Freport%202024.pdf
 ```
 

@@ -107,7 +107,11 @@ queues are skipped.
 function such as `exponentialBackoff()`). `send()` resolves after the last attempt.
 
 ```ts
-const getReport = client.createRequest()({ endpoint: "/reports", retry: 3, retryTime: 1000 });
+const getReport = client.createRequest()({
+  endpoint: "/reports",
+  retry: 3,
+  retryTime: 1000,
+});
 ```
 
 Each scheduled retry calls `onRetry` with its number and delay. See the [retries guide](/docs/guides/core/basics/retries).
@@ -168,9 +172,11 @@ Each dispatcher has an `events` object with `onQueueChange`, `onQueueStatusChang
 `onRunningRequestsChange`, each with a `...ByKey` variant for one queue. They return an unsubscribe function.
 
 ```ts
-const unsubscribe = client.fetchDispatcher.events.onRunningRequestsChange(({ queryKey, runningRequests }) => {
-  console.log(`${queryKey}: ${runningRequests.length} running`);
-});
+const unsubscribe = client.fetchDispatcher.events.onRunningRequestsChange(
+  ({ queryKey, runningRequests }) => {
+    console.log(`${queryKey}: ${runningRequests.length} running`);
+  },
+);
 ```
 
 [Plugins](/docs/core/plugin) get the same changes through `onDispatcherItemAdded`, `onDispatcherQueueDrained` and the

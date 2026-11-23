@@ -35,15 +35,27 @@ import { collection } from "@hyper-fetch/db";
 
 const getTeamPosts = client.createRequest<{
   response: { items: PostSummary[]; next: string | null };
-  queryParams?: { status?: "draft" | "published"; likes_gt?: number; title?: string; sort?: string };
+  queryParams?: {
+    status?: "draft" | "published";
+    likes_gt?: number;
+    title?: string;
+    sort?: string;
+  };
 }>()({ endpoint: "/teams/:teamId/posts" });
 
-const getPost = client.createRequest<{ response: Post }>()({ endpoint: "/posts/:postId" });
-
-const PostSummary = collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
-  rows: (response) => response.items,
-  where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+const getPost = client.createRequest<{ response: Post }>()({
+  endpoint: "/posts/:postId",
 });
+
+const PostSummary = collection(PostSummarySchema, { key: "id" }).load(
+  getTeamPosts,
+  {
+    rows: (response) => response.items,
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
+  },
+);
 
 const Post = collection(PostSchema, { key: "id" }).load(getPost, {
   byKey: (id) => ({ params: { postId: id } }),
@@ -65,12 +77,18 @@ records, so `rows` maps a response to complete rows:
 
 ```ts title="src/db.ts"
 const getFeed = client.createRequest<{
-  response: { data: { items: (Omit<PostSummary, "authorId"> & { author: User })[] } };
+  response: {
+    data: { items: (Omit<PostSummary, "authorId"> & { author: User })[] };
+  };
 }>()({ endpoint: "/feed" });
 
 collection(PostSummarySchema, { key: "id" }).load(getFeed, {
   // Unwrap the list, and keep only the author's id on each row
-  rows: (response) => response.data.items.map(({ author, ...post }) => ({ ...post, authorId: author.id })),
+  rows: (response) =>
+    response.data.items.map(({ author, ...post }) => ({
+      ...post,
+      authorId: author.id,
+    })),
 });
 ```
 
@@ -78,14 +96,18 @@ The rows a loader produces must be **exactly** the schema's row type. A missing 
 another type is a compile error:
 
 ```ts title="src/db.ts"
-const PostSummary = collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
-  // error-next-line
-  rows: (response) => response.items.map(({ likes, ...post }) => post),
-});
+const PostSummary = collection(PostSummarySchema, { key: "id" }).load(
+  getTeamPosts,
+  {
+    // error-next-line
+    rows: (response) => response.items.map(({ likes, ...post }) => post),
+  },
+);
 
 // error-next-line
 createDb({ postSummary: PostSummary });
-// `PostSummary` is a RowMismatch: the rows lack `likes`, so it has no collection methods
+// `PostSummary` is a RowMismatch: the rows lack `likes`, so it has no
+// collection methods
 ```
 
 The error shows where you use the result, not inside the callback: the loader returns a `RowMismatch` type that holds
@@ -99,18 +121,23 @@ fill their own collection too. See [Related data and joins](/docs/guides/db/patt
 `where` lists, for each field, the operators the endpoint can serve. `orderBy` lists the fields it can sort by:
 
 ```ts title="src/db.ts"
-const PostSummary = collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
-  rows: (response) => response.items,
-  where: {
-    // Part of the URL: the endpoint cannot work without it
-    teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
-    status: { eq: (status) => ({ queryParams: { status } }) },
-    likes: { gt: (likes) => ({ queryParams: { likes_gt: likes } }) },
+const PostSummary = collection(PostSummarySchema, { key: "id" }).load(
+  getTeamPosts,
+  {
+    rows: (response) => response.items,
+    where: {
+      // Part of the URL: the endpoint cannot work without it
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+      status: { eq: (status) => ({ queryParams: { status } }) },
+      likes: { gt: (likes) => ({ queryParams: { likes_gt: likes } }) },
+    },
+    orderBy: {
+      createdAt: (direction) => ({
+        queryParams: { sort: `createdAt:${direction}` },
+      }),
+    },
   },
-  orderBy: {
-    createdAt: (direction) => ({ queryParams: { sort: `createdAt:${direction}` } }),
-  },
-});
+);
 ```
 
 Now the query decides what is sent. Conditions joined by a top-level `and` that the loader declares go to the backend,
@@ -123,7 +150,8 @@ db.postSummary.where((post) =>
   and(
     eq(post.teamId, "t1"), // sent: /teams/t1/posts
     gt(post.likes, 10), // sent: ?likes_gt=10
-    inArray(post.authorId, ["u1", "u2"]), // not declared: filtered on the returned rows
+    // not declared: filtered on the returned rows
+    inArray(post.authorId, ["u1", "u2"]),
   ),
 );
 ```
@@ -156,7 +184,9 @@ const db = createDb(
       gt: (field, value) => ({ queryParams: { [`${field}_gt`]: value } }),
       eq: (field, value) => ({ queryParams: { [field]: value } }),
     },
-    orderBy: (field, direction) => ({ queryParams: { sort: `${field}:${direction}` } }),
+    orderBy: (field, direction) => ({
+      queryParams: { sort: `${field}:${direction}` },
+    }),
   },
 );
 
@@ -178,7 +208,10 @@ collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
 A collection can load through several endpoints. Add them in one chain:
 
 ```ts title="src/db.ts"
-const getPosts = client.createRequest<{ response: PostSummary[]; queryParams?: { authorId?: string } }>()({
+const getPosts = client.createRequest<{
+  response: PostSummary[];
+  queryParams?: { authorId?: string };
+}>()({
   endpoint: "/posts",
 });
 
@@ -186,7 +219,9 @@ const PostSummary = collection(PostSummarySchema, { key: "id" })
   // Loader 0: a team's posts
   .load(getTeamPosts, {
     rows: (response) => response.items,
-    where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
   })
   // Loader 1: posts across teams, by author
   .load(getPosts, {
@@ -202,10 +237,14 @@ db.postSummary.where((post) => eq(post.teamId, "t1")).explain();
 // loader: 0, sent: teamId                  only loader 0 can send it
 
 db.postSummary.where((post) => eq(post.authorId, "u1")).explain();
-// loader: 1, sent: authorId                loader 0 is out: the query sets no teamId
+// loader: 1, sent: authorId                loader 0 is out: the query sets no
+// teamId
 
-db.postSummary.where((post) => and(eq(post.teamId, "t1"), eq(post.authorId, "u1"))).explain();
-// loader: 0, sent: teamId, local: authorId each sends one condition, so the first one wins
+db.postSummary
+  .where((post) => and(eq(post.teamId, "t1"), eq(post.authorId, "u1")))
+  .explain();
+// loader: 0, sent: teamId, local: authorId each sends one condition, so the
+// first one wins
 ```
 
 Adding a loader can change which loader serves an existing query. `explain()` shows the plan, and
@@ -236,7 +275,10 @@ A by-key loader with `byKey` reads one row per request. With `byKeys`, every key
 tick goes out as **one** request:
 
 ```ts title="src/db.ts"
-const getUsers = client.createRequest<{ response: User[]; queryParams?: { ids?: string[] } }>()({
+const getUsers = client.createRequest<{
+  response: User[];
+  queryParams?: { ids?: string[] };
+}>()({
   endpoint: "/users",
 });
 
@@ -271,7 +313,9 @@ A loaded subset decides on its own when to load again:
   holds then leave the collection.
 
 ```ts title="src/requests.ts"
-const getTeamPosts = client.createRequest<{ response: { items: PostSummary[] } }>()({
+const getTeamPosts = client.createRequest<{
+  response: { items: PostSummary[] };
+}>()({
   endpoint: "/teams/:teamId/posts",
   staleTime: 30_000,
 });

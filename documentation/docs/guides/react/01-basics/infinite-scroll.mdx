@@ -53,10 +53,10 @@ const getPosts = client.createRequest<{
 }>()({ endpoint: "/posts" });
 
 function PostList() {
-  const { items, loading, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteFetch(
-    getPosts.setQueryParams({ limit: 5 }),
-    { pagination: { page: "page", limit: "limit" } },
-  );
+  const { items, loading, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    useInfiniteFetch(getPosts.setQueryParams({ limit: 5 }), {
+      pagination: { page: "page", limit: "limit" },
+    });
 
   if (loading) return <p>Loading...</p>;
 
@@ -96,7 +96,9 @@ after the list:
 
 ```tsx title="components/scrolling-post-list.tsx"
 function PostList() {
-  const { items, hasNextPage, fetchNextPage } = useInfiniteFetch(getPosts, { pagination: { page: "page" } });
+  const { items, hasNextPage, fetchNextPage } = useInfiniteFetch(getPosts, {
+    pagination: { page: "page" },
+  });
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -133,11 +135,14 @@ from the cache.
 
 ```tsx title="components/search-posts.tsx"
 function SearchPosts({ search }: { search: string }) {
-  const { items, isPreviousData } = useInfiniteFetch(getPosts.setQueryParams({ search }), {
-    pagination: { page: "page" },
-    bounce: true,
-    bounceTime: 300,
-  });
+  const { items, isPreviousData } = useInfiniteFetch(
+    getPosts.setQueryParams({ search }),
+    {
+      pagination: { page: "page" },
+      bounce: true,
+      bounceTime: 300,
+    },
+  );
 
   return (
     <ul style={{ opacity: isPreviousData ? 0.5 : 1 }}>
@@ -171,7 +176,12 @@ function Feed() {
     maxPages: 10, // keep at most 10 pages in memory
   });
 
-  return <PostGrid posts={items} onEndReached={hasNextPage ? fetchNextPage : undefined} />;
+  return (
+    <PostGrid
+      posts={items}
+      onEndReached={hasNextPage ? fetchNextPage : undefined}
+    />
+  );
 }
 ```
 

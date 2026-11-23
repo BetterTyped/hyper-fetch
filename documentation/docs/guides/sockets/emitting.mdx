@@ -30,7 +30,9 @@ Create the emitter once with the payload type, then pass the payload to `emit()`
 ```ts title="src/api/chat.ts"
 import { socket } from "./socket";
 
-export const sendChatMessage = socket.createEmitter<{ text: string }>()({ topic: "chat" });
+export const sendChatMessage = socket.createEmitter<{ text: string }>()({
+  topic: "chat",
+});
 
 sendChatMessage.emit({ payload: { text: "Hello" } });
 ```
@@ -54,10 +56,15 @@ Put params in the topic with a colon. Pass them in `emit()` or set them with `se
 types require them.
 
 ```ts title="src/api/direct-messages.ts"
-export const sendDirectMessage = socket.createEmitter<{ text: string }>()({ topic: "dm/:userId" });
+export const sendDirectMessage = socket.createEmitter<{ text: string }>()({
+  topic: "dm/:userId",
+});
 
 // Sent to "dm/user-123"
-sendDirectMessage.emit({ params: { userId: "user-123" }, payload: { text: "Hi" } });
+sendDirectMessage.emit({
+  params: { userId: "user-123" },
+  payload: { text: "Hi" },
+});
 
 // Or fill the param once and reuse the emitter
 const toAnna = sendDirectMessage.setParams({ userId: "anna" });
@@ -106,8 +113,12 @@ When the server must answer, it sends the reply on another topic. Put a correlat
 listener.
 
 ```ts title="src/join-room.ts"
-const sendJoin = socket.createEmitter<{ requestId: string; roomId: string }>()({ topic: "rooms/join" });
-const onJoinReply = socket.createListener<{ requestId: string; ok: boolean }>()({ topic: "rooms/join/reply" });
+const sendJoin = socket.createEmitter<{ requestId: string; roomId: string }>()({
+  topic: "rooms/join",
+});
+const onJoinReply = socket.createListener<{ requestId: string; ok: boolean }>()(
+  { topic: "rooms/join/reply" },
+);
 
 export const joinRoom = (roomId: string) =>
   new Promise<boolean>((resolve) => {

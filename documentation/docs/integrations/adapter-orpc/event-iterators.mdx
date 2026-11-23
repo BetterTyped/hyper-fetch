@@ -48,11 +48,14 @@ const publisher = new EventPublisher<Record<string, Planet>>();
 
 export const router = {
   planet: {
-    onUpdate: os.input(z.object({ id: z.number() })).handler(async function* ({ input, signal }) {
-      for await (const planet of publisher.subscribe(`planet/${input.id}`, { signal })) {
-        yield withEventMeta(planet, { id: String(planet.version) });
-      }
-    }),
+    onUpdate: os
+      .input(z.object({ id: z.number() }))
+      .handler(async function* ({ input, signal }) {
+        const events = publisher.subscribe(`planet/${input.id}`, { signal });
+        for await (const planet of events) {
+          yield withEventMeta(planet, { id: String(planet.version) });
+        }
+      }),
   },
 };
 ```
@@ -64,15 +67,23 @@ import type { OrpcSocketSchema } from "@hyper-fetch/orpc";
 
 import type { router } from "../server/router";
 
-export const socket = new Socket({ url: "http://localhost:3000/rpc", adapter: OrpcStreamAdapter() });
+export const socket = new Socket({
+  url: "http://localhost:3000/rpc",
+  adapter: OrpcStreamAdapter(),
+});
 
-export const sdk = createSocketSdk<typeof socket, OrpcSocketSchema<typeof router>>(socket, {
+export const sdk = createSocketSdk<
+  typeof socket,
+  OrpcSocketSchema<typeof router>
+>(socket, {
   camelCaseToKebabCase: false,
 });
 
-const stop = sdk.planet.onUpdate.$listener.setPayload({ id: 1 }).listen(({ data, extra }) => {
-  console.log(data.name, extra.id);
-});
+const stop = sdk.planet.onUpdate.$listener
+  .setPayload({ id: 1 })
+  .listen(({ data, extra }) => {
+    console.log(data.name, extra.id);
+  });
 ```
 
 Every subscription is its own request, so "connected" means the adapter opens streams: `connect()` starts every
@@ -102,7 +113,10 @@ wss.on("connection", (ws) => handler.upgrade(ws, { context: {} }));
 ```ts title="api/socket.ts"
 import { OrpcWebsocketAdapter } from "@hyper-fetch/orpc";
 
-export const socket = new Socket({ url: "ws://localhost:3000", adapter: OrpcWebsocketAdapter() });
+export const socket = new Socket({
+  url: "ws://localhost:3000",
+  adapter: OrpcWebsocketAdapter(),
+});
 ```
 
 A lost connection comes back with the [socket reconnection](/docs/guides/sockets/connection) backoff, and every running
@@ -138,12 +152,14 @@ The `extra` of every event holds the meta the server set with `withEventMeta`: `
 the last id as the `last-event-id` header, and oRPC passes it to the procedure as `lastEventId`.
 
 ```ts title="server/router.ts"
-onUpdate: os.input(z.object({ id: z.number() })).handler(async function* ({ input, lastEventId }) {
-  for (const planet of await history.after(input.id, lastEventId)) {
-    yield withEventMeta(planet, { id: String(planet.version) });
-  }
-  // ...then the live events
-}),
+onUpdate: os
+  .input(z.object({ id: z.number() }))
+  .handler(async function* ({ input, lastEventId }) {
+    for (const planet of await history.after(input.id, lastEventId)) {
+      yield withEventMeta(planet, { id: String(planet.version) });
+    }
+    // ...then the live events
+  }),
 ```
 
 ---
@@ -159,7 +175,9 @@ import { useListener } from "@hyper-fetch/react";
 import { sdk } from "./api/socket";
 
 export const Planet = ({ id }: { id: number }) => {
-  const { data, extra, status, error } = useListener(sdk.planet.onUpdate.$listener.setPayload({ id }));
+  const { data, extra, status, error } = useListener(
+    sdk.planet.onUpdate.$listener.setPayload({ id }),
+  );
 
   if (status === "failed") return <p>{error?.message}</p>;
 
@@ -191,7 +209,11 @@ Subscription errors never throw into your code. They reach `socket.onError` as a
 import { OrpcSocketError } from "@hyper-fetch/orpc";
 
 socket.onError(({ error }) => {
-  if (error instanceof OrpcSocketError && error.defined && error.code === "OVERHEATED") {
+  if (
+    error instanceof OrpcSocketError &&
+    error.defined &&
+    error.code === "OVERHEATED"
+  ) {
     console.log(error.topic, error.payload, error.data);
   }
 });
@@ -209,10 +231,14 @@ event.
 Both adapters report when the server confirms a subscription and when it ends. Pass `onStart` and `onEnd` to `listen()`.
 
 ```ts title="api/countdown.ts"
-sdk.countdown.$listener.setPayload({ from: 3 }).listen(({ data }) => console.log(data), {
-  onStart: ({ topic }) => console.log(`${topic} is live`), // also after every restart
-  onEnd: ({ topic, error }) => console.log(topic, error ? "failed" : "finished"),
-});
+sdk.countdown.$listener
+  .setPayload({ from: 3 })
+  .listen(({ data }) => console.log(data), {
+    // also after every restart
+    onStart: ({ topic }) => console.log(`${topic} is live`),
+    onEnd: ({ topic, error }) =>
+      console.log(topic, error ? "failed" : "finished"),
+  });
 ```
 
 - `onStart` runs when the response carries the event iterator, right away for a listener that joins a running
@@ -244,7 +270,10 @@ in the socket's `adapterOptions`, or per connection attempt in `socket.onConnect
 export const socket = new Socket({
   url: "http://localhost:3000/rpc",
   adapter: OrpcStreamAdapter({ customJsonSerializers: [moneySerializer] }),
-  adapterOptions: { headers: { authorization: `Bearer ${token}` }, fetchOptions: { credentials: "include" } },
+  adapterOptions: {
+    headers: { authorization: `Bearer ${token}` },
+    fetchOptions: { credentials: "include" },
+  },
 });
 ```
 

@@ -62,7 +62,8 @@ Each SDK initializes its own app instance and keeps its own signed-in user, so s
 
 ```bash
 npx expo install firebase @react-native-community/netinfo
-npm install @hyper-fetch/core @hyper-fetch/firebase @hyper-fetch/sockets @hyper-fetch/react
+npm install @hyper-fetch/core @hyper-fetch/firebase @hyper-fetch/sockets \
+  @hyper-fetch/react
 ```
 
 Outside Expo, install `firebase` and `@react-native-community/netinfo` with npm as usual. `@hyper-fetch/sockets` is
@@ -95,13 +96,21 @@ const db = getFirestore(app);
 const createAppManager = () =>
   new AppManager({
     initiallyOnline: () => NetInfo.fetch().then((state) => !!state.isConnected),
-    onlineEvent: (setOnline) => NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
+    onlineEvent: (setOnline) =>
+      NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
   });
 // highlight-end
 
-export const client = new Client({ url: "", appManager: createAppManager }).setAdapter(FirebaseAdapter(db));
+export const client = new Client({
+  url: "",
+  appManager: createAppManager,
+}).setAdapter(FirebaseAdapter(db));
 
-export const socket = new Socket({ url: "", appManager: createAppManager, adapter: FirebaseSocketsAdapter(db) });
+export const socket = new Socket({
+  url: "",
+  appManager: createAppManager,
+  adapter: FirebaseSocketsAdapter(db),
+});
 ```
 
 With this in place, requests sent while the device is offline wait and go out when `NetInfo` reports a connection
@@ -141,7 +150,9 @@ import { useFetch, useSubmit } from "@hyper-fetch/react";
 import { client } from "../api/firebase";
 import { addTask, getTasks } from "../api/tasks";
 
-const openTasks = getTasks.setQueryParams((c) => c.where("done", "==", false).orderBy("createdAt", "desc"));
+const openTasks = getTasks.setQueryParams((c) =>
+  c.where("done", "==", false).orderBy("createdAt", "desc"),
+);
 
 export function TasksScreen() {
   const { data, loading, error } = useFetch(openTasks);
@@ -154,10 +165,18 @@ export function TasksScreen() {
 
   return (
     <View>
-      <FlatList data={data ?? []} keyExtractor={(task) => task.__key} renderItem={({ item }) => <Text>{item.title}</Text>} />
+      <FlatList
+        data={data ?? []}
+        keyExtractor={(task) => task.__key}
+        renderItem={({ item }) => <Text>{item.title}</Text>}
+      />
       <Pressable
         disabled={submitting}
-        onPress={() => submit({ payload: { title: "New task", done: false, createdAt: Date.now() } })}
+        onPress={() =>
+          submit({
+            payload: { title: "New task", done: false, createdAt: Date.now() },
+          })
+        }
       >
         <Text>Add task</Text>
       </Pressable>

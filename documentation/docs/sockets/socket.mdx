@@ -17,8 +17,12 @@ import { createSocketClient } from "@hyper-fetch/sockets";
 
 export const socket = createSocketClient({ url: "wss://api.example.com/ws" });
 
-export const onMessage = socket.createListener<{ text: string }>()({ topic: "chat" });
-export const sendMessage = socket.createEmitter<{ text: string }>()({ topic: "chat" });
+export const onMessage = socket.createListener<{ text: string }>()({
+  topic: "chat",
+});
+export const sendMessage = socket.createEmitter<{ text: string }>()({
+  topic: "chat",
+});
 ```
 
 `createSocketClient(options)` and `new Socket(options)` are the same. The WebSocket adapter connects as soon as the
@@ -41,7 +45,10 @@ The adapter decides how the socket talks to the server. WebSocket is the default
 Server-Sent Events, and your listeners keep working.
 
 ```ts title="events.ts"
-import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+import {
+  createSocketClient,
+  ServerSentEventsAdapter,
+} from "@hyper-fetch/sockets";
 
 export const events = createSocketClient({
   url: "https://api.example.com/events",
@@ -61,13 +68,13 @@ the connection (`url`, `queryParams`, `adapterOptions`) and the `attempt` number
 can be async, so a reconnect never reuses an expired token.
 
 ```ts title="socket.ts"
-export const socket = createSocketClient({ url: "wss://api.example.com/ws" }).onConnect(
-  async ({ connection, attempt }) => {
-    // attempt is 0 for a fresh connection
-    const token = await getAccessToken({ forceRefresh: attempt > 0 });
-    return { ...connection, queryParams: { token } };
-  },
-);
+export const socket = createSocketClient({
+  url: "wss://api.example.com/ws",
+}).onConnect(async ({ connection, attempt }) => {
+  // attempt is 0 for a fresh connection
+  const token = await getAccessToken({ forceRefresh: attempt > 0 });
+  return { ...connection, queryParams: { token } };
+});
 ```
 
 Chain `onConnect` right after creating the socket, so it applies to the first connection. If it throws, the attempt
@@ -170,8 +177,12 @@ emit and returns the emitter to send. Both must return a value.
 
 ```ts title="socket.ts"
 socket
-  .onMessage<{ text: string }>(({ event, topic }) => ({ ...event, text: event.text.trim() }))
-  .onSend(({ emitter }) => emitter.setPayload({ ...emitter.payload, sentAt: Date.now() }));
+  .onMessage<{
+    text: string;
+  }>(({ event, topic }) => ({ ...event, text: event.text.trim() }))
+  .onSend(({ emitter }) =>
+    emitter.setPayload({ ...emitter.payload, sentAt: Date.now() }),
+  );
 ```
 
 `event` is the decoded message data, `topic` its topic, and `extra` the adapter's details, such as the `MessageEvent`.

@@ -16,10 +16,13 @@ import { socket } from "./socket";
 
 type ChatMessage = { id: string; author: string; text: string };
 
-export const onChatMessage = socket.createListener<ChatMessage>()({ topic: "chat" });
+export const onChatMessage = socket.createListener<ChatMessage>()({
+  topic: "chat",
+});
 
 const unlisten = onChatMessage.listen(({ data, extra }) => {
-  console.log(data.author, data.text); // data: ChatMessage, extra: the adapter's details, such as the MessageEvent
+  // data: ChatMessage, extra: the adapter's details, such as the MessageEvent
+  console.log(data.author, data.text);
 });
 
 unlisten(); // stop listening
@@ -61,10 +64,18 @@ Put params in the topic with a colon, such as `:roomId`. `setParams` fills them 
 param combination is its own topic: topics match exactly, without prefixes or wildcards.
 
 ```ts title="rooms.ts"
-export const onRoomMessage = socket.createListener<ChatMessage>()({ topic: "rooms/:roomId" });
+export const onRoomMessage = socket.createListener<ChatMessage>()({
+  topic: "rooms/:roomId",
+});
 
-onRoomMessage.setParams({ roomId: "general" }).listen(({ data }) => console.log(data.text)); // topic "rooms/general"
-onRoomMessage.setParams({ roomId: "random" }).listen(({ data }) => console.log(data.text)); // topic "rooms/random"
+// topic "rooms/general"
+onRoomMessage
+  .setParams({ roomId: "general" })
+  .listen(({ data }) => console.log(data.text));
+// topic "rooms/random"
+onRoomMessage
+  .setParams({ roomId: "random" })
+  .listen(({ data }) => console.log(data.text));
 ```
 
 Param names come from the topic string, so a missing or misspelled param is a type error.
@@ -115,10 +126,17 @@ subscription or the input of an oRPC event iterator. This is the subscription pa
 generic and set it with `setPayload`, or for one subscription in `listen`.
 
 ```ts title="chat.ts"
-export const onMessage = socket.createListener<ChatMessage, { roomId: string }>()({ topic: "chat.onMessage" });
+export const onMessage = socket.createListener<
+  ChatMessage,
+  { roomId: string }
+>()({ topic: "chat.onMessage" });
 
-onMessage.setPayload({ roomId: "1" }).listen(({ data }) => console.log(data.text));
-onMessage.listen(({ data }) => console.log(data.text), { payload: { roomId: "2" } });
+onMessage
+  .setPayload({ roomId: "1" })
+  .listen(({ data }) => console.log(data.text));
+onMessage.listen(({ data }) => console.log(data.text), {
+  payload: { roomId: "2" },
+});
 ```
 
 - A required payload must be set before listening. `listen` without it is a type error.
@@ -173,7 +191,9 @@ A realtime update can write straight into the cache of a [request](/docs/core/re
 it updates without a refetch.
 
 ```ts title="notes.ts"
-const getNote = client.createRequest<{ response: Note }>()({ endpoint: "/notes/:noteId" });
+const getNote = client.createRequest<{ response: Note }>()({
+  endpoint: "/notes/:noteId",
+});
 const onNoteChange = socket.createListener<Note>()({ topic: "notes" });
 
 onNoteChange.listen(({ data }) => {

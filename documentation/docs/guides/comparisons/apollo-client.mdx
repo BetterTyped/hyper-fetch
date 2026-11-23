@@ -77,14 +77,20 @@ import { GraphqlAdapter, GraphqlErrorType } from "@hyper-fetch/graphql";
 import { useFetch } from "@hyper-fetch/react";
 import gql from "graphql-tag";
 
-export const client = new Client<GraphqlErrorType>({ url: "https://api.example.com/graphql" }).setAdapter(
-  GraphqlAdapter(),
-);
+export const client = new Client<GraphqlErrorType>({
+  url: "https://api.example.com/graphql",
+}).setAdapter(GraphqlAdapter());
 
-export const getUser = client.createRequest<{ response: { user: User }; payload: { id: string } }>()({
+export const getUser = client.createRequest<{
+  response: { user: User };
+  payload: { id: string };
+}>()({
   endpoint: gql`
     query GetUser($id: ID!) {
-      user(id: $id) { id name }
+      user(id: $id) {
+        id
+        name
+      }
     }
   `,
 });
@@ -139,7 +145,10 @@ export const renameUser = client.createRequest<{
 }>()({
   endpoint: gql`
     mutation RenameUser($id: ID!, $name: String!) {
-      renameUser(id: $id, name: $name) { id name }
+      renameUser(id: $id, name: $name) {
+        id
+        name
+      }
     }
   `,
 });
@@ -151,7 +160,10 @@ function RenameButton({ id }: { id: string }) {
   onSubmitSuccess(() => client.cache.invalidate(getUser.setPayload({ id })));
 
   return (
-    <button disabled={submitting} onClick={() => submit({ payload: { id, name: "Ada" } })}>
+    <button
+      disabled={submitting}
+      onClick={() => submit({ payload: { id, name: "Ada" } })}
+    >
       Rename
     </button>
   );
@@ -167,7 +179,10 @@ import { useMutation } from "@apollo/client/react";
 
 const RENAME_USER = gql`
   mutation RenameUser($id: ID!, $name: String!) {
-    renameUser(id: $id, name: $name) { id name }
+    renameUser(id: $id, name: $name) {
+      id
+      name
+    }
   }
 `;
 
@@ -176,7 +191,10 @@ function RenameButton({ id }: { id: string }) {
   const [renameUser, { loading }] = useMutation(RENAME_USER);
 
   return (
-    <button disabled={loading} onClick={() => renameUser({ variables: { id, name: "Ada" } })}>
+    <button
+      disabled={loading}
+      onClick={() => renameUser({ variables: { id, name: "Ada" } })}
+    >
       Rename
     </button>
   );
@@ -196,14 +214,22 @@ import { Socket } from "@hyper-fetch/sockets";
 import { GraphqlWsAdapter } from "@hyper-fetch/graphql";
 import { useListener } from "@hyper-fetch/react";
 
-const socket = new Socket({ url: "wss://api.example.com/graphql", adapter: GraphqlWsAdapter() });
+const socket = new Socket({
+  url: "wss://api.example.com/graphql",
+  adapter: GraphqlWsAdapter(),
+});
 
-const onMessage = socket.createListener<{ onMessage: { text: string } }, { room: string }>()({
+const onMessage = socket.createListener<
+  { onMessage: { text: string } },
+  { room: string }
+>()({
   topic: "OnMessage",
   options: {
     document: gql`
       subscription OnMessage($room: String!) {
-        onMessage(room: $room) { text }
+        onMessage(room: $room) {
+          text
+        }
       }
     `,
   },
@@ -211,7 +237,9 @@ const onMessage = socket.createListener<{ onMessage: { text: string } }, { room:
 
 function ChatRoom({ room }: { room: string }) {
   const { data, status } = useListener(onMessage.setPayload({ room }));
-  return <p>{status === "listening" ? data?.onMessage.text : "Connecting..."}</p>;
+  return (
+    <p>{status === "listening" ? data?.onMessage.text : "Connecting..."}</p>
+  );
 }
 ```
 
@@ -222,15 +250,20 @@ function ChatRoom({ room }: { room: string }) {
 import { gql } from "@apollo/client";
 import { useSubscription } from "@apollo/client/react";
 
-// The client's link uses ApolloLink.split to send subscriptions over GraphQLWsLink
+// The client's link uses ApolloLink.split to send subscriptions over
+// GraphQLWsLink
 const ON_MESSAGE = gql`
   subscription OnMessage($room: String!) {
-    onMessage(room: $room) { text }
+    onMessage(room: $room) {
+      text
+    }
   }
 `;
 
 function ChatRoom({ room }: { room: string }) {
-  const { data, loading } = useSubscription(ON_MESSAGE, { variables: { room } });
+  const { data, loading } = useSubscription(ON_MESSAGE, {
+    variables: { room },
+  });
   return <p>{loading ? "Connecting..." : data?.onMessage.text}</p>;
 }
 ```

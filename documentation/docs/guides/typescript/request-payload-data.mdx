@@ -31,7 +31,9 @@ export const createUser = client.createRequest<{
   payload: CreateUserPayload;
 }>()({ endpoint: "/users", method: "POST" });
 
-const { data } = await createUser.send({ payload: { name: "Ann", email: "ann@example.com" } });
+const { data } = await createUser.send({
+  payload: { name: "Ann", email: "ann@example.com" },
+});
 ```
 
 ---
@@ -64,7 +66,8 @@ import type { ExtractPayloadType } from "@hyper-fetch/core";
 
 type UserForm = ExtractPayloadType<typeof createUser>; // CreateUserPayload
 
-export const submitUser = (values: UserForm) => createUser.send({ payload: values });
+export const submitUser = (values: UserForm) =>
+  createUser.send({ payload: values });
 ```
 
 `setPayloadMapper` does not change the payload type: callers keep passing the typed object, and the mapper converts it

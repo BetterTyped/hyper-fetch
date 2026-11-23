@@ -52,7 +52,9 @@ const prefetchUser = (userId: number) => {
   getUser.send({ params: { userId } });
 };
 
-link.addEventListener("pointerenter", () => prefetchUser(Number(link.dataset.userId)));
+link.addEventListener("pointerenter", () =>
+  prefetchUser(Number(link.dataset.userId)),
+);
 ```
 
 Hovering twice while the first request is in flight does not send a second one: GET requests are
@@ -71,7 +73,8 @@ import type { RequestInstance } from "@hyper-fetch/core";
 
 const prefetchIfStale = (request: RequestInstance) => {
   const cached = client.cache.get(request.cacheKey);
-  const isFresh = !!cached && Date.now() - cached.responseTimestamp < cached.staleTime;
+  const isFresh =
+    !!cached && Date.now() - cached.responseTimestamp < cached.staleTime;
 
   if (!isFresh) request.send();
 };

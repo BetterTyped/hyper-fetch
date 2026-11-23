@@ -52,7 +52,11 @@ export function AddTodo() {
 
   return (
     <form onSubmit={onSubmit} className="flex gap-2">
-      <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What needs to be done?" />
+      <input
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="What needs to be done?"
+      />
       <button type="submit" disabled={submitting}>
         {submitting ? "Adding..." : "Add"}
       </button>
@@ -78,10 +82,20 @@ function TodoItem({ todo }: { todo: Todo }) {
 
   return (
     <li className="flex justify-between">
-      <span onClick={() => update({ params: { todoId: todo.id }, payload: { completed: !todo.completed } })}>
+      <span
+        onClick={() =>
+          update({
+            params: { todoId: todo.id },
+            payload: { completed: !todo.completed },
+          })
+        }
+      >
         {todo.title}
       </span>
-      <button onClick={() => remove({ params: { todoId: todo.id } })} disabled={removing}>
+      <button
+        onClick={() => remove({ params: { todoId: todo.id } })}
+        disabled={removing}
+      >
         Delete
       </button>
     </li>
@@ -106,7 +120,9 @@ onSubmitSuccess(({ response }) => {
   client.cache.invalidate(getTodos);
 
   // 2. Or write the result into the cached list, without a request
-  client.cache.update(getTodos, (cached) => ({ data: [...(cached?.data ?? []), response.data] }));
+  client.cache.update(getTodos, (cached) => ({
+    data: [...(cached?.data ?? []), response.data],
+  }));
 });
 
 // 3. Or refetch only in this component: const { refetch } = useFetch(getTodos)
@@ -130,7 +146,8 @@ to every submit of the hook. Callbacks receive one object, fire only for this ho
 `onSubmitRequestStart`, then success, error, abort or offline error, then `onSubmitFinished`.
 
 ```tsx title="components/contact-form.tsx"
-const { submit, onSubmitSuccess, onSubmitError, onSubmitFinished } = useSubmit(sendMessage);
+const { submit, onSubmitSuccess, onSubmitError, onSubmitFinished } =
+  useSubmit(sendMessage);
 
 onSubmitSuccess(() => toast("Message sent"));
 onSubmitError(({ response, details }) => {

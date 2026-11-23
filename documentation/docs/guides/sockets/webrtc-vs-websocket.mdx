@@ -87,21 +87,36 @@ type Signal =
   | { type: "offer" | "answer"; from: string; sdp: RTCSessionDescriptionInit }
   | { type: "candidate"; from: string; candidate: RTCIceCandidateInit };
 
-export const signaling = createSocketClient({ url: "wss://signal.example.com/ws" });
+export const signaling = createSocketClient({
+  url: "wss://signal.example.com/ws",
+});
 
-export const onSignal = signaling.createListener<Signal>()({ topic: "signal/:peerId" });
-export const sendSignal = signaling.createEmitter<Signal>()({ topic: "signal/:peerId" });
+export const onSignal = signaling.createListener<Signal>()({
+  topic: "signal/:peerId",
+});
+export const sendSignal = signaling.createEmitter<Signal>()({
+  topic: "signal/:peerId",
+});
 ```
 
 ```ts title="src/call.ts"
 import { onSignal, sendSignal } from "./signaling";
 
-const peer = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.example.com" }] });
+const peer = new RTCPeerConnection({
+  iceServers: [{ urls: "stun:stun.example.com" }],
+});
 const toBob = sendSignal.setParams({ peerId: "bob" });
 
 // Send every ICE candidate to the other peer as it is found
 peer.onicecandidate = ({ candidate }) => {
-  if (candidate) toBob.emit({ payload: { type: "candidate", from: "ana", candidate: candidate.toJSON() } });
+  if (candidate)
+    toBob.emit({
+      payload: {
+        type: "candidate",
+        from: "ana",
+        candidate: candidate.toJSON(),
+      },
+    });
 };
 
 // Read Bob's answer and candidates
@@ -111,7 +126,10 @@ onSignal.setParams({ peerId: "ana" }).listen(async ({ data }) => {
 });
 
 // Cursor positions: unordered, never retransmitted
-const cursors = peer.createDataChannel("cursors", { ordered: false, maxRetransmits: 0 });
+const cursors = peer.createDataChannel("cursors", {
+  ordered: false,
+  maxRetransmits: 0,
+});
 
 const offer = await peer.createOffer();
 await peer.setLocalDescription(offer);

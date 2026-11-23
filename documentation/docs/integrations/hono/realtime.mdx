@@ -50,7 +50,9 @@ import { Hono } from "hono";
 type ChatMessage = { roomId: string; text: string };
 
 const base = new Hono();
-export const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app: base });
+export const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({
+  app: base,
+});
 
 export const app = base.get(
   "/ws",
@@ -69,13 +71,29 @@ export type AppType = typeof app;
 export type ChatSchema = {
   chat: {
     $roomId: {
-      $listener: ListenerModel<{ response: ChatMessage; topic: "chat/:roomId" }>;
-      $emitter: EmitterModel<{ payload: { text: string }; topic: "chat/:roomId" }>;
+      $listener: ListenerModel<{
+        response: ChatMessage;
+        topic: "chat/:roomId";
+      }>;
+      $emitter: EmitterModel<{
+        payload: { text: string };
+        topic: "chat/:roomId";
+      }>;
     };
   };
   rooms: {
-    join: { $emitter: EmitterModel<{ payload: { roomId: string }; topic: "rooms/join" }> };
-    leave: { $emitter: EmitterModel<{ payload: { roomId: string }; topic: "rooms/leave" }> };
+    join: {
+      $emitter: EmitterModel<{
+        payload: { roomId: string };
+        topic: "rooms/join";
+      }>;
+    };
+    leave: {
+      $emitter: EmitterModel<{
+        payload: { roomId: string };
+        topic: "rooms/leave";
+      }>;
+    };
   };
 };
 ```
@@ -101,7 +119,10 @@ chat.chat.$roomId.$listener.setParams({ roomId: "1" }).listen(({ data }) => {
   console.log(data.text);
 });
 
-chat.chat.$roomId.$emitter.emit({ params: { roomId: "1" }, payload: { text: "Hello" } });
+chat.chat.$roomId.$emitter.emit({
+  params: { roomId: "1" },
+  payload: { text: "Hello" },
+});
 ```
 
 ---
@@ -158,10 +179,15 @@ Emit a join message when the connection opens and a leave message when you stop 
 subscriptions with the connection, so join again on every reconnection.
 
 ```ts title="frontend/src/join.ts"
-// highlight-next-line
-socket.onConnected(() => chat.rooms.join.$emitter.emit({ payload: { roomId: "1" } }));
+// highlight-start
+socket.onConnected(() =>
+  chat.rooms.join.$emitter.emit({ payload: { roomId: "1" } }),
+);
+// highlight-end
 
-const stopListening = chat.chat.$roomId.$listener.setParams({ roomId: "1" }).listen(({ data }) => {});
+const stopListening = chat.chat.$roomId.$listener
+  .setParams({ roomId: "1" })
+  .listen(({ data }) => {});
 
 // Later
 stopListening();
@@ -184,7 +210,10 @@ app.get(
 );
 
 // frontend
-const socket = new Socket({ url: "wss://api.example.com/notifications", queryParams: { userId: "1" } });
+const socket = new Socket({
+  url: "wss://api.example.com/notifications",
+  queryParams: { userId: "1" },
+});
 
 // New input, new handshake
 socket.setQueryParams({ userId: "2" });
@@ -210,7 +239,8 @@ const socket = new Socket({
   url: "wss://api.example.com/legacy",
   adapterOptions: {
     decode: (event) => {
-      if (typeof event.data !== "string" || !event.data.startsWith("{")) return null;
+      if (typeof event.data !== "string" || !event.data.startsWith("{"))
+        return null;
       const { type, payload } = JSON.parse(event.data);
       return { topic: type, data: payload };
     },
@@ -236,13 +266,17 @@ The `WebsocketAdapter` decides from the close code the Hono handler sends.
 These socket options control the timing:
 
 - `reconnectTime` (default `1000`) and `maxReconnectTime` (default `30000`) bound the delay before the next attempt. It
-  grows with every failed attempt, see [retries](/docs/guides/sockets/connection#retries).
+  grows with every failed attempt, see [retries](/docs/guides/sockets/connection#how-retries-work).
 - `connectionTimeout` (default `5000`) limits one connection attempt. A handshake that does not finish in time is
   abandoned and a new attempt starts.
 - `shouldReconnect` replaces the close-code rule above, and `reconnect` (default `Infinity`) limits the attempts.
 
 ```ts title="frontend/src/socket.ts"
-const socket = new Socket({ url: "wss://api.example.com/ws", reconnectTime: 500, connectionTimeout: 10000 });
+const socket = new Socket({
+  url: "wss://api.example.com/ws",
+  reconnectTime: 500,
+  connectionTimeout: 10000,
+});
 ```
 
 ---
@@ -263,9 +297,16 @@ app.get("/events", (c) =>
   streamSSE(c, async (stream) => {
     const lastEventId = c.req.header("last-event-id");
     // highlight-start
-    await stream.writeSSE({ id: "1", event: "tick", data: JSON.stringify({ symbol: "BTC", price: 100 }) });
+    await stream.writeSSE({
+      id: "1",
+      event: "tick",
+      data: JSON.stringify({ symbol: "BTC", price: 100 }),
+    });
     await stream.writeSSE({ id: "2", event: "status", data: "online" });
-    await stream.writeSSE({ id: "3", data: JSON.stringify({ topic: "feed", data: { text: "Hello" } }) });
+    await stream.writeSSE({
+      id: "3",
+      data: JSON.stringify({ topic: "feed", data: { text: "Hello" } }),
+    });
     // highlight-end
   }),
 );
@@ -280,7 +321,10 @@ const client = createClient({ url: "https://api.example.com" });
 const sdk = createSdk<typeof client, HonoSchema<AppType>>(client);
 
 // The endpoint comes from the typed HTTP schema
-const events = new Socket({ url: `${client.url}${sdk.events.$get.endpoint}`, adapter: ServerSentEventsAdapter });
+const events = new Socket({
+  url: `${client.url}${sdk.events.$get.endpoint}`,
+  adapter: ServerSentEventsAdapter,
+});
 
 events
   .createListener<{ symbol: string; price: number }>()({ topic: "tick" })
@@ -332,7 +376,9 @@ import { useEffect } from "react";
 import { chat } from "./socket";
 
 export const Room = ({ roomId }: { roomId: string }) => {
-  const { data, connected } = useListener(chat.chat.$roomId.$listener.setParams({ roomId }));
+  const { data, connected } = useListener(
+    chat.chat.$roomId.$listener.setParams({ roomId }),
+  );
 
   useEffect(() => {
     if (!connected) return;

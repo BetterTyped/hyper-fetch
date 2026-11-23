@@ -122,8 +122,12 @@ export const socket = createSocketClient({
   adapterOptions: { heartbeat: true },
 });
 
-export const onRoomMessage = socket.createListener<ChatMessage>()({ topic: "rooms/:roomId/message" });
-export const sendRoomMessage = socket.createEmitter<ChatMessage>()({ topic: "rooms/:roomId/message" });
+export const onRoomMessage = socket.createListener<ChatMessage>()({
+  topic: "rooms/:roomId/message",
+});
+export const sendRoomMessage = socket.createEmitter<ChatMessage>()({
+  topic: "rooms/:roomId/message",
+});
 
 onRoomMessage.setParams({ roomId: "general" }).listen(({ data }) => {
   console.log(`${data.user}: ${data.text}`);

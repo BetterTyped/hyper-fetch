@@ -28,7 +28,8 @@ import { createDb, eq } from "@hyper-fetch/db";
 import type { DbOptions } from "@hyper-fetch/db";
 import { DbProvider } from "@hyper-fetch/react";
 
-export const createAppDb = (options?: DbOptions) => createDb(collections, options);
+export const createAppDb = (options?: DbOptions) =>
+  createDb(collections, options);
 
 const db = createAppDb();
 await db.post.where((post) => eq(post.teamId, 1)).get();

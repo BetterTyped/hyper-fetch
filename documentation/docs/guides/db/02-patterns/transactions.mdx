@@ -60,7 +60,8 @@ export const db = createDb(
     links: [["post", "postSummary"]],
     transactions: {
       publish: {
-        mutationFn: ({ id, mutations }) => publish.setPayload({ idempotencyKey: id, mutations }),
+        mutationFn: ({ id, mutations }) =>
+          publish.setPayload({ idempotencyKey: id, mutations }),
       },
     },
   },
@@ -89,7 +90,12 @@ The server receives one body:
 {
   "idempotencyKey": "6f1c...",
   "mutations": [
-    { "collection": "post", "op": "update", "key": "p1", "values": { "status": "published" } },
+    {
+      "collection": "post",
+      "op": "update",
+      "key": "p1",
+      "values": { "status": "published" }
+    },
     {
       "collection": "notification",
       "op": "insert",
@@ -117,7 +123,8 @@ server's:
 ```ts title="src/db.ts"
 transactions: {
   publish: {
-    mutationFn: ({ id, mutations }) => publish.setPayload({ idempotencyKey: id, mutations }),
+    mutationFn: ({ id, mutations }) =>
+      publish.setPayload({ idempotencyKey: id, mutations }),
     // highlight-next-line
     onSuccess: "refetch",
   },
@@ -144,7 +151,8 @@ const PublishButton = ({ post }: { post: PostSummary }) => {
     setError(null);
     const result = await publishPost(post);
     setPending(false);
-    if (!result.success) setError("Could not publish. Your post is back to draft.");
+    if (!result.success)
+      setError("Could not publish. Your post is back to draft.");
   };
 
   return (

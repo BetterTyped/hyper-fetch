@@ -42,23 +42,36 @@ import * as Sentry from "@sentry/react";
 import { AbortError, createClient, Plugin } from "@hyper-fetch/core";
 
 // highlight-start
-const sentryPlugin = new Plugin({ name: "sentry" }).onRequestError(({ response, request }) => {
-  // Cancelled requests and expected 4xx answers are not bugs
-  const isServerError = !response.status || Number(response.status) >= 500;
-  if (response.error instanceof AbortError || !isServerError) return;
+const sentryPlugin = new Plugin({ name: "sentry" }).onRequestError(
+  ({ response, request }) => {
+    // Cancelled requests and expected 4xx answers are not bugs
+    const isServerError = !response.status || Number(response.status) >= 500;
+    if (response.error instanceof AbortError || !isServerError) return;
 
-  // The endpoint before params were filled in, like /users/:id
-  const endpoint = String(request.requestOptions.endpoint);
+    // The endpoint before params were filled in, like /users/:id
+    const endpoint = String(request.requestOptions.endpoint);
 
-  Sentry.captureException(new Error(`${request.method} ${endpoint} failed with status ${response.status}`), {
-    fingerprint: ["hyper-fetch", request.method, endpoint],
-    tags: { method: request.method, endpoint, status: String(response.status) },
-    extra: { error: response.error },
-  });
-});
+    Sentry.captureException(
+      new Error(
+        `${request.method} ${endpoint} failed with status ${response.status}`,
+      ),
+      {
+        fingerprint: ["hyper-fetch", request.method, endpoint],
+        tags: {
+          method: request.method,
+          endpoint,
+          status: String(response.status),
+        },
+        extra: { error: response.error },
+      },
+    );
+  },
+);
 // highlight-end
 
-export const client = createClient({ url: "https://api.example.com" }).addPlugin(sentryPlugin);
+export const client = createClient({
+  url: "https://api.example.com",
+}).addPlugin(sentryPlugin);
 ```
 
 Status `0` means the request never got an answer: a network failure or a timeout. A request with

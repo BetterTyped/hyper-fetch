@@ -35,7 +35,11 @@ export function UserPosts() {
 
   // highlight-start
   // The placeholder 0 keeps the request typed; nothing is sent until user exists
-  const { data: posts, loading, error } = useFetch(getUserPosts.setParams({ userId: user?.id ?? 0 }), {
+  const {
+    data: posts,
+    loading,
+    error,
+  } = useFetch(getUserPosts.setParams({ userId: user?.id ?? 0 }), {
     disabled: !user,
   });
   // highlight-end

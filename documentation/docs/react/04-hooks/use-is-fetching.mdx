@@ -57,7 +57,9 @@ Filter by `queryKey` (exact string or RegExp) or with a `predicate`.
 ```tsx title="Scoped counts"
 const usersFetching = useIsFetching(client, { queryKey: getUsers.queryKey });
 const adminFetching = useIsFetching(client, { queryKey: /admin/ });
-const uploading = useIsSubmitting(client, { predicate: (request) => request.endpoint.startsWith("/files") });
+const uploading = useIsSubmitting(client, {
+  predicate: (request) => request.endpoint.startsWith("/files"),
+});
 ```
 
 ---

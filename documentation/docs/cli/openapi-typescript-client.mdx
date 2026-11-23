@@ -85,8 +85,7 @@ Seven steps take you from a schema to typed requests in React and a CI script.
 ### 1. Point the CLI at your schema
 
 ```bash
-npx @hyper-fetch/cli@latest generate \
-  --template openapi \
+npx @hyper-fetch/cli@latest generate --template openapi \
   --url https://petstore3.swagger.io/api/v3/openapi.json \
   --fileName petstore.sdk.ts
 ```
@@ -117,12 +116,20 @@ In `SdkSchema`, each path segment becomes a key, `{param}` segments become `$par
 export type SdkSchema = {
   pet: {
     $petId: {
-      $get: RequestModel<{ response: GetPetByIdResponseType; error: GetPetByIdErrorType; endpoint: "/pet/:petId" }>;
+      $get: RequestModel<{
+        response: GetPetByIdResponseType;
+        error: GetPetByIdErrorType;
+        endpoint: "/pet/:petId";
+      }>;
     };
   };
   store: {
     inventory: {
-      $get: RequestModel<{ response: GetInventoryResponseType; error: GetInventoryErrorType; endpoint: "/store/inventory" }>;
+      $get: RequestModel<{
+        response: GetInventoryResponseType;
+        error: GetInventoryErrorType;
+        endpoint: "/store/inventory";
+      }>;
     };
   };
 };
@@ -137,7 +144,9 @@ the union of its 4xx and 5xx schemas, and `undefined` when the schema describes 
 import { createClient } from "@hyper-fetch/core";
 import { createSdk } from "./petstore.sdk";
 
-export const client = createClient({ url: "https://petstore3.swagger.io/api/v3" });
+export const client = createClient({
+  url: "https://petstore3.swagger.io/api/v3",
+});
 
 export const sdk = createSdk(client);
 ```
@@ -150,7 +159,9 @@ staging and production a one-line change.
 Every leaf of the SDK is a request, with the same `set*` methods as one you define by hand:
 
 ```ts
-const { data: pet, error } = await sdk.pet.$petId.$get.setParams({ petId: 1 }).send();
+const { data: pet, error } = await sdk.pet.$petId.$get
+  .setParams({ petId: 1 })
+  .send();
 
 if (error) {
   console.error(error);

@@ -36,10 +36,10 @@ const getFeed = client.createRequest<{
 }>()({ endpoint: "/feed" });
 
 function Feed({ topic }: { topic: string }) {
-  const { items, loading, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteFetch(
-    getFeed.setQueryParams({ topic }),
-    { pagination: { cursor: "cursor", next: "nextCursor", items: "data" } },
-  );
+  const { items, loading, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    useInfiniteFetch(getFeed.setQueryParams({ topic }), {
+      pagination: { cursor: "cursor", next: "nextCursor", items: "data" },
+    });
 
   if (loading) return <Spinner />;
 
@@ -131,16 +131,26 @@ otherwise.
 // Page numbers: GET /posts?page=2
 useInfiniteFetch(getPosts, { pagination: { page: "page" } });
 
-// Page numbers with a known page size, so a short page ends the list without another request
-useInfiniteFetch(getPosts.setQueryParams({ limit: 20 }), { pagination: { page: "page", limit: "limit" } });
+// Page numbers with a known page size, so a short page ends the list without
+// another request
+useInfiniteFetch(getPosts.setQueryParams({ limit: 20 }), {
+  pagination: { page: "page", limit: "limit" },
+});
 
 // Offsets: GET /users?offset=40&limit=20
 useInfiniteFetch(getUsers.setQueryParams({ limit: 20 }), {
-  pagination: { offset: "offset", limit: "limit", items: "users", total: "total" },
+  pagination: {
+    offset: "offset",
+    limit: "limit",
+    items: "users",
+    total: "total",
+  },
 });
 
 // Cursors: GET /feed?cursor=abc
-useInfiniteFetch(getFeed, { pagination: { cursor: "cursor", next: "nextCursor", items: "data" } });
+useInfiniteFetch(getFeed, {
+  pagination: { cursor: "cursor", next: "nextCursor", items: "data" },
+});
 ```
 
 | Option        | Description                                                                          |
@@ -187,9 +197,12 @@ The list starts from the value already set on the request, otherwise from page `
 the middle works, and paging backwards is available from there:
 
 ```tsx
-const { items, hasPreviousPage, fetchPreviousPage } = useInfiniteFetch(getPosts.setQueryParams({ page: 5 }), {
-  pagination: { page: "page" },
-});
+const { items, hasPreviousPage, fetchPreviousPage } = useInfiniteFetch(
+  getPosts.setQueryParams({ page: 5 }),
+  {
+    pagination: { page: "page" },
+  },
+);
 ```
 
 A list starting at page `0` is treated as numbered from zero.
@@ -227,11 +240,14 @@ While the first page of the new list loads, `keepPreviousData` decides what is o
 `isPreviousData` is true while the previous list is shown, so the UI can dim it.
 
 ```tsx
-const { items, isPreviousData, onReset } = useInfiniteFetch(getPosts.setQueryParams({ search }), {
-  pagination: { page: "page" },
-  bounce: true,
-  bounceTime: 300,
-});
+const { items, isPreviousData, onReset } = useInfiniteFetch(
+  getPosts.setQueryParams({ search }),
+  {
+    pagination: { page: "page" },
+    bounce: true,
+    bounceTime: 300,
+  },
+);
 
 onReset(() => window.scrollTo({ top: 0 }));
 ```

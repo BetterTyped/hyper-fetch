@@ -42,8 +42,10 @@ client.adapter.setRequestDefaults((options) => {
   return { retry: 0, cache: false };
 });
 
-const getUser = client.createRequest()({ endpoint: "/users/:userId" }); // retry: 2
-const getReport = client.createRequest()({ endpoint: "/reports", retry: 5 }); // retry: 5 wins
+// retry: 2
+const getUser = client.createRequest()({ endpoint: "/users/:userId" });
+// retry: 5 wins
+const getReport = client.createRequest()({ endpoint: "/reports", retry: 5 });
 ```
 
 Two rules to keep in mind:
@@ -71,7 +73,10 @@ client.adapter.setAdapterDefaults(() => ({
 }));
 
 // One request needs longer
-const exportData = client.createRequest()({ endpoint: "/export", options: { timeout: 60_000 } });
+const exportData = client.createRequest()({
+  endpoint: "/export",
+  options: { timeout: 60_000 },
+});
 ```
 
 The callback receives the request, so a default can depend on it. See the [timeouts example](/examples/request-control/timeouts).
@@ -90,7 +95,8 @@ import { getRequestKey } from "@hyper-fetch/core";
 
 // Share cache entries between tenants that serve the same public catalog
 client.setCacheKeyMapper((request) => {
-  if (request.endpoint.startsWith("/catalog")) return `catalog_${getRequestKey(request)}`;
+  if (request.endpoint.startsWith("/catalog"))
+    return `catalog_${getRequestKey(request)}`;
   return getRequestKey(request);
 });
 ```
@@ -108,7 +114,9 @@ replaces the generator, for example to match ids in your backend logs or to get 
 ```ts title="src/api/client.ts"
 let counter = 0;
 
-client.setRequestIdMapper((request) => `${request.method}_${request.endpoint}_${++counter}`);
+client.setRequestIdMapper(
+  (request) => `${request.method}_${request.endpoint}_${++counter}`,
+);
 ```
 
 Ids must be unique among requests in flight.

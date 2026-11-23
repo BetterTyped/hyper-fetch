@@ -30,23 +30,40 @@ makes Teamboard's feed live, so new posts appear, edits show and deleted posts d
 Teamboard's server publishes three topics per team. Each one becomes a sync:
 
 ```ts title="src/sockets.ts"
-const onPostCreated = socket.createListener<Post>()({ topic: "teams/:teamId/posts/created" });
+const onPostCreated = socket.createListener<Post>()({
+  topic: "teams/:teamId/posts/created",
+});
 const onPostChanged = socket.createListener<Partial<Post> & { id: string }>()({
   topic: "teams/:teamId/posts/changed",
 });
-const onPostDeleted = socket.createListener<{ id: string }>()({ topic: "teams/:teamId/posts/deleted" });
+const onPostDeleted = socket.createListener<{ id: string }>()({
+  topic: "teams/:teamId/posts/deleted",
+});
 ```
 
 ```ts title="src/db.ts"
 const byTeam = { teamId: { eq: (teamId: string) => ({ params: { teamId } }) } };
 
-const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" })
+const PostSummary = collection(PostSummarySchema, {
+  key: "id",
+  version: "updatedAt",
+})
   .load(getTeamPosts, {
     rows: (response) => response.items,
-    where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
   })
-  .sync(onPostCreated, { type: "insert", where: byTeam, row: ({ body, ...summary }) => summary })
-  .sync(onPostChanged, { type: "update", where: byTeam, row: ({ body, ...changes }) => changes })
+  .sync(onPostCreated, {
+    type: "insert",
+    where: byTeam,
+    row: ({ body, ...summary }) => summary,
+  })
+  .sync(onPostChanged, {
+    type: "update",
+    where: byTeam,
+    row: ({ body, ...changes }) => changes,
+  })
   .sync(onPostDeleted, { type: "delete", where: byTeam });
 ```
 
@@ -69,7 +86,9 @@ published posts.
 `t1` subscribes to `teams/t1/posts/changed`, and only that topic:
 
 ```ts
-const { data } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, "t1")));
+const { data } = useLiveQuery(
+  db.postSummary.where((post) => eq(post.teamId, "t1")),
+);
 
 db.postSummary.where((post) => eq(post.teamId, "t1")).explain().syncs;
 // [
@@ -94,10 +113,13 @@ The db does not strip fields a collection lacks. When a message carries more tha
 mapping out and the collection does not compile:
 
 ```ts
-const PostSummary = collection(PostSummarySchema, { key: "id" }).sync(onPostCreated, {
-  type: "insert",
-  where: byTeam,
-});
+const PostSummary = collection(PostSummarySchema, { key: "id" }).sync(
+  onPostCreated,
+  {
+    type: "insert",
+    where: byTeam,
+  },
+);
 
 // error-next-line
 createDb({ postSummary: PostSummary });
@@ -109,7 +131,9 @@ createDb({ postSummary: PostSummary });
 - `delete` reads the key from the message's key field. When the message names it differently, read it with `key`:
 
 ```ts
-const onPostRemoved = socket.createListener<{ postId: string }>()({ topic: "posts/removed" });
+const onPostRemoved = socket.createListener<{ postId: string }>()({
+  topic: "posts/removed",
+});
 
 collection(PostSummarySchema, { key: "id" }).sync(onPostRemoved, {
   type: "delete",
@@ -188,9 +212,15 @@ When the connection drops, the rows stay and the query reports it:
 
 ```tsx title="src/live-badge.tsx"
 const LiveBadge = ({ teamId }: { teamId: string }) => {
-  const { stale } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+  const { stale } = useLiveQuery(
+    db.postSummary.where((post) => eq(post.teamId, teamId)),
+  );
 
-  return stale ? <span className="text-amber-600">Reconnecting...</span> : <span className="text-green-600">Live</span>;
+  return stale ? (
+    <span className="text-amber-600">Reconnecting...</span>
+  ) : (
+    <span className="text-green-600">Live</span>
+  );
 };
 ```
 
@@ -222,13 +252,18 @@ Some backends publish a channel per record, such as `posts/:postId/changed`. A s
 key live through a listener of its own:
 
 ```ts
-const onOnePostChanged = socket.createListener<Partial<Post> & { id: string }>()({
+const onOnePostChanged = socket.createListener<
+  Partial<Post> & { id: string }
+>()({
   topic: "posts/:postId/changed",
 });
 
 collection(PostSchema, { key: "id" })
   .load(getPost, { byKey: (id) => ({ params: { postId: id } }) })
-  .sync(onOnePostChanged, { type: "update", byKey: (id) => ({ params: { postId: id } }) });
+  .sync(onOnePostChanged, {
+    type: "update",
+    byKey: (id) => ({ params: { postId: id } }),
+  });
 ```
 
 `db.post.findOne("p1")` now listens to `posts/p1/changed`. A `byKey` sync never covers list subsets, so a list never
@@ -242,20 +277,32 @@ Some sources push several changes in one event: a snapshot, a change-data-captur
 `syncChanges` reads the complete rows to write, the keys to delete and the keys to load again from each event:
 
 ```ts
-const onTeamChanges = socket.createListener<{ upsert: Post[]; delete: string[]; refetch?: string[] }>()({
+const onTeamChanges = socket.createListener<{
+  upsert: Post[];
+  delete: string[];
+  refetch?: string[];
+}>()({
   topic: "teams/:teamId/changes",
 });
 // Full posts of a team, as an array
-const getTeamFullPosts = client.createRequest<{ response: Post[] }>()({ endpoint: "/teams/:teamId/full-posts" });
+const getTeamFullPosts = client.createRequest<{ response: Post[] }>()({
+  endpoint: "/teams/:teamId/full-posts",
+});
 
 collection(PostSchema, { key: "id" })
-  .load(getTeamFullPosts, { where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } } })
+  .load(getTeamFullPosts, {
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
+  })
   .load(getPost, { byKey: (id) => ({ params: { postId: id } }) })
   .syncChanges(onTeamChanges, {
     changes: ({ data }) => data,
     // Sends each subset's conditions to the listener, here as topic params
     notation: (conditions) => ({
-      params: Object.fromEntries(conditions.map((condition) => [condition.field, condition.value])),
+      params: Object.fromEntries(
+        conditions.map((condition) => [condition.field, condition.value]),
+      ),
     }),
   });
 ```

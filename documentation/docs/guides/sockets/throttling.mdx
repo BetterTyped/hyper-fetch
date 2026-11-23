@@ -87,13 +87,15 @@ arrival order. Nothing is dropped.
 ```ts title="src/api/market.ts"
 export const onTrade = socket.createListener<Trade>()({
   topic: "trades",
-  // maxSize is a safety valve: a burst of 500 trades is delivered at once instead of growing the buffer
+  // maxSize is a safety valve: a burst of 500 trades is delivered at once
+  // instead of growing the buffer
   delivery: { strategy: "batch", interval: 100, maxSize: 500 },
 });
 
 onTrade.listen(({ data }) => {
   // highlight-next-line
-  // `data` is Trade[] - TypeScript infers the array type from the "batch" strategy
+  // `data` is Trade[] - TypeScript infers the array type from the "batch"
+  // strategy
   appendRows(data);
 });
 ```
@@ -178,7 +180,10 @@ export const settle = createDeliveryStrategy<Tick>(({ deliver }) => {
   };
 });
 
-const onTick = socket.createListener<Tick>()({ topic: "ticks", delivery: settle });
+const onTick = socket.createListener<Tick>()({
+  topic: "ticks",
+  delivery: settle,
+});
 ```
 
 ### Example: aggregate into a summary
@@ -186,27 +191,32 @@ const onTick = socket.createListener<Tick>()({ topic: "ticks", delivery: settle 
 ```ts title="src/api/strategies.ts"
 type Summary = { count: number; max: number };
 
-export const summarize = createDeliveryStrategy<Trade, Summary>(({ deliver }) => {
-  let count = 0;
-  let max = -Infinity;
-  let timer: ReturnType<typeof setTimeout> | undefined;
+export const summarize = createDeliveryStrategy<Trade, Summary>(
+  ({ deliver }) => {
+    let count = 0;
+    let max = -Infinity;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
-  return {
-    push: ({ data, extra }) => {
-      count += 1;
-      max = Math.max(max, data.price);
-      timer ??= setTimeout(() => {
-        timer = undefined;
-        deliver({ data: { count, max }, extra });
-        count = 0;
-        max = -Infinity;
-      }, 1000);
-    },
-    dispose: () => clearTimeout(timer),
-  };
+    return {
+      push: ({ data, extra }) => {
+        count += 1;
+        max = Math.max(max, data.price);
+        timer ??= setTimeout(() => {
+          timer = undefined;
+          deliver({ data: { count, max }, extra });
+          count = 0;
+          max = -Infinity;
+        }, 1000);
+      },
+      dispose: () => clearTimeout(timer),
+    };
+  },
+);
+
+const onTradeSummary = socket.createListener<Trade>()({
+  topic: "trades",
+  delivery: summarize,
 });
-
-const onTradeSummary = socket.createListener<Trade>()({ topic: "trades", delivery: summarize });
 
 onTradeSummary.listen(({ data }) => {
   // highlight-next-line
@@ -234,7 +244,8 @@ immediate delivery.
 
 ```ts title="Runtime switch"
 const live = onPrice.setDelivery({ strategy: "latest", interval: 16 }); // 60 fps
-const relaxed = onPrice.setDelivery({ strategy: "latest", interval: 1000 }); // 1 fps
+// 1 fps
+const relaxed = onPrice.setDelivery({ strategy: "latest", interval: 1000 });
 const everything = onPrice.setDelivery(undefined); // every message
 ```
 

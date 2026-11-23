@@ -34,7 +34,8 @@ into the next. Export a factory instead of a module-level db:
 ```ts title="src/db.ts"
 export const collections = { postSummary: PostSummary, post: Post };
 
-export const createAppDb = (options?: DbOptions) => createDb(collections, options);
+export const createAppDb = (options?: DbOptions) =>
+  createDb(collections, options);
 export type AppDb = ReturnType<typeof createAppDb>;
 ```
 
@@ -138,7 +139,9 @@ without any network, so a plan test is fast and catches a new loader that change
 ```ts title="test/plans.test.ts"
 it("sends the team filter and runs the rest locally", () => {
   const db = createAppDb();
-  const plan = db.postSummary.where((post) => and(eq(post.teamId, "t1"), gt(post.likes, 10))).explain();
+  const plan = db.postSummary
+    .where((post) => and(eq(post.teamId, "t1"), gt(post.likes, 10)))
+    .explain();
 
   expect(plan.kind).toBe("list");
   expect(plan.loader).toBe(0);
@@ -175,17 +178,27 @@ afterAll(() => server.close());
 
 it("shows a rename from another user", async () => {
   const db = createAppDb();
-  getTeamPosts.setMock(() => ({ data: { items: [summary("p1")], next: null }, status: 200 }));
+  getTeamPosts.setMock(() => ({
+    data: { items: [summary("p1")], next: null },
+    status: 200,
+  }));
 
   const feed = db.postSummary.where((post) => eq(post.teamId, "t1"));
   const unsubscribe = feed.subscribe(() => {});
   await feed.get();
 
   // highlight-start
-  live.broadcast(JSON.stringify({ topic: "teams/t1/posts/changed", data: { id: "p1", title: "From socket" } }));
+  live.broadcast(
+    JSON.stringify({
+      topic: "teams/t1/posts/changed",
+      data: { id: "p1", title: "From socket" },
+    }),
+  );
   // highlight-end
 
-  await waitFor(() => expect(feed.getSnapshot().data?.[0].title).toBe("From socket"));
+  await waitFor(() =>
+    expect(feed.getSnapshot().data?.[0].title).toBe("From socket"),
+  );
 
   unsubscribe();
   db.destroy();

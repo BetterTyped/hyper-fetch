@@ -110,7 +110,11 @@ In HyperFetch the transport is an adapter on the `Socket`. Listeners, `useListen
 interceptors are the same for both, so the choice above stays a one-line decision you can change later.
 
 ```ts title="src/realtime.ts"
-import { createSocketClient, ServerSentEventsAdapter, WebsocketAdapter } from "@hyper-fetch/sockets";
+import {
+  createSocketClient,
+  ServerSentEventsAdapter,
+  WebsocketAdapter,
+} from "@hyper-fetch/sockets";
 
 type Price = { symbol: string; price: number };
 
@@ -141,7 +145,11 @@ function Ticker() {
   const { data, connected } = useListener(onPriceSse);
 
   if (!connected) return <p>Reconnecting...</p>;
-  return <p>{data ? `${data.symbol}: ${data.price}` : "Waiting for the first price"}</p>;
+  return (
+    <p>
+      {data ? `${data.symbol}: ${data.price}` : "Waiting for the first price"}
+    </p>
+  );
 }
 ```
 

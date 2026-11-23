@@ -31,12 +31,16 @@ message with `{ data, extra }`.
 ```tsx title="components/chat-room.tsx"
 import { useState } from "react";
 import { useListener } from "@hyper-fetch/react";
-import { onChatMessage } from "../api/socket"; // socket.createListener<ChatMessage>()({ topic: "rooms/:roomId" })
+// socket.createListener<ChatMessage>()({ topic: "rooms/:roomId" })
+import { onChatMessage } from "../api/socket";
 
 export function ChatRoom({ roomId }: { roomId: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  // setParams in render is fine: the hook subscribes again only when the topic changes
-  const { connected, onEvent } = useListener(onChatMessage.setParams({ roomId }));
+  // setParams in render is fine: the hook subscribes again only when the topic
+  // changes
+  const { connected, onEvent } = useListener(
+    onChatMessage.setParams({ roomId }),
+  );
 
   onEvent(({ data }) => {
     setMessages((previous) => [...previous, data].slice(-200));
@@ -68,9 +72,13 @@ local state. `select` narrows it, so the component re-renders only when its part
 
 ```tsx title="components/order-status.tsx"
 function OrderStatus({ orderId }: { orderId: string }) {
-  const { data: status } = useListener(onOrderUpdate.setParams({ orderId }), { select: (order) => order.status });
+  const { data: status } = useListener(onOrderUpdate.setParams({ orderId }), {
+    select: (order) => order.status,
+  });
 
-  return <span className="font-semibold">{status ?? "Waiting for updates"}</span>;
+  return (
+    <span className="font-semibold">{status ?? "Waiting for updates"}</span>
+  );
 }
 ```
 
@@ -83,7 +91,8 @@ request's cache. Every component that shows it updates, with no refetch and no d
 
 ```tsx title="components/notes-sync.tsx"
 import { client } from "../api/client";
-import { getNote } from "../api/notes"; // client.createRequest<{ response: Note }>()({ endpoint: "/notes/:noteId" })
+// client.createRequest<{ response: Note }>()({ endpoint: "/notes/:noteId" })
+import { getNote } from "../api/notes";
 
 export function NotesSync() {
   const { onEvent } = useListener(onNoteChange);
@@ -109,13 +118,20 @@ and the socket reconnects on its own.
 ```tsx title="components/connection-banner.tsx"
 export function ConnectionBanner() {
   const [message, setMessage] = useState<string | null>(null);
-  const { connected, onReconnecting, onReconnectingFailed, onConnected } = useListener(onChatMessage);
+  const { connected, onReconnecting, onReconnectingFailed, onConnected } =
+    useListener(onChatMessage);
 
-  onReconnecting(({ attempts }) => setMessage(`Reconnecting (attempt ${attempts})`));
-  onReconnectingFailed(() => setMessage("Connection lost. Refresh the page to try again."));
+  onReconnecting(({ attempts }) =>
+    setMessage(`Reconnecting (attempt ${attempts})`),
+  );
+  onReconnectingFailed(() =>
+    setMessage("Connection lost. Refresh the page to try again."),
+  );
   onConnected(() => setMessage(null));
 
-  return connected ? null : <p className="bg-yellow-100 p-2">{message ?? "Connecting..."}</p>;
+  return connected ? null : (
+    <p className="bg-yellow-100 p-2">{message ?? "Connecting..."}</p>
+  );
 }
 ```
 

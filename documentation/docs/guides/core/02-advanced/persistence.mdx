@@ -97,7 +97,11 @@ persisted queues, puts their requests in front of the ones added meanwhile and s
 wait for the connection first.
 
 ```ts title="src/api/client.ts"
-import { createClient, Dispatcher, DispatcherAsyncStorageType } from "@hyper-fetch/core";
+import {
+  createClient,
+  Dispatcher,
+  DispatcherAsyncStorageType,
+} from "@hyper-fetch/core";
 import { createStore, del, get, keys, set } from "idb-keyval";
 
 // A separate store, so queue entries never mix with cache entries

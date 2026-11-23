@@ -81,8 +81,13 @@ import { useFetch, useSubmit } from "@hyper-fetch/react";
 
 const client = createClient({ url: "https://api.example.com" });
 
-const getTodos = client.createRequest<{ response: Todo[] }>()({ endpoint: "/todos" });
-const createTodo = client.createRequest<{ response: Todo; payload: { title: string } }>()({
+const getTodos = client.createRequest<{ response: Todo[] }>()({
+  endpoint: "/todos",
+});
+const createTodo = client.createRequest<{
+  response: Todo;
+  payload: { title: string };
+}>()({
   endpoint: "/todos",
   method: "POST",
 });
@@ -94,7 +99,11 @@ function Todos() {
   // Mounted useFetch hooks for getTodos refetch
   onSubmitSuccess(() => client.cache.invalidate(getTodos));
 
-  return <button onClick={() => submit({ payload: { title: "Buy milk" } })}>Add</button>;
+  return (
+    <button onClick={() => submit({ payload: { title: "Buy milk" } })}>
+      Add
+    </button>
+  );
 }
 ```
 
@@ -119,7 +128,9 @@ function Todos() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
   });
 
-  return <button onClick={() => mutation.mutate({ title: "Buy milk" })}>Add</button>;
+  return (
+    <button onClick={() => mutation.mutate({ title: "Buy milk" })}>Add</button>
+  );
 }
 ```
 

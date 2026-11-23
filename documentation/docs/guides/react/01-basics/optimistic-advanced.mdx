@@ -42,8 +42,12 @@ const toggleTodo = client
       .patch(params.todoId, payload)
       // Restores this item only, other pending toggles are untouched
       .rollback(({ data, previous }) => {
-        const before = previous.find((todo) => todo.id === Number(params.todoId));
-        return data.map((todo) => (todo.id === Number(params.todoId) && before ? before : todo));
+        const before = previous.find(
+          (todo) => todo.id === Number(params.todoId),
+        );
+        return data.map((todo) =>
+          todo.id === Number(params.todoId) && before ? before : todo,
+        );
       }),
   ]);
 ```
@@ -71,7 +75,11 @@ const togglePin = client
     optimistic(getTodos)
       .patch(params.todoId, payload)
       .rollback(({ data }) =>
-        data.map((todo) => (todo.id === Number(params.todoId) ? { ...todo, pinned: !payload.pinned } : todo)),
+        data.map((todo) =>
+          todo.id === Number(params.todoId)
+            ? { ...todo, pinned: !payload.pinned }
+            : todo,
+        ),
       ),
   ]);
 ```
@@ -84,7 +92,10 @@ Match many items with a predicate and restore each from `previous`:
 
 ```ts title="api/todos.ts"
 const completeAll = client
-  .createRequest<{ response: { updated: number }; payload: { todoIds: number[] } }>()({
+  .createRequest<{
+    response: { updated: number };
+    payload: { todoIds: number[] };
+  }>()({
     endpoint: "/todos/complete-all",
     method: "POST",
   })
@@ -94,7 +105,11 @@ const completeAll = client
       optimistic(getTodos)
         .patch((todo) => ids.has(todo.id), { completed: true })
         .rollback(({ data, previous }) => {
-          const before = new Map(previous.filter((todo) => ids.has(todo.id)).map((todo) => [todo.id, todo]));
+          const before = new Map(
+            previous
+              .filter((todo) => ids.has(todo.id))
+              .map((todo) => [todo.id, todo]),
+          );
           return data.map((todo) => before.get(todo.id) ?? todo);
         }),
     ];
@@ -110,14 +125,21 @@ own, and a target without data is skipped.
 
 ```ts title="api/todos.ts"
 const completeTodo = client
-  .createRequest<{ response: Todo }>()({ endpoint: "/todos/:todoId/complete", method: "PATCH" })
+  .createRequest<{ response: Todo }>()({
+    endpoint: "/todos/:todoId/complete",
+    method: "PATCH",
+  })
   .setOptimistic(({ params }) => [
     // Every filter and page of the list
     optimistic
       .all(getTodos)
       .patch(params.todoId, { completed: true })
       .rollback(({ data }) =>
-        data.map((todo) => (todo.id === Number(params.todoId) ? { ...todo, completed: false } : todo)),
+        data.map((todo) =>
+          todo.id === Number(params.todoId)
+            ? { ...todo, completed: false }
+            : todo,
+        ),
       ),
     // A counter in another entry
     optimistic(getStats)
@@ -170,7 +192,9 @@ submit({
 
 // For every submit of one hook
 const { submit } = useSubmit(updateTodo, {
-  optimistic: ({ params, payload }) => [optimistic(getTodos).patch(params.todoId, payload)],
+  optimistic: ({ params, payload }) => [
+    optimistic(getTodos).patch(params.todoId, payload),
+  ],
 });
 ```
 
@@ -188,11 +212,15 @@ The object form that snapshots the cache, updates it and returns `{ rollback, in
 .setOptimistic(({ client, payload, params }) => {
   const todoId = Number(params.todoId);
   const previousItem = getTodos.read()?.data?.find((t) => t.id === todoId);
-  client.cache.update(getTodos, (prev) => ({ data: prev?.data?.map((t) => (t.id === todoId ? { ...t, ...payload } : t)) }));
+  client.cache.update(getTodos, (prev) => ({
+    data: prev?.data?.map((t) => (t.id === todoId ? { ...t, ...payload } : t)),
+  }));
   return {
     rollback: () => {
       if (previousItem) {
-        client.cache.update(getTodos, (prev) => ({ data: prev?.data?.map((t) => (t.id === todoId ? previousItem : t)) }));
+        client.cache.update(getTodos, (prev) => ({
+          data: prev?.data?.map((t) => (t.id === todoId ? previousItem : t)),
+        }));
       }
     },
     invalidate: [getTodos],
@@ -204,8 +232,9 @@ The object form that snapshots the cache, updates it and returns `{ rollback, in
   optimistic(getTodos)
     .patch(params.todoId, payload)
     .rollback(({ data, previous }) => {
-      const before = previous.find((t) => t.id === Number(params.todoId));
-      return data.map((t) => (t.id === Number(params.todoId) && before ? before : t));
+      const todoId = Number(params.todoId);
+      const before = previous.find((t) => t.id === todoId);
+      return data.map((t) => (t.id === todoId && before ? before : t));
     }),
 ]);
 // diff-add-end

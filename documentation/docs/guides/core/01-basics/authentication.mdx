@@ -30,12 +30,17 @@ it needs.
 ```ts title="src/api/client.ts"
 import { createClient } from "@hyper-fetch/core";
 
-export const client = createClient({ url: "https://api.example.com" }).onAuth((request) => {
-  const token = localStorage.getItem("token");
-  if (!token) return request;
+export const client = createClient({ url: "https://api.example.com" }).onAuth(
+  (request) => {
+    const token = localStorage.getItem("token");
+    if (!token) return request;
 
-  return request.setHeaders({ ...request.headers, Authorization: `Bearer ${token}` });
-});
+    return request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${token}`,
+    });
+  },
+);
 ```
 
 `setHeaders` replaces the headers, so spread `request.headers` to keep the ones set on the request. The token is read on
@@ -126,8 +131,13 @@ The server must answer with `Access-Control-Allow-Credentials: true` and a speci
 An API key goes in a header the same way as a token. On a server, read it from the environment:
 
 ```ts title="server/weather-client.ts"
-export const weatherClient = createClient({ url: "https://api.weather.example.com" }).onAuth((request) =>
-  request.setHeaders({ ...request.headers, "X-Api-Key": process.env.WEATHER_API_KEY ?? "" }),
+export const weatherClient = createClient({
+  url: "https://api.weather.example.com",
+}).onAuth((request) =>
+  request.setHeaders({
+    ...request.headers,
+    "X-Api-Key": process.env.WEATHER_API_KEY ?? "",
+  }),
 );
 ```
 

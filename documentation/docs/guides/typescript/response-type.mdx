@@ -59,7 +59,9 @@ Pass the type to the `response` generic. It is declared once, next to the endpoi
 ```ts title="src/api/users.ts"
 type User = { id: number; name: string; email: string };
 
-export const getUsers = client.createRequest<{ response: User[] }>()({ endpoint: "/users" });
+export const getUsers = client.createRequest<{ response: User[] }>()({
+  endpoint: "/users",
+});
 
 const { data } = await getUsers.send();
 

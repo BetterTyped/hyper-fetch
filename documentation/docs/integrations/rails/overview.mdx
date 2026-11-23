@@ -46,7 +46,11 @@ The CLI reads JSON, so set the output format in `spec/swagger_helper.rb`:
 RSpec.configure do |config|
   config.openapi_root = Rails.root.join("swagger").to_s
   config.openapi_specs = {
-    "v1/openapi.json" => { openapi: "3.0.1", info: { title: "Shop API", version: "v1" }, paths: {} }
+    "v1/openapi.json" => {
+      openapi: "3.0.1",
+      info: { title: "Shop API", version: "v1" },
+      paths: {}
+    }
   }
   # highlight-next-line
   config.openapi_format = :json
@@ -68,8 +72,8 @@ It lands in `swagger/v1/openapi.json`, and `rswag-api` serves it on `/api-docs/v
 Run the CLI in the frontend project while the server is running:
 
 ```bash title="frontend"
-npx hyper-fetch generate --template openapi --fileName rails.sdk.ts --overwrite \
-  --url http://localhost:3000/api-docs/v1/openapi.json
+npx hyper-fetch generate --template openapi --fileName rails.sdk.ts \
+  --overwrite --url http://localhost:3000/api-docs/v1/openapi.json
 ```
 
 It writes `src/api/rails.sdk.ts`. The folder comes from `api.json`, which the first run creates. Every path becomes

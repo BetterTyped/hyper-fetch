@@ -33,7 +33,12 @@ type Extra = { headers: Record<string, string> };
 const defaultExtra: Extra = { headers: {} };
 
 export const createJsonAdapter = () =>
-  new Adapter<{ timeout?: number }, "GET" | "POST" | "PUT" | "DELETE", number, Extra>({
+  new Adapter<
+    { timeout?: number },
+    "GET" | "POST" | "PUT" | "DELETE",
+    number,
+    Extra
+  >({
     name: "json-adapter",
     defaultMethod: "GET",
     defaultExtra,
@@ -41,38 +46,58 @@ export const createJsonAdapter = () =>
     systemErrorExtra: defaultExtra,
   })
     .setQueryParamsMapper(stringifyQueryParams)
-    .setFetcher(async ({ request, url, endpoint, queryParams, headers, payload, ...bindings }) => {
-      const { createAbortListener, getAbortController, onRequestStart, onSuccess, onError } = bindings;
+    .setFetcher(
+      async ({
+        request,
+        url,
+        endpoint,
+        queryParams,
+        headers,
+        payload,
+        ...bindings
+      }) => {
+        const {
+          createAbortListener,
+          getAbortController,
+          onRequestStart,
+          onSuccess,
+          onError,
+        } = bindings;
 
-      // Reports an abort as an AbortError response
-      const unmount = createAbortListener({ status: 0, extra: defaultExtra });
-      onRequestStart();
+        // Reports an abort as an AbortError response
+        const unmount = createAbortListener({ status: 0, extra: defaultExtra });
+        onRequestStart();
 
-      try {
-        const response = await fetch(`${url}${endpoint}${queryParams}`, {
-          method: request.method,
-          headers,
-          body: request.method === "GET" ? undefined : (payload as BodyInit),
-          signal: getAbortController()?.signal,
-        });
-        const data = await response.json().catch(() => null);
-        const extra = { headers: Object.fromEntries(response.headers.entries()) };
+        try {
+          const response = await fetch(`${url}${endpoint}${queryParams}`, {
+            method: request.method,
+            headers,
+            body: request.method === "GET" ? undefined : (payload as BodyInit),
+            signal: getAbortController()?.signal,
+          });
+          const data = await response.json().catch(() => null);
+          const extra = {
+            headers: Object.fromEntries(response.headers.entries()),
+          };
 
-        if (response.ok) onSuccess({ data, status: response.status, extra });
-        else onError({ error: data, status: response.status, extra });
-      } catch (error) {
-        onError({ error, status: 0, extra: defaultExtra });
-      } finally {
-        unmount();
-      }
-    });
+          if (response.ok) onSuccess({ data, status: response.status, extra });
+          else onError({ error: data, status: response.status, extra });
+        } catch (error) {
+          onError({ error, status: 0, extra: defaultExtra });
+        } finally {
+          unmount();
+        }
+      },
+    );
 ```
 
 Set it on the client. Requests created afterwards are typed by it: their `method`, `options` and response `extra` come
 from the adapter's generics.
 
 ```ts title="src/api/client.ts"
-export const client = createClient({ url: "https://api.example.com" }).setAdapter(createJsonAdapter());
+export const client = createClient({
+  url: "https://api.example.com",
+}).setAdapter(createJsonAdapter());
 
 const getUser = client.createRequest<{ response: User }>()({
   endpoint: "/users/:userId",

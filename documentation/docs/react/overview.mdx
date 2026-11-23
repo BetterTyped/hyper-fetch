@@ -97,8 +97,11 @@ const toggleTodo = client
     endpoint: "/todos/:todoId",
     method: "PATCH",
   })
-  // highlight-next-line
-  .setOptimistic(({ params, payload }) => [optimistic(getTodos).patch(params.todoId, payload)]);
+  // highlight-start
+  .setOptimistic(({ params, payload }) => [
+    optimistic(getTodos).patch(params.todoId, payload),
+  ]);
+// highlight-end
 
 const { submit } = useSubmit(toggleTodo);
 submit({ params: { todoId: todo.id }, payload: { done: !todo.done } });
@@ -110,10 +113,11 @@ submit({ params: { todoId: todo.id }, payload: { done: !todo.done } });
 `useInfiniteFetch` pages through a list and flattens the pages into `items`.
 
 ```tsx
-const { items, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteFetch(getFeed, {
-  // highlight-next-line
-  pagination: { cursor: "cursor", next: "nextCursor", items: "data" },
-});
+const { items, hasNextPage, fetchNextPage, isFetchingNextPage } =
+  useInfiniteFetch(getFeed, {
+    // highlight-next-line
+    pagination: { cursor: "cursor", next: "nextCursor", items: "data" },
+  });
 ```
 
 </TabItem>
@@ -125,12 +129,17 @@ With [`@hyper-fetch/sockets`](/docs/sockets/overview), `useListener` keeps the l
 ```tsx
 const ChatRoom = ({ roomId }: { roomId: string }) => {
   // highlight-start
-  const { data: lastMessage } = useListener(onChatMessage.setParams({ roomId }));
+  const { data: lastMessage } = useListener(
+    onChatMessage.setParams({ roomId }),
+  );
   const { emit, connected } = useEmitter(sendChatMessage);
   // highlight-end
 
   return (
-    <button disabled={!connected} onClick={() => emit({ params: { roomId }, payload: { text: "Hi" } })}>
+    <button
+      disabled={!connected}
+      onClick={() => emit({ params: { roomId }, payload: { text: "Hi" } })}
+    >
       Reply to {lastMessage?.author}
     </button>
   );

@@ -40,7 +40,12 @@ Teamboard's feed endpoint embeds each post's author. Here is what normalization 
       "authorId": "u1",
       "author": { "id": "u1", "name": "Ada", "avatarUrl": "/ada.png" }
     },
-    { "id": "p2", "title": "Retro", "authorId": "u1", "author": { "id": "u1", "name": "Ada", "avatarUrl": "/ada.png" } }
+    {
+      "id": "p2",
+      "title": "Retro",
+      "authorId": "u1",
+      "author": { "id": "u1", "name": "Ada", "avatarUrl": "/ada.png" }
+    }
   ]
 }
 ```
@@ -57,7 +62,9 @@ const User = collection(UserSchema, { key: "id" }).load(getUsers, {
 const FeedPost = collection(FeedPostSchema, { key: "id" })
   .load(getFeed, {
     rows: (response) => response.items,
-    where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
   })
   // highlight-next-line
   .normalize(User, (post) => [post.author]);
@@ -109,7 +116,9 @@ const Feed = ({ teamId }: { teamId: string }) => {
       {data?.map((post) => (
         <div key={post.id} className="flex items-center gap-2">
           <span className="font-semibold">{post.title}</span>
-          <span className="text-sm text-gray-500">{post.author?.name ?? "..."}</span>
+          <span className="text-sm text-gray-500">
+            {post.author?.name ?? "..."}
+          </span>
         </div>
       ))}
     </div>
@@ -148,7 +157,10 @@ drops `undefined`.
 A join can also match a field of the **joined** collection instead of its key. Each result then holds an **array**:
 
 ```ts title="src/db.ts"
-const getComments = client.createRequest<{ response: Comment[]; queryParams?: { postIds?: string[] } }>()({
+const getComments = client.createRequest<{
+  response: Comment[];
+  queryParams?: { postIds?: string[] };
+}>()({
   endpoint: "/comments",
 });
 
@@ -166,7 +178,8 @@ const { data } = useLiveQuery(
     .join("author", db.user, (post) => post.authorId)
     .join("comments", db.comment, { by: (post) => post.id, on: "postId" }),
 );
-// data: (PostSummary & { author: User | undefined; comments: Comment[] })[] | undefined
+// data: (PostSummary & { author: User | undefined; comments: Comment[] })[] |
+// undefined
 ```
 
 - `on: "postId"` matches each comment's `postId` against each post's `id`.

@@ -42,7 +42,9 @@ import { createSocketClient } from "@hyper-fetch/sockets";
 // highlight-next-line
 export const socket = createSocketClient({ url: "wss://echo.websocket.org" });
 
-socket.onConnected(() => console.log("connected")).onDisconnected(() => console.log("disconnected"));
+socket
+  .onConnected(() => console.log("connected"))
+  .onDisconnected(() => console.log("disconnected"));
 ```
 
 ---
@@ -58,8 +60,12 @@ import { socket } from "./socket";
 type ChatMessage = { author: string; text: string };
 
 // highlight-start
-export const onChatMessage = socket.createListener<ChatMessage>()({ topic: "chat" });
-export const sendChatMessage = socket.createEmitter<ChatMessage>()({ topic: "chat" });
+export const onChatMessage = socket.createListener<ChatMessage>()({
+  topic: "chat",
+});
+export const sendChatMessage = socket.createEmitter<ChatMessage>()({
+  topic: "chat",
+});
 // highlight-end
 ```
 
@@ -102,11 +108,20 @@ listener receives messages from other users the same way.
 Put params in the topic string to address rooms, users or documents. They are typed, and required when you send.
 
 ```ts title="rooms.ts"
-const onRoomMessage = socket.createListener<ChatMessage>()({ topic: "rooms/:roomId" });
-const sendRoomMessage = socket.createEmitter<ChatMessage>()({ topic: "rooms/:roomId" });
+const onRoomMessage = socket.createListener<ChatMessage>()({
+  topic: "rooms/:roomId",
+});
+const sendRoomMessage = socket.createEmitter<ChatMessage>()({
+  topic: "rooms/:roomId",
+});
 
-onRoomMessage.setParams({ roomId: "general" }).listen(({ data }) => console.log(data.text));
-sendRoomMessage.emit({ params: { roomId: "general" }, payload: { author: "Ann", text: "Hi room" } });
+onRoomMessage
+  .setParams({ roomId: "general" })
+  .listen(({ data }) => console.log(data.text));
+sendRoomMessage.emit({
+  params: { roomId: "general" },
+  payload: { author: "Ann", text: "Hi room" },
+});
 ```
 
 ---

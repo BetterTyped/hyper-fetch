@@ -33,7 +33,9 @@ import { getDatabase } from "firebase-admin/database";
 
 initializeApp({ databaseURL: process.env.FIREBASE_DATABASE_URL });
 
-export const client = createClient({ url: "" }).setAdapter(FirebaseAdminAdapter(getDatabase()));
+export const client = createClient({ url: "" }).setAdapter(
+  FirebaseAdminAdapter(getDatabase()),
+);
 
 export type Session = { userId: string; lastSeen: number };
 ```
@@ -48,7 +50,9 @@ default and the same `data` and `extra`.
 ### Read
 
 ```ts title="server/sessions.ts"
-export const getSessions = client.createRequest<{ response: (Session & { __key: string })[] | null }>()({
+export const getSessions = client.createRequest<{
+  response: (Session & { __key: string })[] | null;
+}>()({
   endpoint: "sessions",
 });
 ```
@@ -56,18 +60,28 @@ export const getSessions = client.createRequest<{ response: (Session & { __key: 
 ### Write
 
 ```ts title="server/sessions.ts"
-export const startSession = client.createRequest<{ response: Session & { __key: string }; payload: Session }>()({
+export const startSession = client.createRequest<{
+  response: Session & { __key: string };
+  payload: Session;
+}>()({
   endpoint: "sessions",
   method: "push",
 });
 
-export const touchSession = client.createRequest<{ response: Partial<Session>; payload: Partial<Session> }>()({
+export const touchSession = client.createRequest<{
+  response: Partial<Session>;
+  payload: Partial<Session>;
+}>()({
   endpoint: "sessions/:sessionId",
   method: "update",
 });
 
-const { data: session } = await startSession.send({ payload: { userId: "u1", lastSeen: Date.now() } });
-await touchSession.setParams({ sessionId: session!.__key }).send({ payload: { lastSeen: Date.now() } });
+const { data: session } = await startSession.send({
+  payload: { userId: "u1", lastSeen: Date.now() },
+});
+await touchSession
+  .setParams({ sessionId: session!.__key })
+  .send({ payload: { lastSeen: Date.now() } });
 ```
 
 ---
@@ -101,11 +115,17 @@ export const listSessions = client.createRequest<{
 ### Pagination
 
 ```ts title="server/sessions.ts"
-const page1 = await listSessions.send({ queryParams: (c) => c.orderByChild("lastSeen").limitToFirst(100) });
+const page1 = await listSessions.send({
+  queryParams: (c) => c.orderByChild("lastSeen").limitToFirst(100),
+});
 const last = page1.data?.at(-1);
 
 const page2 = await listSessions.send({
-  queryParams: (c) => c.orderByChild("lastSeen").startAfter(last!.lastSeen, last!.__key).limitToFirst(100),
+  queryParams: (c) =>
+    c
+      .orderByChild("lastSeen")
+      .startAfter(last!.lastSeen, last!.__key)
+      .limitToFirst(100),
 });
 ```
 

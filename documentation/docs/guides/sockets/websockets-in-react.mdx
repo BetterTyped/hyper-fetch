@@ -176,7 +176,10 @@ export function ChatRoom() {
           {item.user}: {item.message}
         </p>
       ))}
-      <button disabled={!connected} onClick={() => emit({ payload: { user: "me", message: "hello" } })}>
+      <button
+        disabled={!connected}
+        onClick={() => emit({ payload: { user: "me", message: "hello" } })}
+      >
         Say hello
       </button>
     </div>

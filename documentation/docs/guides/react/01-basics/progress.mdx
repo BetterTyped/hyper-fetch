@@ -79,8 +79,11 @@ For a file upload progress bar, switch the client to Axios. Your requests and ho
 import { Client } from "@hyper-fetch/core";
 import { AxiosAdapter } from "@hyper-fetch/axios";
 
-// highlight-next-line
-export const client = new Client({ url: "https://api.example.com" }).setAdapter(AxiosAdapter);
+// highlight-start
+export const client = new Client({ url: "https://api.example.com" }).setAdapter(
+  AxiosAdapter,
+);
+// highlight-end
 
 export const uploadAvatar = client.createRequest<{
   response: { url: string };
@@ -110,7 +113,8 @@ export function AvatarUpload() {
   const [progress, setProgress] = useState(0);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
-  const { submit, submitting, error, onSubmitUploadProgress } = useSubmit(uploadAvatar);
+  const { submit, submitting, error, onSubmitUploadProgress } =
+    useSubmit(uploadAvatar);
 
   // highlight-start
   onSubmitUploadProgress((event) => {
@@ -134,10 +138,16 @@ export function AvatarUpload() {
     <div className="space-y-2">
       <input type="file" onChange={handleChange} disabled={submitting} />
       <div className="h-2 w-full rounded-full bg-gray-200">
-        <div className="h-2 rounded-full bg-blue-600" style={{ width: `${progress}%` }} />
+        <div
+          className="h-2 rounded-full bg-blue-600"
+          style={{ width: `${progress}%` }}
+        />
       </div>
       <p className="text-sm">
-        {progress}%{timeLeft !== null && submitting ? `, about ${Math.ceil(timeLeft / 1000)}s left` : ""}
+        {progress}%
+        {timeLeft !== null && submitting
+          ? `, about ${Math.ceil(timeLeft / 1000)}s left`
+          : ""}
       </p>
       {error && <p className="text-sm text-red-500">Upload failed</p>}
     </div>
@@ -169,12 +179,16 @@ Download progress works with every adapter, including the default one. Use `onSu
 started by a click, or `onDownloadProgress` on `useFetch` for data loaded on mount.
 
 ```tsx title="components/report-download.tsx"
-// getReport = client.createRequest<{ response: Blob }>()({ endpoint: "/reports/latest" })
+// getReport = client.createRequest<{ response: Blob }>()({ endpoint:
+// "/reports/latest" })
 export function ReportDownload() {
   const [loaded, setLoaded] = useState({ progress: 0, bytes: 0 });
-  const { submit, submitting, abort, onSubmitDownloadProgress } = useSubmit(getReport);
+  const { submit, submitting, abort, onSubmitDownloadProgress } =
+    useSubmit(getReport);
 
-  onSubmitDownloadProgress(({ progress, loaded: bytes }) => setLoaded({ progress, bytes }));
+  onSubmitDownloadProgress(({ progress, loaded: bytes }) =>
+    setLoaded({ progress, bytes }),
+  );
 
   return (
     <div className="space-y-2">

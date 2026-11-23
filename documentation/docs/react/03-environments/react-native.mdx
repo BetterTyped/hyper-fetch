@@ -36,11 +36,15 @@ export const client = new Client({
   url: "https://api.example.com",
   appManager: () =>
     new AppManager({
-      initiallyOnline: () => NetInfo.fetch().then((state) => !!state.isConnected),
-      onlineEvent: (setOnline) => NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
+      initiallyOnline: () =>
+        NetInfo.fetch().then((state) => !!state.isConnected),
+      onlineEvent: (setOnline) =>
+        NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
       initiallyFocused: () => AppState.currentState === "active",
       focusEvent: (setFocused) => {
-        const subscription = AppState.addEventListener("change", (status) => setFocused(status === "active"));
+        const subscription = AppState.addEventListener("change", (status) =>
+          setFocused(status === "active"),
+        );
         return () => subscription.remove();
       },
     }),

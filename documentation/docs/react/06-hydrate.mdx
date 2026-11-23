@@ -44,14 +44,19 @@ import { Hydrate, useFetch } from "@hyper-fetch/react";
 import type { HydrateProps } from "@hyper-fetch/react";
 import { client, getUsers } from "@/api";
 
-export const UsersList = ({ hydration }: { hydration: HydrateProps["data"] }) => (
+export const UsersList = ({
+  hydration,
+}: {
+  hydration: HydrateProps["data"];
+}) => (
   <Hydrate client={client} data={hydration}>
     <Users />
   </Hydrate>
 );
 
 const Users = () => {
-  // Renders the server data on the first render; revalidate: false skips the background refetch while it is fresh
+  // Renders the server data on the first render; revalidate: false skips the
+  // background refetch while it is fresh
   const { data } = useFetch(getUsers, { revalidate: false });
   return (
     <ul>
@@ -118,9 +123,12 @@ Empty values are ignored, so the payload can be built conditionally and `Hydrate
 something to hydrate:
 
 ```tsx
-<Hydrate client={client} data={[user && getUser.dehydrate({ response: user }), settings]}>
+<Hydrate
+  client={client}
+  data={[user && getUser.dehydrate({ response: user }), settings]}
+>
   {children}
-</Hydrate>
+</Hydrate>;
 ```
 
 ---

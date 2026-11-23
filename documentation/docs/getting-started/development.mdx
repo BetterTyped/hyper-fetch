@@ -33,8 +33,12 @@ import { client } from "../client";
 
 export type User = { id: number; name: string };
 
-export const getUsers = client.createRequest<{ response: User[] }>()({ endpoint: "/users" });
-export const getUser = client.createRequest<{ response: User }>()({ endpoint: "/users/:userId" });
+export const getUsers = client.createRequest<{ response: User[] }>()({
+  endpoint: "/users",
+});
+export const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+});
 ```
 
 - **One client per backend**, created once in `client.ts` and exported.

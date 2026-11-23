@@ -28,7 +28,8 @@ sidebar_label: Overview
 `gql` tag.
 
 ```bash npm2yarn2pnpm
-npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/graphql graphql graphql-tag
+npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/graphql \
+  graphql graphql-tag
 ```
 
 ---
@@ -55,7 +56,10 @@ import { client } from "./client";
 
 type User = { id: string; name: string };
 
-export const getUser = client.createRequest<{ response: { user: User | null }; payload: { id: string } }>()({
+export const getUser = client.createRequest<{
+  response: { user: User | null };
+  payload: { id: string };
+}>()({
   endpoint: gql`
     query GetUser($id: ID!) {
       user(id: $id) {
@@ -131,8 +135,13 @@ Request `options` take the `fetch` `RequestInit` fields except `method`, `header
 Set them per request in `options`, or for every request with the adapter defaults. Request `options` win.
 
 ```ts title="client.ts"
-export const client = createClient({ url: "http://localhost:4000/graphql" }).setAdapter(
-  GraphqlAdapter().setAdapterDefaults(() => ({ timeout: 10000, errorPolicy: "all" })),
+export const client = createClient({
+  url: "http://localhost:4000/graphql",
+}).setAdapter(
+  GraphqlAdapter().setAdapterDefaults(() => ({
+    timeout: 10000,
+    errorPolicy: "all",
+  })),
 );
 ```
 
@@ -148,7 +157,10 @@ A response can hold both `data` and `errors` when only some fields failed. `erro
   or with a 4xx/5xx status, still fails.
 
 ```ts title="api/dashboard.ts"
-const getDashboard = client.createRequest()({ endpoint: GetDashboardDocument, options: { errorPolicy: "all" } });
+const getDashboard = client.createRequest()({
+  endpoint: GetDashboardDocument,
+  options: { errorPolicy: "all" },
+});
 
 const { data, extra } = await getDashboard.send();
 // extra.errors lists the fields that failed, data holds the rest
@@ -176,13 +188,19 @@ adapter.
 ```ts title="api/users.ts"
 import { GraphqlDocumentTypes } from "@hyper-fetch/graphql";
 
-const getUser = client.createRequest<GraphqlDocumentTypes<typeof GetUserDocument>>()({
+const getUser = client.createRequest<
+  GraphqlDocumentTypes<typeof GetUserDocument>
+>()({
   endpoint: "/tenant/:tenantId/GetUser",
   document: GetUserDocument,
 });
 
-await getUser.setParams({ tenantId: 7 }).setQueryParams({ source: "app" }).send({ payload: { id: "1" } });
-// POST {client.url}/tenant/7/GetUser?source=app with body { query, operationName, variables }
+await getUser
+  .setParams({ tenantId: 7 })
+  .setQueryParams({ source: "app" })
+  .send({ payload: { id: "1" } });
+// POST {client.url}/tenant/7/GetUser?source=app with body { query,
+// operationName, variables }
 ```
 
 - `GraphqlDocumentTypes` reads the response and variables types from a typed document passed this way.

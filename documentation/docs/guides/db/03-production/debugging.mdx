@@ -30,7 +30,9 @@ symptom, cause and fix.
 ### `explain()`: one query
 
 ```ts title="debug.ts"
-db.postSummary.where((post) => and(eq(post.teamId, "t1"), gt(post.likes, 10))).explain();
+db.postSummary
+  .where((post) => and(eq(post.teamId, "t1"), gt(post.likes, 10)))
+  .explain();
 ```
 
 | Field             | Tells you                                                             |
@@ -47,7 +49,8 @@ db.postSummary.where((post) => and(eq(post.teamId, "t1"), gt(post.likes, 10))).e
 
 ```ts title="debug.ts"
 const snapshot = db.inspect();
-// snapshot.collections: rows, pending optimistic layers and loaded subsets (fresh, live, loading, error, observers)
+// snapshot.collections: rows, pending optimistic layers and loaded subsets
+// (fresh, live, loading, error, observers)
 // snapshot.queries: every live query with its subscribers, status and plan
 // snapshot.outbox: writes waiting to be replayed
 
@@ -116,8 +119,12 @@ chain returned a `RowMismatch`. Hover the collection to see `received` and `expe
 collection(PostSummarySchema, { key: "id" })
   // diff-remove-next-line
   .sync(onPostChanged, { type: "update" })
-  // diff-add-next-line
-  .sync(onPostChanged, { type: "update", row: ({ body, ...changes }) => changes });
+  // diff-add-start
+  .sync(onPostChanged, {
+    type: "update",
+    row: ({ body, ...changes }) => changes,
+  });
+// diff-add-end
 ```
 
 The db does not strip fields a collection lacks, so drop `body` in the mapping: a summary must never gain a field it

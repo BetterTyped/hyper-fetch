@@ -82,9 +82,13 @@ Types follow the Elysia route definitions:
 ```ts title="frontend/src/users.ts"
 const { data } = await sdk.users.$get.send();
 
-const { data: user, error } = await sdk.users.$userId.$get.setParams({ userId: "1" }).send();
+const { data: user, error } = await sdk.users.$userId.$get
+  .setParams({ userId: "1" })
+  .send();
 
-const { data: created } = await sdk.users.$post.setPayload({ name: "Bob" }).send();
+const { data: created } = await sdk.users.$post
+  .setPayload({ name: "Bob" })
+  .send();
 ```
 
 The same requests work with `useFetch` and `useSubmit` from [`@hyper-fetch/react`](/docs/react/overview).

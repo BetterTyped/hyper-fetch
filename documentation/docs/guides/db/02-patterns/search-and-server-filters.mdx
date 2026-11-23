@@ -37,10 +37,15 @@ const searchPosts = client.createRequest<{
   queryParams?: { q?: string; teamId?: string };
 }>()({ endpoint: "/search" });
 
-const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" })
+const PostSummary = collection(PostSummarySchema, {
+  key: "id",
+  version: "updatedAt",
+})
   .load(getTeamPosts, {
     rows: (response) => response.items,
-    where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
   })
   .load(searchPosts, {
     rows: (response) => response.results,
@@ -57,8 +62,13 @@ Any name other than the built-in operators declares a server-only operator. Quer
 ```ts
 import { and, eq, op } from "@hyper-fetch/db";
 
-db.postSummary.where((post) => and(eq(post.teamId, "t1"), op("search", post.title, "roadmap"))).explain();
-// { kind: "list", loader: 1, sent: [teamId = "t1", search(title, "roadmap")], local: [], answeredLocally: false, ... }
+db.postSummary
+  .where((post) =>
+    and(eq(post.teamId, "t1"), op("search", post.title, "roadmap")),
+  )
+  .explain();
+// { kind: "list", loader: 1, sent: [teamId = "t1", search(title, "roadmap")],
+// local: [], answeredLocally: false, ... }
 ```
 
 - The client cannot evaluate a server-only operator, so a loader that cannot send it is never picked. The team feed
@@ -92,12 +102,16 @@ const useDebounced = <T,>(value: T, delay: number) => {
 const SearchResults = ({ teamId, text }: { teamId: string; text: string }) => {
   const query = useDebounced(text, 300);
   const { data, isFetching } = useLiveQuery(
-    db.postSummary.where((post) => and(eq(post.teamId, teamId), op("search", post.title, query))),
+    db.postSummary.where((post) =>
+      and(eq(post.teamId, teamId), op("search", post.title, query)),
+    ),
   );
 
   return (
     <div className="flex flex-col gap-2">
-      {isFetching && <span className="text-sm text-gray-500">Searching...</span>}
+      {isFetching && (
+        <span className="text-sm text-gray-500">Searching...</span>
+      )}
       {data?.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
@@ -115,7 +129,9 @@ Render the team feed while the box is empty, and `SearchResults` once there is t
 - Filters the search endpoint cannot send run on the results, like any other query:
 
 ```ts
-db.postSummary.where((post) => op("search", post.title, "roadmap")).where((post) => gt(post.likes, 10));
+db.postSummary
+  .where((post) => op("search", post.title, "roadmap"))
+  .where((post) => gt(post.likes, 10));
 // Shares the subset of the plain "roadmap" search, and filters `likes` locally
 ```
 
@@ -159,11 +175,16 @@ Sometimes a search is not a list the db should load: a command palette, an autoc
 sends. Keep it a plain request, and **ingest** its results, so the posts it returns are stored and kept current:
 
 ```ts title="src/db.ts"
-const quickSearch = client.createRequest<{ response: { results: PostSummary[] }; queryParams?: { q?: string } }>()({
+const quickSearch = client.createRequest<{
+  response: { results: PostSummary[] };
+  queryParams?: { q?: string };
+}>()({
   endpoint: "/quick-search",
 });
 
-collection(PostSummarySchema, { key: "id" }).ingest(quickSearch, { rows: (response) => response.results });
+collection(PostSummarySchema, { key: "id" }).ingest(quickSearch, {
+  rows: (response) => response.results,
+});
 ```
 
 Every successful `quickSearch` response writes its posts into `postSummary`, so opening one shows its header at once

@@ -53,7 +53,8 @@ client during the handshake.
 ```ts title="src/api/socket.ts"
 import { createSocketClient } from "@hyper-fetch/sockets";
 
-// Fine for a token that never changes. Expiring tokens belong in onConnect, below.
+// Fine for a token that never changes. Expiring tokens belong in onConnect,
+// below.
 export const socket = createSocketClient({
   url: "wss://api.example.com/ws",
   queryParams: { token: "static-service-token" },
@@ -70,7 +71,9 @@ it right before **every** connection attempt (the initial connection, automatic 
 uses whatever it returns to open the connection.
 
 ```ts title="src/api/socket.ts"
-export const socket = createSocketClient({ url: "wss://api.example.com/ws" }).onConnect(({ connection }) => ({
+export const socket = createSocketClient({
+  url: "wss://api.example.com/ws",
+}).onConnect(({ connection }) => ({
   // highlight-start
   ...connection,
   queryParams: { token: authStore.getState().accessToken },
@@ -83,7 +86,9 @@ them, modified or not. It can be async, so you can refresh the token before conn
 whether this is a fresh connection (`0`) or a reconnection attempt.
 
 ```ts title="src/api/socket.ts"
-export const socket = createSocketClient({ url: "wss://api.example.com/ws" }).onConnect(async ({ connection, attempt }) => {
+export const socket = createSocketClient({
+  url: "wss://api.example.com/ws",
+}).onConnect(async ({ connection, attempt }) => {
   // highlight-start
   const token = await auth.getValidAccessToken({ forceRefresh: attempt > 0 });
   return { ...connection, queryParams: { token } };
@@ -119,7 +124,9 @@ WebSocket adapter you can pass them through the `protocols` adapter option, and 
 `onConnect` exactly like query params.
 
 ```ts title="src/api/socket.ts"
-export const socket = createSocketClient({ url: "wss://api.example.com/ws" }).onConnect(({ connection }) => ({
+export const socket = createSocketClient({
+  url: "wss://api.example.com/ws",
+}).onConnect(({ connection }) => ({
   ...connection,
   // highlight-start
   adapterOptions: {
@@ -142,7 +149,10 @@ Server-Sent Events work the same way, with one switch for cross-origin servers. 
 `eventSourceInit`, which is passed to `EventSource`:
 
 ```ts title="src/api/events.ts"
-import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+import {
+  createSocketClient,
+  ServerSentEventsAdapter,
+} from "@hyper-fetch/sockets";
 
 export const events = createSocketClient({
   url: "https://api.example.com/events",

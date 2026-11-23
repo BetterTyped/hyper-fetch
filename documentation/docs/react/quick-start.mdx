@@ -38,7 +38,9 @@ level, outside components, so every component shares the same cache.
 ```ts title="api.ts"
 import { createClient } from "@hyper-fetch/core";
 
-export const client = createClient({ url: "https://jsonplaceholder.typicode.com" });
+export const client = createClient({
+  url: "https://jsonplaceholder.typicode.com",
+});
 
 export type User = { id: number; name: string; email: string };
 
@@ -68,9 +70,11 @@ export const UsersList = () => {
   // highlight-next-line
   const { data, loading, error, refetch } = useFetch(getUsers);
 
-  // `loading` is also true while cached data refreshes, so show the spinner only without data
+  // `loading` is also true while cached data refreshes, so show the spinner
+  // only without data
   if (loading && !data) return <p>Loading users...</p>;
-  if (error && !data) return <button onClick={refetch}>Failed to load. Try again</button>;
+  if (error && !data)
+    return <button onClick={refetch}>Failed to load. Try again</button>;
 
   return (
     <ul>
@@ -107,19 +111,28 @@ export const AddUserForm = () => {
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     // highlight-start
-    const { success } = await submit({ payload: { name, email: `${name}@example.com` } });
+    const { success } = await submit({
+      payload: { name, email: `${name}@example.com` },
+    });
 
     if (success) {
       setName("");
-      client.cache.invalidate(getUsers); // every mounted useFetch(getUsers) refetches
+      // every mounted useFetch(getUsers) refetches
+      client.cache.invalidate(getUsers);
     }
     // highlight-end
   };
 
   return (
     <form onSubmit={onSubmit}>
-      <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Name" />
-      <button disabled={submitting}>{submitting ? "Saving..." : "Add user"}</button>
+      <input
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+        placeholder="Name"
+      />
+      <button disabled={submitting}>
+        {submitting ? "Saving..." : "Add user"}
+      </button>
       {error && <p>{error.message}</p>}
     </form>
   );

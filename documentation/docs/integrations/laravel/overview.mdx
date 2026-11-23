@@ -53,8 +53,8 @@ The document is on `http://localhost:8000/docs/api.json`, next to the UI on `/do
 Run the CLI in the frontend project while the server is running:
 
 ```bash title="frontend"
-npx hyper-fetch generate --template openapi --fileName laravel.sdk.ts --overwrite \
-  --url http://localhost:8000/docs/api.json
+npx hyper-fetch generate --template openapi --fileName laravel.sdk.ts \
+  --overwrite --url http://localhost:8000/docs/api.json
 ```
 
 It writes `src/api/laravel.sdk.ts`. The folder comes from `api.json`, which the first run creates. Every path becomes

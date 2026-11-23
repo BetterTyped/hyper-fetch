@@ -56,7 +56,10 @@ import { client } from "./client";
 
 type User = { username: string; firstName: string };
 
-export const getUser = client.createRequest<{ response: { user: User }; payload: { userId: string } }>()({
+export const getUser = client.createRequest<{
+  response: { user: User };
+  payload: { userId: string };
+}>()({
   endpoint: gql`
     query GetUserById($userId: ID!) {
       user(id: $userId) {
@@ -83,9 +86,12 @@ generics and the variables are checked against the schema.
 ```ts title="api/users.ts"
 import { GetUserByIdDocument } from "./gql/graphql"; // generated
 
-export const getUser = client.createRequest()({ endpoint: GetUserByIdDocument });
+export const getUser = client.createRequest()({
+  endpoint: GetUserByIdDocument,
+});
 
-const { data } = await getUser.send({ payload: { userId: "1" } }); // data and payload typed by the document
+// data and payload typed by the document
+const { data } = await getUser.send({ payload: { userId: "1" } });
 ```
 
 ---

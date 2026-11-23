@@ -41,17 +41,29 @@ npm install @hyper-fetch/core @hyper-fetch/firebase-admin firebase-admin
 ```ts title="server/firebase.ts"
 import { createClient } from "@hyper-fetch/core";
 import { FirebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
-import { applicationDefault, cert, getApps, initializeApp } from "firebase-admin/app";
+import {
+  applicationDefault,
+  cert,
+  getApps,
+  initializeApp,
+} from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
-const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT; // JSON from a secret manager, never committed
+// JSON from a secret manager, never committed
+const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
 
 const app =
   getApps()[0] ??
-  initializeApp({ credential: serviceAccount ? cert(JSON.parse(serviceAccount)) : applicationDefault() });
+  initializeApp({
+    credential: serviceAccount
+      ? cert(JSON.parse(serviceAccount))
+      : applicationDefault(),
+  });
 
 export const db = getFirestore(app);
-export const client = createClient({ url: "" }).setAdapter(FirebaseAdminAdapter(db));
+export const client = createClient({ url: "" }).setAdapter(
+  FirebaseAdminAdapter(db),
+);
 ```
 
 2. Create a request with a Firebase path and method.
@@ -77,7 +89,9 @@ export const getOrders = client.createRequest<{
 ```ts title="server/routes/orders.ts"
 import { getOrders } from "../orders";
 
-const { data, error } = await getOrders.send({ queryParams: (c) => c.where("status", "==", "open").limit(50) });
+const { data, error } = await getOrders.send({
+  queryParams: (c) => c.where("status", "==", "open").limit(50),
+});
 ```
 
 For the Realtime Database pass `getDatabase(app)` from `firebase-admin/database`, and give `initializeApp` a
@@ -135,7 +149,8 @@ type you pass to `FirestoreQueryParams` or `RealtimeDBQueryParams` from `@hyper-
 
 ```ts title="server/orders.ts"
 const { data } = await getOrders.send({
-  queryParams: (c) => c.where("status", "==", "open").orderBy("total", "desc").limit(50),
+  queryParams: (c) =>
+    c.where("status", "==", "open").orderBy("total", "desc").limit(50),
 });
 ```
 
@@ -152,7 +167,10 @@ import { FirebaseSocketsAdminAdapter } from "@hyper-fetch/firebase-admin";
 
 import { db } from "./firebase";
 
-export const socket = new Socket({ url: "", adapter: FirebaseSocketsAdminAdapter(db) });
+export const socket = new Socket({
+  url: "",
+  adapter: FirebaseSocketsAdminAdapter(db),
+});
 ```
 
 ---

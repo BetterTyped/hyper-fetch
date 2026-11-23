@@ -97,7 +97,11 @@ import { useEmitter, useListener } from "@hyper-fetch/react";
 
 import { onChatMessage, sendChatMessage, type ChatMessage } from "@/lib/socket";
 
-export function LiveChat({ initialMessages }: { initialMessages: ChatMessage[] }) {
+export function LiveChat({
+  initialMessages,
+}: {
+  initialMessages: ChatMessage[];
+}) {
   const [messages, setMessages] = useState(initialMessages);
   const [text, setText] = useState("");
 
@@ -114,7 +118,9 @@ export function LiveChat({ initialMessages }: { initialMessages: ChatMessage[] }
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-sm">{connecting ? "Connecting..." : connected ? "Live" : "Reconnecting..."}</p>
+      <p className="text-sm">
+        {connecting ? "Connecting..." : connected ? "Live" : "Reconnecting..."}
+      </p>
 
       {messages.map((message) => (
         <p key={message.id}>
@@ -122,7 +128,11 @@ export function LiveChat({ initialMessages }: { initialMessages: ChatMessage[] }
         </p>
       ))}
 
-      <input value={text} onChange={(event) => setText(event.target.value)} className="border rounded px-2 py-1" />
+      <input
+        value={text}
+        onChange={(event) => setText(event.target.value)}
+        className="border rounded px-2 py-1"
+      />
       <button
         disabled={!connected || !text}
         onClick={() => {
@@ -152,7 +162,9 @@ which must be serializable:
 import { LiveChat } from "./live-chat";
 
 export default async function ChatPage() {
-  const response = await fetch(`${process.env.API_URL}/messages`, { cache: "no-store" });
+  const response = await fetch(`${process.env.API_URL}/messages`, {
+    cache: "no-store",
+  });
   const initialMessages = await response.json();
 
   return <LiveChat initialMessages={initialMessages} />;
@@ -197,7 +209,9 @@ export async function GET() {
     start(controller) {
       timer = setInterval(() => {
         const message = { topic: "tick", data: { at: Date.now() } };
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(message)}\n\n`));
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify(message)}\n\n`),
+        );
       }, 1000);
     },
     cancel() {
@@ -206,7 +220,10 @@ export async function GET() {
   });
 
   return new Response(stream, {
-    headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache" },
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+    },
   });
 }
 ```
@@ -214,7 +231,10 @@ export async function GET() {
 The client keeps the same listener API, only the adapter changes:
 
 ```ts title="lib/events.ts"
-import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+import {
+  createSocketClient,
+  ServerSentEventsAdapter,
+} from "@hyper-fetch/sockets";
 
 export const events = createSocketClient({
   url: "/api/events",
@@ -222,7 +242,9 @@ export const events = createSocketClient({
   adapterOptions: { autoConnect: typeof window !== "undefined" },
 });
 
-export const onTick = events.createListener<{ at: number }>()({ topic: "tick" });
+export const onTick = events.createListener<{ at: number }>()({
+  topic: "tick",
+});
 ```
 
 On serverless hosting the stream still ends when the function reaches its time limit. `EventSource` reconnects on its

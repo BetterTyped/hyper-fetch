@@ -64,7 +64,9 @@ every attempt (the first one, automatic reconnects and manual reconnects) and re
 attempt reads the current value.
 
 ```ts title="src/api/socket.ts"
-export const socket = createSocketClient({ url: "wss://api.example.com/ws" }).onConnect(async ({ connection }) => ({
+export const socket = createSocketClient({
+  url: "wss://api.example.com/ws",
+}).onConnect(async ({ connection }) => ({
   ...connection,
   // highlight-next-line
   queryParams: { clientVersion: "2.4.0", token: await getAccessToken() },

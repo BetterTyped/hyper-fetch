@@ -52,7 +52,10 @@ With `contextIsolation` on, the renderer cannot import `ipcRenderer`. Expose a s
 import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("appState", {
-  subscribe: (channel: "app:online" | "app:focused", callback: (value: boolean) => void) => {
+  subscribe: (
+    channel: "app:online" | "app:focused",
+    callback: (value: boolean) => void,
+  ) => {
     const listener = (_event: unknown, value: boolean) => callback(value);
     ipcRenderer.on(channel, listener);
     return () => ipcRenderer.removeListener(channel, listener);
@@ -71,8 +74,10 @@ export const client = new Client({
   url: "https://api.example.com",
   appManager: () =>
     new AppManager({
-      onlineEvent: (setOnline) => window.appState.subscribe("app:online", setOnline),
-      focusEvent: (setFocused) => window.appState.subscribe("app:focused", setFocused),
+      onlineEvent: (setOnline) =>
+        window.appState.subscribe("app:online", setOnline),
+      focusEvent: (setFocused) =>
+        window.appState.subscribe("app:focused", setFocused),
     }),
 });
 ```

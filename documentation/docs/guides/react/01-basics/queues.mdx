@@ -28,7 +28,10 @@ next one when the previous one finishes.
 
 ```ts title="api/files.ts"
 export const uploadFile = client
-  .createRequest<{ response: { url: string }; payload: FormData }>()({ endpoint: "/files", method: "POST" })
+  .createRequest<{
+    response: { url: string };
+    payload: FormData;
+  }>()({ endpoint: "/files", method: "POST" })
   .setQueued(true);
 ```
 
@@ -45,7 +48,9 @@ import { uploadFile } from "../api/files";
 
 export function UploadQueue() {
   const { submit } = useSubmit(uploadFile);
-  const { requests, stopped, stop, start } = useQueue(uploadFile, { keepFinishedRequests: true });
+  const { requests, stopped, stop, start } = useQueue(uploadFile, {
+    keepFinishedRequests: true,
+  });
 
   const onFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
     Array.from(event.target.files ?? []).forEach((file) => {
@@ -58,12 +63,24 @@ export function UploadQueue() {
   return (
     <div className="border rounded-md p-4">
       <input type="file" multiple onChange={onFiles} />
-      <button onClick={stopped ? start : stop}>{stopped ? "Start" : "Stop"}</button>
+      <button onClick={stopped ? start : stop}>
+        {stopped ? "Start" : "Stop"}
+      </button>
       {requests.map((item) => (
         <div key={item.requestId} className="py-2 border-b">
-          <span>{item.success ? "Done" : item.failed ? "Failed" : item.stopped ? "Stopped" : "Waiting"}</span>
+          <span>
+            {item.success
+              ? "Done"
+              : item.failed
+                ? "Failed"
+                : item.stopped
+                  ? "Stopped"
+                  : "Waiting"}
+          </span>
           <progress value={item.uploading.progress} max={100} />
-          {!item.success && <button onClick={item.deleteRequest}>Remove</button>}
+          {!item.success && (
+            <button onClick={item.deleteRequest}>Remove</button>
+          )}
         </div>
       ))}
     </div>

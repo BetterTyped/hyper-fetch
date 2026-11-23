@@ -29,7 +29,10 @@ requests one at a time; without it they are sent at once and still listed while 
 import { useQueue, useSubmit } from "@hyper-fetch/react";
 
 const uploadFile = client
-  .createRequest<{ response: { url: string }; payload: FormData }>()({ endpoint: "/files", method: "POST" })
+  .createRequest<{
+    response: { url: string };
+    payload: FormData;
+  }>()({ endpoint: "/files", method: "POST" })
   .setQueued(true);
 
 function Uploads() {
@@ -44,12 +47,20 @@ function Uploads() {
 
   return (
     <div>
-      <input type="file" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
-      {stopped ? <button onClick={start}>Resume</button> : <button onClick={pause}>Pause</button>}
+      <input
+        type="file"
+        onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
+      />
+      {stopped ? (
+        <button onClick={start}>Resume</button>
+      ) : (
+        <button onClick={pause}>Pause</button>
+      )}
       <button onClick={stop}>Stop</button>
       {requests.map((item) => (
         <p key={item.requestId}>
-          {item.uploading.progress}% <button onClick={item.deleteRequest}>Cancel</button>
+          {item.uploading.progress}%{" "}
+          <button onClick={item.deleteRequest}>Cancel</button>
         </p>
       ))}
     </div>

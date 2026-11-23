@@ -24,12 +24,18 @@ import { Plugin } from "@hyper-fetch/core";
 // Wrap the plugin in a function to give it options
 export const LoggerPlugin = ({ prefix }: { prefix: string }) =>
   new Plugin({ name: "logger" })
-    .onRequestStart(({ request }) => console.log(prefix, "start", request.method, request.endpoint))
-    .onRequestFinished(({ request, response }) => console.log(prefix, "done", request.endpoint, response.status));
+    .onRequestStart(({ request }) =>
+      console.log(prefix, "start", request.method, request.endpoint),
+    )
+    .onRequestFinished(({ request, response }) =>
+      console.log(prefix, "done", request.endpoint, response.status),
+    );
 ```
 
 ```ts title="api/client.ts"
-export const client = createClient({ url: "https://api.example.com" }).addPlugin(LoggerPlugin({ prefix: "[api]" }));
+export const client = createClient({
+  url: "https://api.example.com",
+}).addPlugin(LoggerPlugin({ prefix: "[api]" }));
 ```
 
 `removePlugin(plugin)` takes it off again and calls its `onUnmount`.
@@ -75,10 +81,17 @@ A common plugin sends failed responses to an error tracker:
 ```ts title="api/plugins/errors.ts"
 import { Plugin } from "@hyper-fetch/core";
 
-export const ErrorReportingPlugin = (report: (message: string, extra: object) => void) =>
-  new Plugin({ name: "error-reporting" }).onRequestError(({ request, response }) => {
-    report(`${request.method} ${request.endpoint} failed`, { status: response.status, error: response.error });
-  });
+export const ErrorReportingPlugin = (
+  report: (message: string, extra: object) => void,
+) =>
+  new Plugin({ name: "error-reporting" }).onRequestError(
+    ({ request, response }) => {
+      report(`${request.method} ${request.endpoint} failed`, {
+        status: response.status,
+        error: response.error,
+      });
+    },
+  );
 ```
 
 ---

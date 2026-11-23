@@ -33,7 +33,8 @@ import { createClient } from "@hyper-fetch/core";
 
 type ApiError = { message: string; code: number };
 
-// Keep Error in the union: timeouts, aborts and network failures arrive as Error instances
+// Keep Error in the union: timeouts, aborts and network failures arrive as
+// Error instances
 export const client = createClient<{ error: ApiError | Error }>({
   url: "https://api.example.com",
 });
@@ -58,7 +59,10 @@ export const getUser = client.createRequest<{ response: User }>()({
   endpoint: "/users/:userId",
 });
 
-export const createUser = client.createRequest<{ response: User; payload: { name: string } }>()({
+export const createUser = client.createRequest<{
+  response: User;
+  payload: { name: string };
+}>()({
   endpoint: "/users",
   method: "POST",
 });
@@ -105,7 +109,12 @@ The rest is set with methods on the client, chained after `createClient`:
 export const client = createClient({ url: "https://api.example.com" })
   .setDebug(process.env.NODE_ENV === "development")
   .setLogLevel("debug")
-  .onAuth((request) => request.setHeaders({ ...request.headers, Authorization: `Bearer ${getToken()}` }));
+  .onAuth((request) =>
+    request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${getToken()}`,
+    }),
+  );
 ```
 
 - **Defaults for every request**: `client.adapter.setRequestDefaults`, see [global defaults](/docs/guides/core/basics/global-defaults).

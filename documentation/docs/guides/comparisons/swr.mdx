@@ -76,7 +76,10 @@ import { useFetch } from "@hyper-fetch/react";
 
 export const client = createClient({ url: "https://api.example.com" });
 
-export const getUser = client.createRequest<{ response: User; error: ApiError }>()({
+export const getUser = client.createRequest<{
+  response: User;
+  error: ApiError;
+}>()({
   endpoint: "/users/:userId",
 });
 
@@ -114,18 +117,26 @@ function Profile({ userId }: { userId: number }) {
 ```tsx title="save-button.tsx"
 import { useSubmit } from "@hyper-fetch/react";
 
-export const updateUser = client.createRequest<{ response: User; payload: { name: string } }>()({
+export const updateUser = client.createRequest<{
+  response: User;
+  payload: { name: string };
+}>()({
   endpoint: "/users/:userId",
   method: "PATCH",
 });
 
 function SaveButton({ userId }: { userId: number }) {
-  const { submit, submitting, onSubmitSuccess } = useSubmit(updateUser.setParams({ userId }));
+  const { submit, submitting, onSubmitSuccess } = useSubmit(
+    updateUser.setParams({ userId }),
+  );
 
   onSubmitSuccess(() => client.cache.invalidate(getUser.setParams({ userId })));
 
   return (
-    <button disabled={submitting} onClick={() => submit({ payload: { name: "Ada" } })}>
+    <button
+      disabled={submitting}
+      onClick={() => submit({ payload: { name: "Ada" } })}
+    >
       Save
     </button>
   );
@@ -144,7 +155,10 @@ async function updateUser(url: string, { arg }: { arg: { name: string } }) {
 
 function SaveButton({ userId }: { userId: number }) {
   // Revalidates useSWR(`/api/users/${userId}`) when it resolves
-  const { trigger, isMutating } = useSWRMutation(`/api/users/${userId}`, updateUser);
+  const { trigger, isMutating } = useSWRMutation(
+    `/api/users/${userId}`,
+    updateUser,
+  );
 
   return (
     <button disabled={isMutating} onClick={() => trigger({ name: "Ada" })}>

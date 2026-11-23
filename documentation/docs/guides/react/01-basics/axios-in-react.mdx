@@ -116,7 +116,11 @@ The usual next step is to pull the effect into a hook:
 
 ```tsx title="hooks/use-axios-get.ts"
 function useAxiosGet<T>(url: string) {
-  const [state, setState] = useState<{ data: T | null; loading: boolean; error: Error | null }>({
+  const [state, setState] = useState<{
+    data: T | null;
+    loading: boolean;
+    error: Error | null;
+  }>({
     data: null,
     loading: true,
     error: null,
@@ -128,9 +132,12 @@ function useAxiosGet<T>(url: string) {
 
     axios
       .get<T>(url, { signal: controller.signal })
-      .then((response) => setState({ data: response.data, loading: false, error: null }))
+      .then((response) =>
+        setState({ data: response.data, loading: false, error: null }),
+      )
       .catch((err) => {
-        if (!axios.isCancel(err)) setState({ data: null, loading: false, error: err });
+        if (!axios.isCancel(err))
+          setState({ data: null, loading: false, error: err });
       });
 
     return () => controller.abort();
@@ -172,9 +179,9 @@ import type { AxiosError } from "axios";
 type User = { id: number; name: string };
 
 // The error type is the Axios error, because that's what the adapter passes on
-export const client = createClient<{ error: AxiosError }>({ url: "https://api.example.com" }).setAdapter(
-  AxiosAdapter,
-);
+export const client = createClient<{ error: AxiosError }>({
+  url: "https://api.example.com",
+}).setAdapter(AxiosAdapter);
 
 export const getUser = client.createRequest<{ response: User }>()({
   endpoint: "/users/:userId",
@@ -190,11 +197,15 @@ import { useFetch } from "@hyper-fetch/react";
 import { getUser } from "./api/client";
 
 function UserProfile({ userId }: { userId: number }) {
-  // highlight-next-line
-  const { data, loading, error, refetch } = useFetch(getUser.setParams({ userId }));
+  // highlight-start
+  const { data, loading, error, refetch } = useFetch(
+    getUser.setParams({ userId }),
+  );
+  // highlight-end
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <button onClick={refetch}>{error.message}. Try again</button>;
+  if (error)
+    return <button onClick={refetch}>{error.message}. Try again</button>;
   return <h1>{data?.name}</h1>;
 }
 ```
@@ -213,7 +224,10 @@ For search boxes, where every keystroke sends a request, set `cancelable: true`.
 ones in the same queue, and the adapter passes the abort signal to Axios:
 
 ```ts title="api/users.ts"
-export const searchUsers = client.createRequest<{ response: User[]; queryParams: { q: string } }>()({
+export const searchUsers = client.createRequest<{
+  response: User[];
+  queryParams: { q: string };
+}>()({
   endpoint: "/users",
   cancelable: true,
   queryKey: "users-search", // one queue for every search term
@@ -232,19 +246,27 @@ Writes go through `useSubmit`, which sends nothing until you call `submit`:
 ```tsx title="components/rename-user.tsx"
 import { useSubmit } from "@hyper-fetch/react";
 
-const updateUser = client.createRequest<{ response: User; payload: { name: string } }>()({
+const updateUser = client.createRequest<{
+  response: User;
+  payload: { name: string };
+}>()({
   endpoint: "/users/:userId",
   method: "PATCH",
 });
 
 function RenameUser({ userId }: { userId: number }) {
-  const { submit, submitting, error, onSubmitSuccess } = useSubmit(updateUser.setParams({ userId }));
+  const { submit, submitting, error, onSubmitSuccess } = useSubmit(
+    updateUser.setParams({ userId }),
+  );
 
   // Refetch the profile everywhere it's shown
   onSubmitSuccess(() => client.cache.invalidate(getUser.setParams({ userId })));
 
   return (
-    <button disabled={submitting} onClick={() => submit({ payload: { name: "Ada" } })}>
+    <button
+      disabled={submitting}
+      onClick={() => submit({ payload: { name: "Ada" } })}
+    >
       {error ? "Retry rename" : "Rename"}
     </button>
   );

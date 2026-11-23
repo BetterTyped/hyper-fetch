@@ -29,7 +29,8 @@ Declare the request that sends a group of writes in `createDb`, and give it a na
 const db = createDb(collections, {
   transactions: {
     publish: {
-      mutationFn: ({ id, mutations }) => publishRequest.setPayload({ mutations, idempotencyKey: id }),
+      mutationFn: ({ id, mutations }) =>
+        publishRequest.setPayload({ mutations, idempotencyKey: id }),
     },
   },
 });

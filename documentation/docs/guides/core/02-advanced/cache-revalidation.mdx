@@ -38,7 +38,9 @@ In HyperFetch the time-based part is two request options:
 - `cacheTime` (default 5 minutes): how long the entry stays in memory at all before garbage collection.
 
 ```ts title="src/api/users.ts"
-const getUsers = client.createRequest<{ response: { id: number; name: string }[] }>()({
+const getUsers = client.createRequest<{
+  response: { id: number; name: string }[];
+}>()({
   endpoint: "/users",
   staleTime: 30_000, // refetch on next use after 30 seconds
   cacheTime: 10 * 60_000, // keep in memory for 10 minutes
@@ -109,7 +111,9 @@ request's `scope`. Calling `invalidate()` with no arguments invalidates everythi
 The most common pattern is invalidating a list after adding, updating, or deleting an item. Here is a practical example:
 
 ```ts title="src/app.ts"
-const getUsers = client.createRequest<{ response: { id: number; name: string }[] }>()({
+const getUsers = client.createRequest<{
+  response: { id: number; name: string }[];
+}>()({
   endpoint: "/users",
 });
 

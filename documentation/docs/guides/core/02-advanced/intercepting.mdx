@@ -67,9 +67,17 @@ setters. `onAuth` runs after it, only for requests with `auth: true`, which is t
 export const client = createClient({ url: "https://api.example.com" })
   .onRequest((request) => {
     console.log(`-> ${request.method} ${request.endpoint}`);
-    return request.setHeaders({ ...request.headers, "X-Client-Version": "1.4.0" });
+    return request.setHeaders({
+      ...request.headers,
+      "X-Client-Version": "1.4.0",
+    });
   })
-  .onAuth((request) => request.setHeaders({ ...request.headers, Authorization: `Bearer ${getToken()}` }));
+  .onAuth((request) =>
+    request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${getToken()}`,
+    }),
+  );
 ```
 
 Interceptors can be async, for example to read a token from async storage. The

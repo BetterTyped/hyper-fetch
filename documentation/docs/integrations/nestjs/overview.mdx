@@ -48,10 +48,16 @@ import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const config = new DocumentBuilder().setTitle("Shop API").setVersion("1.0").build();
+  const config = new DocumentBuilder()
+    .setTitle("Shop API")
+    .setVersion("1.0")
+    .build();
 
-  // highlight-next-line
-  SwaggerModule.setup("docs", app, () => SwaggerModule.createDocument(app, config));
+  // highlight-start
+  SwaggerModule.setup("docs", app, () =>
+    SwaggerModule.createDocument(app, config),
+  );
+  // highlight-end
 
   await app.listen(3000);
 }
@@ -68,8 +74,8 @@ reads the JSON one.
 Run the CLI in the frontend project while the NestJS app is running:
 
 ```bash title="frontend"
-npx hyper-fetch generate --template openapi --fileName nest.sdk.ts --overwrite \
-  --url http://localhost:3000/docs-json
+npx hyper-fetch generate --template openapi --fileName nest.sdk.ts \
+  --overwrite --url http://localhost:3000/docs-json
 ```
 
 It writes `src/api/nest.sdk.ts`. The folder comes from `api.json`, which the first run creates. Every path becomes
@@ -95,7 +101,9 @@ import { sdk } from "./api/client";
 const { data, error } = await sdk.users.$id.$get.setParams({ id: "42" }).send();
 
 // payload is typed from the body DTO of POST /users
-await sdk.users.$post.send({ payload: { name: "Ada", email: "ada@example.com" } });
+await sdk.users.$post.send({
+  payload: { name: "Ada", email: "ada@example.com" },
+});
 ```
 
 Every entry is a regular [Request](/docs/core/request), so it also works with `useFetch` and `useSubmit` from

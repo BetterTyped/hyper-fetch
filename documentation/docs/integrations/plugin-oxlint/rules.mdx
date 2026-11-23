@@ -58,10 +58,13 @@ const empty = createClient<{}>({ url: "http://localhost:3000" });
 
 // error-next-line
 const notObject = createClient<unknown>({ url: "http://localhost:3000" });
-// Generic type provided to createClient is not matching the expected object-like format
+// Generic type provided to createClient is not matching the expected
+// object-like format
 
 // Correct
-const client = createClient<{ error: ApiError }>({ url: "http://localhost:3000" });
+const client = createClient<{ error: ApiError }>({
+  url: "http://localhost:3000",
+});
 ```
 
 It only reads `createClient` calls from `@hyper-fetch/core`, so it has no false positives to turn it off for.
@@ -80,14 +83,20 @@ const getUser = client.createRequest<{ rsponse: User; eror: ApiError }>()({
 });
 // Unexpected generic type(s) found: rsponse, eror
 
-// error-next-line
-const updateUser = client.createRequest<GqlResponse<User> & { paylod: UserInput }>()({
+// error-start
+const updateUser = client.createRequest<
+  GqlResponse<User> & { paylod: UserInput }
+>()({
+  // error-end
   endpoint: updateUserMutation,
 });
 // Unexpected generic type(s) found: paylod
 
 // Correct
-const getUserById = client.createRequest<{ response: User; params: { id: number } }>()({
+const getUserById = client.createRequest<{
+  response: User;
+  params: { id: number };
+}>()({
   endpoint: "/users/:id",
 });
 ```

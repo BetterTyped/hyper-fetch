@@ -42,7 +42,9 @@ npm install @hyper-fetch/core @hyper-fetch/axios axios
 import { createClient } from "@hyper-fetch/core";
 import { AxiosAdapter } from "@hyper-fetch/axios";
 
-export const client = createClient({ url: "https://api.example.com" }).setAdapter(AxiosAdapter);
+export const client = createClient({
+  url: "https://api.example.com",
+}).setAdapter(AxiosAdapter);
 ```
 
 2. Create a request. Its `options` are now typed as the axios request config.
@@ -65,7 +67,9 @@ import { isAxiosError } from "axios";
 
 import { getUser } from "./api/users";
 
-const { data, error, status, extra } = await getUser.setParams({ userId: 1 }).send();
+const { data, error, status, extra } = await getUser
+  .setParams({ userId: 1 })
+  .send();
 
 if (isAxiosError<{ message: string }>(error)) {
   console.log(status, error.response?.data?.message);
@@ -109,7 +113,10 @@ export const downloadReport = client.createRequest<{ response: Blob }>()({
 });
 
 // setOptions replaces the whole options object on the returned clone
-const slowReport = downloadReport.setOptions({ responseType: "blob", timeout: 120000 });
+const slowReport = downloadReport.setOptions({
+  responseType: "blob",
+  timeout: 120000,
+});
 ```
 
 Set options for every request with `setAdapterDefaults`. Request `options` win over them.

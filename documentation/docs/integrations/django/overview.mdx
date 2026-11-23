@@ -65,8 +65,8 @@ python manage.py spectacular --format openapi-json --file openapi.json
 Run the CLI in the frontend project and point it at the file:
 
 ```bash title="frontend"
-npx hyper-fetch generate --template openapi --fileName django.sdk.ts --overwrite \
-  --url ../server/openapi.json
+npx hyper-fetch generate --template openapi --fileName django.sdk.ts \
+  --overwrite --url ../server/openapi.json
 ```
 
 It writes `src/api/django.sdk.ts`. The folder comes from `api.json`, which the first run creates. Every path becomes
@@ -84,8 +84,11 @@ import { createSdk } from "./django.sdk";
 export const client = createClient({ url: "http://localhost:8000" });
 
 // Django routes end with a slash, the SDK builds them without one
-// highlight-next-line
-client.adapter.setEndpointMapper((endpoint) => (endpoint.endsWith("/") ? endpoint : `${endpoint}/`));
+// highlight-start
+client.adapter.setEndpointMapper((endpoint) =>
+  endpoint.endsWith("/") ? endpoint : `${endpoint}/`,
+);
+// highlight-end
 
 export const sdk = createSdk(client);
 ```

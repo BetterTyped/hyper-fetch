@@ -19,9 +19,11 @@ Each client has one of each: `client.appManager`, `client.requestManager` and `c
 
 ```ts
 // Every listener returns an unsubscribe function
-const unsubscribe = client.requestManager.events.onResponse(({ request, response }) => {
-  console.log(request.endpoint, response.status);
-});
+const unsubscribe = client.requestManager.events.onResponse(
+  ({ request, response }) => {
+    console.log(request.endpoint, response.status);
+  },
+);
 
 unsubscribe();
 ```
@@ -39,7 +41,9 @@ requests until it reports the connection is back, and React hooks use it to refe
 client.appManager.isOnline; // boolean
 client.appManager.isFocused; // boolean
 
-const unsubscribe = client.appManager.events.onOffline(() => showBanner("You are offline"));
+const unsubscribe = client.appManager.events.onOffline(() =>
+  showBanner("You are offline"),
+);
 ```
 
 The events are `onFocus`, `onBlur`, `onOnline` and `onOffline`. `setOnline(boolean)` and `setFocused(boolean)` change the
@@ -66,10 +70,13 @@ export const client = createClient({
   appManager: () =>
     new AppManager({
       focusEvent: (setFocused) => {
-        const subscription = AppState.addEventListener("change", (state) => setFocused(state === "active"));
+        const subscription = AppState.addEventListener("change", (state) =>
+          setFocused(state === "active"),
+        );
         return () => subscription.remove();
       },
-      onlineEvent: (setOnline) => NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
+      onlineEvent: (setOnline) =>
+        NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
     }),
 });
 ```
@@ -91,12 +98,17 @@ The RequestManager emits an event for every step of every request and keeps the 
 three forms: for all requests, by key (`...ByQueue`, `...ByCache` or `...ByKey`) and by `requestId` (`...ById`).
 
 ```ts title="Progress and retries"
-client.requestManager.events.onDownloadProgressById(requestId, ({ progress, timeLeft }) => {
-  console.log(`${progress}%, ${timeLeft} ms left`);
-});
+client.requestManager.events.onDownloadProgressById(
+  requestId,
+  ({ progress, timeLeft }) => {
+    console.log(`${progress}%, ${timeLeft} ms left`);
+  },
+);
 
 client.requestManager.events.onRetry(({ request, retry, delay, response }) => {
-  console.log(`${request.endpoint} failed with ${response.status}, retry ${retry} in ${delay} ms`);
+  console.log(
+    `${request.endpoint}: ${response.status}, retry ${retry} in ${delay} ms`,
+  );
 });
 ```
 
@@ -127,7 +139,8 @@ The LoggerManager prints what the client and its modules do. Nothing is printed 
 level is `"warning"` by default, change it with `setLogLevel`.
 
 ```ts title="api/client.ts"
-client.setDebug(true).setLogLevel("debug"); // "debug" | "info" | "warning" | "error"
+// "debug" | "info" | "warning" | "error"
+client.setDebug(true).setLogLevel("debug");
 
 // Only logs of these modules
 client.loggerManager.setModules(["Cache", "Dispatcher"]);
@@ -138,7 +151,13 @@ Send the logs somewhere else with `setLogger`, which takes a function returning 
 ```ts
 import { LoggerManager } from "@hyper-fetch/core";
 
-client.setLogger(() => new LoggerManager({ logger: ({ level, module, title }) => sendToMonitoring(level, module, title) }));
+client.setLogger(
+  () =>
+    new LoggerManager({
+      logger: ({ level, module, title }) =>
+        sendToMonitoring(level, module, title),
+    }),
+);
 ```
 
 ---

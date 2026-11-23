@@ -60,7 +60,7 @@ export const updateUser = client.createRequest<{
 
 TypeScript does not reject unknown keys in an object generic, so `rsponse` would pass silently. The
 [lint plugin](/docs/integrations/plugin-eslint) reports it. When the endpoint is a typed GraphQL document, `response`
-and `payload` come from it, see [typed documents](/docs/integrations/adapter-graphql/overview#typed-documents).
+and `payload` come from it, see [typed documents](/docs/integrations/adapter-graphql/queries#typed-documents).
 
 ---
 
@@ -70,10 +70,17 @@ Set values ahead of time with setters, or pass them to `send()`. Both are typed 
 
 ```ts
 // Setters return a new request
-const response = await updateUser.setParams({ userId: 1 }).setPayload({ name: "Ann" }).send();
+const response = await updateUser
+  .setParams({ userId: 1 })
+  .setPayload({ name: "Ann" })
+  .send();
 
 // Or all at once
-await updateUser.send({ params: { userId: 1 }, payload: { name: "Ann" }, queryParams: { notify: true } });
+await updateUser.send({
+  params: { userId: 1 },
+  payload: { name: "Ann" },
+  queryParams: { notify: true },
+});
 ```
 
 - **Params** come from `:name` segments of the endpoint. A missing one is a compile error.
@@ -163,7 +170,8 @@ Decide per response whether to retry with `setRetryOnError`:
 ```ts
 const getReport = client
   .createRequest()({ endpoint: "/reports", retry: 3, retryTime: 1000 })
-  .setRetryOnError(({ status }) => !!status && status >= 500); // skip retries for 4xx
+  // skip retries for 4xx
+  .setRetryOnError(({ status }) => !!status && status >= 500);
 ```
 
 Guides: [cancellation](/docs/guides/core/advanced/cancellation), [deduplication](/docs/guides/core/advanced/deduplication),
@@ -201,7 +209,10 @@ To change how keys are built for every request, use `client.setCacheKeyMapper`, 
 client in `"server"` mode a request is only cached when it has a scope. See [Cache](/docs/core/cache).
 
 ```ts
-const { data } = await getUser.setParams({ userId: 1 }).setScope(session.id).send();
+const { data } = await getUser
+  .setParams({ userId: 1 })
+  .setScope(session.id)
+  .send();
 ```
 
 ---
@@ -236,8 +247,13 @@ on failure, abort or removal from the queue, and refreshes the target once the l
 import { optimistic } from "@hyper-fetch/core";
 
 export const toggleTodo = client
-  .createRequest<{ response: Todo; payload: { done: boolean } }>()({ endpoint: "/todos/:todoId", method: "PATCH" })
-  .setOptimistic(({ params, payload }) => [optimistic(getTodos).patch(params.todoId, payload)]);
+  .createRequest<{ response: Todo; payload: { done: boolean } }>()({
+    endpoint: "/todos/:todoId",
+    method: "PATCH",
+  })
+  .setOptimistic(({ params, payload }) => [
+    optimistic(getTodos).patch(params.todoId, payload),
+  ]);
 ```
 
 The callback can also return `{ updates, context, rollback, invalidate }`. The
@@ -259,7 +275,9 @@ await getUser.send({
   onResponse: ({ response }) => console.log(response.status),
 });
 
-const unsubscribe = getUser.$hooks.onResponse(({ response }) => track(response.status));
+const unsubscribe = getUser.$hooks.onResponse(({ response }) =>
+  track(response.status),
+);
 ```
 
 The callbacks are `onBeforeSent`, `onRequestStart`, `onResponseStart`, `onUploadProgress`, `onDownloadProgress`,

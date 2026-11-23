@@ -29,7 +29,9 @@ request. `send()` resolves after the mapper finishes.
 ```ts title="src/api/users.ts"
 type UserModel = { id: number; name: string; createdAt: string };
 
-const getTeams = client.createRequest<{ response: { id: number; name: string }[] }>()({
+const getTeams = client.createRequest<{
+  response: { id: number; name: string }[];
+}>()({
   endpoint: "/users/:userId/teams",
 });
 
@@ -38,11 +40,17 @@ export const getUser = client
   .setResponseMapper(async (response) => {
     if (!response.data) return response;
 
-    const { data: teams } = await getTeams.send({ params: { userId: response.data.id } });
+    const { data: teams } = await getTeams.send({
+      params: { userId: response.data.id },
+    });
 
     return {
       ...response,
-      data: { ...response.data, createdAt: new Date(response.data.createdAt), teams: teams ?? [] },
+      data: {
+        ...response.data,
+        createdAt: new Date(response.data.createdAt),
+        teams: teams ?? [],
+      },
     };
   });
 ```
@@ -96,7 +104,8 @@ callbacks and an [optimistic update](/docs/guides/react/basics/optimistic-approa
 const getCheckedUser = client
   .createRequest<{ response: UserModel }>()({ endpoint: "/users/:userId" })
   .setResponseMapper((response) => {
-    if (response.data && typeof response.data.name !== "string") throw new Error("Invalid user");
+    if (response.data && typeof response.data.name !== "string")
+      throw new Error("Invalid user");
     return response;
   });
 
@@ -129,7 +138,10 @@ So a request mapper sees the auth headers, and a response mapper sees what the r
 ```ts title="src/api/files.ts"
 // Request mappers can also be async, for example to sign the final request
 export const uploadFile = client
-  .createRequest<{ response: { url: string }; payload: Blob }>()({ endpoint: "/files", method: "PUT" })
+  .createRequest<{ response: { url: string }; payload: Blob }>()({
+    endpoint: "/files",
+    method: "PUT",
+  })
   .setRequestMapper(async (request) => {
     const signature = await sign(request.endpoint);
     return request.setHeaders({ ...request.headers, "X-Signature": signature });

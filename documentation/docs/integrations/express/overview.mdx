@@ -82,8 +82,8 @@ router.get("/users/:id", getUser);
 Run the CLI in the frontend project while the server is running:
 
 ```bash title="frontend"
-npx hyper-fetch generate --template openapi --fileName express.sdk.ts --overwrite \
-  --url http://localhost:3000/openapi.json
+npx hyper-fetch generate --template openapi --fileName express.sdk.ts \
+  --overwrite --url http://localhost:3000/openapi.json
 ```
 
 It writes `src/api/express.sdk.ts`. The folder comes from `api.json`, which the first run creates. Every path becomes

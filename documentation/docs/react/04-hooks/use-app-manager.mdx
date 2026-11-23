@@ -58,7 +58,9 @@ changes back.
 ```tsx title="Simulate offline mode"
 const { isOnline, setOnline } = useAppManager(client);
 
-<button onClick={() => setOnline(!isOnline)}>{isOnline ? "Go offline" : "Go online"}</button>;
+<button onClick={() => setOnline(!isOnline)}>
+  {isOnline ? "Go offline" : "Go online"}
+</button>;
 ```
 
 In the browser the `AppManager` listens to window events. In [React Native](/docs/react/environments/react-native) and

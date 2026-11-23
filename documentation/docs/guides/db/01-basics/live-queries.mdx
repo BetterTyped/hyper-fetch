@@ -33,7 +33,9 @@ import { useLiveQuery } from "@hyper-fetch/react";
 
 const TeamFeed = ({ teamId }: { teamId: string }) => {
   const { data, status } = useLiveQuery(
-    db.postSummary.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+    db.postSummary
+      .where((post) => eq(post.teamId, teamId))
+      .orderBy((post) => post.createdAt, "desc"),
   );
 
   if (status === "loading") return <p>Loading posts...</p>;
@@ -131,7 +133,9 @@ while the body loads.
 `.local()` reads the rows the collection holds and never sends a request:
 
 ```ts
-const { data: drafts } = useLiveQuery(db.postSummary.where((post) => eq(post.status, "draft")).local());
+const { data: drafts } = useLiveQuery(
+  db.postSummary.where((post) => eq(post.status, "draft")).local(),
+);
 ```
 
 It compiles on any collection, even without a matching loader, and it never starts syncs. Use it for views over data
@@ -155,13 +159,19 @@ const TeamFeed = ({ teamId }: { teamId: string }) => {
   if (status === "loading") return <p>Loading posts...</p>;
   if (status === "error") {
     // The first load failed: there is nothing to show
-    return <button onClick={() => refetch()}>Could not load posts. Try again</button>;
+    return (
+      <button onClick={() => refetch()}>Could not load posts. Try again</button>
+    );
   }
 
   return (
     <div>
       {/* A refresh failed or the socket dropped: the rows stay, flag them */}
-      {(error || stale) && <p className="text-amber-600">Showing saved posts{isFetching && ", refreshing..."}</p>}
+      {(error || stale) && (
+        <p className="text-amber-600">
+          Showing saved posts{isFetching && ", refreshing..."}
+        </p>
+      )}
       {data?.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
@@ -178,7 +188,9 @@ Like `send()`, a query never throws. Failures land in `error`, and every failure
 
 ```tsx title="src/team-feed.tsx"
 // Rebuilt on every render: fine
-const { data } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+const { data } = useLiveQuery(
+  db.postSummary.where((post) => eq(post.teamId, teamId)),
+);
 ```
 
 A query is data. Two queries with the same structure are the **same** query, identified by a key built from their
@@ -199,7 +211,8 @@ loaded feed is free:
 const PopularFilter = ({ teamId }: { teamId: string }) => {
   const [minLikes, setMinLikes] = useState(0);
 
-  // The feed loaded `teamId = t1`. Every `likes > n` inside it is answered locally.
+  // The feed loaded `teamId = t1`. Every `likes > n` inside it is answered
+  // locally.
   const { data } = useLiveQuery(
     db.postSummary
       .where((post) => and(eq(post.teamId, teamId), gt(post.likes, minLikes)))
@@ -208,7 +221,13 @@ const PopularFilter = ({ teamId }: { teamId: string }) => {
 
   return (
     <div>
-      <input type="range" min={0} max={100} value={minLikes} onChange={(e) => setMinLikes(Number(e.target.value))} />
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={minLikes}
+        onChange={(e) => setMinLikes(Number(e.target.value))}
+      />
       {data?.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}

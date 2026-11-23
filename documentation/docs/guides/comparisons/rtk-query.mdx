@@ -70,7 +70,9 @@ import { createClient } from "@hyper-fetch/core";
 
 export const client = createClient({ url: "https://api.example.com" });
 
-export const getPosts = client.createRequest<{ response: Post[] }>()({ endpoint: "/posts" });
+export const getPosts = client.createRequest<{ response: Post[] }>()({
+  endpoint: "/posts",
+});
 
 export const editPost = client
   .createRequest<{ response: Post; payload: Partial<Post> }>()({
@@ -124,7 +126,10 @@ function Posts() {
   const { submit, submitting } = useSubmit(editPost.setParams({ postId: 1 }));
 
   return (
-    <button disabled={submitting} onClick={() => submit({ payload: { title: "Updated" } })}>
+    <button
+      disabled={submitting}
+      onClick={() => submit({ payload: { title: "Updated" } })}
+    >
       Rename
     </button>
   );
@@ -140,7 +145,10 @@ function Posts() {
   const [editPost, { isLoading: isSaving }] = useEditPostMutation();
 
   return (
-    <button disabled={isSaving} onClick={() => editPost({ id: 1, title: "Updated" })}>
+    <button
+      disabled={isSaving}
+      onClick={() => editPost({ id: 1, title: "Updated" })}
+    >
       Rename
     </button>
   );

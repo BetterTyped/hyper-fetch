@@ -114,7 +114,8 @@ client.addPlugin(
     appName: "Storefront API",
     environment: "server",
     sockets: [socket],
-    // Only on Node.js 18 and 20. Node.js 22+, Bun and Deno have a global WebSocket.
+    // Only on Node.js 18 and 20. Node.js 22+, Bun and Deno have a global
+    // WebSocket.
     WebSocket: WebSocket as unknown as typeof globalThis.WebSocket,
   }),
 );

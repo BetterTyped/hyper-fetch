@@ -60,10 +60,18 @@ const Post = collection(PostSchema, { key: "id", version: "updatedAt" })
     },
     update: {
       request: updatePost,
-      // highlight-next-line
-      map: (key, changes, { id }) => ({ params: { postId: key }, payload: { ...changes, idempotencyKey: id } }),
+      // highlight-start
+      map: (key, changes, { id }) => ({
+        params: { postId: key },
+        payload: { ...changes, idempotencyKey: id },
+      }),
+      // highlight-end
     },
-    delete: { request: deletePost, map: (key) => ({ params: { postId: key } }), onSuccess: "keep" },
+    delete: {
+      request: deletePost,
+      map: (key) => ({ params: { postId: key } }),
+      onSuccess: "keep",
+    },
   });
 
 export const createAppDb = (userId: string) =>
@@ -100,7 +108,9 @@ what it found:
 
 ```tsx title="src/feed.tsx"
 const Feed = ({ teamId }: { teamId: string }) => {
-  const { data, stale } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+  const { data, stale } = useLiveQuery(
+    db.postSummary.where((post) => eq(post.teamId, teamId)),
+  );
 
   return (
     <div>
@@ -128,11 +138,18 @@ your own classes need a codec:
 const money: DbCodec = {
   name: "Money", // stored with each value: never rename it
   test: (value) => value instanceof Money,
-  encode: (value) => ({ cents: (value as Money).cents, currency: (value as Money).currency }),
-  decode: (value) => new Money((value as Money).cents, (value as Money).currency),
+  encode: (value) => ({
+    cents: (value as Money).cents,
+    currency: (value as Money).currency,
+  }),
+  decode: (value) =>
+    new Money((value as Money).cents, (value as Money).currency),
 };
 
-createDb(collections, { codecs: [money], persistence: { storage: localStorage, scope: userId } });
+createDb(collections, {
+  codecs: [money],
+  persistence: { storage: localStorage, scope: userId },
+});
 ```
 
 ---
@@ -146,9 +163,16 @@ const postId = crypto.randomUUID();
 
 const post = db.post.insert({ ...draft, id: postId });
 
-// Dropped if the post is rejected, so no comment points at a post that never existed
+// Dropped if the post is rejected, so no comment points at a post that never
+// existed
 db.comment.insert(
-  { id: crypto.randomUUID(), postId, authorId: user.id, body: "First!", createdAt: new Date().toISOString() },
+  {
+    id: crypto.randomUUID(),
+    postId,
+    authorId: user.id,
+    body: "First!",
+    createdAt: new Date().toISOString(),
+  },
   { dependsOn: [post] },
 );
 ```
@@ -192,7 +216,8 @@ import { isTemporaryFailure } from "@hyper-fetch/db";
 createDb(collections, {
   offline: {
     // A conflict will not go away by retrying
-    retryable: (response) => response.status !== 409 && isTemporaryFailure(response),
+    retryable: (response) =>
+      response.status !== 409 && isTemporaryFailure(response),
     retryDelay: (attempt) => Math.min(2000 * attempt, 60_000),
   },
   persistence: { storage: indexedDbStorage, scope: user.id, version: 2 },
@@ -235,7 +260,13 @@ const SyncStatus = () => {
   const pending = usePendingWrites();
 
   if (pending === 0) return null;
-  return <p>{isOnline ? `Syncing ${pending} changes...` : `${pending} changes will sync when you're back online`}</p>;
+  return (
+    <p>
+      {isOnline
+        ? `Syncing ${pending} changes...`
+        : `${pending} changes will sync when you're back online`}
+    </p>
+  );
 };
 ```
 
@@ -260,7 +291,8 @@ it, so every tab keeps or reverts its optimistic layers the same way.
 
 ```ts title="src/auth.ts"
 const signOut = async () => {
-  await db.clear(); // rows, loaded subsets and the outbox of this scope, in every tab
+  // rows, loaded subsets and the outbox of this scope, in every tab
+  await db.clear();
   db.destroy(); // stops syncs, timers and the tab channel
   // Create the next user's db with their own scope
 };

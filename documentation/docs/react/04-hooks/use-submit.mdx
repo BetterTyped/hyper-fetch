@@ -106,7 +106,9 @@ function RenameUser({ userId }: { userId: number }) {
     if (response.success) closeDialog();
   };
 
-  return <NameForm onSave={onSave} disabled={submitting} error={error?.message} />;
+  return (
+    <NameForm onSave={onSave} disabled={submitting} error={error?.message} />
+  );
 }
 ```
 
@@ -152,7 +154,8 @@ A mutation has its own cache key, so lists that show the changed data do not upd
 const { submit, onSubmitSuccess } = useSubmit(createUser);
 
 onSubmitSuccess(() => {
-  // Every mounted useFetch(getUsers...) sends again; others refetch on their next mount
+  // Every mounted useFetch(getUsers...) sends again; others refetch on their
+  // next mount
   client.cache.invalidate(getUsers);
 });
 ```
@@ -171,7 +174,8 @@ one after `bounceTimeout`. `bounce.reset()` cancels a waiting call.
 ```tsx title="Autosave while typing"
 const { submit } = useSubmit(updateUser, { bounce: true, bounceTime: 500 });
 
-const onChange = (name: string) => submit({ params: { userId: 1 }, payload: { name } });
+const onChange = (name: string) =>
+  submit({ params: { userId: 1 }, payload: { name } });
 ```
 
 To control concurrency on the request instead, use `setQueued(true)` (one at a time), `setCancelable(true)` (the last
@@ -189,15 +193,22 @@ afterwards, even when the component unmounted. The component needs nothing speci
 import { optimistic } from "@hyper-fetch/core";
 
 export const patchUser = client
-  .createRequest<{ response: User; payload: Partial<User> }>()({ endpoint: "/users/:userId", method: "PATCH" })
+  .createRequest<{ response: User; payload: Partial<User> }>()({
+    endpoint: "/users/:userId",
+    method: "PATCH",
+  })
   .setOptimistic(({ params, payload }) => ({
     context: { userId: params.userId },
     updates: [
       optimistic(getUsers)
         .patch(params.userId, payload)
         .rollback(({ data, previous }) => {
-          const before = previous.find((user) => user.id === Number(params.userId));
-          return data.map((user) => (user.id === Number(params.userId) && before ? before : user));
+          const before = previous.find(
+            (user) => user.id === Number(params.userId),
+          );
+          return data.map((user) =>
+            user.id === Number(params.userId) && before ? before : user,
+          );
         }),
     ],
   }));

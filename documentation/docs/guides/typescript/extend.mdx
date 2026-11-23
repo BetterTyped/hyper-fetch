@@ -42,7 +42,9 @@ the helper accepts only requests whose response is `string[]`:
 ```ts title="src/helpers/autocomplete.ts"
 import type { RequestInstance } from "@hyper-fetch/core";
 
-export async function autocomplete(request: RequestInstance<{ response: string[] }>) {
+export async function autocomplete(
+  request: RequestInstance<{ response: string[] }>,
+) {
   const { data } = await request.send();
   return data ?? []; // data: string[] | null
 }
@@ -53,8 +55,12 @@ request or passes it on and must keep its exact type. Inside such a generic, `se
 required, so send from a function typed with the plain constraint as above.
 
 ```ts title="src/app.ts"
-const getSuggestions = client.createRequest<{ response: string[] }>()({ endpoint: "/suggestions" });
-const getUsername = client.createRequest<{ response: string }>()({ endpoint: "/username" });
+const getSuggestions = client.createRequest<{ response: string[] }>()({
+  endpoint: "/suggestions",
+});
+const getUsername = client.createRequest<{ response: string }>()({
+  endpoint: "/username",
+});
 
 await autocomplete(getSuggestions); // ok
 
@@ -91,9 +97,11 @@ import type { RequestInstance, RequestModel } from "@hyper-fetch/core";
 type ApiSchema = {
   users: {
     // diff-remove-next-line
-    $get: RequestInstance<{ response: User[]; endpoint: "/users" }>; // payload and queryParams become any
+    // payload and queryParams become any
+    $get: RequestInstance<{ response: User[]; endpoint: "/users" }>;
     // diff-add-next-line
-    $get: RequestModel<{ response: User[]; endpoint: "/users" }>; // no payload, no query params
+    // no payload, no query params
+    $get: RequestModel<{ response: User[]; endpoint: "/users" }>;
   };
 };
 ```

@@ -35,7 +35,9 @@ import { socket } from "./api/socket";
 type ChatMessage = { id: string; author: string; text: string };
 
 // Define once, at module level, and reuse
-export const onChatMessage = socket.createListener<ChatMessage>()({ topic: "chat" });
+export const onChatMessage = socket.createListener<ChatMessage>()({
+  topic: "chat",
+});
 
 const unlisten = onChatMessage.listen(({ data }) => {
   console.log(`${data.author}: ${data.text}`);
@@ -57,10 +59,14 @@ Put params in the topic with a colon. `setParams` returns a new listener for the
 unchanged, so always use the returned value.
 
 ```ts title="src/rooms.ts"
-export const onRoomMessage = socket.createListener<ChatMessage>()({ topic: "rooms/:roomId" });
+export const onRoomMessage = socket.createListener<ChatMessage>()({
+  topic: "rooms/:roomId",
+});
 
 // Listens on "rooms/general"
-const stop = onRoomMessage.setParams({ roomId: "general" }).listen(({ data }) => console.log(data.text));
+const stop = onRoomMessage
+  .setParams({ roomId: "general" })
+  .listen(({ data }) => console.log(data.text));
 ```
 
 Each param combination is a separate topic, matched exactly, without prefixes or wildcards. A missing or misspelled
@@ -73,7 +79,9 @@ param is a type error.
 Call the remover inside the callback to react once, for example to wait for a "ready" message.
 
 ```ts title="src/wait-for-ready.ts"
-const onReady = socket.createListener<{ version: string }>()({ topic: "server/ready" });
+const onReady = socket.createListener<{ version: string }>()({
+  topic: "server/ready",
+});
 
 export const waitForReady = () =>
   new Promise<string>((resolve) => {
@@ -92,7 +100,9 @@ When the same records are loaded over HTTP, write each message into the matching
 `send()` reading it gets the new data without a refetch.
 
 ```ts title="src/notes-sync.ts"
-const getNote = client.createRequest<{ response: Note }>()({ endpoint: "/notes/:noteId" });
+const getNote = client.createRequest<{ response: Note }>()({
+  endpoint: "/notes/:noteId",
+});
 const onNoteChange = socket.createListener<Note>()({ topic: "notes" });
 
 onNoteChange.listen(({ data }) => {

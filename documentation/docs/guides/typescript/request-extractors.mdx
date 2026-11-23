@@ -37,8 +37,10 @@ export const updateUser = client.createRequest<{
 
 type UpdatedUser = ExtractResponseType<typeof updateUser>; // { id; name; email }
 type UserChanges = ExtractPayloadType<typeof updateUser>; // { name?; email? }
-type UserParams = ExtractParamsType<typeof updateUser>; // { userId: string | number }
-type UpdateError = ExtractErrorType<typeof updateUser>; // local error | global error
+// { userId: string | number }
+type UserParams = ExtractParamsType<typeof updateUser>;
+// local error | global error
+type UpdateError = ExtractErrorType<typeof updateUser>;
 ```
 
 ---
@@ -48,7 +50,8 @@ type UpdateError = ExtractErrorType<typeof updateUser>; // local error | global 
 The extracted types follow the request: change the request's generics and every helper updates.
 
 ```ts title="src/users.ts"
-const renderUser = (user: UpdatedUser) => console.log(`${user.name} <${user.email}>`);
+const renderUser = (user: UpdatedUser) =>
+  console.log(`${user.name} <${user.email}>`);
 
 const reportError = (error: UpdateError) => {
   if (error instanceof Error) console.error(error.message);

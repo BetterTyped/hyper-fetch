@@ -71,7 +71,8 @@ component mounts and returns typed `data`, `loading` and `error`.
 
 ```tsx title="components/user-list.tsx"
 import { useFetch } from "@hyper-fetch/react";
-import { getUsers } from "../api/users"; // client.createRequest<{ response: User[] }>()({ endpoint: "/users" })
+// client.createRequest<{ response: User[] }>()({ endpoint: "/users" })
+import { getUsers } from "../api/users";
 
 export function UserList() {
   const { data: users, loading, error, refetch } = useFetch(getUsers);
@@ -126,7 +127,9 @@ For values that are not part of the request, such as a version counter, pass the
 with `Object.is`, so pass primitives: an object built in render refetches on every render.
 
 ```tsx title="Refetch on an outside value"
-const { data } = useFetch(getUserPosts.setParams({ userId }), { dependencies: [version] });
+const { data } = useFetch(getUserPosts.setParams({ userId }), {
+  dependencies: [version],
+});
 ```
 
 ---
@@ -139,7 +142,9 @@ sends only when the cached data is missing or stale.
 
 ```tsx title="Skip the mount request while data is fresh"
 // staleTime is set on the request: 5 minutes by default
-const getCountries = client.createRequest<{ response: Country[] }>()({ endpoint: "/countries" }).setStaleTime(Time.HOUR);
+const getCountries = client
+  .createRequest<{ response: Country[] }>()({ endpoint: "/countries" })
+  .setStaleTime(Time.HOUR);
 
 const { data } = useFetch(getCountries, { revalidate: false });
 ```

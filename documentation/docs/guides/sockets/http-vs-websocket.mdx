@@ -152,14 +152,21 @@ export const client = createClient({ url: "https://api.example.com" });
 export const socket = createSocketClient({ url: "wss://api.example.com/ws" });
 
 // HTTP: read and write
-export const getNotes = client.createRequest<{ response: Note[] }>()({ endpoint: "/notes" });
-export const createNote = client.createRequest<{ response: Note; payload: { title: string } }>()({
+export const getNotes = client.createRequest<{ response: Note[] }>()({
+  endpoint: "/notes",
+});
+export const createNote = client.createRequest<{
+  response: Note;
+  payload: { title: string };
+}>()({
   endpoint: "/notes",
   method: "POST",
 });
 
 // WebSocket: "something changed"
-export const onNotesChanged = socket.createListener<{ noteId: string }>()({ topic: "notes-changed" });
+export const onNotesChanged = socket.createListener<{ noteId: string }>()({
+  topic: "notes-changed",
+});
 
 // highlight-start
 // Any change, from this tab or another user, marks the list as stale.
@@ -184,8 +191,13 @@ function Notes() {
   return (
     <div>
       {loading && !data && <p>Loading...</p>}
-      {data?.map((note) => <p key={note.id}>{note.title}</p>)}
-      <button disabled={submitting} onClick={() => submit({ payload: { title: "New note" } })}>
+      {data?.map((note) => (
+        <p key={note.id}>{note.title}</p>
+      ))}
+      <button
+        disabled={submitting}
+        onClick={() => submit({ payload: { title: "New note" } })}
+      >
         Add note
       </button>
     </div>

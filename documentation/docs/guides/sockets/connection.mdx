@@ -144,7 +144,10 @@ export const socket = createSocketClient({
   appManager: () =>
     new AppManager({
       initiallyOnline: async () => Boolean((await NetInfo.fetch()).isConnected),
-      onlineEvent: (setOnline) => NetInfo.addEventListener((state) => setOnline(Boolean(state.isConnected))),
+      onlineEvent: (setOnline) =>
+        NetInfo.addEventListener((state) =>
+          setOnline(Boolean(state.isConnected)),
+        ),
     }),
 });
 ```

@@ -89,7 +89,11 @@ stop. It is the counterpart of axios-retry's `retryCondition`.
 
 ```ts title="src/api/reports.ts"
 export const getReports = client
-  .createRequest<{ response: Report[] }>()({ endpoint: "/reports", retry: 3, retryTime: 1000 })
+  .createRequest<{ response: Report[] }>()({
+    endpoint: "/reports",
+    retry: 3,
+    retryTime: 1000,
+  })
   // Retry network errors (status 0) and 5xx, never 4xx
   .setRetryOnError(({ status }) => !status || Number(status) >= 500);
 ```
@@ -144,9 +148,12 @@ show "Retrying (2 of 3)" while the request waits.
 await getReport.send({
   params: { reportId: 7 },
   onRetry: ({ retry, delay, response }) => {
-    console.log(`Failed with ${response.status}, retry ${retry} of ${getReport.retry} in ${delay} ms`);
+    console.log(
+      `${response.status}: retry ${retry} of ${getReport.retry} in ${delay} ms`,
+    );
   },
-  onResponse: ({ response, details }) => console.log(response.status, `retries used: ${details.retries}`),
+  onResponse: ({ response, details }) =>
+    console.log(response.status, `retries used: ${details.retries}`),
 });
 ```
 

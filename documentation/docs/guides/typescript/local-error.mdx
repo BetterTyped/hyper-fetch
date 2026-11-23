@@ -33,7 +33,9 @@ export const createUser = client.createRequest<{
   error: ValidationError;
 }>()({ endpoint: "/users", method: "POST" });
 
-const { error } = await createUser.send({ payload: { name: "Ann", email: "not-an-email" } });
+const { error } = await createUser.send({
+  payload: { name: "Ann", email: "not-an-email" },
+});
 // error: ValidationError | ApiError | Error | null
 ```
 

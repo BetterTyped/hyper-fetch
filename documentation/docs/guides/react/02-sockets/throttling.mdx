@@ -109,13 +109,20 @@ import { onPrice } from "./api/socket";
 export function PriceTicker() {
   const [rate, setRate] = useState(16);
   // A new listener only when rate changes, not on every render
-  // highlight-next-line
-  const live = useMemo(() => onPrice.setDelivery({ strategy: "latest", interval: rate }), [rate]);
+  // highlight-start
+  const live = useMemo(
+    () => onPrice.setDelivery({ strategy: "latest", interval: rate }),
+    [rate],
+  );
+  // highlight-end
   const { data } = useListener(live);
 
   return (
     <>
-      <select value={rate} onChange={(event) => setRate(Number(event.target.value))}>
+      <select
+        value={rate}
+        onChange={(event) => setRate(Number(event.target.value))}
+      >
         <option value={16}>Realtime</option>
         <option value={250}>Relaxed</option>
         <option value={1000}>Slow</option>
@@ -140,7 +147,10 @@ export function PriceTicker() {
 ```ts title="api/socket.ts"
 // Module level: a stable identity
 export const summarize = createDeliveryStrategy<Trade, Summary>(/* ... */);
-export const onTradeSummary = socket.createListener<Trade>()({ topic: "trades", delivery: summarize });
+export const onTradeSummary = socket.createListener<Trade>()({
+  topic: "trades",
+  delivery: summarize,
+});
 ```
 
 ---

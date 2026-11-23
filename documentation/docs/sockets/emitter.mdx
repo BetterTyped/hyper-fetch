@@ -14,7 +14,9 @@ topic params before anything goes out.
 ```ts title="emitters.ts"
 import { socket } from "./socket";
 
-export const sendChatMessage = socket.createEmitter<{ text: string }>()({ topic: "chat" });
+export const sendChatMessage = socket.createEmitter<{ text: string }>()({
+  topic: "chat",
+});
 
 sendChatMessage.emit({ payload: { text: "Hello" } });
 ```
@@ -51,10 +53,18 @@ greeting.emit();
 Params in the topic, such as `:roomId`, are required until you set them, either in `emit` or with `setParams`.
 
 ```ts title="rooms.ts"
-export const sendRoomMessage = socket.createEmitter<{ text: string }>()({ topic: "rooms/:roomId" });
+export const sendRoomMessage = socket.createEmitter<{ text: string }>()({
+  topic: "rooms/:roomId",
+});
 
-sendRoomMessage.emit({ params: { roomId: "general" }, payload: { text: "Hi room" } });
-sendRoomMessage.setParams({ roomId: "general" }).setPayload({ text: "Hi room" }).emit();
+sendRoomMessage.emit({
+  params: { roomId: "general" },
+  payload: { text: "Hi room" },
+});
+sendRoomMessage
+  .setParams({ roomId: "general" })
+  .setPayload({ text: "Hi room" })
+  .emit();
 
 // error-next-line
 sendRoomMessage.emit({ payload: { text: "Hi room" } }); // params are missing
@@ -88,7 +98,10 @@ if (socket.adapter.connected) {
 `setPayloadMapper` runs right before the message goes out and can be async. It is kept on every clone.
 
 ```ts title="stamped.ts"
-export const sendStamped = sendChatMessage.setPayloadMapper((payload) => ({ ...payload, sentAt: Date.now() }));
+export const sendStamped = sendChatMessage.setPayloadMapper((payload) => ({
+  ...payload,
+  sentAt: Date.now(),
+}));
 ```
 
 To change every emitted message of a socket, such as adding a client id, use `socket.onSend` on the

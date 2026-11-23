@@ -59,7 +59,12 @@ export const getUsers = client.createRequest<{ response: User[] }>()({
 
 ```ts title="src/app.ts"
 // One network call, four identical responses
-const responses = await Promise.all([getUsers.send(), getUsers.send(), getUsers.send(), getUsers.send()]);
+const responses = await Promise.all([
+  getUsers.send(),
+  getUsers.send(),
+  getUsers.send(),
+  getUsers.send(),
+]);
 ```
 
 Two requests are identical when they share a `queryKey`, which is built from the method, the filled endpoint and the

@@ -12,7 +12,10 @@ frames into listener messages and sends what emitters emit. `@hyper-fetch/socket
 default, and `ServerSentEventsAdapter`. Swap the adapter and your listeners keep working.
 
 ```ts title="events.ts"
-import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+import {
+  createSocketClient,
+  ServerSentEventsAdapter,
+} from "@hyper-fetch/sockets";
 
 export const events = createSocketClient({
   url: "https://api.example.com/events",
@@ -93,7 +96,9 @@ topic is the event name, with its data parsed as JSON, or kept as text when it i
 
 ```ts title="ticks.ts"
 // server sends: event: tick\ndata: {"count":1}
-events.createListener<{ count: number }>()({ topic: "tick" }).listen(({ data }) => console.log(data.count));
+events
+  .createListener<{ count: number }>()({ topic: "tick" })
+  .listen(({ data }) => console.log(data.count));
 ```
 
 Node.js has no global `EventSource`. Pass the one from the `eventsource` package with `adapterOptions: { EventSource }`.
@@ -128,9 +133,14 @@ Any adapter option can be set right before each attempt with the socket's `onCon
 sent as a subprotocol.
 
 ```ts title="socket.ts"
-export const socket = createSocketClient({ url: "wss://example.com/ws" }).onConnect(({ connection }) => ({
+export const socket = createSocketClient({
+  url: "wss://example.com/ws",
+}).onConnect(({ connection }) => ({
   ...connection,
-  adapterOptions: { ...connection.adapterOptions, protocols: ["authorization", getAccessToken()] },
+  adapterOptions: {
+    ...connection.adapterOptions,
+    protocols: ["authorization", getAccessToken()],
+  },
 }));
 ```
 
@@ -167,18 +177,29 @@ const MyAdapter = () =>
     const connection = createReconnectingConnection({
       bindings,
       autoConnect: bindings.adapter.adapterOptions?.autoConnect ?? true,
-      // Close codes retrying can't fix, on top of the default. The socket's option wins over it
-      shouldReconnect: (loss) => defaultShouldReconnect(loss) && loss.code !== 4401,
+      // Close codes retrying can't fix, on top of the default. The socket's
+      // option wins over it
+      shouldReconnect: (loss) =>
+        defaultShouldReconnect(loss) && loss.code !== 4401,
       open: (attempt) => {
-        const url = getSocketUrl(attempt.connection.url, bindings.getQueryParams(attempt.connection.queryParams));
+        const url = getSocketUrl(
+          attempt.connection.url,
+          bindings.getQueryParams(attempt.connection.queryParams),
+        );
         const current = new MyTransport(url, attempt.connection.adapterOptions);
         transport = current;
 
         current.on("open", () => attempt.ready());
-        current.on("close", ({ code, reason }) => attempt.lost({ code, reason }));
+        current.on("close", ({ code, reason }) =>
+          attempt.lost({ code, reason }),
+        );
         current.on("message", (message) => {
           if (attempt.isCurrent()) {
-            bindings.onEvent({ topic: message.topic, data: message.data, extra: message });
+            bindings.onEvent({
+              topic: message.topic,
+              data: message.data,
+              extra: message,
+            });
           }
         });
 
@@ -214,18 +235,27 @@ The connection's `dispose` removes the app manager listeners. Return it from the
 ### Subscriptions with a payload
 
 When the server starts a subscription per request, like tRPC or oRPC, read the
-[subscription payload](/docs/sockets/listener#subscription-payload) from `listener.payload` in `listen`. Listeners of
+[subscription payload](/docs/sockets/listener#start-a-server-side-subscription-with-a-payload) from `listener.payload` in `listen`. Listeners of
 one topic can then carry different payloads, so pass `callbacks` to `onEvent` to deliver a message only to the listeners
 of its subscription.
 
 ```ts title="my-adapter.ts"
 const listen = (listener, callback) => {
   const subscription = subscribe(listener.topic, listener.payload, (data) => {
-    onEvent({ topic: listener.topic, data, extra: undefined, callbacks: subscription.callbacks });
+    onEvent({
+      topic: listener.topic,
+      data,
+      extra: undefined,
+      callbacks: subscription.callbacks,
+    });
   });
   subscription.callbacks.add(callback);
 
-  return onListen({ listener, callback, onUnmount: () => subscription.remove(callback) });
+  return onListen({
+    listener,
+    callback,
+    onUnmount: () => subscription.remove(callback),
+  });
 };
 ```
 
@@ -234,18 +264,26 @@ with `onListenerStart` and `onListenerEnd`. Listeners then follow the server: `o
 and `useListener` switches its `status` to `ended` or `failed`.
 
 ```ts title="rpc-adapter.ts"
-const adapter = new SocketAdapter({ name: "rpc", confirmsSubscriptions: true }).setConnector(
-  ({ onListen, onEvent, onListenerStart, onListenerEnd }) => {
-    // ...
-    server.on("started", (subscription) => {
-      onListenerStart({ topic: subscription.topic, callbacks: subscription.callbacks });
+const adapter = new SocketAdapter({
+  name: "rpc",
+  confirmsSubscriptions: true,
+}).setConnector(({ onListen, onEvent, onListenerStart, onListenerEnd }) => {
+  // ...
+  server.on("started", (subscription) => {
+    onListenerStart({
+      topic: subscription.topic,
+      callbacks: subscription.callbacks,
     });
-    server.on("stopped", (subscription, error) => {
-      onListenerEnd({ topic: subscription.topic, callbacks: subscription.callbacks, error: error ?? null });
+  });
+  server.on("stopped", (subscription, error) => {
+    onListenerEnd({
+      topic: subscription.topic,
+      callbacks: subscription.callbacks,
+      error: error ?? null,
     });
-    // ...
-  },
-);
+  });
+  // ...
+});
 ```
 
 Call `onListenerStart` again after a reconnect restarted a subscription, and for a callback that joins a subscription
@@ -258,9 +296,19 @@ An adapter can let listeners carry query params, such as filters, with the seven
 resolver runs when the listener is created or `setQueryParams` is called, and the listener stores what it returns.
 
 ```ts title="filters-adapter.ts"
-const adapter = new SocketAdapter<Extra, undefined, ListenerOptions, undefined, undefined, DefaultMapperType, Filters>({
+const adapter = new SocketAdapter<
+  Extra,
+  undefined,
+  ListenerOptions,
+  undefined,
+  undefined,
+  DefaultMapperType,
+  Filters
+>({
   name: "my-adapter",
-}).setListenerQueryParamsResolver((callback) => callback(createFilters()).toJSON());
+}).setListenerQueryParamsResolver((callback) =>
+  callback(createFilters()).toJSON(),
+);
 ```
 
 ---

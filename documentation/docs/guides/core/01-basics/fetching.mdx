@@ -30,7 +30,9 @@ rejects, so you branch on the result instead of using `try/catch`.
 ```ts title="src/api/users.ts"
 import { client } from "./client";
 
-export const getUser = client.createRequest<{ response: { id: number; name: string } }>()({
+export const getUser = client.createRequest<{
+  response: { id: number; name: string };
+}>()({
   endpoint: "/users/:userId",
 });
 ```
@@ -73,7 +75,11 @@ const prepared = updateUser
 await prepared.send();
 
 // Or pass everything at once
-await updateUser.send({ params: { userId: 1 }, payload: { name: "Ann" }, queryParams: { notify: true } });
+await updateUser.send({
+  params: { userId: 1 },
+  payload: { name: "Ann" },
+  queryParams: { notify: true },
+});
 ```
 
 `send()` also accepts the other request options for one call, such as `retry`, `headers` or `options`. Each value has
@@ -114,7 +120,8 @@ await uploadFile.send({
   payload: formData,
   onBeforeSent: ({ requestId }) => console.log("queued", requestId),
   onRequestStart: () => showSpinner(),
-  onUploadProgress: ({ progress, loaded, total }) => console.log(`${progress}% (${loaded}/${total})`),
+  onUploadProgress: ({ progress, loaded, total }) =>
+    console.log(`${progress}% (${loaded}/${total})`),
   onDownloadProgress: ({ progress }) => console.log(`download ${progress}%`),
   onRetry: ({ retry, delay }) => console.log(`retry ${retry} in ${delay} ms`),
   onResponse: ({ response }) => hideSpinner(response.success),
@@ -127,11 +134,16 @@ listeners with `request.$hooks`, see [Request lifecycle](/docs/core/request#list
 
 ```ts live
 const { data } = await getUsers.send({
-  onBeforeSent: ({ requestId }) => console.log(`Request ${requestId} is about to be sent.`),
-  onRequestStart: ({ requestId }) => console.log(`Request ${requestId} has started.`),
-  onResponseStart: ({ requestId }) => console.log(`Response of ${requestId} has started.`),
-  onDownloadProgress: ({ progress }) => console.log(`Download progress: ${progress}%`),
-  onResponse: ({ response, requestId }) => console.log(`Request ${requestId} finished: ${response.status}`),
+  onBeforeSent: ({ requestId }) =>
+    console.log(`Request ${requestId} is about to be sent.`),
+  onRequestStart: ({ requestId }) =>
+    console.log(`Request ${requestId} has started.`),
+  onResponseStart: ({ requestId }) =>
+    console.log(`Response of ${requestId} has started.`),
+  onDownloadProgress: ({ progress }) =>
+    console.log(`Download progress: ${progress}%`),
+  onResponse: ({ response, requestId }) =>
+    console.log(`Request ${requestId} finished: ${response.status}`),
 });
 ```
 

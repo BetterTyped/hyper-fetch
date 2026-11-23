@@ -51,12 +51,19 @@ type User = { id: number; name: string };
 export const client = createClient({ url: "https://api.example.com" });
 
 export const getPosts = client
-  .createRequest<{ response: Post[]; queryParams?: { q?: string } }>()({ endpoint: "/posts" })
+  .createRequest<{
+    response: Post[];
+    queryParams?: { q?: string };
+  }>()({ endpoint: "/posts" })
   .setStaleTime(Time.MIN);
 
-export const getPost = client.createRequest<{ response: Post }>()({ endpoint: "/posts/:postId" });
+export const getPost = client.createRequest<{ response: Post }>()({
+  endpoint: "/posts/:postId",
+});
 
-export const getMe = client.createRequest<{ response: User }>()({ endpoint: "/me" });
+export const getMe = client.createRequest<{ response: User }>()({
+  endpoint: "/me",
+});
 ```
 
 The client's `mode` option defaults to `"auto"`: in the browser it resolves to `"client"`, in Node.js to `"server"`.
@@ -120,7 +127,10 @@ export default async function PostsPage() {
 Start independent requests together and await them with `Promise.all`, so they don't run one after another:
 
 ```tsx title="Parallel requests"
-const [posts, post] = await Promise.all([getPosts.send(), getPost.setParams({ postId }).send()]);
+const [posts, post] = await Promise.all([
+  getPosts.send(),
+  getPost.setParams({ postId }).send(),
+]);
 ```
 
 ### Auth and cookies
@@ -146,7 +156,8 @@ The default adapter calls the global `fetch` and spreads the request options fro
 [Next.js fetch options](https://nextjs.org/docs/app/api-reference/functions/fetch):
 
 ```ts title="Next.js revalidation"
-// Next.js adds `next` to the global RequestInit type, so this is typed in a Next.js project
+// Next.js adds `next` to the global RequestInit type, so this is typed in a
+// Next.js project
 await getPosts.setOptions({ next: { revalidate: 60 } }).send();
 ```
 
@@ -168,12 +179,22 @@ import { getPosts } from "@/api";
 
 export function PostSearch() {
   const [query, setQuery] = useState("");
-  const { data, loading } = useFetch(getPosts.setQueryParams({ q: query }), { bounce: true });
+  const { data, loading } = useFetch(getPosts.setQueryParams({ q: query }), {
+    bounce: true,
+  });
 
   return (
     <div>
       <input value={query} onChange={(event) => setQuery(event.target.value)} />
-      {loading ? <p>Searching...</p> : <ul>{data?.map((post) => <li key={post.id}>{post.title}</li>)}</ul>}
+      {loading ? (
+        <p>Searching...</p>
+      ) : (
+        <ul>
+          {data?.map((post) => (
+            <li key={post.id}>{post.title}</li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -204,8 +225,13 @@ import { PostList } from "./post-list";
 export default async function PostsPage() {
   const response = await getPosts.send();
 
-  // highlight-next-line
-  return <PostList hydration={[response.success ? getPosts.dehydrate({ response }) : null]} />;
+  // highlight-start
+  return (
+    <PostList
+      hydration={[response.success ? getPosts.dehydrate({ response }) : null]}
+    />
+  );
+  // highlight-end
 }
 ```
 
