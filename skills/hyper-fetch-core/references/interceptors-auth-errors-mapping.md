@@ -199,9 +199,9 @@ const getUser = client
 
 - `client.adapter.setHeaderMapper((request, config) => headers)` - replace header generation (default adds JSON content
   type for plain object payloads and drops `null`/`undefined` header values).
-- `client.adapter.setPayloadMapper(mapper)` - replaces the JSON serialization for requests without their own payload
-  mapper. Its type declares `({ request, payload }, config)`, but at runtime it receives the raw payload as the first
-  argument; prefer `request.setPayloadMapper` until that is aligned.
+- `client.adapter.setPayloadMapper((payload, config) => body)` - replaces the JSON serialization for requests without
+  their own payload mapper. `payload` is the raw request payload, typed `unknown`; `config` comes from
+  `setPayloadMapperConfig(config)`.
 - `client.adapter.setQueryParamsMapper((queryParams, config) => string)` and `setQueryParamsMapperConfig(config)`.
 - `client.adapter.setEndpointMapper((endpoint, config) => string)`.
 - Each has a matching `set*MapperConfig(config)` passed as the second argument.
