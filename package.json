@@ -132,6 +132,10 @@
       "@hyper-fetch/testing": "workspace:*",
       "@swc/core": "^1.15.30"
     },
+    "onlyBuiltDependencies": [
+      "fs-xattr",
+      "macos-alias"
+    ],
     "packageExtensions": {
       "@firebase/database-compat@0.3": {
         "peerDependencies": {
