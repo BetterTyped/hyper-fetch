@@ -567,6 +567,11 @@ pre {
 .api-docs__table * {
   @apply border-t-0 border-x-0 border-zinc-400/10;
 }
+/* Generated signatures and types wrap at spaces inside their cell instead of making the table scroll sideways */
+.api-docs__pre pre code,
+.api-docs__table pre code {
+  white-space: pre-wrap !important;
+}
 .api-docs__table thead tr {
   @apply border-0;
 }
@@ -1245,6 +1250,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert > div:first-child {
   line-height: 1.9;
   @apply mb-3 text-2xl font-extrabold flex items-center gap-2;
+  text-transform: none;
 }
 .alert > div:first-child svg {
   @apply -mt-1 -mr-2 w-8 h-8;
