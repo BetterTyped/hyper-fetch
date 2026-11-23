@@ -14,9 +14,14 @@ Lifecycle events of requests sent with `send()` (and adapter-level events of `ex
 | `onResponseStart`                         | `ByQueue`, `ById`                                           | `{ request, requestId }`                                    |
 | `onUploadProgress` / `onDownloadProgress` | `ByQueue`, `ById`                                           | progress + `{ request, requestId }`                         |
 | `onResponse`                              | `ByCache`, `ById`                                           | `{ request, requestId, response, details }` (every attempt) |
+| `onRetry`                                 | `ByQueue`, `ById`                                           | `onResponse` data + `{ retry, delay }` (scheduled retries)  |
 | `onAbort`                                 | `ByKey(abortKey)`, `ById`                                   | `{ request, requestId }`                                    |
 | `onRemove`                                | `ByQueue`, `ById`                                           | `{ request, requestId, resolved }`                          |
 | `onDeduplicated`                          | `ByQueue`, `ByCache`, `ById`                                | `{ request, requestId, deduplicatedRequest }`               |
+
+`onRetry` fires after the `onResponse` of a failed attempt that schedules a retry: `retry` counts the retries from 1
+(up to `request.retry`) and `delay` is the wait in milliseconds before the next attempt. It does not fire for aborted,
+offline or last attempts.
 
 ```ts
 // Global error reporting without touching every call site

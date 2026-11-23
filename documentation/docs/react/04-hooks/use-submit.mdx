@@ -163,6 +163,8 @@ itself.
 2.  `onSubmitError`: Fires when the request fails. It receives the error `response` - read the error from
     `response.error`.
 3.  `onSubmitFinished`: Fires when the request is finished, regardless of the outcome.
+4.  `onSubmitRetry`: Fires when a failed attempt schedules a retry. It receives the failed `response`, the `retry`
+    number (from `1`) and the `delay` in milliseconds before the next attempt.
 
 ```tsx title="Using Event Handlers"
 import { useSubmit } from "@hyper-fetch/react";

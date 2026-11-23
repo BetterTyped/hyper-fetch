@@ -35,6 +35,8 @@ one line here in the same change.
 - **Cancelable**: a request that aborts the previous call with the same `queryKey` when sent again (`cancelable`).
 - **Queued**: a request that runs one at a time in order (`queued`).
 - **Offline**: a request kept in the queue and resumed when the connection returns (`offline`).
+- **Retry**: another attempt the dispatcher schedules after a failed one (`retry`, `retryTime`, `retryOnError`). Each
+  scheduled retry emits the retry event (`onRetry`) with its number, counted from 1, and its delay.
 
 ## Keys
 

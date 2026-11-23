@@ -121,6 +121,8 @@ Here's a breakdown of the most commonly used lifecycle callbacks:
 - **`onAbort`**: Fires when a request is manually cancelled using the `abort()` function returned by the hook.
 - **`onOfflineError`**: Fires if a request fails specifically because the browser is offline. This allows you to show a
   specific "You are offline" message.
+- **`onRetry`**: Fires when a failed attempt schedules a retry, with the `retry` number and the `delay` before the next
+  attempt. Use it to show "Retrying (2 of 3)...". In `useSubmit` it is called `onSubmitRetry`.
 - **`onUploadProgress` / `onDownloadProgress`**: Fire repeatedly during a file upload or download. See the
   [Progress guide](/docs/guides/react/basics/progress) for more details.
 
