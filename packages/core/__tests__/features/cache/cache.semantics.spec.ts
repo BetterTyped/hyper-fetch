@@ -18,6 +18,7 @@ describe("Cache [ Semantics ]", () => {
 
   afterEach(() => {
     client.cache.clear();
+    vi.useRealTimers();
   });
 
   describe("When reading the data", () => {
@@ -255,8 +256,12 @@ describe("Cache [ Semantics ]", () => {
     });
 
     it("should merge the partial response with the cached element", () => {
+      // The update stamps its own time, so the clock is pinned: set and update must not share a millisecond by luck
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(1_000);
       const response = createCacheResponse<User>({ id: 1, name: "Kate" }, { status: 201 });
       client.cache.set(request, response);
+      vi.setSystemTime(2_000);
 
       client.cache.update(request, { data: { id: 1, name: "Maya" } });
 
@@ -265,7 +270,7 @@ describe("Cache [ Semantics ]", () => {
           data: { id: 1, name: "Maya" },
           status: 201,
           success: true,
-          responseTimestamp: response.responseTimestamp,
+          responseTimestamp: 2_000,
           requestTimestamp: response.requestTimestamp,
         }),
       );
