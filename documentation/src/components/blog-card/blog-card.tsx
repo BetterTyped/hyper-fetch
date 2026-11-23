@@ -43,15 +43,14 @@ export const BlogCover = ({
     <div
       aria-hidden
       className={cn(
-        "relative isolate flex shrink-0 flex-col justify-between overflow-hidden rounded-[16px] bg-[#1a1a1c] p-5",
-        "after:pointer-events-none after:absolute after:inset-0 after:z-10 after:rounded-[16px] after:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08),inset_0_1px_0_rgba(255,255,255,0.1)] after:content-['']",
+        "relative isolate flex shrink-0 flex-col justify-between overflow-hidden rounded-[14px] bg-[#18181a] p-5",
         featured && "md:p-8",
         className,
       )}
     >
       <div className="absolute inset-0 -z-10 transition-transform duration-500 ease-out group-hover:scale-[1.04]">
-        <div className="absolute inset-0 bg-[radial-gradient(110%_85%_at_78%_-10%,rgba(245,166,35,0.34),rgba(245,166,35,0.08)_45%,transparent_70%)] transition-opacity duration-300 group-hover:opacity-100 opacity-80" />
-        <PathsPattern className="!opacity-40 [mask-image:linear-gradient(to_bottom,transparent,black_45%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(110%_85%_at_78%_-10%,rgba(245,166,35,0.2),rgba(245,166,35,0.05)_45%,transparent_70%)]" />
+        <PathsPattern className="!opacity-25 [mask-image:linear-gradient(to_bottom,transparent,black_45%)]" />
       </div>
       <div className="relative flex items-center justify-between">
         <img
@@ -60,14 +59,14 @@ export const BlogCover = ({
           className={cn("w-auto", featured ? "h-5" : "h-4")}
         />
         {tag && (
-          <span className="rounded-full border border-solid border-white/15 bg-black/25 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] !text-zinc-200">
+          <span className="rounded-full bg-white/[0.06] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] !text-zinc-200">
             {tag}
           </span>
         )}
       </div>
       <div
         className={cn(
-          "relative line-clamp-3 font-extrabold leading-[1.04] tracking-[-0.04em] !text-white [font-family:Figtree] [text-shadow:0_2px_24px_rgba(0,0,0,0.5)]",
+          "relative line-clamp-3 font-extrabold leading-[1.04] tracking-[-0.04em] !text-zinc-50 [font-family:Figtree]",
           featured
             ? "max-w-[14ch] text-[1.75rem] md:text-[2.5rem]"
             : "max-w-[16ch] text-[1.4rem]",
@@ -97,11 +96,8 @@ export const BlogCard = ({
   return (
     <article
       className={cn(
-        "blog-card group relative flex rounded-[22px] border border-solid border-white/[0.08] bg-[#1c1c1e] p-2",
-        "transition-[transform,border-color,box-shadow] duration-300 ease-out",
-        "hover:-translate-y-0.5 hover:border-white/[0.18] hover:shadow-[0_24px_48px_-24px_rgba(0,0,0,0.95)]",
-        "has-[a:focus-visible]:border-[#fbc646]/60",
-        featured ? "flex-col md:col-span-2 md:flex-row" : "flex-col",
+        "blog-card group relative flex rounded-[20px] border border-solid border-white/[0.06] bg-[#1f1f21] p-2 transition-colors duration-200 hover:border-white/[0.1] hover:bg-[#242427]",
+        featured ? "flex-col md:col-span-2 md:flex-row xl:col-span-3" : "flex-col",
       )}
     >
       <BlogCover
@@ -146,7 +142,7 @@ export const BlogCard = ({
         >
           <Link
             to={permalink}
-            className="!text-zinc-50 !no-underline outline-none after:absolute after:inset-0 after:rounded-[22px]"
+            className="!text-zinc-50 !no-underline outline-none after:absolute after:inset-0 after:rounded-[20px]"
           >
             {title}
           </Link>
@@ -179,7 +175,7 @@ export const BlogCard = ({
           ) : (
             <span />
           )}
-          <span className="flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3 py-1.5 text-[13px] font-semibold !text-zinc-200 transition-colors duration-200 group-hover:bg-[#fbc646] group-hover:!text-zinc-900">
+          <span className="flex items-center gap-1 text-[13px] font-semibold !text-zinc-400 transition-colors duration-200 group-hover:!text-[#fbc646]">
             Read
             <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
           </span>
