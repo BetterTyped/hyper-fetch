@@ -103,9 +103,6 @@ const createAppManager = () =>
 
 export const client = new Client({
   url: "",
-  // React Native has no document, so the default "server" mode would turn the
-  // cache off
-  mode: "client",
   appManager: createAppManager,
 }).setAdapter(FirebaseAdapter(db));
 

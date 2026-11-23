@@ -134,8 +134,9 @@ client.setUrl("https://us.example.com", { abort: true, invalidate: true });
 
 ## Cache safely on the server
 
-The `mode` option decides how the cache behaves. Default `"auto"`: `"client"` in the browser, `"server"` everywhere
-else. Change it with `mode: "client"` or `mode: "server"`.
+The `mode` option decides how the cache behaves. Default `"auto"`: `"client"` in the browser, React Native and
+Electron, which serve one user, and `"server"` in Node.js, Deno, Bun and edge runtimes. Change it with
+`mode: "client"` or `mode: "server"`.
 
 In `"server"` mode nothing is cached unless the request has a scope, so one user's data never reaches another. Read
 `client.mode` for the resolved value.

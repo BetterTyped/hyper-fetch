@@ -59,9 +59,8 @@ the system keychain, in the main process and hand only the result to the rendere
 import { ipcMain } from "electron";
 import { createClient } from "@hyper-fetch/core";
 
-// One user per app, so the main process can cache like a browser
-// highlight-next-line
-const client = createClient({ url: "https://api.example.com", mode: "client" });
+// The client detects Electron and caches like a browser, main process included
+const client = createClient({ url: "https://api.example.com" });
 
 const getProjects = client.createRequest<{
   response: { id: string; name: string }[];
@@ -83,8 +82,8 @@ ipcMain.handle("projects:list", async () => {
 
 ## Runtime quirks
 
-- **Cache in the main process**: there is no `window` there, so the [client](/docs/core/client) picks `"server"` mode
-  and caches nothing. One person uses the app, so `mode: "client"` turns the cache back on.
+- **Cache in the main process**: the [client](/docs/core/client) detects Electron and runs in `"client"` mode there
+  too, because one person uses the app.
 - **CORS**: a renderer loaded from `file://` or a custom protocol sends requests from its own origin, so the API has to
   allow it. If you cannot change the API, send those requests from the main process.
 - **Focus and network from IPC**: to drive them from the main process, see the
@@ -96,7 +95,7 @@ ipcMain.handle("projects:list", async () => {
 
 - In the renderer, HyperFetch works like in a browser, hooks included.
 - In the main process, it runs on Node.js `fetch`, and IPC hands results to the renderer.
-- Set `mode: "client"` on the main-process client to cache there.
+- The main-process client caches like a browser, because it detects Electron.
 
 :::
 

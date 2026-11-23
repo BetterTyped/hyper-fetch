@@ -41,9 +41,6 @@ import { AppManager, createClient } from "@hyper-fetch/core";
 
 export const client = createClient({
   url: "https://api.example.com",
-  // React Native has no document, so the cache would be off in the default
-  // "server" mode
-  mode: "client",
   // highlight-start
   appManager: () =>
     new AppManager({
@@ -96,8 +93,8 @@ export function UsersScreen() {
 
 ## Runtime quirks
 
-- **Client mode**: the [client](/docs/core/client) picks `"client"` mode only when it finds `window` and `document`.
-  React Native has no `document`, so set `mode: "client"` to keep the cache on.
+- **Cache**: the [client](/docs/core/client) detects React Native and runs in `"client"` mode, so responses are cached
+  like in a browser. One person uses the app, so there is no other user's data to keep apart.
 - **Calling a local server**: `localhost` on a device or emulator is the device itself. The Android emulator reaches
   your computer on `10.0.2.2`, and a real device needs your computer's LAN address.
 - **Persistent queues**: to keep offline requests across app restarts, see the
@@ -109,7 +106,7 @@ export function UsersScreen() {
 
 - HyperFetch and its React hooks run in React Native and Expo with no native module.
 - An `AppManager` with `AppState` and `NetInfo` gives HyperFetch focus and network status.
-- `mode: "client"` keeps the cache on, because React Native has no `document`.
+- The client detects React Native and caches responses like in a browser.
 
 :::
 

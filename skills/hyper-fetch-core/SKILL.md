@@ -329,22 +329,22 @@ refreshes the target once the last pending mutation on it settles. See
 
 ## Defaults (verified in source)
 
-| Option                    | Default                                                    | Note                                          |
-| ------------------------- | ---------------------------------------------------------- | --------------------------------------------- |
-| `method`                  | adapter `defaultMethod` (`"GET"`)                          |                                               |
-| `auth`                    | `true`                                                     | runs `onAuth`                                 |
-| `cache`                   | `true`                                                     | ignored in `"server"` mode without `setScope` |
-| `cacheTime` / `staleTime` | `300000` ms each                                           | `Time.MIN * 5`                                |
-| `retry` / `retryTime`     | `0` / `500` ms                                             | delay or `exponentialBackoff()` function      |
-| `deduplicate`             | `true` for GET and QUERY on the HTTP adapter, else `false` |                                               |
-| `deduplicateTime`         | `null`                                                     | joins for the whole flight                    |
-| `cancelable` / `queued`   | `false` / `false`                                          |                                               |
-| `offline`                 | `true`                                                     | waits for the network                         |
-| `structuralSharing`       | `true`                                                     | keeps unchanged references                    |
-| HTTP adapter `timeout`    | `5000` ms                                                  | adapter option                                |
-| client `mode`             | `"auto"`                                                   | browser `client`, otherwise `server`          |
-| cache `version`           | `"0.0.1"`                                                  |                                               |
-| logs                      | off                                                        | `client.setDebug(true)`, level `"warning"`    |
+| Option                    | Default                                                    | Note                                                         |
+| ------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------ |
+| `method`                  | adapter `defaultMethod` (`"GET"`)                          |                                                              |
+| `auth`                    | `true`                                                     | runs `onAuth`                                                |
+| `cache`                   | `true`                                                     | ignored in `"server"` mode without `setScope`                |
+| `cacheTime` / `staleTime` | `300000` ms each                                           | `Time.MIN * 5`                                               |
+| `retry` / `retryTime`     | `0` / `500` ms                                             | delay or `exponentialBackoff()` function                     |
+| `deduplicate`             | `true` for GET and QUERY on the HTTP adapter, else `false` |                                                              |
+| `deduplicateTime`         | `null`                                                     | joins for the whole flight                                   |
+| `cancelable` / `queued`   | `false` / `false`                                          |                                                              |
+| `offline`                 | `true`                                                     | waits for the network                                        |
+| `structuralSharing`       | `true`                                                     | keeps unchanged references                                   |
+| HTTP adapter `timeout`    | `5000` ms                                                  | adapter option                                               |
+| client `mode`             | `"auto"`                                                   | browser, React Native, Electron `client`, otherwise `server` |
+| cache `version`           | `"0.0.1"`                                                  |                                                              |
+| logs                      | off                                                        | `client.setDebug(true)`, level `"warning"`                   |
 
 ## Performance and optimization
 

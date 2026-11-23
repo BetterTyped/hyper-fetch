@@ -34,9 +34,6 @@ import { AppManager, Client } from "@hyper-fetch/core";
 
 export const client = new Client({
   url: "https://api.example.com",
-  // React Native has no document, so the default "server" mode would turn the
-  // cache off
-  mode: "client",
   appManager: () =>
     new AppManager({
       initiallyOnline: () =>
@@ -94,9 +91,6 @@ const dispatcherStorage: DispatcherStorageType = {
 
 export const client = new Client({
   url: "https://api.example.com",
-  // React Native has no document, so the default "server" mode would turn the
-  // cache off
-  mode: "client",
   fetchDispatcher: () => new Dispatcher({ storage: dispatcherStorage }),
   submitDispatcher: () => new Dispatcher({ storage: dispatcherStorage }),
 });

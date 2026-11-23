@@ -10,14 +10,24 @@ import type {
   ResponseInterceptorType,
 } from "./client.types";
 
-/** Picks effective {@link ClientMode}: explicit override, else environment detection. */
+/**
+ * Picks effective {@link ClientMode}: explicit override, else environment detection.
+ *
+ * Auto mode picks `"client"` in runtimes that serve one user: a browser, React Native and every Electron process.
+ * Anything else, like Node.js, Deno, Bun or an edge runtime, may serve many users and gets `"server"`.
+ */
 export function resolveClientMode(modeOption: ClientModeOption | undefined): ClientMode {
   if (modeOption === "client" || modeOption === "server") {
     return modeOption;
   }
 
   const inBrowser = typeof window !== "undefined" && typeof document !== "undefined";
-  if (inBrowser) {
+  // React Native has a window but no document, and marks itself on navigator.product
+  const inReactNative = typeof navigator !== "undefined" && navigator.product === "ReactNative";
+  // The Electron main process has neither window nor document, but it is one desktop user's app
+  const inElectron = typeof process !== "undefined" && !!process.versions?.electron;
+
+  if (inBrowser || inReactNative || inElectron) {
     return "client";
   }
 
