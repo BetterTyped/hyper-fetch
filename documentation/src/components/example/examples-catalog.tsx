@@ -68,9 +68,8 @@ const ExampleCard = ({ example }: { example: ExampleEntry }) => (
 );
 
 /**
- * The examples index: a searchable grid of every example page, grouped by category. It owns the page header, and the
- * page hides the docs sidebar, so the grid gets the full width. Built from the pages' front matter, so a new page
- * shows up by itself.
+ * The examples index: a searchable grid of every example page, grouped by category. It owns the page header and takes
+ * the full width beside the docs sidebar. Built from the pages' front matter, so a new page shows up by itself.
  */
 export const ExamplesCatalog = () => {
   const examples = useExamples();
@@ -147,7 +146,7 @@ export const ExamplesCatalog = () => {
       <div className="sticky top-[var(--ifm-navbar-height)] z-20 -mx-3 mt-10 bg-[#1c1c1d]/90 px-3 py-3 backdrop-blur-xl">
         <nav
           aria-label="Categories"
-          className="-mx-3 flex gap-1 overflow-x-auto px-3 [mask-image:linear-gradient(to_right,black_92%,transparent)] [scrollbar-width:none] lg:mx-0 lg:px-0 lg:[mask-image:none]"
+          className="-mx-3 flex gap-1 overflow-x-auto px-3 [mask-image:linear-gradient(to_right,black_92%,transparent)] [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0 lg:[mask-image:none]"
         >
           <button type="button" className={pill(category === null)} onClick={() => setCategory(null)}>
             All
