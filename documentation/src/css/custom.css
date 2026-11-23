@@ -996,6 +996,21 @@ strong {
   @apply border-b-0;
 }
 
+/*
+ * Code in a cell may break inside a token. It only does when the table would otherwise be wider than the column, where
+ * the rounded table clips its overflow.
+ */
+.docs-wrapper table:not(.api-docs__table) :is(td, th) code {
+  overflow-wrap: anywhere;
+}
+
+/* Comparison tables with five or more columns get tighter cells, so they fit the column instead of being clipped */
+.docs-wrapper table:not(.api-docs__table):has(th:nth-child(5)) :is(th, td) {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  overflow-wrap: anywhere;
+}
+
 /* On phones long tokens in cells wrap, so a table fits the screen instead of widening the page */
 @media (max-width: 996px) {
   .docs-wrapper table:not(.api-docs__table) th,

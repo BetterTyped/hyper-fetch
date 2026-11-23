@@ -247,11 +247,11 @@ const config: Config = {
         agentStudio: true,
       },
       contextualSearch: true,
-    },
-    colorMode: {
       translations: {
         button: { buttonText: "Search docs", buttonAriaLabel: "Search docs" },
       },
+    },
+    colorMode: {
       defaultMode: "dark",
       disableSwitch: true,
       respectPrefersColorScheme: false,
