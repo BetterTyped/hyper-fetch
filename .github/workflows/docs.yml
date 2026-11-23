@@ -15,6 +15,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # The docs version labels read the newest release tag of each major
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4

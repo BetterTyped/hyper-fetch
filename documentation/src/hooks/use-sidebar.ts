@@ -95,7 +95,7 @@ export const useSidebar = (options?: {
   };
 
   const currentVersion = versions.find((item: Version) => {
-    return item.label === version;
+    return item.name === version;
   });
 
   const sidebar: SidebarItem[] = useMemo(() => {
@@ -202,7 +202,7 @@ export const useSidebar = (options?: {
       })
       .filter((item) => item.section && (!showAllPackages || item.section.isPackage))
       .sort((a, b) => a.index - b.index);
-  }, [currentVersion.sidebars, location.pathname, showAllPackages]);
+  }, [currentVersion?.sidebars, location.pathname, showAllPackages]);
 
   const activeItem = sidebar.find((item) => item.active) ?? null;
 

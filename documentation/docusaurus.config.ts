@@ -4,6 +4,7 @@ import plugin from "@docsgen/docusaurus";
 import type * as Preset from "@docusaurus/preset-classic";
 import type { Config } from "@docusaurus/types";
 import { convertNpmToPackageManagers } from "@sapphire/docusaurus-plugin-npm2yarn2pnpm";
+import { execFileSync } from "child_process";
 import fs from "fs";
 import path from "path";
 
@@ -18,18 +19,39 @@ import docsVersions from "./versions.json";
  * every major release and keeps only the newest two, so the site builds three versions. The docs in `docs/`
  * are always the major after the newest frozen one. Older snapshots stay in `versioned_docs` unbuilt.
  */
+/**
+ * The newest released tag of a major, like `v10.4.1`. Without tags (a shallow clone) or before the major's first
+ * release it is just the major, like `v10`, so the label never names a release that does not exist.
+ */
+const getReleaseLabel = (major: number) => {
+  try {
+    const [latest] = execFileSync("git", ["tag", "--list", `v${major}.*`, "--sort=-v:refname"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+      .split("\n")
+      .map((tag) => tag.trim())
+      .filter((tag) => /^v\d+\.\d+\.\d+$/.test(tag));
+    return latest ?? `v${major}`;
+  } catch {
+    return `v${major}`;
+  }
+};
+
+const getMajor = (version: string) => Number(/^v(\d+)\./.exec(version)?.[1] ?? 0);
+
 const getVersions = () => {
   const [newestFrozen = "v0.0.0"] = docsVersions;
-  const currentMajor = Number(/^v(\d+)\./.exec(newestFrozen)?.[1] ?? 0) + 1;
+  const currentMajor = getMajor(newestFrozen) + 1;
   const versions: Record<
     string,
     { label?: string; path?: string; noIndex?: boolean }
   > = {
-    current: { label: `v${currentMajor}.0.0`, path: "" },
+    current: { label: getReleaseLabel(currentMajor), path: "" },
   };
 
   docsVersions.forEach((version) => {
-    versions[version] = { noIndex: true };
+    versions[version] = { label: getReleaseLabel(getMajor(version)), noIndex: true };
   });
 
   return versions;
