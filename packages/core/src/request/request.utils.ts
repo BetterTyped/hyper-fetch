@@ -270,15 +270,15 @@ export const linkAbortSignal = (signal: AbortSignal | undefined, onAbort: () => 
   return () => signal.removeEventListener("abort", onAbort);
 };
 
-/** Response of a call that was aborted before the adapter could answer it */
+/** Response of a call that was aborted before the adapter could answer it - the same as the adapter gives an abort */
 export const getAbortedResponse = <Request extends RequestInstance>(request: Request): RequestResponseType<Request> => {
   const { adapter } = request.client;
   return {
     data: null,
     error: adapter.unstable_internalErrorMapping(getErrorMessage("abort")) as ExtractErrorType<Request>,
-    status: null,
+    status: adapter.systemErrorStatus,
     success: false,
-    extra: adapter.defaultExtra,
+    extra: adapter.systemErrorExtra,
     requestTimestamp: Date.now(),
     responseTimestamp: Date.now(),
   };

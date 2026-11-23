@@ -79,6 +79,8 @@ describe("Request [ Signal ]", () => {
 
       expect(calls).toHaveLength(0);
       expect(response.error).toStrictEqual(abortError);
+      // The same status as an abort of a running call
+      expect(response.status).toBe(client.adapter.systemErrorStatus);
       expect(client.submitDispatcher.getAllRunningRequests()).toHaveLength(0);
       expect(client.requestManager.abortControllers.size).toBe(0);
     });
@@ -139,6 +141,7 @@ describe("Request [ Signal ]", () => {
       await calls[0].succeed({ id: 1 });
 
       expect(response.error).toStrictEqual(abortError);
+      expect(response.status).toBe(client.adapter.systemErrorStatus);
       expect(onRemove).toHaveBeenCalledOnce();
       await expect(first).resolves.toHaveProperty("data", { id: 1 });
       await flushPromises();
