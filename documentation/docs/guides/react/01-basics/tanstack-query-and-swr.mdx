@@ -1,0 +1,215 @@
+---
+title: Use HyperFetch with TanStack Query and SWR
+description:
+  Call typed HyperFetch requests from useQuery, useMutation and useSWR with exec(), an AbortSignal and throwOnError,
+  without two caches fighting each other.
+sidebar_label: TanStack Query and SWR
+---
+
+# Use HyperFetch with TanStack Query and SWR
+
+TanStack Query and SWR cache the result of any async function. HyperFetch requests make good functions for them: they
+are typed, they carry the endpoint, auth, headers and mappers, and they work with every adapter. The one thing to settle
+is who owns the cache. When TanStack Query or SWR owns it, HyperFetch only sends the request - that is what `exec()` is
+for.
+
+:::secondary What you'll learn
+
+1.  Why **`exec()`** is the method to call from a query function.
+2.  How to pass the **`signal`** of TanStack Query so a cancelled query cancels its request.
+3.  How **`throwOnError`** turns failed responses into rejected promises, per call, per request or for the whole API.
+4.  How to write **mutations** and pick **query keys**.
+5.  What HyperFetch features you **keep and give up** in this setup.
+
+:::
+
+---
+
+## When to use it?
+
+- You already use TanStack Query or SWR and want typed requests without rewriting the data layer.
+- You move to HyperFetch screen by screen and both libraries run side by side for a while.
+- You want HyperFetch adapters (GraphQL, Firebase, Axios) behind a TanStack Query cache.
+
+If you start fresh, the HyperFetch hooks do the same job without a second library.
+
+<LinkCard
+  type="guides"
+  title="Migrating from React Query"
+  description="Map useQuery, useMutation and query keys to useFetch and useSubmit."
+  to="/docs/guides/react/basics/migrating-from-react-query"
+/>
+
+---
+
+## Why exec() and not send()?
+
+`send()` goes through the HyperFetch dispatcher and cache: it deduplicates, retries and stores the response. TanStack
+Query and SWR do all of that themselves, so with `send()` you get two caches and two layers of retries. `exec()` sends
+the request straight to the adapter. Interceptors, auth, the response mapper and the lifecycle callbacks still run.
+
+| Feature                             | Owned by             |
+| ----------------------------------- | -------------------- |
+| Cache, stale time, refetching       | TanStack Query / SWR |
+| Deduplication and retries           | TanStack Query / SWR |
+| Endpoint, params, payload and types | HyperFetch request   |
+| Auth, headers, interceptors         | HyperFetch client    |
+| Response mapping and validation     | HyperFetch request   |
+| Transport (HTTP, GraphQL, Firebase) | HyperFetch adapter   |
+
+---
+
+## Queries
+
+TanStack Query passes an `AbortSignal` to every query function and tells failures by a rejected promise. Pass both to
+`exec()`:
+
+```tsx
+import { useQuery } from "@tanstack/react-query";
+
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+});
+
+export const useUser = (userId: number) => {
+  const request = getUser.setParams({ userId });
+
+  return useQuery({
+    queryKey: ["users", userId],
+    queryFn: async ({ signal }) => {
+      // highlight-next-line
+      const { data } = await request.exec({ signal, throwOnError: true });
+      return data;
+    },
+  });
+};
+```
+
+- **`signal`** cancels only this call when TanStack Query cancels the query - when the component unmounts or the key
+  changes. Other calls of the same request keep running.
+- **`throwOnError`** rejects with the `error` of a failed response, so the query goes to its error state. A successful
+  response resolves the same way as without it, which is why the function returns `data`.
+
+---
+
+## Setting throwOnError once
+
+Writing `throwOnError: true` in every query function gets repetitive. It is a regular request option, so you can set it
+where the request is defined, or for many requests at once. A value given to the call always wins.
+
+```ts
+// On one request
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  // highlight-next-line
+  throwOnError: true,
+});
+
+// On every request of an SDK
+const api = createSdk<typeof client, Schema>(client).$configure({
+  // highlight-next-line
+  "*": { throwOnError: true },
+});
+
+// On every request of the client
+client.adapter.setRequestDefaults((options) => ({
+  // setRequestDefaults replaces the adapter's defaults - keep deduplication of the reads
+  deduplicate: (options.method ?? "GET") === "GET",
+  // highlight-next-line
+  throwOnError: true,
+}));
+```
+
+The React hooks of HyperFetch ignore it - `useFetch`, `useSubmit`, `useInfiniteFetch` and `useStream` keep reporting
+errors through their state. So one client can serve TanStack Query and the HyperFetch hooks at the same time.
+
+---
+
+## Mutations
+
+Mutations work the same way. Pass the payload to `exec()` and invalidate the queries the mutation changed.
+
+```tsx
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+const updateUser = client.createRequest<{
+  response: User;
+  payload: Partial<User>;
+}>()({
+  endpoint: "/users/:userId",
+  method: "PATCH",
+  throwOnError: true,
+});
+
+export const useUpdateUser = (userId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: Partial<User>) => {
+      const { data } = await updateUser.setParams({ userId }).exec({ payload });
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users", userId] }),
+  });
+};
+```
+
+---
+
+## SWR
+
+SWR calls the fetcher with the key and tells failures by a rejected promise. It does not pass a signal.
+
+```tsx
+import useSWR from "swr";
+
+const getUsers = client.createRequest<{ response: User[] }>()({
+  endpoint: "/users",
+  throwOnError: true,
+});
+
+export const useUsers = () =>
+  useSWR(getUsers.cacheKey, async () => {
+    const { data } = await getUsers.exec();
+    return data;
+  });
+```
+
+---
+
+## Picking query keys
+
+Keys belong to the cache library, so pick the ones that fit its invalidation. Arrays like `["users", userId]` let
+TanStack Query invalidate all users at once. When you only need a stable key, `request.cacheKey` is one: it is built
+from the method, the endpoint with its params and the query params.
+
+---
+
+## What you give up
+
+With TanStack Query or SWR owning the cache, the HyperFetch features that live in the dispatcher and the cache do not
+apply to these calls: request queues, offline replay, HyperFetch retries and deduplication, optimistic updates of
+`setOptimistic`, cache invalidation with `client.cache` and the cache view of the devtools. Use the counterparts of the
+cache library instead. Interceptors, auth, mappers, validation, upload and download progress and the request lifecycle
+callbacks keep working.
+
+:::caution One owner per resource
+
+The two caches don't share data. Read a given resource through one of them - mixing `useFetch` and `useQuery` for the
+same endpoint shows different data on different screens.
+
+:::
+
+---
+
+:::success Congratulations!
+
+You can now use HyperFetch requests inside TanStack Query and SWR.
+
+- You call **`exec()`** from query functions, so the cache library owns caching and retries.
+- You pass the **`signal`** of the query, so a cancelled query cancels only its own request.
+- You set **`throwOnError`** per call, per request, in the SDK or for the whole client.
+- You write **mutations** with `exec({ payload })` and invalidate queries after them.
+- You know which HyperFetch features **stay** and which ones the cache library takes over.
+
+:::

@@ -82,7 +82,8 @@ if (success && data) {
    second the options; the split is what lets TypeScript infer `:params` from the endpoint string.
 2. **Never `try/catch` around `send()` or `exec()`.** They resolve for 4xx/5xx, network errors, timeouts, aborts and
    removal from the queue. Branch on `success` / `error`. Throwing interceptors, mappers and mocks also end up in
-   `error`.
+   `error`. The one exception is `throwOnError: true` (call or request option), which makes them reject with `error` for
+   code that needs a rejected promise, like TanStack Query or SWR.
 3. **Requests are immutable.** Every setter (`setParams`, `setQueryParams`, `setPayload`, `setHeaders`, `setCacheTime`,
    ...) returns a new request; the original is untouched. Assign the result. Exception: `setMock`, `clearMock` and
    `setMockingEnabled` mutate the instance.
@@ -165,8 +166,9 @@ const response = await updateUser.send({
 ```
 
 `send()` resolves once, after the last retry or after an offline request finally goes out. `exec()` sends straight
-through the adapter (interceptors and mappers run) but skips the dispatcher and the cache: no dedup, retries, queues,
-offline handling or cache write. Use `exec()` for server-side one-shots, `send()` everywhere else.
+through the adapter (interceptors, mappers, lifecycle callbacks and `$hooks` run) but skips the dispatcher and the
+cache: no dedup, retries, queues, offline handling or cache write. Use `exec()` for server-side one-shots and inside
+TanStack Query or SWR, `send()` everywhere else. Both take `signal` (aborts only that call) and `throwOnError`.
 
 ### Auth, headers and token refresh
 
@@ -309,6 +311,8 @@ refreshes the target once the last pending mutation on it settles. See
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | Send and get typed result                                    | `request.send(options)`                                      |
 | One-off call without queue/cache side effects (SSR, scripts) | `request.exec(options)`                                      |
+| Query function of TanStack Query or SWR                      | `request.exec({ signal, throwOnError: true })`               |
+| Cancel one call without its abort group                      | `send({ signal })` / `exec({ signal })`                      |
 | Show cached data without a request                           | `request.read()` or `send({ cachePolicy: "cache-first" })`   |
 | Stale-while-revalidate in plain TS                           | `send({ cachePolicy: "revalidate" })`                        |
 | Data in a React component                                    | `useFetch` / `useSubmit` (load `hyper-fetch-react`)          |

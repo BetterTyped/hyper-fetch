@@ -210,4 +210,25 @@ describe("useFetch [ Throw On Error ]", () => {
       expect(screen.getByTestId("error-boundary").textContent).toBe(JSON.stringify(error));
     });
   });
+
+  it("should keep the error in the state when only the request has throwOnError", async () => {
+    const error = mockRequest(request, { status: 400 });
+    const throwingRequest = request.setThrowOnError(true);
+
+    function RequestOptionPage() {
+      const { error: stateError, loading } = useFetch(throwingRequest);
+      return <div data-testid="result">{loading ? "loading" : JSON.stringify(stateError)}</div>;
+    }
+
+    render(
+      <ErrorBoundary>
+        <RequestOptionPage />
+      </ErrorBoundary>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("result").textContent).toBe(JSON.stringify(error));
+    });
+    expect(screen.queryByTestId("error-boundary")).toBeNull();
+  });
 });

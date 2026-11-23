@@ -156,6 +156,49 @@ from TypeScript's static analysis.
 
 ---
 
+## Rejecting on errors with throwOnError
+
+Some code tells failures by a rejected promise: the query functions of TanStack Query, the fetchers of SWR, route
+loaders and `Promise.all`. For them, set `throwOnError`. `send()` and `exec()` then reject with the `error` of a failed
+response, and a successful response resolves the same way as without it.
+
+```ts
+// Per call
+const { data } = await getUser.send({ throwOnError: true });
+
+// Per request
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:id",
+  // highlight-next-line
+  throwOnError: true,
+});
+
+// For a part of the API, or all of it
+client.adapter.setRequestDefaults((options) => ({
+  // Keep the default of the HTTP adapter - see the caution below
+  deduplicate: (options.method ?? "GET") === "GET",
+  // highlight-next-line
+  throwOnError: options.endpoint.startsWith("/admin"),
+}));
+```
+
+A value given to the call wins over the request, and the request wins over the defaults. TypeScript does not type
+rejections, so narrow the caught value the same way as the `error` field above. An aborted call rejects with the abort
+error.
+
+:::caution Request defaults replace the adapter's own
+
+`setRequestDefaults` replaces the defaults of the adapter. The HTTP adapter uses them to turn `deduplicate` on for `GET`
+and `QUERY` requests, so return `deduplicate` as well when you still want that.
+
+:::
+
+The React hooks keep reporting failures through their state. `useFetch`, `useSubmit`, `useInfiniteFetch` and `useStream`
+never reject because a request has `throwOnError`. To throw into an error boundary, use the `throwOnError` option of the
+hook.
+
+---
+
 :::success Congratulations!
 
 You've learned how to effectively handle errors in HyperFetch!
@@ -163,5 +206,6 @@ You've learned how to effectively handle errors in HyperFetch!
 - You can define **global** and **local error types** to match your API's responses.
 - You can access error information from requests without using **`try...catch`**.
 - You can use **type narrowing** to handle different error types safely.
+- You can make `send()` and `exec()` **reject** with `throwOnError` when your code expects a rejected promise.
 
 :::

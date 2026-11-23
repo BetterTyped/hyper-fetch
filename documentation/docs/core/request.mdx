@@ -135,13 +135,38 @@ const { data } = await getUser.send({ dispatcherType: "submit" });
 
 2. #### `.exec(options)`
 
-This method is very similar to `send` but it ignores the built-in features - like for example deduplication or caching.
-It is useful when you want to execute a request outside of the normal flow or when you want to bypass the cache
-interactions - for example while using in SSR environments.
+This method sends the request straight to the adapter. It skips the dispatcher and the cache: nothing is queued,
+deduplicated, retried or cached. Interceptors, the response mapper, the lifecycle callbacks and `$hooks` still run like
+in `send()`. Use it when you want to execute a request outside of the normal flow - in SSR, or when another library such
+as TanStack Query or SWR owns caching and retries.
 
 ```tsx
 const { data, error } = await getUser.exec();
 ```
+
+##### Signal and throwOnError
+
+Both methods take `signal` and `throwOnError`. A `signal` cancels only that call - it triggers the abort controller
+HyperFetch keeps for it, so the call ends like `request.abort()` ends it. `throwOnError` makes the call reject with the
+`error` of a failed response, for code which expects a rejected promise. It is also a request option, so you can set it
+once per request or for many requests with `setRequestDefaults`.
+
+```ts
+const controller = new AbortController();
+
+// Resolves with the response, rejects with the error of a failed one
+const { data } = await getUser.exec({
+  signal: controller.signal,
+  throwOnError: true,
+});
+```
+
+<LinkCard
+  type="guides"
+  title="TanStack Query and SWR"
+  description="Use HyperFetch requests inside useQuery, useMutation and useSWR."
+  to="/docs/guides/react/basics/tanstack-query-and-swr"
+/>
 
 <LinkCard
   type="guides"
@@ -387,21 +412,22 @@ Adapter options may vary depending on the adapter you use.
 
 When creating a request, the following defaults are applied unless overridden:
 
-| Option              | Default                  | Description                                                                       |
-| ------------------- | ------------------------ | --------------------------------------------------------------------------------- |
-| `auth`              | `true`                   | Whether auth interceptor runs for this request                                    |
-| `method`            | Adapter's default method | HTTP method (typically `"GET"`)                                                   |
-| `cancelable`        | `false`                  | Whether sending a new request auto-cancels the previous one                       |
-| `retry`             | `0`                      | Number of retry attempts on failure                                               |
-| `retryTime`         | `500` (ms)               | Delay between retries                                                             |
-| `cacheTime`         | `300000` (5 min)         | How long cached data is stored                                                    |
-| `cache`             | `true`                   | Whether the response is cached                                                    |
-| `staleTime`         | `300000` (5 min)         | How long cached data is considered fresh                                          |
-| `queued`            | `false`                  | Whether requests are queued (sequential execution)                                |
-| `offline`           | `true`                   | Whether requests are stored when offline                                          |
+| Option              | Default                                     | Description                                                                                        |
+| ------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `auth`              | `true`                                      | Whether auth interceptor runs for this request                                                     |
+| `method`            | Adapter's default method                    | HTTP method (typically `"GET"`)                                                                    |
+| `cancelable`        | `false`                                     | Whether sending a new request auto-cancels the previous one                                        |
+| `retry`             | `0`                                         | Number of retry attempts on failure                                                                |
+| `retryTime`         | `500` (ms)                                  | Delay between retries                                                                              |
+| `cacheTime`         | `300000` (5 min)                            | How long cached data is stored                                                                     |
+| `cache`             | `true`                                      | Whether the response is cached                                                                     |
+| `staleTime`         | `300000` (5 min)                            | How long cached data is considered fresh                                                           |
+| `queued`            | `false`                                     | Whether requests are queued (sequential execution)                                                 |
+| `offline`           | `true`                                      | Whether requests are stored when offline                                                           |
 | `deduplicate`       | `true` for GET and QUERY, otherwise `false` | Whether identical in-flight requests are deduplicated. The HTTP adapter turns it on for safe reads |
-| `deduplicateTime`   | `null`                   | Custom deduplication window (uses request duration when `null`)                   |
-| `structuralSharing` | `true`                   | Keep references of the unchanged parts of the data when saving responses to cache |
+| `deduplicateTime`   | `null`                                      | Custom deduplication window (uses request duration when `null`)                                    |
+| `structuralSharing` | `true`                                      | Keep references of the unchanged parts of the data when saving responses to cache                  |
+| `throwOnError`      | `false`                                     | Make `send()` and `exec()` reject with the error of a failed response                              |
 
 ---
 
@@ -640,7 +666,19 @@ setTimeout(() => {
 }, 1000);
 ```
 
-2. #### Automatic cancellation
+2. #### Cancellation with a signal
+
+Pass an `AbortSignal` to `send()` or `exec()` to cancel only that call. Other calls with the same `abortKey` keep
+running. A queued call, or one waiting for its retry, is taken out of the queue and never sent.
+
+```ts
+const controller = new AbortController();
+const response = getUser.send({ signal: controller.signal });
+
+controller.abort();
+```
+
+3. #### Automatic cancellation
 
 It is automatically executed when we send two identical requests at the same time. Older request will be cancelled and
 the new one will be sent.
@@ -1017,8 +1055,8 @@ patchUser.$hooks.onResponse(({ mutationContext }) => {
 ## Instance Hooks ($hooks)
 
 The `$hooks` API provides **persistent, instance-level lifecycle hooks** on a `Request`. Unlike per-`send()` callbacks
-(which are one-shot), `$hooks` callbacks run on every send of that request instance. They survive `.clone()` and are
-ideal for cross-cutting concerns like logging, analytics, or auth token injection.
+(which are one-shot), `$hooks` callbacks run on every `send()` and `exec()` of that request instance. They survive
+`.clone()` and are ideal for cross-cutting concerns like logging, analytics, or auth token injection.
 
 Each hook method registers a callback and returns an **unsubscribe function**. Multiple listeners per hook are
 supported.

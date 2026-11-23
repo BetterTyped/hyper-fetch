@@ -76,7 +76,9 @@ set globally.
 4. **Never pass fresh objects in `dependencies`.** They are compared with `Object.is`; `[{ id }]` or `[filters]` built
    in render refetch on every render. Pass primitives, or put the value on the request (query params, payload).
 5. **`send()` and `submit()` never reject.** They resolve with `{ data, error, status, success, extra, ... }`. Branch on
-   `response.success` / `error`, do not wrap in try/catch for HTTP errors.
+   `response.success` / `error`, do not wrap in try/catch for HTTP errors. The `throwOnError` request option (for
+   TanStack Query or SWR) only makes `send()` / `exec()` reject; `submit()` and every hook ignore it. The hook option
+   `throwOnError` of `useFetch` is different: it throws into the nearest error boundary.
 6. **Callbacks receive one object.** `onSuccess(({ response }) => ...)`,
    `onSubmitError(({ response, details }) => ...)`; the error is `response.error`. Register them in the render body; the
    latest render's callback is used.

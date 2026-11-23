@@ -189,6 +189,36 @@ client.requestManager.abortByRequestId(getUsers.abortKey, requestId);
 
 ---
 
+## Cancelling one call with a signal
+
+`.abort()` cancels every request with the same `abortKey`. To cancel a single call, pass your own `AbortSignal` to
+`send()` or `exec()`. The signal does not replace HyperFetch's controller. It triggers the controller of that one call,
+so the call ends exactly like `.abort()` ends it, and the other calls with the same key keep running.
+
+```ts
+const controller = new AbortController();
+
+// highlight-next-line
+const response = getUsers.send({ signal: controller.signal });
+
+// Cancels only the call above
+controller.abort();
+
+const { error } = await response; // the abort error, not retried and not cached
+```
+
+What the signal does depends on where the call is:
+
+- **Running**: the request is aborted, and `onResponse` gets `details.isCanceled`.
+- **Queued, waiting for a retry or for the connection**: the request is taken out of the queue and never sent.
+- **Already aborted when you call `send()`**: nothing is queued or sent, and an optimistic update does not run.
+- **Deduplicated into another call**: only your call stops waiting. The shared request keeps running for the others.
+
+The listener is removed once the call settles, so a long-lived signal, such as the one of a route loader, does not leak.
+The same option works with `submit()` from `useSubmit`.
+
+---
+
 ## Pausing and resuming queues
 
 Aborting a request terminates it. But what if you want to temporarily pause requests without losing them? This is common
@@ -236,6 +266,7 @@ You've learned how to cancel and manage requests in HyperFetch.
 - You know how **AbortController** cancels a fetch request and how to handle `AbortError`.
 - You can automatically **cancel stale requests** with `cancelable: true` and a shared `queryKey`.
 - You can **manually abort** a request using the `.abort()` method on the request instance.
+- You can cancel **one call** by passing an `AbortSignal` to `send()` or `exec()`.
 - You know the difference between **aborting a request** (terminating it) and **stopping a queue** (pausing it).
 - You can **pause and resume** a queue with `stop()` and `start()` on `fetchDispatcher` or `submitDispatcher`.
 

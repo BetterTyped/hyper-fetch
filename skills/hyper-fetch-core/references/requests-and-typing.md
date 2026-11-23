@@ -151,8 +151,30 @@ Callbacks that throw do not break the request: `send()` still resolves and the e
 | Interceptors, mappers, mock                          | yes      | yes      |
 | Dispatcher: dedup, cancelable, queue, offline, retry | yes      | no       |
 | Writes the cache, emits cache events                 | yes      | no       |
-| Lifecycle callbacks and `$hooks`                     | yes      | no       |
+| Lifecycle callbacks and `$hooks`                     | yes      | yes      |
 | Can be aborted with `request.abort()`                | yes      | yes      |
+| `signal` and `throwOnError` options                  | yes      | yes      |
+
+`exec()` has no `onRetry` or `onRemove`, because nothing retries or queues it.
+
+### signal and throwOnError
+
+Both are options of `send()` and `exec()`. `throwOnError` is also a request option (`createRequest()({ throwOnError })`,
+`setThrowOnError`, `setRequestDefaults`, SDK `$configure`); the call value wins over the request.
+
+```ts
+const controller = new AbortController();
+// Rejects with `error` of a failed response; a successful response resolves as usual
+const { data } = await getUser.exec({ signal: controller.signal, throwOnError: true });
+controller.abort(); // aborts only this call, like request.abort() but by its id
+```
+
+- A `signal` aborts a running call, takes a queued one (or one waiting for a retry or the network) out of the queue, and
+  sends nothing when it is already aborted. A deduplicated caller only stops waiting; the shared request goes on.
+- The thrown value is untyped in `catch`; narrow it like `error`. An aborted call rejects with the abort error.
+- React hooks ignore `throwOnError` of the request and keep reporting through their state.
+- For TanStack Query or SWR:
+  `queryFn: ({ signal }) => request.exec({ signal, throwOnError: true }).then(({ data }) => data)`.
 
 ## Response object
 

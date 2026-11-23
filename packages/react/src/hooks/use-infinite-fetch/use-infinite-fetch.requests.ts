@@ -62,6 +62,8 @@ const sendPage = async ({ request, force, cancellers }: LoadPageOptions) => {
 
   const response = await (pageRequest as RequestInstance).send({
     dispatcherType: "fetch",
+    // The hook reports failures through its state - the `throwOnError` of the request must not reject here
+    throwOnError: false,
     onBeforeSent: ({ requestId }: { requestId: string }) => {
       sentRequestId = requestId;
     },

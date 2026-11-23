@@ -4,6 +4,7 @@ import {
   expectNotType,
   expectType,
 } from "@hyper-fetch/testing";
+import type { RequestResponseType } from "adapter";
 import { Client } from "client";
 import type { ExtractLocalErrorType } from "types";
 
@@ -406,6 +407,51 @@ describe("Request [Types]", () => {
   it("should add correct error types", () => {
     expectType<Error>().assert<ExtractLocalErrorType<typeof getUser>>(new Error("message"));
     expectNotType<string>().assert<ExtractLocalErrorType<typeof getUser>>(new Error("message"));
+  });
+
+  describe("when the call takes a signal and throwOnError", () => {
+    it("should accept them in send and exec", () => {
+      const { signal } = new AbortController();
+
+      expectTypeOf(getUsers.send).toBeCallableWith({
+        signal,
+        throwOnError: true,
+      });
+      expectTypeOf(getUsers.exec).toBeCallableWith({
+        signal,
+        throwOnError: false,
+      });
+      expectTypeOf(postUser.send).toBeCallableWith({
+        payload: { name: "" },
+        signal,
+      });
+    });
+
+    it("should reject wrong values", () => {
+      // @ts-expect-error the signal has to be an AbortSignal
+      expectTypeOf(getUsers.send).toBeCallableWith({ signal: "abort" });
+      // @ts-expect-error throwOnError is a boolean
+      expectTypeOf(getUsers.exec).toBeCallableWith({ throwOnError: "yes" });
+    });
+
+    it("should keep the response type of the call", () => {
+      expectTypeOf(getUsers.send).returns.toEqualTypeOf<Promise<RequestResponseType<typeof getUsers>>>();
+      expectTypeOf(getUsers.exec).returns.toEqualTypeOf<Promise<RequestResponseType<typeof getUsers>>>();
+      expectTypeOf(getUser.setThrowOnError(true)).toEqualTypeOf<typeof getUser>();
+      expectTypeOf(getUsers.setThrowOnError(true).exec).returns.toEqualTypeOf<
+        Promise<RequestResponseType<typeof getUsers>>
+      >();
+      expectTypeOf(getUser.throwOnError).toEqualTypeOf<boolean>();
+    });
+
+    it("should be a request option of createRequest", () => {
+      const request = client.createRequest<{ response: { id: string } }>()({
+        endpoint: "/users",
+        throwOnError: true,
+      });
+
+      expectTypeOf(request.throwOnError).toEqualTypeOf<boolean>();
+    });
   });
 });
 
