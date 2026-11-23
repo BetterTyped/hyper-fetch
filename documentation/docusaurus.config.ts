@@ -195,6 +195,8 @@ const config: Config = {
         },
         blog: {
           showReadingTime: true,
+          // Install commands in posts get npm, yarn and pnpm tabs like the docs
+          remarkPlugins: [convertNpmToPackageManagers],
           editUrl:
             "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",
         },

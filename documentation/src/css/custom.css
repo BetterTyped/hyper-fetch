@@ -1834,6 +1834,11 @@ html[data-theme="dark"] .navbar-sidebar .github {
   @apply shiny-btn;
 }
 
+/* The blog list pager sits right under the cards: give it room so it does not touch them */
+.blog-layout__main .pagination-nav {
+  margin-top: 2rem;
+}
+
 .pagination-nav__sublabel {
   @apply text-zinc-500 dark:!text-zinc-400;
 }
