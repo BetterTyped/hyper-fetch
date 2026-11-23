@@ -55,7 +55,8 @@ const hasLightTile = (item: SidebarItem) =>
 
 /** The overview is the "Getting Started" page of the area, every other entry is a package or a guide */
 const isOverviewItem = (item: SidebarItem) =>
-  item.section.category.toLowerCase() === "docs";
+  item.section.category.toLowerCase() === "docs" ||
+  item.section.dir === "getting-started";
 
 /** The logo on its tile. `glow` adds a blurred tile in the brand color behind it. */
 export const IconTile = ({
@@ -257,8 +258,8 @@ export const usePanelPosition = ({
 
 /**
  * Picks one page of an area from a command palette: search, category chips, a list and a preview of the highlighted
- * entry. The integrations and the API packages outgrew a plain list in the sidebar, so the sidebar shows the current
- * one and opens the rest on demand. The panel is portaled to the body, so the scrolling sidebar never clips it.
+ * entry. Every area of the docs (docs, guides, integrations and the API) uses one, so the sidebar shows the current
+ * section and opens the rest on demand. The panel is portaled to the body, so the scrolling sidebar never clips it.
  */
 export const SectionPicker = ({
   items,
