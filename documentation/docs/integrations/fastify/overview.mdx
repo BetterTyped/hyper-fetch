@@ -1,0 +1,162 @@
+---
+sidebar_position: 1
+title: Fastify with HyperFetch, a Typed SDK from Route Schemas
+description: Turn the JSON schemas on your Fastify routes into an OpenAPI document with @fastify/swagger and a typed HyperFetch SDK.
+sidebar_label: Overview
+---
+
+# Fastify
+
+Fastify routes already carry JSON schemas for params, bodies and responses. `@fastify/swagger` turns them into an
+OpenAPI document, and the HyperFetch CLI turns that document into a typed SDK. The schemas that validate your requests
+on the server then type them on the client. There is no Fastify package to install.
+
+---
+
+:::tip Purpose
+
+1.  **Schemas you already have**: The route schemas that validate requests also type the client.
+2.  **No glue package**: `@fastify/swagger` and the HyperFetch CLI are all you need.
+3.  **One command to resync**: Change a schema, regenerate, and the compiler shows every call to fix.
+
+:::
+
+---
+
+## How it fits together
+
+| Step | Where    | What happens                                                             |
+| ---- | -------- | ------------------------------------------------------------------------ |
+| 1    | Fastify  | `@fastify/swagger` builds the OpenAPI document from your route schemas   |
+| 2    | Terminal | `@hyper-fetch/cli generate` reads it and writes `src/api/fastify.sdk.ts` |
+| 3    | Frontend | `createSdk(client)` gives you typed requests for every route             |
+
+---
+
+## 1. Serve the OpenAPI document
+
+Register `@fastify/swagger` before your routes, so it sees all of them:
+
+```bash
+npm install @fastify/swagger
+```
+
+```ts title="server.ts"
+import Fastify from "fastify";
+import swagger from "@fastify/swagger";
+
+const app = Fastify();
+
+// highlight-next-line
+await app.register(swagger, {
+  openapi: { info: { title: "Shop API", version: "1.0.0" } },
+});
+
+app.get<{ Params: { id: string } }>(
+  "/users/:id",
+  {
+    schema: {
+      params: {
+        type: "object",
+        properties: { id: { type: "string" } },
+        required: ["id"],
+      },
+      response: {
+        200: {
+          type: "object",
+          properties: { id: { type: "string" }, name: { type: "string" } },
+        },
+      },
+    },
+  },
+  async (request) => getUser(request.params.id),
+);
+
+// The document itself, hidden from the document
+// highlight-next-line
+app.get("/openapi.json", { schema: { hide: true } }, () => app.swagger());
+
+await app.listen({ port: 3000 });
+```
+
+:::info TypeBox and zod
+
+Schemas written with TypeBox are JSON schemas, so they need nothing extra. With `fastify-type-provider-zod`, pass its
+`jsonSchemaTransform` as the `transform` option of `@fastify/swagger`.
+
+:::
+
+---
+
+## 2. Generate the SDK
+
+Run the CLI in your frontend project:
+
+```bash
+npx @hyper-fetch/cli@latest generate --template openapi --url http://localhost:3000/openapi.json --fileName fastify.sdk.ts
+```
+
+It writes `fastify.sdk.ts` to `src/api`. On the first run it also creates `api.json` with that location. Every path becomes a key
+and every method a `$`-prefixed key on it, so `GET /users/{id}` is `sdk.users.$id.$get`.
+
+---
+
+## 3. Call your API
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+
+import { createSdk } from "./api/fastify.sdk";
+
+export const client = createClient({ url: "http://localhost:3000" });
+export const sdk = createSdk(client);
+
+// code-editor-split
+
+import { sdk } from "./client";
+
+// Typed from the response schema of GET /users/:id
+const { data, error } = await sdk.users.$id.$get.setParams({ id: "42" }).send();
+```
+
+The same requests work with `useFetch` and `useSubmit` from `@hyper-fetch/react`, with caching, retries and deduplication included.
+
+---
+
+## Keep the SDK in sync
+
+Install the CLI in the frontend project and add a script, so regenerating is one command locally and in CI:
+
+```json title="package.json"
+{
+  "scripts": {
+    "api:generate": "hyper-fetch generate -t openapi -u http://localhost:3000/openapi.json -f fastify.sdk.ts -o"
+  }
+}
+```
+
+`-o` overwrites the old file without asking. To generate without a running server, call `await app.ready()` and write `app.swagger()` to a file in a
+small script, then pass that path to `--url` instead.
+
+:::note When it's helpful
+
+- Your route schemas are already complete and you want the frontend to use them.
+- The Fastify API and the frontend don't share a TypeScript project.
+- You want a changed response schema to break the frontend build, not production.
+
+:::
+
+<LinkCard
+  type="docs"
+  title="OpenAPI TypeScript client"
+  description="Everything the generated SDK can do, from React hooks to regenerating it in CI."
+  to="/docs/cli/openapi-typescript-client"
+/>
+
+:::secondary Summary
+
+- `@fastify/swagger` turns your route schemas into an OpenAPI document.
+- `@hyper-fetch/cli generate` turns that document into a typed SDK.
+- `createSdk(client)` gives you typed requests for `send()`, `useFetch` and `useSubmit`.
+
+:::

@@ -1,0 +1,114 @@
+---
+sidebar_position: 1
+title: Sentry with HyperFetch, Report Failed Requests
+description: Report failed HyperFetch requests to Sentry with a client error interceptor, grouped by endpoint, next to Sentry's own fetch tracing.
+sidebar_label: Overview
+---
+
+# Sentry
+
+HyperFetch reports failures through the response instead of throwing, so a failed request never reaches Sentry's global
+error handler on its own. One `onError` interceptor on the client sends them to Sentry, with the method, the endpoint and
+the status attached. There is no Sentry package to install beyond Sentry's own SDK.
+
+---
+
+:::tip Purpose
+
+1.  **Every failed request reported**: One interceptor covers every request of the client, including generated SDKs.
+2.  **Grouped by endpoint**: Failures of `/users/:id` land in one issue, not one per user id.
+3.  **Tracing included**: Sentry's `fetch` instrumentation already records each call as a span and a breadcrumb.
+
+:::
+
+---
+
+## Report failed requests
+
+Initialize Sentry first, then add an error interceptor to your client:
+
+```ts title="client.ts"
+import * as Sentry from "@sentry/react";
+import { AbortError, createClient } from "@hyper-fetch/core";
+
+export const client = createClient({ url: "https://api.example.com" });
+
+// highlight-start
+client.onError((response, request) => {
+  // Cancelled requests and expected 4xx answers are not bugs
+  const isServerError = !response.status || response.status >= 500;
+  if (response.error instanceof AbortError || !isServerError) return response;
+
+  // The endpoint before params were filled in, like /users/:id
+  const { endpoint } = request.requestOptions;
+
+  Sentry.captureException(
+    new Error(
+      `${request.method} ${endpoint} failed with status ${response.status}`,
+    ),
+    {
+      fingerprint: ["hyper-fetch", request.method, String(endpoint)],
+      tags: {
+        method: request.method,
+        endpoint: String(endpoint),
+        status: String(response.status),
+      },
+      extra: { error: response.error },
+    },
+  );
+
+  return response;
+});
+// highlight-end
+```
+
+The interceptor must return the response, so the request still resolves with it. Status `0` means the request never got
+an answer: a network failure or a timeout.
+
+Use the Sentry SDK for your platform: `@sentry/react`, `@sentry/nextjs`, `@sentry/node`, `@sentry/bun` or
+`@sentry/react-native`. The interceptor is the same on all of them.
+
+---
+
+## Tracing and breadcrumbs
+
+HyperFetch sends requests with the global `fetch`, which Sentry instruments. With tracing on, every request shows up as
+an `http.client` span and a breadcrumb, with no extra code. To connect frontend spans to your backend, list your API in
+`tracePropagationTargets`, so Sentry adds its trace headers to those requests:
+
+```ts title="sentry.ts"
+import * as Sentry from "@sentry/react";
+
+Sentry.init({
+  dsn: "https://examplePublicKey@o0.ingest.sentry.io/0",
+  integrations: [Sentry.browserTracingIntegration()],
+  tracesSampleRate: 0.2,
+  // highlight-next-line
+  tracePropagationTargets: ["https://api.example.com"],
+});
+```
+
+Your API has to allow the `sentry-trace` and `baggage` headers in its CORS settings.
+
+:::note When it's helpful
+
+- You want to know when an endpoint starts failing before users report it.
+- You need failures grouped by endpoint, with the method and status as searchable tags.
+- You already trace your backend with Sentry and want frontend requests in the same trace.
+
+:::
+
+<LinkCard
+  type="guides"
+  title="Intercepting requests and responses"
+  description="onRequest, onAuth, onSuccess, onError and onResponse, and what each one can change."
+  to="/docs/guides/core/advanced/intercepting"
+/>
+
+:::secondary Summary
+
+- `client.onError` sends failed requests to Sentry, skipping cancelled ones and expected 4xx answers.
+- `request.requestOptions.endpoint` groups failures by endpoint template.
+- Sentry's `fetch` instrumentation adds spans and breadcrumbs for every request on its own.
+
+:::

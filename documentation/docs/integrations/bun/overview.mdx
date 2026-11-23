@@ -1,0 +1,104 @@
+---
+sidebar_position: 1
+title: HyperFetch on Bun, Typed Requests on Bun's Native fetch
+description: Install HyperFetch with bun add and run it on Bun's native fetch in scripts, servers and tests. Pair it with Elysia or Hono for an end-to-end typed SDK.
+sidebar_label: Overview
+---
+
+# Bun
+
+HyperFetch runs on Bun with nothing extra. Its default adapter calls Bun's native `fetch`, so `createClient`,
+`createRequest` and `send()` work the same way they do in Node.js and in the browser.
+
+---
+
+:::tip Purpose
+
+1.  **Nothing extra to install**: `bun add @hyper-fetch/core` and you are done.
+2.  **Fast scripts and servers**: Typed requests with retries and caching in Bun scripts, jobs and servers.
+3.  **End-to-end types with Bun backends**: Elysia and Hono on Bun give you a typed SDK without codegen.
+
+:::
+
+---
+
+## Getting started
+
+```bash
+bun add @hyper-fetch/core
+```
+
+```ts title="index.ts"
+import { createClient } from "@hyper-fetch/core";
+
+const client = createClient({ url: "https://api.example.com" });
+
+const getUsers = client.createRequest<{
+  response: { id: number; name: string }[];
+}>()({
+  endpoint: "/users",
+});
+
+const { data, error } = await getUsers.send();
+console.log(error ?? data);
+```
+
+```bash
+bun run index.ts
+```
+
+---
+
+## Bun backends
+
+If your backend runs on Bun, you can skip OpenAPI and read the types straight from your routes:
+
+<LinkCard
+  type="integrations"
+  title="Elysia"
+  description="A typed SDK for your Elysia app, with responses, errors and inputs read from your routes."
+  to="/docs/integrations/elysia/overview"
+/>
+
+<LinkCard
+  type="integrations"
+  title="Hono"
+  description="A typed SDK built from your Hono routes and validators, with no codegen."
+  to="/docs/integrations/hono/overview"
+/>
+
+---
+
+## Testing with bun test
+
+Mock a request with `setMock()`, so `bun test` never reaches the network:
+
+```ts title="users.test.ts"
+import { expect, test } from "bun:test";
+
+import { getUsers } from "./requests";
+
+test("lists users", async () => {
+  getUsers.setMock(() => ({ data: [{ id: 1, name: "Ada" }], status: 200 }));
+
+  const { data } = await getUsers.send();
+
+  expect(data).toEqual([{ id: 1, name: "Ada" }]);
+});
+```
+
+:::note When it's helpful
+
+- Bun scripts and servers that call other APIs and need retries and typed responses.
+- Full-stack apps with an Elysia or Hono backend on Bun.
+- Fast test suites with `bun test` and mocked requests.
+
+:::
+
+:::secondary Summary
+
+- HyperFetch runs on Bun's native `fetch` with no extra adapter.
+- Elysia and Hono give you a typed SDK from your Bun backend.
+- `setMock()` keeps `bun test` off the network.
+
+:::

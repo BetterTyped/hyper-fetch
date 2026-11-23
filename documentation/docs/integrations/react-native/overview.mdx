@@ -1,0 +1,122 @@
+---
+sidebar_position: 1
+title: React Native with HyperFetch, Hooks, Offline and Focus
+description: Use HyperFetch and its React hooks in React Native and Expo, with focus from AppState and network status from NetInfo.
+sidebar_label: Overview
+---
+
+# React Native
+
+HyperFetch runs in React Native and Expo without a native module. Requests go through React Native's `fetch`, and the
+hooks from `@hyper-fetch/react` work as they do on the web. The one thing to add is where focus and network status come
+from, because a phone has no browser window to listen to.
+
+---
+
+:::tip Purpose
+
+1.  **Same API as the web**: `createRequest`, `send()`, `useFetch` and `useSubmit` need no changes.
+2.  **Refetch on resume**: `AppState` tells HyperFetch when the app comes back to the foreground.
+3.  **Offline aware**: `NetInfo` pauses requests while the device is offline and resumes them when it reconnects.
+
+:::
+
+---
+
+## Getting started
+
+```bash
+npm install @hyper-fetch/core @hyper-fetch/react @react-native-community/netinfo
+```
+
+Give the client an `AppManager` that reads focus from `AppState` and the connection from `NetInfo`:
+
+```ts title="client.ts"
+import { AppState } from "react-native";
+import NetInfo from "@react-native-community/netinfo";
+import { AppManager, createClient } from "@hyper-fetch/core";
+
+export const client = createClient({
+  url: "https://api.example.com",
+  // highlight-start
+  appManager: () =>
+    new AppManager({
+      initiallyOnline: () =>
+        NetInfo.fetch().then((state) => !!state.isConnected),
+      onlineEvent: (setOnline) =>
+        NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
+      focusEvent: (setFocused) => {
+        const subscription = AppState.addEventListener("change", (status) =>
+          setFocused(status === "active"),
+        );
+        return () => subscription.remove();
+      },
+    }),
+  // highlight-end
+});
+```
+
+Then use the hooks in your screens:
+
+```tsx title="UsersScreen.tsx"
+import { FlatList, Text } from "react-native";
+import { useFetch } from "@hyper-fetch/react";
+
+import { getUsers } from "./requests";
+
+export function UsersScreen() {
+  const { data, loading, error } = useFetch(getUsers);
+
+  if (loading) return <Text>Loading...</Text>;
+  if (error) return <Text>Could not load users</Text>;
+
+  return (
+    <FlatList
+      data={data}
+      keyExtractor={(user) => String(user.id)}
+      renderItem={({ item }) => <Text>{item.name}</Text>}
+    />
+  );
+}
+```
+
+:::info Calling a local server
+
+`localhost` on a device or emulator is the device itself. The Android emulator reaches your computer on `10.0.2.2`, and a
+real device needs your computer's LAN address.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="React Native environment"
+  description="Focus, network status and dispatcher queues that survive app restarts with MMKV."
+  to="/docs/react/environments/react-native"
+/>
+
+<LinkCard
+  type="integrations"
+  title="Firebase in React Native"
+  description="Use the Firebase adapter with the React Native Firebase SDK."
+  to="/docs/integrations/adapter-firebase/react-native"
+/>
+
+:::note When it's helpful
+
+- Mobile apps that should refetch when the user comes back to them.
+- Apps used on flaky connections, where requests should wait for the network.
+- Teams that share request definitions between a React web app and a React Native app.
+
+:::
+
+:::secondary Summary
+
+- HyperFetch and its React hooks run in React Native and Expo with no native module.
+- An `AppManager` with `AppState` and `NetInfo` gives HyperFetch focus and network status.
+- The React Native environment page adds persistent queues for offline-first apps.
+
+:::

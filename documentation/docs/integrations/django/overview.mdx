@@ -1,0 +1,145 @@
+---
+sidebar_position: 1
+title: Django REST Framework with HyperFetch, a Typed SDK
+description: Export the OpenAPI schema of your Django REST Framework API with drf-spectacular and call it through a typed HyperFetch SDK.
+sidebar_label: Overview
+---
+
+# Django
+
+Django REST Framework describes your API as an OpenAPI document through `drf-spectacular`, built from your views and
+serializers. The HyperFetch CLI reads that document and writes a typed TypeScript SDK, so your frontend gets your
+serializers as types. Nothing to install on the frontend besides HyperFetch.
+
+---
+
+:::tip Purpose
+
+1.  **Serializers as TypeScript types**: Responses and request bodies follow your serializers.
+2.  **No server needed to generate**: `drf-spectacular` writes the document to a file.
+3.  **One command to resync**: Change a serializer, regenerate, and the compiler shows every call to fix.
+
+:::
+
+---
+
+## How it fits together
+
+| Step | Where    | What happens                                                            |
+| ---- | -------- | ----------------------------------------------------------------------- |
+| 1    | Django   | `drf-spectacular` writes the OpenAPI document from your views           |
+| 2    | Terminal | `@hyper-fetch/cli generate` reads it and writes `src/api/django.sdk.ts` |
+| 3    | Frontend | `createSdk(client)` gives you typed requests for every route            |
+
+---
+
+## 1. Serve the OpenAPI document
+
+Install `drf-spectacular` and make it the schema class of Django REST Framework:
+
+```bash
+pip install drf-spectacular
+```
+
+```python title="settings.py"
+INSTALLED_APPS = [
+    # ...
+    "rest_framework",
+    "drf_spectacular",
+]
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+```
+
+Write the document to a JSON file:
+
+```bash
+python manage.py spectacular --format openapi-json --file openapi.json
+```
+
+To serve it instead, add `SpectacularAPIView` to `urls.py`. It returns JSON with `?format=json`.
+
+---
+
+## 2. Generate the SDK
+
+Run the CLI in your frontend project:
+
+```bash
+npx @hyper-fetch/cli@latest generate --template openapi --url ../backend/openapi.json --fileName django.sdk.ts
+```
+
+It writes `django.sdk.ts` to `src/api`. On the first run it also creates `api.json` with that location. Every path becomes a key
+and every method a `$`-prefixed key on it, so `GET /api/users/{id}/` is `sdk.api.users.$id.$get`.
+
+---
+
+## 3. Call your API
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+
+import { createSdk } from "./api/django.sdk";
+
+export const client = createClient({ url: "http://localhost:8000" });
+// Django routes end with a slash, the SDK builds them without one
+// highlight-next-line
+client.adapter.setEndpointMapper((endpoint) =>
+  endpoint.endsWith("/") ? endpoint : `${endpoint}/`,
+);
+export const sdk = createSdk(client);
+
+// code-editor-split
+
+import { sdk } from "./client";
+
+// Typed from the serializer of GET /api/users/{id}/
+const { data, error } = await sdk.api.users.$id.$get
+  .setParams({ id: 42 })
+  .send();
+```
+
+The endpoint mapper keeps Django's trailing slash on every request, so `POST` requests don't hit the `APPEND_SLASH`
+redirect. Skip it if your routes have no trailing slash (`DefaultRouter(trailing_slash=False)`). The requests work with
+`useFetch` and `useSubmit` from `@hyper-fetch/react` as well.
+
+---
+
+## Keep the SDK in sync
+
+Install the CLI in the frontend project and add a script, so regenerating is one command locally and in CI:
+
+```json title="package.json"
+{
+  "scripts": {
+    "api:generate": "hyper-fetch generate -t openapi -u ../backend/openapi.json -f django.sdk.ts -o"
+  }
+}
+```
+
+`-o` overwrites the old file without asking. The `--url` path is relative to the frontend project. Run the `spectacular` command first, or chain both in CI.
+
+:::note When it's helpful
+
+- Your backend is Django and your frontend is TypeScript, so they can't share types directly.
+- You want serializer changes to show up as TypeScript errors.
+- You want caching, retries and React hooks on top of the generated client.
+
+:::
+
+<LinkCard
+  type="docs"
+  title="OpenAPI TypeScript client"
+  description="Everything the generated SDK can do, from React hooks to regenerating it in CI."
+  to="/docs/cli/openapi-typescript-client"
+/>
+
+:::secondary Summary
+
+- `drf-spectacular` writes your Django REST Framework API as an OpenAPI document.
+- `@hyper-fetch/cli generate` turns it into a typed SDK with your serializers as types.
+- An endpoint mapper keeps the trailing slash Django expects.
+
+:::
