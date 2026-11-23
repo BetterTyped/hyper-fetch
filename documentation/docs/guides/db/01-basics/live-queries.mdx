@@ -1,0 +1,296 @@
+---
+sidebar_position: 3
+title: Live Queries in React - Filter, Sort and Render Collections with useLiveQuery
+description:
+  Read a client-side database from React with useLiveQuery. Filter with typed operators, sort, select fields, read one
+  record, handle loading, error and stale states, and filter instantly without new requests.
+sidebar_label: Live Queries
+---
+
+# Live Queries in React
+
+A live query describes the rows a component shows: which collection, which filters, which order. The db finds the rows,
+loads what is missing through a loader, and keeps the result current as rows change. In React you read it with
+[`useLiveQuery`](../../../react/07-db/use-live-query.mdx), and the component re-renders whenever its result changes, and
+only then.
+
+This guide builds Teamboard's feed, a post page and an instant filter.
+
+:::secondary What you'll learn
+
+1.  How to build queries with **`where`**, **`orderBy`**, **`select`** and **`limit`**.
+2.  How to read **one record** with `findOne`, and only **held rows** with `local()`.
+3.  How to render **loading, error and stale** states correctly.
+4.  Why `useLiveQuery` takes **no dependency array**.
+5.  How to filter **instantly**, with no request, over rows the db already holds.
+6.  How to use queries **outside React**.
+
+:::
+
+---
+
+## The feed
+
+```tsx
+import { eq } from "@hyper-fetch/db";
+import { useLiveQuery } from "@hyper-fetch/react";
+
+const TeamFeed = ({ teamId }: { teamId: string }) => {
+  const { data, status } = useLiveQuery(
+    db.postSummary.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+  );
+
+  if (status === "loading") return <p>Loading posts...</p>;
+
+  return (
+    <div className="flex flex-col gap-2">
+      {data?.map((post) => (
+        <div key={post.id} className="rounded border p-3">
+          <h3 className="font-semibold">{post.title}</h3>
+          <span className="text-sm text-gray-500">{post.likes} likes</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+Every query starts at a collection: `db.postSummary`. Callbacks receive **field references**, not rows. They run once,
+when the query is built, to record which fields you used. So `post.teamId` is typed, autocompleted and checked against
+the schema, and `eq(post.likes, "ten")` does not compile.
+
+---
+
+## Building queries
+
+### Filters
+
+```ts
+import { and, eq, gt, gte, inArray, lt, not, or } from "@hyper-fetch/db";
+
+db.postSummary.where((post) =>
+  and(
+    eq(post.teamId, teamId),
+    or(eq(post.status, "published"), eq(post.authorId, currentUserId)),
+    not(inArray(post.authorId, mutedAuthors)),
+    gte(post.createdAt, "2026-01-01"),
+  ),
+);
+```
+
+| Operator                                | Matches rows where the field... |
+| --------------------------------------- | ------------------------------- |
+| `eq(field, value)`                      | equals the value                |
+| `gt`, `gte`, `lt`, `lte`                | compares as greater or less     |
+| `inArray(field, values)`                | equals one of the values        |
+| `and(...)`, `or(...)`, `not(condition)` | combines other conditions       |
+
+The loader sends the top-level conditions it declares, and the db runs the rest on the returned rows. You write the same
+query whatever the backend can do. See [Loaders](./loaders.mdx).
+
+### Order, selection and limit
+
+```ts
+const { data } = useLiveQuery(
+  db.postSummary
+    .where((post) => eq(post.teamId, teamId))
+    .orderBy((post) => post.likes, "desc")
+    .orderBy((post) => post.createdAt, "desc") // breaks ties of the first order
+    .select((post) => ({ id: post.id, title: post.title, likes: post.likes }))
+    .limit(5),
+);
+// data: { id: string; title: string; likes: number }[] | undefined
+```
+
+- `orderBy` can be called several times. Every order ends with the key as the last tiebreaker, so equal values never
+  swap places between renders.
+- `select` picks and renames fields. The result type has exactly the selected fields. Compute derived values while
+  rendering.
+- `limit` cuts the result. A [paginated loader](./infinite-scroll.mdx) that declares `limit` receives it as the page
+  size.
+- Without `orderBy`, rows keep the order the loader returned them in, and inserted rows go to the end.
+
+### One record
+
+```tsx
+const PostPage = ({ postId }: { postId: string }) => {
+  const { data: post, status } = useLiveQuery(db.post.findOne(postId));
+
+  if (status === "loading") return <p>Loading...</p>;
+  if (!post) return <p>Post not found</p>;
+
+  return <article className="prose">{post.body}</article>;
+};
+```
+
+`findOne` reads a row by key through the collection's `byKey` or `byKeys` loader. It shows any row with that key the
+collection holds, however it got there: a list, a socket event or a write. It takes no `where`, `orderBy` or `limit`.
+
+The feed loads `postSummary`, not `post`, so opening a post from the feed still loads the full post. The
+[List and Detail Views](../02-patterns/list-and-detail.mdx) guide shows how to render the header from the summary at
+once while the body loads.
+
+### Only what the db holds
+
+`.local()` reads the rows the collection holds and never sends a request:
+
+```ts
+const { data: drafts } = useLiveQuery(db.postSummary.where((post) => eq(post.status, "draft")).local());
+```
+
+It compiles on any collection, even without a matching loader, and it never starts syncs. Use it for views over data
+that other queries load, such as a counter badge or a "recently viewed" list.
+
+---
+
+## Loading, error and stale states
+
+`useLiveQuery` returns the query's state plus `refetch` and `fetchNextPage`:
+
+| Field         | Meaning                                                                                          |
+| ------------- | ------------------------------------------------------------------------------------------------ |
+| `data`        | `undefined` until the first load, then the results                                               |
+| `status`      | `"loading"`, `"ready"`, or `"error"` when the **first** load failed and there is nothing to show |
+| `error`       | The last failure, also when a refresh failed and the rows stay                                   |
+| `stale`       | The rows may be out of date: their subset is stale, or its syncs are disconnected                |
+| `isFetching`  | A request for the query is in flight, including background refetches                             |
+| `hasNextPage` | A paginated query has another page                                                               |
+
+The difference between `status: "error"` and `error` matters. A refresh that fails keeps the rows on screen:
+
+```tsx
+const TeamFeed = ({ teamId }: { teamId: string }) => {
+  const { data, status, error, stale, isFetching, refetch } = useLiveQuery(
+    db.postSummary.where((post) => eq(post.teamId, teamId)),
+  );
+
+  if (status === "loading") return <p>Loading posts...</p>;
+  if (status === "error") {
+    // The first load failed: there is nothing to show
+    return <button onClick={() => refetch()}>Could not load posts. Try again</button>;
+  }
+
+  return (
+    <div>
+      {/* A refresh failed or the socket dropped: the rows stay, flag them */}
+      {(error || stale) && <p className="text-amber-600">Showing saved posts{isFetching && ", refreshing..."}</p>}
+      {data?.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
+    </div>
+  );
+};
+```
+
+Like `send()`, a query never throws. Failures land in `error`, and every failure of the db also reaches `db.onError`.
+
+---
+
+## No dependency array
+
+```tsx
+// Rebuilt on every render: fine
+const { data } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+```
+
+A query is data. Two queries with the same structure are the **same** query, identified by a key built from their
+definition, the same way `useFetch` identifies a request. Building it inline on every render costs nothing, and changing
+`teamId` switches to the other team's query. There is nothing to memoize and no dependency array to get wrong.
+
+Results are referentially stable: rows that did not change keep their identity, and a result keeps its identity until
+something in it changes. Components wrapped in `memo` skip renders for untouched rows.
+
+---
+
+## Instant filters, no requests
+
+When a fresh loaded subset already contains a query, the query is answered from the rows the db holds. Narrowing a
+loaded feed is free:
+
+```tsx
+const PopularFilter = ({ teamId }: { teamId: string }) => {
+  const [minLikes, setMinLikes] = useState(0);
+
+  // The feed loaded `teamId = t1`. Every `likes > n` inside it is answered locally.
+  const { data } = useLiveQuery(
+    db.postSummary
+      .where((post) => and(eq(post.teamId, teamId), gt(post.likes, minLikes)))
+      .orderBy((post) => post.likes, "desc"),
+  );
+
+  return (
+    <div>
+      <input type="range" min={0} max={100} value={minLikes} onChange={(e) => setMinLikes(Number(e.target.value))} />
+      {data?.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
+    </div>
+  );
+};
+```
+
+Dragging the slider sends no request while the team feed is fresh. The loader cannot send `likes`, so every position
+needs the same loaded subset, `teamId = t1`, and `likes > n` runs on its rows.
+
+More generally, a fresh loaded subset answers any query that sends the same conditions plus more of its own. Some
+subsets never answer other queries: paginated ones, which hold only their first pages, and ones that used a
+[server-only operator](../02-patterns/search-and-server-filters.mdx) such as full-text search or a `serverOnly` field.
+
+:::caution When the loader can send the filter
+
+If the loader declares `likes.gt`, each slider position becomes its own subset, and the first visit to each value sends
+a request. That is correct for large lists the server must filter. For instant filtering over a list you already show,
+keep the filter out of the loader, or read with `.local()`.
+
+:::
+
+---
+
+## Outside React
+
+Queries work in any code: a store, a server, a test.
+
+```ts
+const feed = db.postSummary.where((post) => eq(post.teamId, "t1"));
+
+// Read once: resolves with the first state that is not loading
+const { data, status } = await feed.get();
+
+// Subscribe: the first subscriber loads the query and starts its syncs
+const unsubscribe = feed.subscribe(() => {
+  const { data } = feed.getSnapshot();
+  render(data);
+});
+
+await feed.refetch();
+unsubscribe();
+```
+
+`getSnapshot()` keeps its identity until the state changes, as `useSyncExternalStore` expects. That is exactly what
+`useLiveQuery` is built on.
+
+---
+
+:::success You're live!
+
+Teamboard's views read collections, not endpoints.
+
+- You can filter, sort, select and limit with **typed operators** and field references.
+- You can read **one record** with `findOne`, and **held rows** with `local()`.
+- You can tell a **failed first load** from a **failed refresh**, and show stale data honestly.
+- You can rebuild queries **on every render**, with no dependency array.
+- You can filter **instantly** over rows the db already holds.
+- You can use queries **outside React** with `get`, `subscribe` and `getSnapshot`.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Optimistic Writes"
+  description="Insert, update and delete rows that show at once and revert on failure, with no rollback code."
+  to="/docs/guides/db/basics/optimistic-writes"
+/>

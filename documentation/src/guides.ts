@@ -7,6 +7,7 @@ import { isBrowser } from "./utils/is-browser";
 const ReactIcon = isBrowser() ? require("../static/img/integration-react.svg").default : () => null;
 const HFIcon = isBrowser() ? require("../static/img/integration-hyper-fetch.svg").default : () => null;
 const SocketsIcon = isBrowser() ? require("../static/img/integration-sockets.svg").default : () => null;
+const DbIcon = isBrowser() ? require("../static/img/integration-db.svg").default : () => null;
 const TypescriptIcon = isBrowser() ? require("../static/img/typescript.svg").default : () => null;
 
 export const guides: Section[] = [
@@ -60,6 +61,24 @@ export const guides: Section[] = [
       "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 group-hover:bg-blue-400 group-hover:dark:bg-blue-500 !bg-opacity-40",
     border: "border-blue-500 dark:border-blue-400",
     borderHover: "hover:border-blue-500 hover:dark:border-blue-400",
+    category: "Guides",
+  },
+  {
+    label: "DB",
+    description: "Collections, live queries, optimistic writes, real-time sync and offline-first apps",
+    isPackage: false,
+    dir: "db",
+    paths: ["db"],
+    img: DbIcon,
+    text: "drop-shadow-sm !text-violet-500 dark:!text-violet-400",
+    textAction:
+      "focus:!text-violet-500 focus:dark:!text-violet-400 active:!text-violet-600 active:dark:!text-violet-300",
+    textHover: "hover:!text-violet-500 hover:dark:!text-violet-400",
+    icon: "group-hover:shadow-violet-200 dark:group-hover:bg-violet-500 bg-violet-400 dark:bg-violet-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-violet-200 dark:group-hover:bg-violet-500 group-hover:bg-violet-400 group-hover:dark:bg-violet-500 !bg-opacity-40",
+    border: "border-violet-500 dark:border-violet-400",
+    borderHover: "hover:border-violet-500 hover:dark:border-violet-400",
     category: "Guides",
   },
   {
