@@ -34,8 +34,12 @@ const HeroBadge = ({ className }: { className?: string }) => (
       className,
     )}
   >
-    <span className="rounded-full bg-[#fbc646]/10 px-2 py-0.5 text-[11px] font-semibold !text-[#fbc646] ring-1 ring-inset ring-[#fbc646]/25">
-      v10
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#fbc646]/10 px-2 py-0.5 text-[11px] font-semibold !text-[#fbc646] ring-1 ring-inset ring-[#fbc646]/25">
+      <span className="relative flex size-1.5" aria-hidden="true">
+        <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#fbc646] opacity-75 motion-reduce:animate-none" />
+        <span className="relative inline-flex size-1.5 rounded-full bg-[#fbc646]" />
+      </span>
+      Just shipped
     </span>
     <span className="text-[13px] font-medium !text-zinc-300">
       HyperFetch 10 is out. See what is new
