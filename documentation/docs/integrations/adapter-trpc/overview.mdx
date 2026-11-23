@@ -178,9 +178,17 @@ A response that did not come from a procedure, such as an HTML page from a proxy
 - A `null` payload removes the payload, so the procedure receives no input. Wrap it: `{ value: null }`.
 - The SDK can't reach a procedure named like a request property, such as `send` or `method`. Use `createRequest` with
   the procedure path.
-- A `cancelable` request only replaces a running call with the same input. To cancel on every keystroke of a search,
-  share one query key: `api.user.search.$query.setCancelable(true).setDeduplicate(false).setQueryKey("user-search")`.
 - Query params are appended to the URL. The `input` and `batch` keys are reserved by the tRPC format and skipped.
+- A `cancelable` request only replaces a running call with the same input. To cancel on every keystroke of a search,
+  share one query key:
+
+```ts title="src/search.ts"
+const { data } = await api.user.search.$query
+  .setCancelable(true)
+  .setDeduplicate(false)
+  .setQueryKey("user-search")
+  .send({ payload: { query: "ann" } });
+```
 
 ---
 

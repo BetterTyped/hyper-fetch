@@ -92,6 +92,14 @@ ipcMain.handle("projects:list", async () => {
 
 ---
 
+:::secondary Summary
+
+- In the renderer, HyperFetch works like in a browser, hooks included.
+- In the main process, it runs on Node.js `fetch`, and IPC hands results to the renderer.
+- Set `mode: "client"` on the main-process client to cache there.
+
+:::
+
 ## Next steps
 
 <LinkCard
@@ -106,11 +114,3 @@ ipcMain.handle("projects:list", async () => {
   description="Fetch in the renderer with cache, refetch on focus and loading state."
   to="/docs/react/hooks/use-fetch"
 />
-
-:::secondary Summary
-
-- In the renderer, HyperFetch works like in a browser, hooks included.
-- In the main process, it runs on Node.js `fetch`, and IPC hands results to the renderer.
-- Set `mode: "client"` on the main-process client to cache there.
-
-:::

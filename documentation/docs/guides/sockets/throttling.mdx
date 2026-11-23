@@ -243,10 +243,14 @@ React will re-subscribe on every render. Preset objects can be written inline, t
 immediate delivery.
 
 ```ts title="Runtime switch"
-const live = onPrice.setDelivery({ strategy: "latest", interval: 16 }); // 60 fps
-// 1 fps
+// About 60 updates per second
+const live = onPrice.setDelivery({ strategy: "latest", interval: 16 });
+
+// One update per second
 const relaxed = onPrice.setDelivery({ strategy: "latest", interval: 1000 });
-const everything = onPrice.setDelivery(undefined); // every message
+
+// Every message, no delivery strategy
+const everything = onPrice.setDelivery(undefined);
 ```
 
 ---

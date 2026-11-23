@@ -102,6 +102,16 @@ Your API has to allow the `sentry-trace` and `baggage` headers in its CORS setti
 
 ---
 
+:::secondary Summary
+
+- A plugin with `onRequestError` sends failed requests to Sentry, skipping cancelled ones and expected 4xx answers.
+- `request.requestOptions.endpoint` groups failures by endpoint template.
+- Sentry's `fetch` instrumentation adds spans and breadcrumbs for every request on its own.
+
+:::
+
+---
+
 ## Next steps
 
 <LinkCard
@@ -118,11 +128,3 @@ Your API has to allow the `sentry-trace` and `baggage` headers in its CORS setti
 />
 
 See [error handling](/docs/guides/core/basics/error-handling) for how failures reach your code.
-
-:::secondary Summary
-
-- A plugin with `onRequestError` sends failed requests to Sentry, skipping cancelled ones and expected 4xx answers.
-- `request.requestOptions.endpoint` groups failures by endpoint template.
-- Sentry's `fetch` instrumentation adds spans and breadcrumbs for every request on its own.
-
-:::

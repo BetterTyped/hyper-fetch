@@ -217,7 +217,7 @@ the response.
 Writes to the **same row** go out one at a time, in order, because each is built on the ones before it. When one fails,
 the writes queued behind it on that row are dropped too, and resolve with a `DependencyError`:
 
-```ts
+```ts title="src/publish.ts"
 import { DependencyError } from "@hyper-fetch/db";
 
 const rename = db.post.update(postId, { title: "Draft 2" });
@@ -232,7 +232,7 @@ if (result.error instanceof DependencyError) {
 Writes to different rows run in parallel, unless they go through the
 [offline outbox](/docs/guides/db/patterns/offline-first), which replays every write in order. To make a write wait for another row's write, pass it in `dependsOn`:
 
-```ts
+```ts title="src/new-post.ts"
 const created = db.post.insert(newPost);
 // dropped if the post is rejected
 db.comment.insert(firstComment, { dependsOn: [created] });
@@ -269,7 +269,7 @@ key in the meantime wait, then use the server's key.
 
 Use `renderKey` for React keys, so a row does not remount when its temporary key is swapped:
 
-```tsx
+```tsx title="src/team-feed.tsx"
 data?.map((post) => (
   <PostCard key={db.postSummary.renderKey(post.id)} post={post} />
 ));

@@ -23,7 +23,7 @@ without codegen.
 
 ## Install
 
-```bash
+```bash title="Terminal"
 bun add @hyper-fetch/core
 ```
 
@@ -50,7 +50,7 @@ const { data, error } = await getUsers.send();
 console.log(error ?? data);
 ```
 
-```bash
+```bash title="Terminal"
 bun run index.ts
 ```
 
@@ -78,9 +78,9 @@ When a Bun server calls other APIs with a user's credentials, one client is stil
 
 ---
 
-## Runtime quirks
+## Test with `bun test`
 
-- **Testing with `bun test`**: mock a request with `setMock()`, so the test never reaches the network:
+Mock a request with `setMock()`, so the test never reaches the network:
 
 ```ts title="users.test.ts"
 import { expect, test } from "bun:test";
@@ -97,6 +97,16 @@ test("lists users", async () => {
 
 ---
 
+:::secondary Summary
+
+- HyperFetch runs on Bun's native `fetch` with no extra adapter.
+- Elysia and Hono give you a typed SDK from your Bun backend.
+- `setMock()` keeps `bun test` off the network.
+
+:::
+
+---
+
 ## Next steps
 
 <LinkCard
@@ -108,11 +118,3 @@ test("lists users", async () => {
 
 See [Mocking](/docs/core/mocking) for delays, errors and progress in mocks, and the
 [Elysia example](/examples/integrations/elysia) for a full-stack app.
-
-:::secondary Summary
-
-- HyperFetch runs on Bun's native `fetch` with no extra adapter.
-- Elysia and Hono give you a typed SDK from your Bun backend.
-- `setMock()` keeps `bun test` off the network.
-
-:::

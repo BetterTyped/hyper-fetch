@@ -103,7 +103,7 @@ Chain `onConnect` right after creating the socket, so it applies to the first co
 attempt fails, the `onError` callbacks receive the error and the socket stays disconnected until you call `connect()` or
 `reconnect()`. Catch token failures inside the interceptor when you want to send the user to the login page instead.
 
-:::info setQueryParams
+:::info Query params set later
 
 `socket.setQueryParams()` replaces the defaults used by the next connection attempt. It does not reconnect on its own.
 Call `socket.reconnect()` to apply the new values to a live connection. For credentials that change over time, prefer

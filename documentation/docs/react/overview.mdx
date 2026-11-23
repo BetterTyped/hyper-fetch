@@ -54,7 +54,7 @@ export const Users = () => {
 Derive a request inline. When `userId` changes, the hook switches to the new cache key and fetches, and it never shows
 data of the previous user for the new one.
 
-```tsx
+```tsx title="user-card.tsx"
 const UserCard = ({ userId }: { userId: number }) => {
   // highlight-next-line
   const { data, loading, refetch } = useFetch(getUser.setParams({ userId }));
@@ -70,7 +70,7 @@ const UserCard = ({ userId }: { userId: number }) => {
 Components that use the same request share one cache entry and one in-flight call. Mount the same hook ten times and
 the server sees one request.
 
-```tsx
+```tsx title="header.tsx"
 const Header = () => {
   const { data } = useFetch(getCurrentUser); // request #1
   return <Avatar user={data} />;
@@ -89,7 +89,7 @@ const Sidebar = () => {
 Describe the change once on the request. Core applies it to the cache before the server answers and rolls it back if
 the request fails. The component stays plain.
 
-```tsx
+```tsx title="api/todos.ts"
 import { optimistic } from "@hyper-fetch/core";
 
 const toggleTodo = client
@@ -112,7 +112,7 @@ submit({ params: { todoId: todo.id }, payload: { done: !todo.done } });
 
 `useInfiniteFetch` pages through a list and flattens the pages into `items`.
 
-```tsx
+```tsx title="feed.tsx"
 const { items, hasNextPage, fetchNextPage, isFetchingNextPage } =
   useInfiniteFetch(getFeed, {
     // highlight-next-line
@@ -126,7 +126,7 @@ const { items, hasNextPage, fetchNextPage, isFetchingNextPage } =
 With [`@hyper-fetch/sockets`](/docs/sockets/overview), `useListener` keeps the latest message of a topic and
 `useEmitter` sends typed messages. Both clean up on unmount.
 
-```tsx
+```tsx title="chat-room.tsx"
 const ChatRoom = ({ roomId }: { roomId: string }) => {
   // highlight-start
   const { data: lastMessage } = useListener(
@@ -152,7 +152,7 @@ const ChatRoom = ({ roomId }: { roomId: string }) => {
 Hooks track which fields you read. This component re-renders when `data` changes and ignores changes of `loading`,
 `error` and every other field.
 
-```tsx
+```tsx title="users.tsx"
 // highlight-next-line
 const { data } = useFetch(getUsers);
 ```

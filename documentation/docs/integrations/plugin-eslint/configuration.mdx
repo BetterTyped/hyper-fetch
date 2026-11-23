@@ -105,6 +105,16 @@ rules:
 
 ---
 
+:::secondary Summary
+
+- Use `hyperFetch.configs.recommended` in `eslint.config.*` together with the typescript-eslint parser.
+- Register `plugins: { "hyper-fetch": hyperFetch }` and list the rules when you want other severities.
+- In `.eslintrc`, extend `plugin:hyper-fetch/recommended-legacy`.
+
+:::
+
+---
+
 ## Next steps
 
 <LinkCard
@@ -115,11 +125,3 @@ rules:
 />
 
 See the [API reference](/docs/api/plugin-eslint/Variables/configs) for the exported presets.
-
-:::secondary Summary
-
-- Use `hyperFetch.configs.recommended` in `eslint.config.*` together with the typescript-eslint parser.
-- Register `plugins: { "hyper-fetch": hyperFetch }` and list the rules when you want other severities.
-- In `.eslintrc`, extend `plugin:hyper-fetch/recommended-legacy`.
-
-:::

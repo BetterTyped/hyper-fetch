@@ -150,6 +150,10 @@ Never ship a secret key in browser code. Call the API from your server instead.
 Call `client.clear()` on logout. It aborts running requests and empties the queues and the cache, including persisted
 storage, so the next user sees none of the previous user's data. Remove the stored tokens yourself.
 
+---
+
+## Which approach to use
+
 | Approach          | Where                                    | Use it for                                    |
 | ----------------- | ---------------------------------------- | --------------------------------------------- |
 | `onAuth`          | Client, runs when `auth` is `true`       | Bearer tokens, API keys, signed requests      |

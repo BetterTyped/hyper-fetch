@@ -108,7 +108,7 @@ request's `scope`. Calling `invalidate()` with no arguments invalidates everythi
 
 ## Invalidate cache after mutations
 
-The most common pattern is invalidating a list after adding, updating, or deleting an item. Here is a practical example:
+The most common pattern is invalidating a list after adding, updating or deleting an item:
 
 ```ts title="src/app.ts"
 const getUsers = client.createRequest<{
@@ -149,8 +149,8 @@ covered in [optimistic updates](/docs/guides/react/basics/optimistic-approach).
 
 ## Batch invalidation
 
-You can invalidate multiple cache entries in a single call by passing an array. The array can mix request instances,
-strings, and RegExp patterns:
+Pass an array to invalidate several entries in one call, for example after a mutation that affects several resources.
+The array can mix request instances, strings and RegExp patterns:
 
 ```ts title="src/app.ts"
 // Invalidate several related endpoints at once
@@ -163,14 +163,12 @@ client.cache.invalidate([
 // highlight-end
 ```
 
-This is useful after a complex mutation that affects multiple resources.
-
 ---
 
 ## Pattern matching with RegExp
 
-Sometimes you need to invalidate multiple cache entries that follow a pattern. For instance, you might have cached data
-for individual items (`/articles/1`, `/articles/2`) and a list of all items (`/articles`). A `RegExp` handles this.
+A `RegExp` invalidates every entry that follows a pattern, such as cached data for individual items (`/articles/1`,
+`/articles/2`) and the list of all items (`/articles`).
 
 ```ts title="src/api/articles.ts"
 const getArticles = client.createRequest()({

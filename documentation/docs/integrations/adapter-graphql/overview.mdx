@@ -114,11 +114,11 @@ export const getUser = client.createRequest()({ endpoint: GetUserDocument });
 | `extensions`, response headers           | `extra.extensions`, `extra.headers`, and `extra.errors` when the server sent any               |
 | Subscription                             | a `Listener` of a `Socket` with `GraphqlWsAdapter`, see [subscriptions](/docs/integrations/adapter-graphql/subscriptions) |
 
-Each operation is sent in the [GraphQL over HTTP](https://graphql.github.io/graphql-over-http/) format, with
-`Accept: application/graphql-response+json, application/json;q=0.9` unless you set your own `Accept` header. The adapter
-also replaces the client's cache, query and abort key mappers. Cache and query keys hold the operation name, a
-fingerprint of the document and the variables, so every operation and set of variables is its own cache entry. Set
-custom key mappers after `setAdapter`, or the adapter overwrites them.
+- **Wire format**: [GraphQL over HTTP](https://graphql.github.io/graphql-over-http/), with
+  `Accept: application/graphql-response+json, application/json;q=0.9` unless you set your own `Accept` header.
+- **Keys**: the adapter replaces the client's cache, query and abort key mappers. Keys hold the operation name, a
+  fingerprint of the document and the variables, so every operation and set of variables is its own cache entry.
+- **Custom key mappers**: set them after `setAdapter`, or the adapter overwrites them.
 
 ---
 

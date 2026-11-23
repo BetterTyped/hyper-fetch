@@ -143,6 +143,10 @@ survive a reload in client interceptors rather than on the request.
 Call `client.clear()` on logout. It removes every queued request and empties the cache, including its lazy storage, so
 the next user never sees persisted data of the previous one.
 
+---
+
+## What to persist
+
 | Persist           | Option                                | Result after a reload                       |
 | ----------------- | ------------------------------------- | ------------------------------------------- |
 | Cache             | `Cache({ lazyStorage })` or `storage` | Screens open with the last data             |

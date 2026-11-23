@@ -173,7 +173,7 @@ A query only describes **what** to show. The db decides **how**, in four steps:
 
 `query.explain()` shows the plan. For a mounted query it looks like this:
 
-```ts
+```ts title="src/queries.ts"
 import { and, eq, gt } from "@hyper-fetch/db";
 
 const popular = db.postSummary.where((post) =>

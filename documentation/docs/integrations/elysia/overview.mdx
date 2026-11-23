@@ -187,6 +187,17 @@ name still works as `@deprecated`.
 
 ---
 
+:::secondary Summary
+
+- `ElysiaSchema<typeof app>` turns a chained Elysia app into a schema for `createSdk`.
+- 2xx bodies type the response, every other status types the local error.
+- Response types follow the wire: dates are strings, empty bodies are `""`, streams are `unknown`.
+- The package ships types only, so import it with `import type` on the frontend.
+
+:::
+
+---
+
 ## Next steps
 
 <LinkCard
@@ -204,12 +215,3 @@ name still works as `@deprecated`.
 
 See the [SDK](/docs/core/sdk) page for per-endpoint defaults and the [Request](/docs/core/request) page for every
 setter.
-
-:::secondary Summary
-
-- `ElysiaSchema<typeof app>` turns a chained Elysia app into a schema for `createSdk`.
-- 2xx bodies type the response, every other status types the local error.
-- Response types follow the wire: dates are strings, empty bodies are `""`, streams are `unknown`.
-- The package ships types only, so import it with `import type` on the frontend.
-
-:::

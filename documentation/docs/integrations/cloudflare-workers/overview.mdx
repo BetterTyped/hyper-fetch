@@ -68,7 +68,7 @@ An isolate serves many requests, and the [client](/docs/core/client) runs in `"s
 unless a request has a scope, so one user's response never answers another's. To cache per user, add
 `setScope(userId)`. For a typed SDK of the API you call, generate it with the CLI and create it from the client:
 
-```bash
+```bash title="Terminal"
 npx @hyper-fetch/cli@latest generate --template openapi \
   --fileName upstream.sdk.ts --overwrite \
   --url https://api.example.com/openapi.json
@@ -90,6 +90,14 @@ const { data } = await sdk.products.$id.$get.setParams({ id }).send();
 
 ---
 
+:::secondary Summary
+
+- HyperFetch only needs `fetch`, so it runs on Workers and other edge runtimes unchanged.
+- The cache stays off unless a request has a scope, so users' data stays apart.
+- Generate a typed SDK with the CLI for the APIs your Worker calls.
+
+:::
+
 ## Next steps
 
 <LinkCard
@@ -104,11 +112,3 @@ const { data } = await sdk.products.$id.$get.setParams({ id }).send();
   description="Generate a typed SDK from an OpenAPI document and call it with send()."
   to="/docs/cli/openapi-typescript-client"
 />
-
-:::secondary Summary
-
-- HyperFetch only needs `fetch`, so it runs on Workers and other edge runtimes unchanged.
-- The cache stays off unless a request has a scope, so users' data stays apart.
-- Generate a typed SDK with the CLI for the APIs your Worker calls.
-
-:::

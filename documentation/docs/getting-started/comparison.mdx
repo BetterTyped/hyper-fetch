@@ -35,16 +35,16 @@ and we will fix it.
 
 ## Feature comparison
 
-| Capability          | HyperFetch                        | TanStack Query              | SWR                         | RTK Query                         | Apollo Client                     |
-| ------------------- | --------------------------------- | --------------------------- | --------------------------- | --------------------------------- | --------------------------------- |
-| Sends requests      | Yes, `fetch` adapter built in     | No, you write the `queryFn` | No, you write the fetcher   | Yes, `fetchBaseQuery`             | Yes, GraphQL only                 |
-| Request definition  | `createRequest` object            | Query key and function      | Key and fetcher             | One `createApi` slice             | GraphQL documents                 |
-| Cache               | Per request key                   | Per query key               | Per key                     | Per endpoint and arguments        | Normalized by `__typename` and id |
-| Invalidation        | Request, key or RegExp            | Query key                   | `mutate` with a key         | Tags                              | `refetchQueries` or cache update  |
-| Realtime            | `@hyper-fetch/sockets`            | Your own socket             | `useSWRSubscription`        | `onCacheEntryAdded`               | GraphQL subscriptions             |
-| Codegen             | OpenAPI and Swagger, [CLI](/docs/cli/overview) | OpenAPI, third-party ¹ | OpenAPI, third-party ¹ | OpenAPI, official generator | GraphQL Code Generator |
-| Devtools            | HyperFlow desktop app             | In-app panel                | Community extension         | Redux DevTools                    | Browser extension                 |
-| UI frameworks       | React                             | React, Solid, Svelte, Vue   | React                       | UI-agnostic, React hooks          | React, community integrations     |
+| Capability         | HyperFetch                    | TanStack Query            | SWR                    | RTK Query              | Apollo Client                 |
+| ------------------ | ----------------------------- | ------------------------- | ---------------------- | ---------------------- | ----------------------------- |
+| Sends requests     | Yes, built-in `fetch` adapter | No, you write `queryFn`   | No, you write fetchers | Yes, `fetchBaseQuery`  | Yes, GraphQL only             |
+| Request definition | `createRequest` object        | Query key and function    | Key and fetcher        | One `createApi` slice  | GraphQL documents             |
+| Cache              | Per request key               | Per query key             | Per key                | Per endpoint and args  | Normalized by type and id     |
+| Invalidation       | Request, key or RegExp        | Query key                 | `mutate` with a key    | Tags                   | `refetchQueries`, cache edits |
+| Realtime           | `@hyper-fetch/sockets`        | Your own socket           | `useSWRSubscription`   | `onCacheEntryAdded`    | GraphQL subscriptions         |
+| Codegen            | OpenAPI, Swagger, [CLI](/docs/cli/overview) | OpenAPI, third-party ¹ | OpenAPI, third-party ¹ | OpenAPI, official      | GraphQL Code Generator        |
+| Devtools           | HyperFlow desktop app         | In-app panel              | Community extension    | Redux DevTools         | Browser extension             |
+| UI frameworks      | React                         | React, Solid, Svelte, Vue | React                  | Any, with React hooks  | React, community ports        |
 
 1. Generators such as Orval, Hey API and Kubb write TanStack Query or SWR hooks from OpenAPI, see
    [OpenAPI to TypeScript](/docs/cli/openapi-typescript-client).

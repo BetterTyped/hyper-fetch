@@ -89,6 +89,16 @@ Deno.serve(async (req) => {
 
 ---
 
+:::secondary Summary
+
+- Import HyperFetch with `npm:@hyper-fetch/core` and it runs on Deno's native `fetch`.
+- Pass `--allow-net` so Deno lets it reach your API.
+- On servers the cache stays off unless a request has a scope, so users' data stays apart.
+
+:::
+
+---
+
 ## Next steps
 
 <LinkCard
@@ -103,11 +113,3 @@ Deno.serve(async (req) => {
   description="How scopes, server mode and cache keys decide what is cached."
   to="/docs/core/cache"
 />
-
-:::secondary Summary
-
-- Import HyperFetch with `npm:@hyper-fetch/core` and it runs on Deno's native `fetch`.
-- Pass `--allow-net` so Deno lets it reach your API.
-- On servers the cache stays off unless a request has a scope, so users' data stays apart.
-
-:::

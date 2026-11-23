@@ -58,7 +58,7 @@ The global is a client only. Node.js has no built-in WebSocket server, so the se
 
 ## The ws package
 
-Before the global existed, every nodejs websocket client went through
+Before the global existed, every Node.js WebSocket client went through
 [`ws`](https://github.com/websockets/ws), and it is still the standard library for the job. It has both a client and a
 server, and its README states plainly that it "does not work in the browser". Install it with `npm install ws` (and
 `@types/ws` for TypeScript).
@@ -96,7 +96,7 @@ when you are on an older Node.js, need headers, or already use it for the server
 
 ---
 
-## A node js websocket server to test against
+## A local server to test against
 
 You usually write a client for a server you do not control. To try things locally, a `ws` server is a few lines.
 `WebSocketServer` needs exactly one of `port`, `server` or `noServer`:

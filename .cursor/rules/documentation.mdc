@@ -357,7 +357,7 @@ studying the best competitor docs (TanStack Query, SWR, tRPC, Apollo, RTK Query,
 - **Paragraphs**: at most 4 sentences. Lists of facts or defaults are bullets.
 - **Headings**: name a task, a rule or an API (`## Retry only idempotent requests`, `## setCache`). Never "Usage 2".
 - **Code**: snippets of 1-10 lines show one idea. One full realistic example per page, up to about 40 lines. Titles on
-  every block (`title="api/users.ts"` for multi-file flows). Installs use ` ```npm2yarn2pnpm `. Warnings may live in
+  every block (`title="api/users.ts"` for multi-file flows). Installs use ` ```bash npm2yarn2pnpm ` (the bare fence renders no package manager tabs). Warnings may live in
   code comments.
 - **Defaults**: always written as "default X, change it with `option`".
 - **Tables**: for options, returns, flags, rules, mappings and comparisons. Never for narrative.

@@ -59,16 +59,18 @@ client sends many small messages fit a WebSocket better, because each client mes
 
 Without HTTP/2, SSE shares the browser's connection pool, and the limit is low: six open connections per browser and
 domain, across all tabs. Over HTTP/2, the streams are multiplexed on one connection and the limit is negotiated, 100 by
-default ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)). If you plan
-to use SSE, serve it over HTTP/2. A user with seven tabs open on HTTP/1.1 otherwise sees the seventh tab hang.
+default ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)).
+
+Serve SSE over HTTP/2. On HTTP/1.1, a user with seven tabs open sees the seventh tab hang.
 
 ### Reconnection
 
 `EventSource` reconnects on its own. The server can set the delay with the `retry:` field, and if events carry an `id:`,
 the browser sends the last one back in the `Last-Event-ID` header when it reconnects, so the server can replay what was
-missed ([Vercel: SSE vs WebSockets](https://vercel.com/guides/do-vercel-serverless-functions-support-websocket-connections)). A WebSocket has none of
-this. A closed WebSocket stays closed until your code opens a new one, and resuming is up to your protocol. The
-[reconnection guide](/docs/guides/sockets/websocket-reconnection-and-errors) covers what that code needs to do.
+missed ([Vercel: SSE vs WebSockets](https://vercel.com/guides/do-vercel-serverless-functions-support-websocket-connections)).
+
+A WebSocket has none of this. A closed WebSocket stays closed until your code opens a new one, and resuming is up to
+your protocol. The [reconnection guide](/docs/guides/sockets/websocket-reconnection-and-errors) covers what that code needs to do.
 
 ### Binary data
 
@@ -79,8 +81,8 @@ size and CPU. For audio, video frames or compact binary protocols, use a WebSock
 
 SSE is a regular HTTP response, so it goes through the same proxies, CDNs, auth middleware and logging as the rest of your
 API. The usual catch is buffering: a layer that buffers or compresses the whole response holds events back until it
-flushes. Idle streams can also be cut by timeouts, which is why servers send a comment line (`: ping`) now and then; MDN
-describes this exact use.
+flushes. Idle streams can also be cut by timeouts, which is why servers send a comment line (`: ping`) now and then, as
+MDN describes.
 
 A WebSocket needs every hop to support the upgrade, and the load balancer has to keep long-lived connections open. Most
 platforms do this now, but it is one more thing to configure, and after the upgrade your HTTP middleware no longer sees

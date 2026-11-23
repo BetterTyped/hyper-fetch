@@ -39,7 +39,7 @@ client.cache.invalidate(getNotes); // mark it stale, mounted hooks refetch
 Each entry is stored under the request's `cacheKey`, built from the method, the filled endpoint and the query params.
 Two requests with the same values share one entry. Set your own key with `cacheKey` or `setCacheKey`.
 
-```ts
+```ts title="api/users.ts"
 getUser.setParams({ userId: 1 }).cacheKey; // "GET_/users/1_"
 getUsers.setQueryParams({ page: 2 }).cacheKey; // 'GET_/users_{"page":2}'
 getUser.setCacheKey("current-user").cacheKey; // "current-user"
@@ -63,7 +63,7 @@ Only successful responses are stored. A failed refetch keeps the last good `data
 Change them on the request, for example `staleTime: Time.MIN` or `setCacheTime(Infinity)`. When `cacheTime` passes, the
 entry is removed, but only while the app is online.
 
-```ts
+```ts title="api/settings.ts"
 import { Time } from "@hyper-fetch/core";
 
 const getSettings = client.createRequest<{ response: Settings }>()({
@@ -80,7 +80,7 @@ const getSettings = client.createRequest<{ response: Settings }>()({
 `invalidate` sets the entry's `staleTime` to `0` and emits an event, so every mounted reader refetches. It takes a
 request, a key, a RegExp or an array of them. With no argument it invalidates everything.
 
-```ts
+```ts title="api/notes.ts"
 const { success } = await createNote.send({ payload: { text: "Hello" } });
 
 if (success) {
@@ -97,7 +97,7 @@ See [cache revalidation](/docs/guides/core/advanced/cache-revalidation).
 `update` changes an existing entry and does nothing when there is none. It sets `responseTimestamp` to now, so
 `staleTime` and `cacheTime` count from the update.
 
-```ts
+```ts title="api/notes.ts"
 client.cache.update(getNotes, (previous) => ({
   data: [...(previous?.data ?? []), { text: "New note" }],
 }));

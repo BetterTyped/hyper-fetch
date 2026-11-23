@@ -70,7 +70,7 @@ and `payload` come from it, see [typed documents](/docs/integrations/adapter-gra
 
 Set values ahead of time with setters, or pass them to `send()`. Both are typed by the generics and the endpoint.
 
-```ts
+```ts title="src/update-user.ts"
 // Setters return a new request
 const response = await updateUser
   .setParams({ userId: 1 })
@@ -101,7 +101,7 @@ Guides: [parameters](/docs/guides/core/basics/parameters), [query params](/docs/
 Every setter returns a new request and leaves the original untouched. Use the returned value. The mock setters
 (`setMock`, `clearMock`, `setMockingEnabled`) are the only exception: they change the instance.
 
-```ts
+```ts title="src/get-user.ts"
 // error-next-line
 getUser.setParams({ userId: 1 }); // result discarded
 await getUser.send(); // compile error: params are still required
@@ -118,7 +118,7 @@ await getUser.setParams({ userId: 1 }).send(); // correct
 `{ data, error, status, success, extra, requestTimestamp, responseTimestamp }` for every outcome, including HTTP errors,
 timeouts and aborts, so you never need `try/catch`.
 
-```ts
+```ts title="src/get-user.ts"
 const { data, error, status } = await getUser.send({ params: { userId: 1 } });
 
 if (data) console.log(data.name);
@@ -174,7 +174,7 @@ setTimeout(() => {
 
 Decide per response whether to retry with `setRetryOnError`:
 
-```ts
+```ts title="api/reports.ts"
 const getReport = client
   .createRequest()({ endpoint: "/reports", retry: 3, retryTime: 1000 })
   // skip retries for 4xx
@@ -201,7 +201,7 @@ share cache entries and deduplication automatically.
 Override a key to group requests on purpose. For search-as-you-type, give a cancelable request one `queryKey`, because
 the default one changes with every query:
 
-```ts
+```ts title="api/users.ts"
 const searchUsers = getUsers.setCancelable(true).setQueryKey("users-search");
 ```
 
@@ -215,7 +215,7 @@ To change how keys are built for every request, use `client.setCacheKeyMapper`, 
 `setScope(id)` prefixes all three keys with the scope, so scoped requests never share cache, queues or aborts. On a
 client in `"server"` mode a request is only cached when it has a scope. See [Cache](/docs/core/cache).
 
-```ts
+```ts title="src/get-user.ts"
 const { data } = await getUser
   .setParams({ userId: 1 })
   .setScope(session.id)
@@ -231,7 +231,7 @@ const { data } = await getUser
 - `setRequestMapper` changes the request right before it is sent. A throw stops the request and returns an error.
 - `setPayloadMapper` transforms the payload, for example into `FormData`.
 
-```ts
+```ts title="api/profile.ts"
 const getProfile = client
   .createRequest<{ response: { full_name: string } }>()({ endpoint: "/me" })
   .setResponseMapper((response) => {
@@ -273,7 +273,7 @@ The callback can also return `{ updates, context, rollback, invalidate }`. The
 `send()` takes callbacks for one call. `$hooks` registers listeners on the request instance, which run for every
 `send()` and `exec()` of it and of clones made afterwards. Each `$hooks` method returns an unsubscribe function.
 
-```ts
+```ts title="src/get-user.ts"
 await getUser.send({
   params: { userId: 1 },
   onRequestStart: ({ requestId }) => console.log("started", requestId),

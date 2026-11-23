@@ -53,7 +53,7 @@ sends it.
 | Every response        | Not built in                       | `client.onResponse(fn)`                       |
 | Successful response   | `interceptors.response.use(fn)`    | `client.onSuccess(fn)`                        |
 | Failed response       | `interceptors.response.use(_, fn)` | `client.onError(fn)`                          |
-| Remove                | `eject(id)`                        | `client.removeOnRequestInterceptors([fn])` and the others |
+| Remove                | `eject(id)`                        | `removeOnRequestInterceptors` and the others |
 | Order                 | Request: last added first          | Always the order they were added              |
 
 ---
@@ -136,6 +136,10 @@ client.removeOnRequestInterceptors([logRequest]);
 A single request can skip them with `disableRequestInterceptors: true` (skips `onRequest` and `onAuth`) or
 `disableResponseInterceptors: true` (skips the response ones), for example a health check that must not trigger a token
 refresh.
+
+---
+
+## Which interceptor to use
 
 | Need                                  | Use                                             |
 | ------------------------------------- | ----------------------------------------------- |

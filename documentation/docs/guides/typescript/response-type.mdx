@@ -74,12 +74,13 @@ if (data) {
 `data` is `null` until a request succeeds, so TypeScript makes you handle that case. The same type flows into
 `useFetch(getUsers).data` in React and into the cache, without repeating it.
 
-The `response` generic only types `data`. How the body is read is up to the adapter. The default HTTP adapter parses
-JSON, and its `responseType` option (`"text"`, `"blob"`, `"arrayBuffer"`) returns other shapes, so a file download is
-typed as `{ response: Blob }` with `options: { responseType: "blob" }`. See the
-[adapter docs](/docs/core/adapter) for the full table. With the GraphQL adapter, a typed document
-(`TypedDocumentNode` from graphql-codegen, or gql.tada) passed as `endpoint` fills the response and payload types
-without generics.
+The `response` generic only types `data`. How the body is read is up to the adapter:
+
+- **HTTP adapter**: parses JSON by default. Its `responseType` option (`"text"`, `"blob"`, `"arrayBuffer"`) returns
+  other shapes, so a file download is typed as `{ response: Blob }` with `options: { responseType: "blob" }`. See the
+  [adapter docs](/docs/core/adapter) for the full table.
+- **GraphQL adapter**: a typed document (`TypedDocumentNode` from graphql-codegen, or gql.tada) passed as `endpoint`
+  fills the response and payload types without generics.
 
 ---
 

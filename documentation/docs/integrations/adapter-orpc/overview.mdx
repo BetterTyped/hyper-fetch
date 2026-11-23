@@ -87,9 +87,19 @@ export const Planet = ({ id }: { id: number }) => {
 };
 ```
 
-For contract-first APIs pass the client type of the contract, which works without `@orpc/server`:
-`createSdk<typeof client, OrpcSchema<ContractRouterClient<typeof contract>>>(client, { camelCaseToKebabCase: false })`.
+For contract-first APIs pass the client type of the contract, which works without `@orpc/server`.
 `OrpcSchema<RouterClient<typeof router>>` works the same way.
+
+```ts title="api/sdk.ts"
+import type { ContractRouterClient } from "@orpc/contract";
+
+import type { contract } from "../contract";
+
+export const api = createSdk<
+  typeof client,
+  OrpcSchema<ContractRouterClient<typeof contract>>
+>(client, { camelCaseToKebabCase: false });
+```
 
 ---
 
@@ -108,8 +118,9 @@ For contract-first APIs pass the client type of the contract, which works withou
 
 On the wire, both methods send `POST {url}/planet/find` with the serialized input, which is what `RPCHandler` accepts by
 default. The adapter adds the serialized input to the cache and query keys, so `{ id: 1 }` and `{ id: 2 }` are cached,
-deduplicated and queued separately. The abort key has no input, so `request.abort()` stops every running call of the
-procedure. Queries are deduplicated by default, mutations are not.
+deduplicated and queued separately. Queries are deduplicated by default, mutations are not.
+
+The abort key has no input, so `request.abort()` stops every running call of the procedure.
 
 Without the SDK, create the request yourself:
 
@@ -151,8 +162,9 @@ const { data } = await api.planet.list.$query
 
 With `queryMethod: "GET"`, queries go as `GET {url}/planet/find?data=...`, so browsers, proxies and CDNs can cache them.
 `RPCHandler` accepts `GET` only for procedures declared with `.route({ method: "GET" })`, unless you turn off its
-`strictGetMethodPluginEnabled` option; others fail with `METHOD_NOT_SUPPORTED` and status `405`. Requests with files,
-or with a URL longer than 2083 characters, are sent with `POST`, as in `RPCLink`.
+`strictGetMethodPluginEnabled` option; others fail with `METHOD_NOT_SUPPORTED` and status `405`.
+
+Requests with files, or with a URL longer than 2083 characters, are sent with `POST`, as in `RPCLink`.
 
 ---
 
@@ -192,7 +204,14 @@ errors with `OrpcErrorType`.
 - The SDK can't reach a procedure named like a request property, such as `send` or `method`. Use `createRequest` with
   the procedure path for those.
 - A `cancelable` request only replaces a running call with the same input. To cancel on every keystroke of a search,
-  share one query key: `api.planet.search.$query.setCancelable(true).setDeduplicate(false).setQueryKey("planet-search")`.
+  share one query key:
+
+  ```ts
+  api.planet.search.$query
+    .setCancelable(true)
+    .setDeduplicate(false)
+    .setQueryKey("planet-search");
+  ```
 - Query params are appended to the URL. The `data` key is reserved by the oRPC format and skipped.
 
 ---

@@ -104,7 +104,7 @@ The sections below cover each part. The [quick start](/docs/db/quick-start) buil
 A collection is a typed set of **complete rows**, defined by a [Standard Schema](https://standardschema.dev) such as a
 Zod, Valibot or ArkType schema, and a key. Every row has every field of the schema, so a query can use any of them.
 
-```ts
+```ts title="src/db.ts"
 import { collection, createDb, rowType } from "@hyper-fetch/db";
 
 const Post = collection(PostSchema, { key: "id", version: "updatedAt" });
@@ -125,7 +125,7 @@ version.
 A loader is a request plus the way to read complete rows from its response. A list loader declares the operators each
 field can send and whether it is paginated. A loader with `byKey` or `byKeys` reads rows by key.
 
-```ts
+```ts title="src/db.ts"
 const Post = collection(PostSchema, { key: "id" })
   .load(getTeamPosts, {
     rows: (response) => response.data.items,
@@ -154,7 +154,7 @@ const Post = collection(PostSchema, { key: "id" })
 
 ## Queries
 
-```ts
+```ts title="src/queries.ts"
 import { and, eq, gt } from "@hyper-fetch/db";
 
 const query = db.post
@@ -181,7 +181,7 @@ query.explain();
 
 ## Syncs and ingest
 
-```ts
+```ts title="src/db.ts"
 const byTeam = { teamId: { eq: (teamId) => ({ params: { teamId } }) } };
 
 collection(PostSchema, { key: "id" })
@@ -198,7 +198,7 @@ subset is fresh while its syncs deliver all three, and refetches after a reconne
 
 ## Related data
 
-```ts
+```ts title="src/db.ts"
 const db = createDb(
   { post: Post, postSummary: PostSummary, user: User },
   { links: [["post", "postSummary"]] },
@@ -217,7 +217,7 @@ joins add the related row to each result. See [Related data](/docs/db/related-da
 
 ## Writes
 
-```ts
+```ts title="src/db.ts"
 collection(PostSchema, { key: "id" }).mutate({
   update: {
     request: updatePost,
@@ -256,7 +256,7 @@ insert of a key the db already holds, and an update that changes a row's key, re
 
 Requests, writes and queries never throw. What fails is reported to `db.onError`:
 
-```ts
+```ts title="src/db.ts"
 db.onError(({ type, error, collection }) => report(type, error));
 ```
 
@@ -306,14 +306,6 @@ A failed load keeps the rows the query showed and sets `error` on it, and the ne
       title="Quick start"
       description="From a request to a live query and an optimistic write in four steps."
       to="/docs/db/quick-start"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Related data"
-      description="Links, normalized nested records and joins."
-      to="/docs/db/related-data"
     />
   </div>
   <div className="col col--6">

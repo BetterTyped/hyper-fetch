@@ -43,7 +43,7 @@ Each tab is a complete example. None of them needs extra libraries or setup beyo
 
 The endpoint string, the payload and the query params are checked when you send, not when the server answers.
 
-```ts
+```ts title="api/users.ts"
 const updateUser = client.createRequest<{
   response: User;
   payload: { name: string };
@@ -63,7 +63,7 @@ await updateUser.send({ params: { userId: 1 }, payload: { name: "Ann" } }); // â
 Successful responses are cached under a key derived from the method, endpoint and params. Read them without a request,
 or show cached data first and refresh in the background.
 
-```ts
+```ts title="api/users.ts"
 const getUsers = client.createRequest<{ response: User[] }>()({
   endpoint: "/users",
   // highlight-next-line
@@ -85,7 +85,7 @@ client.cache.invalidate(getUsers);
 
 Ten components asking for the same data at once make one request. For search-as-you-type, keep only the latest call.
 
-```ts
+```ts title="src/dedupe.ts"
 // GET requests share one in-flight call by default
 // 1 request
 await Promise.all([getUsers.send(), getUsers.send(), getUsers.send()]);
@@ -104,7 +104,7 @@ searchUsers.send({ queryParams: { search: "ann" } }); // sent
 Writes that must arrive in order go through a queue. When the device goes offline, they wait and continue once the
 connection is back.
 
-```ts
+```ts title="api/notes.ts"
 const saveNote = client.createRequest<{ response: Note; payload: NoteInput }>()({
   endpoint: "/notes",
   method: "POST",
@@ -124,7 +124,7 @@ saveNote.send({ payload: second }); // starts after `first` finishes
 
 Interceptors on the client add tokens, refresh them on `401` and resend the original request.
 
-```ts
+```ts title="api/client.ts"
 client
   // highlight-start
   .onAuth((request) =>
@@ -146,7 +146,7 @@ client
 
 The same request API works over every transport. Swap the adapter and keep the rest of your code.
 
-```ts
+```ts title="api/graphql.ts"
 import { GraphqlAdapter } from "@hyper-fetch/graphql";
 
 const graphql = createClient({ url: "https://api.example.com/graphql" })
@@ -198,7 +198,7 @@ flowchart LR
 Because a request is plain data, you can derive variants, share it between server and client, mock it in a story and
 inspect it in a test, all without a custom hook per endpoint.
 
-```ts
+```ts title="api/users.ts"
 const getUsers = client.createRequest<{
   response: User[];
   queryParams?: { team?: string };

@@ -87,13 +87,9 @@ interceptor when headers must be merged.
 
 ---
 
-## Headers the adapter adds
+## Pick the level
 
-The fetch adapter sends `Content-Type: application/json` when the payload is an object or array. It leaves it out for
-`FormData`, `Blob` and other binary bodies, so `fetch` can set the multipart boundary. A `content-type` header you set,
-in any letter case, replaces the default. A header with an `undefined` or `null` value is not sent.
-
-Other adapters treat headers their own way, and the Firebase adapters ignore them. Check the page of your adapter.
+Each level reaches a different set of calls and combines with the request's headers its own way.
 
 | Where                  | Scope                         | Combines with the request's headers   |
 | ---------------------- | ----------------------------- | ------------------------------------- |
@@ -101,6 +97,16 @@ Other adapters treat headers their own way, and the Firebase adapters ignore the
 | `setHeaders`           | The returned request          | Replaces them                          |
 | `send({ headers })`    | One call                      | Replaces them                          |
 | `onRequest` / `onAuth` | Every request of the client   | As you spread them                     |
+
+---
+
+## Headers the adapter adds
+
+The fetch adapter sends `Content-Type: application/json` when the payload is an object or array. It leaves it out for
+`FormData`, `Blob` and other binary bodies, so `fetch` can set the multipart boundary. A `content-type` header you set,
+in any letter case, replaces the default. A header with an `undefined` or `null` value is not sent.
+
+Other adapters treat headers their own way, and the Firebase adapters ignore them. Check the page of your adapter.
 
 ---
 

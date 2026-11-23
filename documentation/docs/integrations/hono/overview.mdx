@@ -167,6 +167,17 @@ still work and are marked `@deprecated`.
 
 ---
 
+:::secondary Summary
+
+- `HonoSchema<typeof app>` turns a chained Hono app into a schema for `createSdk`.
+- Paths, params, kebab-case segments, mounted routers and `basePath()` map to nested SDK properties.
+- `json` and `query` validators type the payload and query params of each request.
+- The package ships types only, so import it with `import type` on the frontend.
+
+:::
+
+---
+
 ## Next steps
 
 <LinkCard
@@ -190,12 +201,3 @@ still work and are marked `@deprecated`.
 
 See also the [TodoMVC example](/examples/apps/todomvc) with optimistic updates on a Hono API, and the
 [SDK](/docs/core/sdk) page for per-endpoint defaults.
-
-:::secondary Summary
-
-- `HonoSchema<typeof app>` turns a chained Hono app into a schema for `createSdk`.
-- Paths, params, kebab-case segments, mounted routers and `basePath()` map to nested SDK properties.
-- `json` and `query` validators type the payload and query params of each request.
-- The package ships types only, so import it with `import type` on the frontend.
-
-:::

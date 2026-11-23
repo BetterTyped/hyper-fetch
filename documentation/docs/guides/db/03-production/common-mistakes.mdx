@@ -26,6 +26,8 @@ recognize.
 
 ## Modeling
 
+How collections, row types and links are declared.
+
 ### Loading summaries into the full collection
 
 ```ts title="src/db.ts"
@@ -84,6 +86,8 @@ A link only changes fields of rows both collections already hold. Rows of a summ
 ---
 
 ## Queries
+
+How queries are built, loaded and read next to plain requests.
 
 ### Putting a required filter inside `or`
 
@@ -162,6 +166,8 @@ const { data } = useLiveQuery(
 ---
 
 ## Writes
+
+How inserts, updates and offline writes reach the server and the rows.
 
 ### Wrapping writes in try/catch
 
@@ -255,6 +261,8 @@ createDb(collections, { links: [["post", "postSummary"]] });
 ---
 
 ## App setup
+
+How the db is created, cleared and watched for failures.
 
 ### One db for every request on the server
 

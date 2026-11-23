@@ -111,7 +111,7 @@ export default function App({ Component, pageProps }: AppProps) {
 Every `Hydrate` serves only its own client, so they can be nested and combined freely. A nested `Hydrate` adds its items
 to the ones above; for the same key the newer data wins.
 
-```tsx
+```tsx title="app/layout.tsx"
 <Hydrate client={apiClient} data={apiHydration}>
   <Hydrate client={cmsClient} data={cmsHydration}>
     <Page />
@@ -122,7 +122,7 @@ to the ones above; for the same key the newer data wins.
 Empty values are ignored, so the payload can be built conditionally and `Hydrate` can be rendered only when there is
 something to hydrate:
 
-```tsx
+```tsx title="app/providers.tsx"
 <Hydrate
   client={client}
   data={[user && getUser.dehydrate({ response: user }), settings]}

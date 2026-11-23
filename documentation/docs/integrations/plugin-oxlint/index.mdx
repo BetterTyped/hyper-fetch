@@ -89,9 +89,19 @@ Rule ids are the same, so only the plugin registration changes:
 }
 ```
 
-Oxlint parses every file in Rust, and handing the AST to a JS plugin is the expensive part. So
+Oxlint parses every file in Rust, and handing the AST to a JS plugin is the expensive part. To keep it cheap,
 `request-generic-types` only runs where the source has `createRequest<`, and `client-generic-types` only where it
 mentions both `@hyper-fetch/core` and `createClient`.
+
+---
+
+:::secondary Summary
+
+- `oxlint-plugin-hyper-fetch` runs the HyperFetch generic checks on Oxlint.
+- Register it in `jsPlugins` and enable `hyper-fetch/client-generic-types` and `hyper-fetch/request-generic-types`.
+- Rule ids match the ESLint plugin, so migrating only changes how the plugin is loaded.
+
+:::
 
 ---
 
@@ -105,11 +115,3 @@ mentions both `@hyper-fetch/core` and `createClient`.
 />
 
 See the [API reference](/docs/api/plugin-oxlint/Variables/requestGenericTypes) for the exported rules.
-
-:::secondary Summary
-
-- `oxlint-plugin-hyper-fetch` runs the HyperFetch generic checks on Oxlint.
-- Register it in `jsPlugins` and enable `hyper-fetch/client-generic-types` and `hyper-fetch/request-generic-types`.
-- Rule ids match the ESLint plugin, so migrating only changes how the plugin is loaded.
-
-:::

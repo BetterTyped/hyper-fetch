@@ -100,6 +100,16 @@ Data that is the same for everyone, like a public price list, can share one scop
 
 ---
 
+:::secondary Summary
+
+- HyperFetch runs on Node.js 18+ with the built-in `fetch`, with no extra adapter.
+- `send()` resolves with `data` or `error`, so a failed call never throws.
+- On servers the cache stays off unless a request has a scope, so users' data stays apart.
+
+:::
+
+---
+
 ## Next steps
 
 <LinkCard
@@ -116,11 +126,3 @@ Data that is the same for everyone, like a public price list, can share one scop
 />
 
 For server rendering, pass responses to the browser with [hydration](/docs/react/hydrate).
-
-:::secondary Summary
-
-- HyperFetch runs on Node.js 18+ with the built-in `fetch`, with no extra adapter.
-- `send()` resolves with `data` or `error`, so a failed call never throws.
-- On servers the cache stays off unless a request has a scope, so users' data stays apart.
-
-:::

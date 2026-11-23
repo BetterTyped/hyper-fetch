@@ -99,6 +99,14 @@ too. Turn it off for those files if their generics use other keys.
 
 ---
 
+:::secondary Summary
+
+- Both rules report unknown keys, empty generics and generics that are not object types.
+- Type references are trusted, and intersections are checked part by part.
+- `client-generic-types` only checks `createClient` from `@hyper-fetch/core`.
+
+:::
+
 ## Next steps
 
 <LinkCard
@@ -113,11 +121,3 @@ too. Turn it off for those files if their generics use other keys.
   description="Every generic key a request accepts and what it types."
   to="/docs/core/request"
 />
-
-:::secondary Summary
-
-- Both rules report unknown keys, empty generics and generics that are not object types.
-- Type references are trusted, and intersections are checked part by part.
-- `client-generic-types` only checks `createClient` from `@hyper-fetch/core`.
-
-:::

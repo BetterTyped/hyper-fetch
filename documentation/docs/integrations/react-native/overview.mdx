@@ -105,6 +105,16 @@ export function UsersScreen() {
 
 ---
 
+:::secondary Summary
+
+- HyperFetch and its React hooks run in React Native and Expo with no native module.
+- An `AppManager` with `AppState` and `NetInfo` gives HyperFetch focus and network status.
+- `mode: "client"` keeps the cache on, because React Native has no `document`.
+
+:::
+
+---
+
 ## Next steps
 
 <LinkCard
@@ -121,11 +131,3 @@ export function UsersScreen() {
 />
 
 See the [offline guide](/docs/guides/core/advanced/offline) for how held requests resume.
-
-:::secondary Summary
-
-- HyperFetch and its React hooks run in React Native and Expo with no native module.
-- An `AppManager` with `AppState` and `NetInfo` gives HyperFetch focus and network status.
-- `mode: "client"` keeps the cache on, because React Native has no `document`.
-
-:::

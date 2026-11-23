@@ -17,7 +17,7 @@ Each client has one of each: `client.appManager`, `client.requestManager` and `c
 
 :::
 
-```ts
+```ts title="api/events.ts"
 // Every listener returns an unsubscribe function
 const unsubscribe = client.requestManager.events.onResponse(
   ({ request, response }) => {
@@ -37,7 +37,7 @@ unsubscribe();
 The AppManager tracks whether the app is focused and online. The [dispatcher](/docs/core/dispatcher) holds offline
 requests until it reports the connection is back, and React hooks use it to refetch on focus or reconnect.
 
-```ts
+```ts title="api/app-state.ts"
 client.appManager.isOnline; // boolean
 client.appManager.isFocused; // boolean
 
@@ -124,7 +124,7 @@ client.requestManager.events.onRetry(({ request, retry, delay, response }) => {
 `client.requestManager.abortAll()` aborts everything in flight, for example on logout or in test teardown. Aborted
 requests resolve with an abort error, they do not reject.
 
-```ts
+```ts title="api/abort.ts"
 getUser.abort();
 client.requestManager.abortByRequestId(getUser.abortKey, requestId);
 ```
@@ -148,7 +148,7 @@ client.loggerManager.setModules(["Cache", "Dispatcher"]);
 
 Send the logs somewhere else with `setLogger`, which takes a function returning a new `LoggerManager`:
 
-```ts
+```ts title="api/client.ts"
 import { LoggerManager } from "@hyper-fetch/core";
 
 client.setLogger(

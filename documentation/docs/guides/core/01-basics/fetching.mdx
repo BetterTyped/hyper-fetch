@@ -143,7 +143,7 @@ const { data } = await getUsers.send({
   onDownloadProgress: ({ progress }) =>
     console.log("download", progress),
   onResponse: ({ response }) =>
-    console.log("done", response.status),
+    console.log("done", response.status)
 });
 ```
 
@@ -157,7 +157,7 @@ const { data } = await getUsers.send({
 ```ts live
 const promise = getUsers.send();
 
-// Abort every request with this abortKey
+// Aborts all calls with this abortKey
 getUsers.abort();
 
 const { error } = await promise;

@@ -66,12 +66,13 @@ The event also carries `request` and `requestId`, so you can tell parallel uploa
 
 What fills those numbers depends on the adapter:
 
-- The default `HttpAdapter` uses `fetch`. Download progress is real: it reads the response body stream and reports each
-  chunk against the `content-length` header. A compressed response (`content-encoding: gzip` and the like) has no known
-  total, because `content-length` counts the compressed bytes. There `total` follows `loaded`, so show the `loaded`
-  bytes instead of a percentage. Upload progress is a start event and a finish event, so the bar jumps from 0 to 100.
-- The [Axios adapter](/docs/integrations/adapter-axios/overview) wires Axios's `onUploadProgress` into Hyper
-  Fetch. In a browser Axios runs on XHR, so you get real upload progress while the file is in flight.
+- **Download with the default `HttpAdapter`** is real: it reads the `fetch` response stream and reports each chunk
+  against the `content-length` header.
+- **Compressed responses** (`content-encoding: gzip` and the like) have no known total, because `content-length` counts
+  the compressed bytes. There `total` follows `loaded`, so show the `loaded` bytes instead of a percentage.
+- **Upload with the default adapter** is a start event and a finish event, so the bar jumps from 0 to 100.
+- **Upload with the [Axios adapter](/docs/integrations/adapter-axios/overview)** is real: it wires Axios's
+  `onUploadProgress` into HyperFetch, and in a browser Axios runs on XHR.
 
 For a file upload progress bar, switch the client to Axios. Your requests and hooks don't change:
 
@@ -99,7 +100,7 @@ a `Content-Type` header, so the browser writes the multipart boundary itself.
 
 ---
 
-## Upload file with progress bar: a component
+## Build an upload progress bar
 
 Here is a small file input with a progress bar. It reads the progress event straight into state and renders the bar
 width from `progress`.

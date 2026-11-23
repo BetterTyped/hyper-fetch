@@ -31,7 +31,7 @@ Teamboard's feed endpoint embeds each post's author. Here is what normalization 
 
 **1. The response.** Two posts by the same author, each with its own copy:
 
-```json
+```json title="Feed response"
 {
   "items": [
     {
@@ -74,7 +74,7 @@ const db = createDb({ feedPost: FeedPost, user: User });
 
 **3. The collections.** After the load, Ada is stored once, under her key:
 
-```text
+```text title="Collections after the load"
 feedPost   p1 -> { id: "p1", title: "Roadmap", authorId: "u1", author: { ... } }
            p2 -> { id: "p2", title: "Retro",   authorId: "u1", author: { ... } }
 
@@ -140,7 +140,7 @@ const Feed = ({ teamId }: { teamId: string }) => {
 When a result without its related row makes no sense, use an inner join. Options go in an object, with the field as
 `by`:
 
-```ts
+```ts title="src/queries.ts"
 db.postSummary
   .where((post) => eq(post.teamId, teamId))
   .join("author", db.user, { by: (post) => post.authorId, type: "inner" });
@@ -247,4 +247,4 @@ Teamboard shows authors and comments without a hand-written fetch.
   to="/docs/db/related-data"
 />
 
-- API reference: [`JoinSpec`](/docs/api/db/Types/JoinSpec), [`Query`](/docs/api/db/Classes/Query).
+API reference: [`JoinSpec`](/docs/api/db/Types/JoinSpec) and [`Query`](/docs/api/db/Classes/Query).

@@ -110,6 +110,10 @@ await getFile.send({
 The filled endpoint is part of the request's `cacheKey` and `queryKey`, so `GET /users/1` and `GET /users/2` are cached
 and queued separately.
 
+---
+
+## When to use which
+
 | Use                     | When                                                     |
 | ----------------------- | -------------------------------------------------------- |
 | `send({ params })`      | Values known at call time, the common case               |

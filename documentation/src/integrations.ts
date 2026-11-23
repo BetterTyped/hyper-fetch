@@ -185,7 +185,7 @@ const guideSection = (
 export const integrations: Section[] = [
   {
     label: "Getting Started",
-    description: "Discover how to integrate Hyper Fetch with various libraries and services to boost your workflow.",
+    description: "Adapters, server frameworks, runtimes and plugins that work with HyperFetch.",
     isPackage: false,
     dir: "getting-started",
     paths: ["getting-started"],
@@ -261,7 +261,7 @@ export const integrations: Section[] = [
   },
   {
     label: "Axios",
-    description: "A popular, promise-based HTTP client for the browser and node.js, now integrated with Hyper Fetch.",
+    description: "Send HyperFetch requests with Axios, with upload and download progress in the browser and Node.js.",
     dir: "adapter-axios",
     isPackage: true,
     paths: ["adapter-axios"],
@@ -320,7 +320,7 @@ export const integrations: Section[] = [
     isNew: true,
   },
   {
-    label: "Graphql",
+    label: "GraphQL",
     description: "Integrate with any GraphQL API to fetch data with type-safety and efficiency using this adapter.",
     dir: "adapter-graphql",
     isPackage: true,
@@ -398,7 +398,7 @@ export const integrations: Section[] = [
   },
   {
     label: "Firebase Admin",
-    description: "Utilize the Firebase Admin SDK for privileged server-side access to your Firebase projects.",
+    description: "Typed Firestore and Realtime Database requests on the server with the Firebase Admin SDK.",
     dir: "adapter-firebase-admin",
     isPackage: true,
     paths: ["adapter-firebase-admin"],

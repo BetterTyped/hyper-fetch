@@ -27,6 +27,9 @@ symptom, cause and fix.
 
 ## The tools
 
+Three tools show what the db decided: `explain()` for one query, `inspect()` for the whole db and HyperFlow for both,
+live. `db.onError` collects every failure.
+
 ### `explain()`: one query
 
 ```ts title="debug.ts"
@@ -84,6 +87,8 @@ it did not expect, which stays invisible in the UI until rows go missing.
 
 ## Compile errors
 
+A compile error means no loader can serve a query, or a step in the chain produces rows that do not match the schema.
+
 ### A query does not compile
 
 **Symptom:** `useLiveQuery(db.postSummary.where(...))` or `.get()` is a type error about the query.
@@ -93,7 +98,7 @@ a **top-level `eq`**, or the only loader that fits is paginated and cannot send 
 
 **Fix:**
 
-```ts
+```ts title="src/queries.ts"
 // diff-remove-next-line
 db.postSummary.where((post) => or(eq(post.teamId, "t1"), eq(post.teamId, "t2")));
 // diff-add-next-line
@@ -115,7 +120,7 @@ chain returned a `RowMismatch`. Hover the collection to see `received` and `expe
 
 **Fix:** map the rows in that step. The most common case is a socket message with fields the collection lacks:
 
-```ts
+```ts title="src/db.ts"
 collection(PostSummarySchema, { key: "id" })
   // diff-remove-next-line
   .sync(onPostChanged, { type: "update" })
@@ -133,6 +138,8 @@ does not declare.
 ---
 
 ## Rows that do not update
+
+Something changed, on the server or through a write, but the list on screen does not show it.
 
 ### A socket event never shows
 
@@ -178,6 +185,8 @@ no more pages. Without `orderBy`, the db cannot know where it belongs.
 ---
 
 ## Rows that do not belong
+
+The list shows rows the backend would not return for that query or that user.
 
 ### A list shows rows another query loaded
 

@@ -69,12 +69,16 @@ export function ChatRoom() {
 
 ## What goes wrong with it
 
+The plain version has four problems, and each one shows up only after the demo works.
+
 ### 1. Nothing reconnects
 
 A `WebSocket` instance is single use. When the connection closes, because the server restarted, the laptop slept or a
 load balancer cut an idle connection, the instance is finished. The component above keeps rendering old messages and
-silently stops receiving new ones. Adding reconnects means a `close` handler, a timer, a retry limit, a way to tell a
-deliberate close from a lost one, and code to put the new instance back into the ref. The
+silently stops receiving new ones.
+
+Adding reconnects means a `close` handler, a timer, a retry limit, a way to tell a deliberate close from a lost one, and
+code to put the new instance back into the ref. The
 [error and reconnection guide](/docs/guides/sockets/websocket-reconnection-and-errors) covers that logic in detail.
 
 ### 2. Sending too early throws

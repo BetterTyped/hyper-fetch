@@ -22,7 +22,7 @@ as is in a browser, Node.js 18+, Bun or Deno.
 
 ## 1. Install
 
-```npm2yarn2pnpm
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core
 ```
 
@@ -127,7 +127,7 @@ await getFirstUser.send(); // no options needed anymore
 | Timeout             | The fetch adapter aborts a request after 5 seconds                       |
 | Retries             | Off. Turn them on per request with `retry` and `retryTime`               |
 
-:::info Node.js and the cache
+:::info Caching on the server
 
 On the server, the client does not cache by default, so data of one user never reaches another. Give a request a scope
 with `setScope(id)` to cache it per user, see [Cache](/docs/core/cache).

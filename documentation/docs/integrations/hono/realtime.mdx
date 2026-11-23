@@ -398,6 +398,17 @@ This effect covers the edge cases:
 
 ---
 
+:::secondary Summary
+
+- Hono WebSocket and SSE routes work with the built-in socket adapters when they send `{ topic, data }`.
+- `HonoSocketPath<AppType>` checks socket addresses, including `:param` segments, `basePath()` and `app.route()`.
+- WebSocket routes are left out of `HonoSchema`, SSE routes stay there as an untyped `$get`.
+- Subscription input travels in your own join messages or in the handshake query params.
+
+:::
+
+---
+
 ## Next steps
 
 <LinkCard
@@ -421,12 +432,3 @@ This effect covers the edge cases:
 
 See every option of the WebSocket and Server-Sent Events adapters on the [Adapter](/docs/sockets/adapter) page, and the
 [live cache updates](/examples/realtime/live-cache-updates) example for listeners that write into the cache.
-
-:::secondary Summary
-
-- Hono WebSocket and SSE routes work with the built-in socket adapters when they send `{ topic, data }`.
-- `HonoSocketPath<AppType>` checks socket addresses, including `:param` segments, `basePath()` and `app.route()`.
-- WebSocket routes are left out of `HonoSchema`, SSE routes stay there as an untyped `$get`.
-- Subscription input travels in your own join messages or in the handshake query params.
-
-:::

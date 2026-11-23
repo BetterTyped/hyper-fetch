@@ -1229,7 +1229,7 @@ pre code:has(.code-block-diff-remove-line) {
 }
 .alert > div:first-child {
   line-height: 1.9;
-  @apply mb-3 text-2xl capitalize font-extrabold flex items-center gap-2;
+  @apply mb-3 text-2xl font-extrabold flex items-center gap-2;
 }
 .alert > div:first-child svg {
   @apply -mt-1 -mr-2 w-8 h-8;

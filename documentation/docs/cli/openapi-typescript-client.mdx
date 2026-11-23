@@ -37,7 +37,7 @@ names the main tools, and then walks through the HyperFetch CLI from schema to a
 [openapi-typescript](https://openapi-ts.dev/introduction) generates runtime-free types from OpenAPI 3.0 and 3.1, from
 YAML or JSON, local or remote:
 
-```bash
+```bash title="Terminal"
 npx openapi-typescript ./schema.yaml -o ./schema.d.ts
 ```
 
@@ -84,7 +84,7 @@ Seven steps take you from a schema to typed requests in React and a CI script.
 
 ### 1. Point the CLI at your schema
 
-```bash
+```bash title="Terminal"
 npx @hyper-fetch/cli@latest generate --template openapi \
   --url https://petstore3.swagger.io/api/v3/openapi.json \
   --fileName petstore.sdk.ts
@@ -158,7 +158,7 @@ staging and production a one-line change.
 
 Every leaf of the SDK is a request, with the same `set*` methods as one you define by hand:
 
-```ts
+```ts title="src/pets/get-pet.ts"
 const { data: pet, error } = await sdk.pet.$petId.$get
   .setParams({ petId: 1 })
   .send();

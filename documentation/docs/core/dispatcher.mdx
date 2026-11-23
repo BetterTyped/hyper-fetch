@@ -19,7 +19,7 @@ adapter runs. A client has two: `fetchDispatcher` for GET and QUERY requests and
 
 :::
 
-```ts
+```ts title="src/queue.ts"
 // Hold every request of one queue, then let them go
 client.fetchDispatcher.stop(getUser.queryKey);
 getUser.send();
@@ -120,7 +120,7 @@ queues are skipped.
 `retry` sets how many more attempts a failed request gets, `retryTime` the delay between them (500 ms by default, or a
 function such as `exponentialBackoff()`). `send()` resolves after the last attempt.
 
-```ts
+```ts title="api/reports.ts"
 const getReport = client.createRequest()({
   endpoint: "/reports",
   retry: 3,
@@ -185,7 +185,7 @@ Requests are stored with `toJSON()`, so functions on them (mappers, a function `
 Each dispatcher has an `events` object with `onQueueChange`, `onQueueStatusChange`, `onDrained` and
 `onRunningRequestsChange`, each with a `...ByKey` variant for one queue. They return an unsubscribe function.
 
-```ts
+```ts title="src/queue-monitor.ts"
 const unsubscribe = client.fetchDispatcher.events.onRunningRequestsChange(
   ({ queryKey, runningRequests }) => {
     console.log(`${queryKey}: ${runningRequests.length} running`);

@@ -50,7 +50,7 @@ The WebSocket adapter connects as soon as the socket is created. `listen()` retu
 
 Topic params come from the topic string, and payloads from the emitter's type. Both are checked before anything is sent.
 
-```ts
+```ts title="realtime.ts"
 const sendToRoom = socket.createEmitter<{ text: string }>()({
   topic: "rooms/:roomId",
 });
@@ -69,7 +69,7 @@ sendToRoom.emit({ params: { roomId: 1 }, payload: { text: "hi" } }); // OK
 `onConnect` runs before every connection attempt, including automatic reconnects, so an expired token is never reused.
 Lost connections come back with exponential backoff and jitter, at once when the device is back online.
 
-```ts
+```ts title="realtime.ts"
 export const socket = createSocketClient({
   url: "wss://api.example.com/ws",
   // highlight-start
@@ -88,7 +88,7 @@ export const socket = createSocketClient({
 High-frequency topics, such as prices or logs, can deliver only the newest message per interval or every message in
 batches, so your UI renders less often.
 
-```ts
+```ts title="prices.ts"
 // At most one message, the newest, every 16 ms
 const onPrice = socket.createListener<Price>()({
   topic: "prices",
@@ -111,7 +111,7 @@ onTrade.listen(({ data }) => data.length); // data: Trade[]
 
 WebSocket is the default. Swap the adapter for Server-Sent Events or another protocol, and keep your listeners.
 
-```ts
+```ts title="events.ts"
 import {
   createSocketClient,
   ServerSentEventsAdapter,
@@ -138,7 +138,7 @@ const events = createSocketClient({
 
 Write realtime updates into the HTTP cache, and every component showing that request updates without a refetch.
 
-```ts
+```ts title="notes.ts"
 const getNote = client.createRequest<{ response: Note }>()({
   endpoint: "/notes/:noteId",
 });
@@ -156,7 +156,7 @@ onNoteChange.listen(({ data }) => {
 `useListener` keeps the latest message and `useEmitter` exposes `emit` and the connection state. Both unsubscribe on
 unmount.
 
-```tsx
+```tsx title="chat.tsx"
 import { useEmitter, useListener } from "@hyper-fetch/react";
 
 const Chat = () => {

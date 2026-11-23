@@ -61,6 +61,8 @@ the schema, and `eq(post.likes, "ten")` does not compile.
 
 ## Building queries
 
+A query chains filters, order, selection and a limit on a collection. Each step returns a new query.
+
 ### Filters
 
 ```ts
@@ -147,8 +149,10 @@ that other queries load, such as a counter badge or a "recently viewed" list.
 
 `useLiveQuery` returns `data`, `status`, `error`, `stale`, `isFetching` and `hasNextPage`, plus `refetch` and
 `fetchNextPage` (see the [returns table](/docs/react/db/use-live-query#returns)). `data` is `undefined` until the query
-has loaded. The difference that matters is between `status: "error"` and `error`: `status` is `"error"` only when the
-**first** load failed, while a refresh that fails keeps the rows on screen and only sets `error`.
+has loaded.
+
+The difference that matters is between `status: "error"` and `error`. `status` is `"error"` only when the **first** load
+failed, while a refresh that fails keeps the rows on screen and only sets `error`.
 
 ```tsx title="src/team-feed.tsx"
 const TeamFeed = ({ teamId }: { teamId: string }) => {

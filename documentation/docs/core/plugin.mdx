@@ -47,27 +47,27 @@ export const client = createClient({
 Each method registers one callback and returns the plugin for chaining. Calling the same method again replaces the
 callback.
 
-| Group      | Hook                       | Fires when                                                    | Receives                                 |
-| ---------- | -------------------------- | ------------------------------------------------------------- | ---------------------------------------- |
-| Plugin     | `onMount`                  | `addPlugin` adds it                                           | `{ client }`                             |
-| Plugin     | `onUnmount`                | `removePlugin` removes it                                     | `{ client }`                             |
-| Request    | `onRequestCreate`          | `createRequest` creates a request                             | `{ request }`                            |
-| Request    | `onRequestTrigger`         | The adapter is about to send it                               | `{ request }`                            |
-| Request    | `onRequestStart`           | The adapter starts sending it                                 | `{ request }`                            |
-| Request    | `onRequestSuccess`         | A successful response arrives                                 | `{ response, request }`                  |
-| Request    | `onRequestError`           | An error response arrives                                     | `{ response, request }`                  |
-| Request    | `onRequestFinished`        | Either of the two above                                       | `{ response, request }`                  |
-| Cache      | `onCacheItemChange`        | An entry is created or updated                                | `{ cache, cacheKey, prevData, newData }` |
-| Cache      | `onCacheItemDelete`        | An entry is deleted                                           | `{ cache, cacheKey }`                    |
-| Cache      | `onCacheItemInvalidate`    | An entry is invalidated                                       | `{ cache, cacheKey }`                    |
-| Dispatcher | `onDispatcherQueueCreated` | A queue is created for a new `queryKey`                       | `{ dispatcher, queue }`                  |
-| Dispatcher | `onDispatcherItemAdded`    | A request joins a queue                                       | `{ dispatcher, queue, queueItem }`       |
-| Dispatcher | `onDispatcherItemDeleted`  | A request leaves a queue                                      | `{ dispatcher, queue, queueItem }`       |
-| Dispatcher | `onDispatcherQueueRunning` | A queue is started, paused or stopped                         | `{ dispatcher, queue, status }`          |
-| Dispatcher | `onDispatcherQueueDrained` | A queue has no pending requests left                          | `{ dispatcher, queue }`                  |
-| Dispatcher | `onDispatcherQueueCleared` | A queue is cleared                                            | `{ dispatcher, queue }`                  |
-| Dispatcher | `onDispatcherCleared`      | A whole dispatcher is cleared                                 | `{ dispatcher }`                         |
-| Adapter    | `onAdapterFetch`           | The adapter starts executing a request                        | `{ adapter, request, requestId }`        |
+| Hook                       | Fires when                                                    | Receives                                 |
+| -------------------------- | ------------------------------------------------------------- | ---------------------------------------- |
+| `onMount`                  | `addPlugin` adds it                                           | `{ client }`                             |
+| `onUnmount`                | `removePlugin` removes it                                     | `{ client }`                             |
+| `onRequestCreate`          | `createRequest` creates a request                             | `{ request }`                            |
+| `onRequestTrigger`         | The adapter is about to send it                               | `{ request }`                            |
+| `onRequestStart`           | The adapter starts sending it                                 | `{ request }`                            |
+| `onRequestSuccess`         | A successful response arrives                                 | `{ response, request }`                  |
+| `onRequestError`           | An error response arrives                                     | `{ response, request }`                  |
+| `onRequestFinished`        | Either of the two above                                       | `{ response, request }`                  |
+| `onCacheItemChange`        | An entry is created or updated                                | `{ cache, cacheKey, prevData, newData }` |
+| `onCacheItemDelete`        | An entry is deleted                                           | `{ cache, cacheKey }`                    |
+| `onCacheItemInvalidate`    | An entry is invalidated                                       | `{ cache, cacheKey }`                    |
+| `onDispatcherQueueCreated` | A queue is created for a new `queryKey`                       | `{ dispatcher, queue }`                  |
+| `onDispatcherItemAdded`    | A request joins a queue                                       | `{ dispatcher, queue, queueItem }`       |
+| `onDispatcherItemDeleted`  | A request leaves a queue                                      | `{ dispatcher, queue, queueItem }`       |
+| `onDispatcherQueueRunning` | A queue is started, paused or stopped                         | `{ dispatcher, queue, status }`          |
+| `onDispatcherQueueDrained` | A queue has no pending requests left                          | `{ dispatcher, queue }`                  |
+| `onDispatcherQueueCleared` | A queue is cleared                                            | `{ dispatcher, queue }`                  |
+| `onDispatcherCleared`      | A whole dispatcher is cleared                                 | `{ dispatcher }`                         |
+| `onAdapterFetch`           | The adapter starts executing a request                        | `{ adapter, request, requestId }`        |
 
 A plugin only observes. When a hook throws, the request, the cache and the other plugins carry on, and the error is
 thrown from a timer, where `window.onerror` or `uncaughtException` handlers see it.

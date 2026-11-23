@@ -1,9 +1,11 @@
 ---
 sidebar_position: 0
-title: Typescript - Extend Request
+title: Accept Any Request in TypeScript Helpers
 description: "Type reusable functions and components that accept any HyperFetch request of a given shape with RequestInstance, and learn when to use RequestModel instead."
 sidebar_label: Extend Request
 ---
+
+# Accept any request
 
 Reusable helpers and components often need "any request that returns `string[]`" rather than one specific request.
 `RequestInstance` is that constraint: pin down the fields you care about and leave the rest open. This guide builds such
@@ -114,7 +116,7 @@ You've learned how to accept requests in reusable code.
 
 - You can accept **any request** with `R extends RequestInstance`.
 - You can **constrain** only the parts you need, such as the response.
-- You use **`RequestModel`** for schema leaves and **`RequestInstance`** for constraints.
+- You can use **`RequestModel`** for schema leaves and **`RequestInstance`** for constraints.
 
 :::
 

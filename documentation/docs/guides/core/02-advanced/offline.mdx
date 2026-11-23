@@ -41,9 +41,9 @@ the fast path and still handle request errors.
 
 ## Requests wait for the connection
 
-By default, HyperFetch listens to the browser's `online` and `offline` events. No extra configuration is needed in a
-standard web environment. When the browser reports a lost connection, the dispatcher stops sending requests and keeps
-them in its queues. When the connection returns, it sends them.
+By default, HyperFetch listens to the browser's `online` and `offline` events, so a standard web app needs no setup.
+When the browser reports a lost connection, the dispatcher stops sending requests and keeps them in its queues. When the
+connection returns, it sends them.
 
 Every request has an `offline` option, and it is `true` by default. A request sent while offline (or one that fails
 because the connection dropped) is kept and sent again when the network comes back:
@@ -115,9 +115,10 @@ export function OfflineBanner() {
 
 `useFetch` and `useSubmit` also have `onOfflineError` and `onSubmitOfflineError` callbacks. They fire when a request is
 held because of the network, without triggering the normal error callbacks, so you can show a "saved, waiting to sync"
-state instead of an error. And because `useFetch` reads the cache first, a screen you visited before still shows its
-last data while offline. See [window and network events](/docs/guides/react/basics/window-focus-blur) for refetching
-when the connection comes back.
+state instead of an error.
+
+Because `useFetch` reads the cache first, a screen you visited before still shows its last data while offline. See
+[window and network events](/docs/guides/react/basics/window-focus-blur) for refetching when the connection comes back.
 
 ---
 

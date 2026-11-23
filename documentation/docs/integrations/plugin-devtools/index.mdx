@@ -158,6 +158,14 @@ Because HyperFlow runs outside the browser, one window can show a browser tab an
 
 ---
 
+:::secondary Summary
+
+- `DevtoolsPlugin({ appName })` streams a client's requests, cache and queues to HyperFlow.
+- Pass `sockets` and `dbs` to inspect them next to the requests.
+- On Node.js 18 and 20, pass the `ws` class in the `WebSocket` option.
+
+:::
+
 ## Next steps
 
 <LinkCard
@@ -178,11 +186,3 @@ Because HyperFlow runs outside the browser, one window can show a browser tab an
   description="The plugin factory and its options."
   to="/docs/api/plugin-devtools/Functions/DevtoolsPlugin"
 />
-
-:::secondary Summary
-
-- `DevtoolsPlugin({ appName })` streams a client's requests, cache and queues to HyperFlow.
-- Pass `sockets` and `dbs` to inspect them next to the requests.
-- On Node.js 18 and 20, pass the `ws` class in the `WebSocket` option.
-
-:::

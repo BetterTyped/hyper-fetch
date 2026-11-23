@@ -28,11 +28,11 @@ more.
 An infinite list needs a way to ask the server for "the next part". APIs do it in one of three ways, and
 `useInfiniteFetch` supports all of them through the `pagination` option:
 
-| Style  | Request                     | Good for                                     | `pagination` option                      |
-| ------ | --------------------------- | -------------------------------------------- | ---------------------------------------- |
-| Page   | `?page=3&limit=20`          | Simple lists, numbered pages                 | `{ page: "page", limit: "limit" }`       |
-| Offset | `?offset=40&limit=20`       | SQL-backed lists                             | `{ offset: "offset", limit: "limit" }`   |
-| Cursor | `?cursor=abc123`            | Feeds where items are added while you scroll | `{ cursor: "cursor", next: "nextCursor" }` |
+| Style  | Request               | Good for            | `pagination` option                        |
+| ------ | --------------------- | ------------------- | ------------------------------------------ |
+| Page   | `?page=3&limit=20`    | Numbered pages      | `{ page: "page", limit: "limit" }`         |
+| Offset | `?offset=40&limit=20` | SQL-backed lists    | `{ offset: "offset", limit: "limit" }`     |
+| Cursor | `?cursor=abc123`      | Live feeds          | `{ cursor: "cursor", next: "nextCursor" }` |
 
 Page and offset lists can skip or repeat items when new rows are inserted while the user scrolls, because every page
 moves by one. Cursor lists don't have that problem, which is why most feeds use them. With page and offset, set

@@ -74,7 +74,7 @@ Both describe requests at the type level, for opposite jobs.
 | Use for                    | SDK schema leaves, single-endpoint types                  | Generic constraints of helpers and components                 |
 | Omitted fields default to  | Strict types such as `unknown`, `Error` and `false` | `any`, so any concrete request satisfies it                   |
 
-```ts
+```ts title="api/types.ts"
 // This endpoint: no payload, no query params
 type GetUsers = RequestModel<{ response: User[]; endpoint: "/users" }>;
 
@@ -148,7 +148,7 @@ Prefer `$configure` over `defaults`: its keys are type-checked against the schem
 Every property access creates a new request. When you attach a mock or `$hooks`, store the request first and use that
 variable:
 
-```ts
+```ts title="api/users.ts"
 const getUsers = sdk.users.$get;
 
 getUsers.setMock(() => ({ data: [], status: 200 }));

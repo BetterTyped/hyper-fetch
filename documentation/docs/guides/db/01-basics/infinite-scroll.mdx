@@ -78,7 +78,7 @@ A page is a slice of the server's result. Filtering or sorting one page on the c
 page would hold rows that belong on the first. So a paginated loader serves a query only when it can **send every
 condition and every order**, and anything else does not compile:
 
-```ts
+```ts title="src/team-feed.tsx"
 useLiveQuery(
   // error-start
   db.postSummary
@@ -267,7 +267,7 @@ collection(PostSummarySchema, { key: "id" }).load(getPostsConnection, {
 
 The cursor is `pageInfo.endCursor` while `pageInfo.hasNextPage` is true. Empty edges are skipped.
 
-:::note Coming from useInfiniteFetch or React Query
+:::note Coming from page-based infinite lists
 
 - `useInfiniteFetch` and React Query's `useInfiniteQuery` store **pages of responses**. A socket event or a mutation has
   to find the item inside the right page, or refetch every page.

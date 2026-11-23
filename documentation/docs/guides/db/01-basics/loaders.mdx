@@ -143,7 +143,7 @@ const PostSummary = collection(PostSummarySchema, { key: "id" }).load(
 Now the query decides what is sent. Conditions joined by a top-level `and` that the loader declares go to the backend,
 and the rest run on the returned rows:
 
-```ts
+```ts title="src/queries.ts"
 import { and, eq, gt, inArray } from "@hyper-fetch/db";
 
 db.postSummary.where((post) =>
@@ -165,7 +165,7 @@ the loader.
 `required: true` marks a filter the endpoint cannot work without, such as `teamId` in `/teams/:teamId/posts`. A query
 that does not set it as a top-level `eq` does not compile, because no loader could serve it:
 
-```ts
+```ts title="src/feed.tsx"
 // error-next-line
 useLiveQuery(db.postSummary.where((post) => gt(post.likes, 10)));
 // No loader of `postSummary` can serve a query without `teamId`
@@ -232,7 +232,7 @@ const PostSummary = collection(PostSummarySchema, { key: "id" })
 For each query, the db considers the loaders whose required filters the query sets, and picks the one that can send
 **most of its conditions**. Ties go to the loader declared first, so the same query always gets the same plan:
 
-```ts
+```ts title="src/queries.ts"
 db.postSummary.where((post) => eq(post.teamId, "t1")).explain();
 // loader: 0, sent: teamId                  only loader 0 can send it
 
@@ -396,5 +396,5 @@ Teamboard's collections know how to reach the backend.
   to="/docs/db/overview#loaders"
 />
 
-- API reference: [`collection`](/docs/api/db/Functions/collection), [`LoaderOptions`](/docs/api/db/Types/LoaderOptions),
-  [`createDb`](/docs/api/db/Functions/createDb).
+API reference: [`collection`](/docs/api/db/Functions/collection), [`LoaderOptions`](/docs/api/db/Types/LoaderOptions) and
+[`createDb`](/docs/api/db/Functions/createDb).

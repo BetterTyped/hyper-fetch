@@ -78,6 +78,10 @@ it("creates the client with defaults", async () => {
 A statically imported `client` keeps pointing at the old instance after `resetModules`, so only modules imported after
 the reset are fresh.
 
+---
+
+## What to reset
+
 | Leaks between tests        | Reset with                             |
 | -------------------------- | -------------------------------------- |
 | Cache, queues, requests    | `client.clear()` in `beforeEach`       |

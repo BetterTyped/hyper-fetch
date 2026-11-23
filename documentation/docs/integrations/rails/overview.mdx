@@ -127,6 +127,14 @@ Add a script so regenerating is one command locally and in CI. This one reads th
 
 ---
 
+:::secondary Summary
+
+- rswag writes an OpenAPI document from your request specs.
+- `hyper-fetch generate` turns it into a typed SDK.
+- `createSdk(client)` gives you typed requests for `send()`, `useFetch` and `useSubmit`.
+
+:::
+
 ## Next steps
 
 <LinkCard
@@ -144,11 +152,3 @@ Add a script so regenerating is one command locally and in CI. This one reads th
 
 See every flag of the CLI on the [generate command](/docs/cli/commands/generate) page, and per-endpoint defaults on the
 [SDK](/docs/core/sdk) page.
-
-:::secondary Summary
-
-- rswag writes an OpenAPI document from your request specs.
-- `hyper-fetch generate` turns it into a typed SDK.
-- `createSdk(client)` gives you typed requests for `send()`, `useFetch` and `useSubmit`.
-
-:::

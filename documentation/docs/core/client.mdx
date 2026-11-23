@@ -121,7 +121,7 @@ Call both before you create requests: defaults are read when a request is create
 `setUrl` points the client at another server, for example when switching tenants or regions. Cache keys do not include
 the base URL, so data of the old server stays until you invalidate it.
 
-```ts
+```ts title="api/client.ts"
 client.setUrl("https://us.example.com", { abort: true, invalidate: true });
 ```
 
@@ -189,7 +189,7 @@ See [Plugin](/docs/core/plugin) to write your own.
 `clear()` aborts every request, empties both dispatchers and the cache (including `lazyStorage`), and creates the modules
 again from the client options. Call it on logout and between tests.
 
-```ts
+```ts title="auth/logout.ts"
 client.clear();
 ```
 
