@@ -93,50 +93,83 @@ Mark the component with `"use client"`, because it needs state, effects and a br
 "use client";
 
 import { useState } from "react";
-import { useEmitter, useListener } from "@hyper-fetch/react";
+import {
+  useEmitter,
+  useListener,
+} from "@hyper-fetch/react";
 
-import { onChatMessage, sendChatMessage, type ChatMessage } from "@/lib/socket";
+import {
+  onChatMessage,
+  sendChatMessage,
+  type ChatMessage,
+} from "@/lib/socket";
 
 export function LiveChat({
   initialMessages,
 }: {
   initialMessages: ChatMessage[];
 }) {
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] =
+    useState(initialMessages);
   const [text, setText] = useState("");
 
-  const { connected, connecting, onEvent } = useListener(onChatMessage);
-  const { emit, onEmitError } = useEmitter(sendChatMessage);
+  const {
+    connected,
+    connecting,
+    onEvent,
+  } = useListener(onChatMessage);
+  const { emit, onEmitError } =
+    useEmitter(sendChatMessage);
 
   onEvent(({ data }) => {
-    setMessages((previous) => [...previous, data]);
+    setMessages((previous) => [
+      ...previous,
+      data,
+    ]);
   });
 
   onEmitError(({ error }) => {
-    console.error("Not sent:", error.message);
+    console.error(
+      "Not sent:",
+      error.message,
+    );
   });
 
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm">
-        {connecting ? "Connecting..." : connected ? "Live" : "Reconnecting..."}
+        {connecting
+          ? "Connecting..."
+          : connected
+            ? "Live"
+            : "Reconnecting..."}
       </p>
 
       {messages.map((message) => (
         <p key={message.id}>
-          <span className="font-bold">{message.user}:</span> {message.text}
+          <span className="font-bold">
+            {message.user}:
+          </span>{" "}
+          {message.text}
         </p>
       ))}
 
       <input
         value={text}
-        onChange={(event) => setText(event.target.value)}
+        onChange={(event) =>
+          setText(event.target.value)
+        }
         className="border rounded px-2 py-1"
       />
       <button
         disabled={!connected || !text}
         onClick={() => {
-          emit({ payload: { user: "me", text } });
+          emit({
+            payload: {
+              user: "me",
+              text,
+            },
+          });
           setText("");
         }}
       >

@@ -169,7 +169,8 @@ import { db } from "./firebase";
 
 export const socket = new Socket({
   url: "",
-  adapter: FirebaseSocketsAdminAdapter(db),
+  adapter:
+    FirebaseSocketsAdminAdapter(db),
 });
 ```
 

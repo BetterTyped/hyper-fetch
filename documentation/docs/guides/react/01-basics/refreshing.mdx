@@ -47,15 +47,26 @@ export function LiveActivity() {
   return (
     <div className="border rounded-md">
       <div className="p-4 border-b flex justify-between">
-        <h2 className="text-xl font-bold">Live activity</h2>
+        <h2 className="text-xl font-bold">
+          Live activity
+        </h2>
         <p className="text-sm text-gray-500">
-          Updated {responseTimestamp?.toLocaleTimeString() ?? "-"}
+          Updated{" "}
+          {responseTimestamp?.toLocaleTimeString() ??
+            "-"}
         </p>
       </div>
-      {loading && !activities && <p className="p-4">Loading feed...</p>}
+      {loading && !activities && (
+        <p className="p-4">
+          Loading feed...
+        </p>
+      )}
       <ul className="divide-y">
         {activities?.map((activity) => (
-          <li key={activity.id} className="p-4">
+          <li
+            key={activity.id}
+            className="p-4"
+          >
             {activity.name}
           </li>
         ))}

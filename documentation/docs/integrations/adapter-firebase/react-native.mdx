@@ -103,6 +103,9 @@ const createAppManager = () =>
 
 export const client = new Client({
   url: "",
+  // React Native has no document, so the default "server" mode would turn the
+  // cache off
+  mode: "client",
   appManager: createAppManager,
 }).setAdapter(FirebaseAdapter(db));
 
@@ -201,11 +204,17 @@ import { useListener } from "@hyper-fetch/react";
 import { socket } from "../api/firebase";
 import type { Task } from "../api/tasks";
 
-const onTasks = socket.createListener<Task[]>()({ topic: "tasks" });
+const onTasks = socket.createListener<
+  Task[]
+>()({ topic: "tasks" });
 
 export function LiveTaskCount() {
   const { data } = useListener(onTasks);
-  return <Text>{data?.length ?? 0} tasks</Text>;
+  return (
+    <Text>
+      {data?.length ?? 0} tasks
+    </Text>
+  );
 }
 ```
 

@@ -20,15 +20,23 @@ stories and building a UI before the API exists.
 :::
 
 ```tsx live
-const getNotes = client.createRequest()({
-  endpoint: "/notes",
-});
+const getNotes = client.createRequest()(
+  {
+    endpoint: "/notes",
+  },
+);
 
 getNotes.setMock(
   // Called on every send
   ({ request, requestId }) => {
     return {
-      data: { items: [{ text: "This is mocked note" }] },
+      data: {
+        items: [
+          {
+            text: "This is mocked note",
+          },
+        ],
+      },
       status: 200,
     };
   },
@@ -84,12 +92,18 @@ const request = client.createRequest()({
   endpoint: "shared-base-endpoint",
 });
 
-request.setMock(() => ({ data: { mocking: "is fun" }, status: 200 }), {
-  requestTime: 2000,
-  responseTime: 2000,
-  // Resolves with a timeout error after 1s
-  timeout: 1000,
-});
+request.setMock(
+  () => ({
+    data: { mocking: "is fun" },
+    status: 200,
+  }),
+  {
+    requestTime: 2000,
+    responseTime: 2000,
+    // Times out after 1s
+    timeout: 1000,
+  },
+);
 
 const response = await request.send();
 console.log(response);
@@ -102,10 +116,16 @@ const request = client.createRequest()({
   endpoint: "some-endpoint",
 });
 
-request.setMock(() => ({ data: { mocking: "is fun" }, status: 200 }), {
-  requestTime: 1000,
-  responseTime: 1000,
-});
+request.setMock(
+  () => ({
+    data: { mocking: "is fun" },
+    status: 200,
+  }),
+  {
+    requestTime: 1000,
+    responseTime: 1000,
+  },
+);
 
 const response = await request.send({
   onRequestStart: () => {

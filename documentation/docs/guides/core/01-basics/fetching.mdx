@@ -135,15 +135,15 @@ listeners with `request.$hooks`, see [Request lifecycle](/docs/core/request#list
 ```ts live
 const { data } = await getUsers.send({
   onBeforeSent: ({ requestId }) =>
-    console.log(`Request ${requestId} is about to be sent.`),
+    console.log("sending", requestId),
   onRequestStart: ({ requestId }) =>
-    console.log(`Request ${requestId} has started.`),
+    console.log("started", requestId),
   onResponseStart: ({ requestId }) =>
-    console.log(`Response of ${requestId} has started.`),
+    console.log("receiving", requestId),
   onDownloadProgress: ({ progress }) =>
-    console.log(`Download progress: ${progress}%`),
-  onResponse: ({ response, requestId }) =>
-    console.log(`Request ${requestId} finished: ${response.status}`),
+    console.log("download", progress),
+  onResponse: ({ response }) =>
+    console.log("done", response.status),
 });
 ```
 

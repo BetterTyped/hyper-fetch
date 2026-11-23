@@ -175,10 +175,14 @@ export const socket = new Socket({
   adapter: FirebaseSocketsAdapter(db),
 });
 
-export const onTeas = socket.createListener<(Tea & { __key: string })[]>()({
-  topic: "teas",
-});
-// const stop = onTeas.listen(({ data }) => render(data));
+export const onTeas =
+  socket.createListener<
+    (Tea & { __key: string })[]
+  >()({
+    topic: "teas",
+  });
+// const stop = onTeas.listen(({ data })
+// => render(data));
 ```
 
 For Firestore data that several views read and that must stay live, `firestoreCollection` from

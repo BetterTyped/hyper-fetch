@@ -90,15 +90,28 @@ Every snapshot is delivered once, as the full current document or list. Replace 
 Listeners take query params like requests: a callback that builds the constraints, or the `$`-helper array.
 
 ```ts title="api/live.ts"
-export const onGreenTeas = firestoreSocket
-  .createListener<TeaDoc[]>()({ topic: "teas" })
-  .setQueryParams((c) =>
-    c.where("type", "==", "Green").orderBy("year", "desc").limit(20),
-  );
+export const onGreenTeas =
+  firestoreSocket
+    .createListener<TeaDoc[]>()({
+      topic: "teas",
+    })
+    .setQueryParams((c) =>
+      c
+        .where("type", "==", "Green")
+        .orderBy("year", "desc")
+        .limit(20),
+    );
 
-export const onLastMessages = realtimeSocket
-  .createListener<Message[]>()({ topic: "rooms/general/messages" })
-  .setQueryParams((c) => c.orderByChild("sentAt").limitToLast(50));
+export const onLastMessages =
+  realtimeSocket
+    .createListener<Message[]>()({
+      topic: "rooms/general/messages",
+    })
+    .setQueryParams((c) =>
+      c
+        .orderByChild("sentAt")
+        .limitToLast(50),
+    );
 ```
 
 Field names are not checked on listeners, because a listener's query params are not tied to a document type. The
@@ -119,24 +132,37 @@ Field names are not checked on listeners, because a listener's query params are 
 `__key`, like `data`.
 
 ```ts title="api/live.ts"
-const onTeasChanges = firestoreSocket.createListener<TeaDoc[]>()({
-  topic: "teas",
-  options: { groupByChangeType: true },
-});
+const onTeasChanges =
+  firestoreSocket.createListener<
+    TeaDoc[]
+  >()({
+    topic: "teas",
+    options: {
+      groupByChangeType: true,
+    },
+  });
 
-onTeasChanges.listen(({ data, extra }) => {
-  render(data);
-  if (extra.groupedResult) notify(`${extra.groupedResult.added.length} new teas`);
-});
+onTeasChanges.listen(
+  ({ data, extra }) => {
+    render(data);
+    if (extra.groupedResult)
+      notify(
+        `${extra.groupedResult.added.length} new teas`,
+      );
+  },
+);
 ```
 
 ### Reading once
 
 ```ts title="api/live.ts"
-const onConfig = realtimeSocket.createListener<Config | null>()({
-  topic: "config",
-  options: { onlyOnce: true },
-});
+const onConfig =
+  realtimeSocket.createListener<Config | null>()(
+    {
+      topic: "config",
+      options: { onlyOnce: true },
+    },
+  );
 ```
 
 ---

@@ -28,7 +28,9 @@ export const getUser = client.createRequest<{ response: User }>()({
 ```
 
 ```tsx live title="Send a request" size="small"
-const response = await getUser.send({ params: { userId: 1 } });
+const response = await getUser.send({
+  params: { userId: 1 },
+});
 
 console.log(response);
 ```
@@ -155,13 +157,18 @@ The dispatcher reads these options from the request. Each has a setter, such as 
 Abort in-flight requests with `request.abort()`, which aborts every request with the same `abortKey`.
 
 ```tsx live title="Cancel the previous call" size="small"
-const cancelableRequest = getUser.setCancelable(true);
+const cancelableRequest =
+  getUser.setCancelable(true);
 
-cancelableRequest.send({ params: { userId: 1 } });
+cancelableRequest.send({
+  params: { userId: 1 },
+});
 
 setTimeout(() => {
   // Aborts the first call
-  cancelableRequest.send({ params: { userId: 1 } });
+  cancelableRequest.send({
+    params: { userId: 1 },
+  });
 }, 500);
 ```
 

@@ -66,9 +66,12 @@ an existing request with `setRetry` and `setRetryTime`, or for one call with `se
 
 ```ts live
 // failingRequest fails on purpose
-const withRetries = failingRequest.setRetry(2).setRetryTime(2000);
+const withRetries = failingRequest
+  .setRetry(2)
+  .setRetryTime(2000);
 
-const { data, error } = await withRetries.send();
+const { data, error } =
+  await withRetries.send();
 console.log({ data, error });
 ```
 

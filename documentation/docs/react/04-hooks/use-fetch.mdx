@@ -29,7 +29,8 @@ import { useFetch } from "@hyper-fetch/react";
 import { getUsers } from "./api/users";
 
 function App() {
-  const { data, loading, error } = useFetch(getUsers);
+  const { data, loading, error } =
+    useFetch(getUsers);
 
   if (error) {
     return (
@@ -42,7 +43,10 @@ function App() {
   return (
     <div>
       <h3 className="mb-4">Users:</h3>
-      <Table data={data} loading={loading} />
+      <Table
+        data={data}
+        loading={loading}
+      />
     </div>
   );
 }
@@ -127,21 +131,33 @@ import { useFetch } from "@hyper-fetch/react";
 import { getUsers } from "./api/users";
 
 function App() {
-  const [search, setSearch] = useState("");
-  const { data, loading } = useFetch(getUsers.setQueryParams({ search }), {
-    // Wait until the user stops typing for 400ms
-    bounce: true,
-    bounceTime: 400,
-  });
+  const [search, setSearch] =
+    useState("");
+  const { data, loading } = useFetch(
+    getUsers.setQueryParams({ search }),
+    {
+      // Wait until the user stops typing
+      // for 400ms
+      bounce: true,
+      bounceTime: 400,
+    },
+  );
 
   return (
     <div>
       <TextField
         label="Search"
         placeholder="Type to search by name"
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(e) =>
+          setSearch(e.target.value)
+        }
       />
-      {data && <Table data={data} loading={loading} />}
+      {data && (
+        <Table
+          data={data}
+          loading={loading}
+        />
+      )}
     </div>
   );
 }
@@ -190,25 +206,44 @@ import { useFetch } from "@hyper-fetch/react";
 import { getUsers } from "./api/users";
 
 const UsersListPage = () => {
-  const { data, loading, onSuccess, onError, onFinished } = useFetch(getUsers);
+  const {
+    data,
+    loading,
+    onSuccess,
+    onError,
+    onFinished,
+  } = useFetch(getUsers);
 
   onSuccess(({ response }) => {
     toast({
       title: "Success",
-      message: `Fetched ${response.data.length} users`,
+      message: `${response.data.length} users`,
       type: "success",
     });
   });
 
   onError(({ response }) => {
-    toast({ title: "Error", message: response.error.message, type: "error" });
+    toast({
+      title: "Error",
+      message: response.error.message,
+      type: "error",
+    });
   });
 
   onFinished(() => {
-    toast({ title: "Finished", message: "Finished request", type: "default" });
+    toast({
+      title: "Finished",
+      message: "Finished request",
+      type: "default",
+    });
   });
 
-  return <Table data={data} loading={loading} />;
+  return (
+    <Table
+      data={data}
+      loading={loading}
+    />
+  );
 };
 ```
 
@@ -243,12 +278,28 @@ import { useFetch } from "@hyper-fetch/react";
 import { postFile } from "./api/files";
 
 const UploadStatus = () => {
-  const { onDownloadProgress, onUploadProgress } = useFetch(postFile);
+  const {
+    onDownloadProgress,
+    onUploadProgress,
+  } = useFetch(postFile);
 
-  onUploadProgress(({ progress }) => console.log(`Uploaded ${progress}%`));
-  onDownloadProgress(({ progress }) => console.log(`Downloaded ${progress}%`));
+  onUploadProgress(({ progress }) =>
+    console.log(
+      `Uploaded ${progress}%`,
+    ),
+  );
+  onDownloadProgress(({ progress }) =>
+    console.log(
+      `Downloaded ${progress}%`,
+    ),
+  );
 
-  return <RequestsLifecycle request={postFile} dispatcherType="fetch" />;
+  return (
+    <RequestsLifecycle
+      request={postFile}
+      dispatcherType="fetch"
+    />
+  );
 };
 ```
 

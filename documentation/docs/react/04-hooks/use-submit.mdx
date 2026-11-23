@@ -29,8 +29,14 @@ import { useSubmit } from "@hyper-fetch/react";
 import { createUser } from "./api/users";
 
 function App() {
-  const [name, setName] = useState("John Doe");
-  const { submit, submitting, onSubmitError, data } = useSubmit(createUser);
+  const [name, setName] =
+    useState("John Doe");
+  const {
+    submit,
+    submitting,
+    onSubmitError,
+    data,
+  } = useSubmit(createUser);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -38,20 +44,34 @@ function App() {
   };
 
   onSubmitError(({ response }) => {
-    toast({ title: "Error", message: response.error.message, type: "error" });
+    toast({
+      title: "Error",
+      message: response.error.message,
+      type: "error",
+    });
   });
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4"
+    >
       <TextField
         label="User Name"
         placeholder="Enter user name"
         value={name}
-        onChange={(e) => setName(e.target.value)}
+        onChange={(e) =>
+          setName(e.target.value)
+        }
         disabled={submitting}
       />
-      <Button type="submit" loading={submitting}>
-        {submitting ? "Creating..." : "Create User"}
+      <Button
+        type="submit"
+        loading={submitting}
+      >
+        {submitting
+          ? "Creating..."
+          : "Create User"}
       </Button>
       {data && <Table data={[data]} />}
     </form>

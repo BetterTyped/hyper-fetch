@@ -45,19 +45,28 @@ Deduplication is on by default for GET and QUERY with the fetch adapter. It only
 cache. Limit the window with `deduplicateTime`.
 
 ```tsx live title="Deduplication" size=md
-const getUserDeduplicated = getUser.setDeduplicate(true);
+const getUserDeduplicated =
+  getUser.setDeduplicate(true);
 
-const request1 = getUserDeduplicated.send();
-// Joins the first call, no second request is made
-const request2 = getUserDeduplicated.send();
+const request1 =
+  getUserDeduplicated.send();
+// Joins the first call, no second
+// request is made
+const request2 =
+  getUserDeduplicated.send();
 
-const [response1, response2] = await Promise.all([request1, request2]);
+const [response1, response2] =
+  await Promise.all([
+    request1,
+    request2,
+  ]);
 
 console.log(response1, response2);
 ```
 
 ```tsx live title="One by one" size=md
-const postFileQueued = postFile.setQueued(true);
+const postFileQueued =
+  postFile.setQueued(true);
 
 // Sent one after another, in order
 postFileQueued.send();
@@ -83,13 +92,18 @@ A cancelable search needs one shared `queryKey`, because the default key changes
 getUser.send();
 
 setTimeout(() => {
-  // Cancels the running request and holds the queue
-  client.fetchDispatcher.stop(getUser.queryKey);
+  // Cancels the running request and
+  // holds the queue
+  client.fetchDispatcher.stop(
+    getUser.queryKey,
+  );
 }, 500);
 
 setTimeout(() => {
   // Sends the held request again
-  client.fetchDispatcher.start(getUser.queryKey);
+  client.fetchDispatcher.start(
+    getUser.queryKey,
+  );
 }, 3000);
 ```
 

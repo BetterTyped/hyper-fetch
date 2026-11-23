@@ -111,7 +111,10 @@ console.log(jsonRequest);
 const jsonRequest = getUser.toJSON();
 
 // Recreate the request from the JSON
-const request = Request.fromJSON(client, jsonRequest);
+const request = Request.fromJSON(
+  client,
+  jsonRequest,
+);
 
 request.setMock(() => ({
   data: { name: "John Doe", age: 20 },

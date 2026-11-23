@@ -170,8 +170,15 @@ intercepts WebSockets too, so a test can broadcast an event to every connected c
 import { ws } from "msw";
 import { setupServer } from "msw/node";
 
-const live = ws.link("wss://api.example.com/live");
-const server = setupServer(live.addEventListener("connection", () => {}));
+const live = ws.link(
+  "wss://api.example.com/live",
+);
+const server = setupServer(
+  live.addEventListener(
+    "connection",
+    () => {},
+  ),
+);
 
 beforeAll(() => server.listen());
 afterAll(() => server.close());
@@ -179,25 +186,38 @@ afterAll(() => server.close());
 it("shows a rename from another user", async () => {
   const db = createAppDb();
   getTeamPosts.setMock(() => ({
-    data: { items: [summary("p1")], next: null },
+    data: {
+      items: [summary("p1")],
+      next: null,
+    },
     status: 200,
   }));
 
-  const feed = db.postSummary.where((post) => eq(post.teamId, "t1"));
-  const unsubscribe = feed.subscribe(() => {});
+  const feed = db.postSummary.where(
+    (post) => eq(post.teamId, "t1"),
+  );
+  const unsubscribe = feed.subscribe(
+    () => {},
+  );
   await feed.get();
 
   // highlight-start
   live.broadcast(
     JSON.stringify({
       topic: "teams/t1/posts/changed",
-      data: { id: "p1", title: "From socket" },
+      data: {
+        id: "p1",
+        title: "From socket",
+      },
     }),
   );
   // highlight-end
 
   await waitFor(() =>
-    expect(feed.getSnapshot().data?.[0].title).toBe("From socket"),
+    expect(
+      feed.getSnapshot().data?.[0]
+        .title,
+    ).toBe("From socket"),
   );
 
   unsubscribe();

@@ -211,15 +211,25 @@ type your server publishes: a subset missing one falls back to refetching after 
 When the connection drops, the rows stay and the query reports it:
 
 ```tsx title="src/live-badge.tsx"
-const LiveBadge = ({ teamId }: { teamId: string }) => {
+const LiveBadge = ({
+  teamId,
+}: {
+  teamId: string;
+}) => {
   const { stale } = useLiveQuery(
-    db.postSummary.where((post) => eq(post.teamId, teamId)),
+    db.postSummary.where((post) =>
+      eq(post.teamId, teamId),
+    ),
   );
 
   return stale ? (
-    <span className="text-amber-600">Reconnecting...</span>
+    <span className="text-amber-600">
+      Reconnecting...
+    </span>
   ) : (
-    <span className="text-green-600">Live</span>
+    <span className="text-green-600">
+      Live
+    </span>
   );
 };
 ```
