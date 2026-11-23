@@ -1,0 +1,94 @@
+---
+sidebar_position: 1
+title: HyperFetch on Deno, Typed Requests with npm Specifiers
+description: Import HyperFetch into Deno with an npm specifier and run it on Deno's native fetch, locally and on Deno Deploy.
+sidebar_label: Overview
+---
+
+# Deno
+
+HyperFetch runs on Deno through its npm support. The default adapter calls Deno's native `fetch`, so `createClient`,
+`createRequest` and `send()` work the same way they do in Node.js and in the browser.
+
+---
+
+:::tip Purpose
+
+1.  **No build step**: Import `@hyper-fetch/core` with an `npm:` specifier and run the file.
+2.  **Native fetch**: No polyfill and no Deno-specific adapter.
+3.  **Deploy anywhere Deno runs**: The same code runs locally and on Deno Deploy.
+
+:::
+
+---
+
+## Getting started
+
+Add the package to `deno.json`:
+
+```bash
+deno add npm:@hyper-fetch/core
+```
+
+Or import it straight from npm in a single file:
+
+```ts title="main.ts"
+import { createClient } from "npm:@hyper-fetch/core";
+
+const client = createClient({ url: "https://api.example.com" });
+
+const getUsers = client.createRequest<{
+  response: { id: number; name: string }[];
+}>()({
+  endpoint: "/users",
+});
+
+const { data, error } = await getUsers.send();
+console.log(error ?? data);
+```
+
+```bash
+deno run --allow-net main.ts
+```
+
+Deno asks for network access, so pass `--allow-net`, or `--allow-net=api.example.com` to allow only your API.
+
+---
+
+## In a Deno server
+
+`Deno.serve` handles requests from many users. When your calls carry a user's credentials, create the client per request
+so the cache and deduplication never mix their data:
+
+```ts title="server.ts"
+import { createClient } from "npm:@hyper-fetch/core";
+
+Deno.serve(async (req) => {
+  const client = createClient({ url: "https://api.example.com" });
+  const getProfile = client.createRequest<{ response: { name: string } }>()({
+    endpoint: "/me",
+  });
+
+  const { data, error } = await getProfile
+    .setHeaders({ Authorization: req.headers.get("Authorization") ?? "" })
+    .send();
+
+  return Response.json(error ?? data, { status: error ? 502 : 200 });
+});
+```
+
+:::note When it's helpful
+
+- Deno scripts and servers that call other APIs and need retries and typed responses.
+- Edge functions on Deno Deploy or Supabase Edge Functions, which run Deno.
+- Sharing request definitions between a Deno backend and a TypeScript frontend.
+
+:::
+
+:::secondary Summary
+
+- Import HyperFetch with `npm:@hyper-fetch/core` and it runs on Deno's native `fetch`.
+- Pass `--allow-net` so Deno lets it reach your API.
+- In servers, create a client per request when calls carry the user's credentials.
+
+:::

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./.github/assets/readme.png" alt="Hyper Fetch. Fetch anything. Type everything. Cache, retries, dedupe, offline and realtime, built in. Works with OpenAPI, GraphQL, tRPC, oRPC, Hono, Elysia, Node.js, Bun, Firebase, Axios, WebSockets and React." />
+  <img src="./.github/assets/readme.png" alt="Hyper Fetch. Fetch anything. Type everything. Cache, retries, dedupe, offline and realtime, built in. Works with OpenAPI, GraphQL, tRPC, oRPC, Hono, Elysia, NestJS, Express, Fastify, FastAPI, Django, Spring Boot, Node.js, Bun, Deno, Firebase, Axios, WebSockets, React and Electron." />
 </p>
 
 <p align="center">
@@ -148,6 +148,28 @@ one brings its own types, its own retry logic and its own bugs. Hyper Fetch is o
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-axios/overview"><img src="./documentation/static/img/integration-axios.svg" width="40" height="40" alt="" /><br /><b>Axios</b></a></td>
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/sockets/overview"><img src="./documentation/static/img/integration-sockets.svg" width="40" height="40" alt="" /><br /><b>Sockets &amp; SSE</b></a></td>
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/react/overview"><img src="./documentation/static/img/integration-react.svg" width="40" height="40" alt="" /><br /><b>React</b></a></td>
+  </tr>
+  <tr>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/nestjs/overview"><img src="./documentation/static/img/integration-nest.svg" width="40" height="40" alt="" /><br /><b>NestJS</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/express/overview"><picture><source media="(prefers-color-scheme: dark)" srcset="./documentation/static/img/integration-express-dark.svg" /><img src="./documentation/static/img/integration-express.svg" width="40" height="40" alt="" /></picture><br /><b>Express</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/fastify/overview"><picture><source media="(prefers-color-scheme: dark)" srcset="./documentation/static/img/integration-fastify-dark.svg" /><img src="./documentation/static/img/integration-fastify.svg" width="40" height="40" alt="" /></picture><br /><b>Fastify</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/fastapi/overview"><img src="./documentation/static/img/integration-fastapi.svg" width="40" height="40" alt="" /><br /><b>FastAPI</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/django/overview"><picture><source media="(prefers-color-scheme: dark)" srcset="./documentation/static/img/integration-django-dark.svg" /><img src="./documentation/static/img/integration-django.svg" width="40" height="40" alt="" /></picture><br /><b>Django</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/spring-boot/overview"><img src="./documentation/static/img/integration-spring.svg" width="40" height="40" alt="" /><br /><b>Spring Boot</b></a></td>
+  </tr>
+  <tr>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/aspnet-core/overview"><img src="./documentation/static/img/integration-dotnet.svg" width="40" height="40" alt="" /><br /><b>ASP.NET Core</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/laravel/overview"><img src="./documentation/static/img/integration-laravel.svg" width="40" height="40" alt="" /><br /><b>Laravel</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/rails/overview"><img src="./documentation/static/img/integration-rails.svg" width="40" height="40" alt="" /><br /><b>Rails</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/nodejs/overview"><img src="./documentation/static/img/integration-node.svg" width="40" height="40" alt="" /><br /><b>Node.js</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/bun/overview"><img src="./documentation/static/img/integration-bun.svg" width="40" height="40" alt="" /><br /><b>Bun</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/deno/overview"><img src="./documentation/static/img/integration-deno.svg" width="40" height="40" alt="" /><br /><b>Deno</b></a></td>
+  </tr>
+  <tr>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/cloudflare-workers/overview"><img src="./documentation/static/img/integration-cloudflare-workers.svg" width="40" height="40" alt="" /><br /><b>Cloudflare Workers</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/react-native/overview"><img src="./documentation/static/img/integration-react.svg" width="40" height="40" alt="" /><br /><b>React Native</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/electron/overview"><img src="./documentation/static/img/integration-electron.svg" width="40" height="40" alt="" /><br /><b>Electron</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/sentry/overview"><img src="./documentation/static/img/integration-sentry.svg" width="40" height="40" alt="" /><br /><b>Sentry</b></a></td>
   </tr>
 </table>
 

@@ -1,0 +1,109 @@
+---
+sidebar_position: 1
+title: Electron with HyperFetch, Renderer and Main Process
+description: Use HyperFetch in Electron. Fetch from the renderer like a web app, or from the main process on Node.js, with the same request definitions.
+sidebar_label: Overview
+---
+
+# Electron
+
+Electron runs HyperFetch in both of its processes. The renderer is a Chromium page, so HyperFetch works there like in a
+browser, React hooks included. The main process is Node.js, so it runs there like on a server. Both use `fetch`, and both
+can share the same request definitions.
+
+---
+
+:::tip Purpose
+
+1.  **Renderer like a web app**: `useFetch`, `useSubmit`, cache and focus refetching work with no setup.
+2.  **Main process on Node.js**: Background sync, file downloads and calls that need secrets stay out of the renderer.
+3.  **One set of requests**: Define requests once and import them in both processes.
+
+:::
+
+---
+
+## In the renderer
+
+Install HyperFetch in your app and use it as in any React or browser app:
+
+```bash
+npm install @hyper-fetch/core @hyper-fetch/react
+```
+
+```ts title="src/renderer/client.ts"
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({ url: "https://api.example.com" });
+
+export const getProjects = client.createRequest<{
+  response: { id: string; name: string }[];
+}>()({
+  endpoint: "/projects",
+});
+```
+
+Window focus and `online` / `offline` events come from Chromium, so refetch on focus and offline queues work as they
+do in the browser.
+
+:::caution CORS
+
+A renderer loaded from `file://` or a custom protocol sends requests from its own origin, so your API has to allow it
+in CORS. If you can't change the API, send those requests from the main process instead.
+
+:::
+
+---
+
+## In the main process
+
+The main process has Node.js `fetch`, so the same client code runs there. Keep calls that use secrets, like a token from
+the system keychain, in the main process and hand only the result to the renderer over IPC:
+
+```ts title="src/main/sync.ts"
+import { ipcMain } from "electron";
+import { createClient } from "@hyper-fetch/core";
+
+const client = createClient({ url: "https://api.example.com" });
+
+const getProjects = client.createRequest<{
+  response: { id: string; name: string }[];
+}>()({
+  endpoint: "/projects",
+});
+
+ipcMain.handle("projects:list", async () => {
+  // readToken() reads the token from the system keychain
+  const { data, error } = await getProjects
+    .setHeaders({ Authorization: `Bearer ${await readToken()}` })
+    .send();
+  return { data, error };
+});
+```
+
+---
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="Electron environment"
+  description="Drive online and focus state from the main process over IPC."
+  to="/docs/react/environments/electron"
+/>
+
+:::note When it's helpful
+
+- Desktop apps that show server data and should refetch when the window gets focus.
+- Apps that sync in the background from the main process while the window is closed.
+- Teams that ship the same React app on the web and on the desktop.
+
+:::
+
+:::secondary Summary
+
+- In the renderer, HyperFetch works like in a browser, hooks included.
+- In the main process, it runs on Node.js `fetch`, and IPC hands results to the renderer.
+- Requests defined once can be imported in both processes.
+
+:::

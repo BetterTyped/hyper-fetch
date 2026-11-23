@@ -1,6 +1,6 @@
 /*
- * The backends and runtimes Hyper Fetch works with, shown under the hero description. Each backend is an adapter or a
- * transport that keeps the same createRequest() and send() calls, and each logo links to its docs.
+ * The backends and runtimes Hyper Fetch works with, shown under the hero description. Each backend is an adapter, a
+ * transport or a framework whose OpenAPI document the CLI turns into a typed SDK, and each logo links to its docs.
  */
 export const backends: {
   name: string;
@@ -41,15 +41,50 @@ export const backends: {
     src: "/img/integration-elysia.svg",
   },
   {
+    name: "NestJS",
+    to: "/docs/integrations/nestjs/overview",
+    src: "/img/integration-nest.svg",
+  },
+  {
+    name: "Express",
+    to: "/docs/integrations/express/overview",
+    src: "/img/integration-express-dark.svg",
+  },
+  {
+    name: "Fastify",
+    to: "/docs/integrations/fastify/overview",
+    src: "/img/integration-fastify-dark.svg",
+  },
+  {
+    name: "FastAPI",
+    to: "/docs/integrations/fastapi/overview",
+    src: "/img/integration-fastapi.svg",
+  },
+  {
+    name: "Django",
+    to: "/docs/integrations/django/overview",
+    src: "/img/integration-django-dark.svg",
+  },
+  {
+    name: "Spring Boot",
+    to: "/docs/integrations/spring-boot/overview",
+    src: "/img/integration-spring.svg",
+  },
+  {
     name: "Node.js",
-    to: "/docs/getting-started/installation",
+    to: "/docs/integrations/nodejs/overview",
     src: "/img/integration-node.svg",
   },
   {
     name: "Bun",
-    to: "/docs/getting-started/installation",
+    to: "/docs/integrations/bun/overview",
     src: "/img/integration-bun.svg",
     scale: 1.1,
+  },
+  {
+    name: "Deno",
+    to: "/docs/integrations/deno/overview",
+    src: "/img/integration-deno.svg",
   },
   {
     name: "Firebase",
@@ -70,5 +105,10 @@ export const backends: {
     name: "React",
     to: "/docs/react/overview",
     src: "/img/integration-react.svg",
+  },
+  {
+    name: "Electron",
+    to: "/docs/integrations/electron/overview",
+    src: "/img/integration-electron.svg",
   },
 ];

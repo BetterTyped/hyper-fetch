@@ -1,0 +1,139 @@
+---
+sidebar_position: 1
+title: FastAPI with HyperFetch, a Typed TypeScript Client
+description: Generate a typed TypeScript SDK for your FastAPI backend from the openapi.json it serves, with Pydantic models as types.
+sidebar_label: Overview
+---
+
+# FastAPI
+
+FastAPI serves an OpenAPI document for every app, built from your path operations and Pydantic models. The
+HyperFetch CLI reads it and writes a typed TypeScript SDK, so your frontend gets the same models as TypeScript types.
+Nothing to install on the Python side.
+
+---
+
+:::tip Purpose
+
+1.  **Nothing to add to FastAPI**: `/openapi.json` is there from the first route.
+2.  **Pydantic models as TypeScript types**: Response models, request bodies, path and query params are all typed.
+3.  **Validation errors typed too**: The `422` response FastAPI documents becomes the request's error type.
+
+:::
+
+---
+
+## How it fits together
+
+| Step | Where    | What happens                                                              |
+| ---- | -------- | ------------------------------------------------------------------------- |
+| 1    | FastAPI  | FastAPI serves `/openapi.json` built from your routes and Pydantic models |
+| 2    | Terminal | `@hyper-fetch/cli generate` reads it and writes `src/api/fastapi.sdk.ts`  |
+| 3    | Frontend | `createSdk(client)` gives you typed requests for every route              |
+
+---
+
+## 1. Serve the OpenAPI document
+
+FastAPI builds the document for you. Give your routes response models, through `response_model` or a return type, so
+the SDK knows what they return:
+
+```python title="main.py"
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI(title="Shop API")
+
+
+class User(BaseModel):
+    id: int
+    name: str
+    email: str | None = None
+
+
+@app.get("/users/{user_id}")
+def get_user(user_id: int) -> User:
+    return find_user(user_id)
+```
+
+Run the app and the document is on `http://localhost:8000/openapi.json`.
+
+---
+
+## 2. Generate the SDK
+
+Run the CLI in your frontend project:
+
+```bash
+npx @hyper-fetch/cli@latest generate --template openapi --url http://localhost:8000/openapi.json --fileName fastapi.sdk.ts
+```
+
+It writes `fastapi.sdk.ts` to `src/api`. On the first run it also creates `api.json` with that location. Every path becomes a key
+and every method a `$`-prefixed key on it, so `GET /users/{user_id}` is `sdk.users.$user_id.$get`.
+
+---
+
+## 3. Call your API
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+
+import { createSdk } from "./api/fastapi.sdk";
+
+export const client = createClient({ url: "http://localhost:8000" });
+export const sdk = createSdk(client);
+
+// code-editor-split
+
+import { sdk } from "./client";
+
+// Typed from the User model
+const { data, error } = await sdk.users.$user_id.$get
+  .setParams({ user_id: 42 })
+  .send();
+
+// data: { id: number; name: string; email?: string | null } | null
+```
+
+The same requests work with `useFetch` and `useSubmit` from `@hyper-fetch/react`, with caching, retries and deduplication included.
+
+---
+
+## Keep the SDK in sync
+
+Install the CLI in the frontend project and add a script, so regenerating is one command locally and in CI:
+
+```json title="package.json"
+{
+  "scripts": {
+    "api:generate": "hyper-fetch generate -t openapi -u http://localhost:8000/openapi.json -f fastapi.sdk.ts -o"
+  }
+}
+```
+
+`-o` overwrites the old file without asking. To generate without a running server, dump the document from Python
+(`python -c "import json; from main import app; print(json.dumps(app.openapi()))" > openapi.json`) and pass that path to
+`--url` instead.
+
+:::note When it's helpful
+
+- Your backend is Python and your frontend is TypeScript, so they can't share types directly.
+- You want Pydantic model changes to show up as TypeScript errors.
+- You want caching, retries and React hooks on top of the generated client.
+
+:::
+
+<LinkCard
+  type="docs"
+  title="OpenAPI TypeScript client"
+  description="Everything the generated SDK can do, from React hooks to regenerating it in CI."
+  to="/docs/cli/openapi-typescript-client"
+/>
+
+:::secondary Summary
+
+- FastAPI serves `/openapi.json` for every app.
+- `@hyper-fetch/cli generate` turns it into a typed SDK with your Pydantic models as types.
+- `createSdk(client)` gives you typed requests for `send()`, `useFetch` and `useSubmit`.
+
+:::
