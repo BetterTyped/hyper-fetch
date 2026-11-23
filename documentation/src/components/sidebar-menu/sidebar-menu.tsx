@@ -4,10 +4,12 @@ import { useLocation } from "@docusaurus/router";
 import type { SidebarItem } from "@site/src/hooks/use-sidebar";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
 import { cn } from "@site/src/lib/utils";
-import Search from "@theme/NavbarItem/SearchNavbarItem";
+import { apiGroupIndexOf, apiGroupOf } from "@site/src/api-groups";
+import { groupIndexOf, groupOf } from "@site/src/integration-groups";
+import { BookOpen, LayoutGrid } from "lucide-react";
 
 import { DocsVersionPicker } from "./docs-version-picker";
-import { IntegrationPicker } from "./integration-picker";
+import { SectionPicker } from "./section-picker";
 
 const getColor = (item: SidebarItem) => {
   return item.active
@@ -22,26 +24,50 @@ const getColor = (item: SidebarItem) => {
       };
 };
 
+/* Module level, so the pickers get stable functions */
+const integrationGroupOf = (item: SidebarItem) => groupOf(item.section);
+const integrationGroupIndexOf = (item: SidebarItem) =>
+  groupIndexOf(item.section);
+const packageGroupOf = (item: SidebarItem) => apiGroupOf(item.section);
+const packageGroupIndexOf = (item: SidebarItem) =>
+  apiGroupIndexOf(item.section);
+
 export const SidebarMenu = () => {
   const { sidebar, activeItem } = useSidebar();
-  // Too many integrations for a list, so their pages pick one from a dropdown
+  // Too many integrations and packages for a list, so their pages pick one from a command palette
   const { pathname } = useLocation();
   const isIntegrations = pathname.includes("/integrations/");
+  const isApi = pathname.includes("/api/");
+  const hasPicker = isIntegrations || isApi;
 
   return (
     <div className="px-4 min-w-[250px]">
-      <div className="docs_sidebar">
-        <div className="flex items-center justify-between gap-2 w-full [&>div]:w-full bg-gradient-to-b from-[#1c1c1d] to-transparent from-50% rounded-tr-md">
-          <Search className="!px-0 !pt-0" />
-        </div>
-        <DocsVersionPicker />
+      <div className="docs_sidebar flex flex-col gap-3">
         {activeItem && isIntegrations && (
-          <div className="mt-4">
-            <IntegrationPicker items={sidebar} activeItem={activeItem} />
-            <hr className="h-px mt-1 mb-1 bg-gray-200 border-0 dark:bg-gray-700" />
-          </div>
+          <SectionPicker
+            items={sidebar}
+            activeItem={activeItem}
+            noun={{ one: "integration", many: "integrations" }}
+            groupOf={integrationGroupOf}
+            groupIndexOf={integrationGroupIndexOf}
+            overview={{ label: "All integrations", icon: LayoutGrid }}
+          />
         )}
-        {activeItem && !isIntegrations && (
+        {activeItem && isApi && (
+          <SectionPicker
+            items={sidebar}
+            activeItem={activeItem}
+            noun={{ one: "package", many: "packages" }}
+            groupOf={packageGroupOf}
+            groupIndexOf={packageGroupIndexOf}
+            overview={{ label: "API overview", icon: BookOpen }}
+          />
+        )}
+        <DocsVersionPicker />
+        {activeItem && hasPicker && (
+          <hr className="h-px mt-1 mb-1 bg-gray-200 border-0 dark:bg-gray-700" />
+        )}
+        {activeItem && !hasPicker && (
           <div className="mt-4">
             <ul>
               {sidebar.map((item, index) => {

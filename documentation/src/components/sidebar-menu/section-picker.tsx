@@ -8,46 +8,42 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
+import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
   BookOpen,
   Check,
   ChevronsUpDown,
   CornerDownLeft,
-  LayoutGrid,
   Package,
   Search,
 } from "lucide-react";
 import Link from "@docusaurus/Link";
 import type { SidebarItem } from "@site/src/hooks/use-sidebar";
-import {
-  groupIndexOf,
-  groupOf as groupOfSection,
-  integrationGroups,
-  moreGroup,
-} from "@site/src/integration-groups";
 import { cn } from "@site/src/lib/utils";
+import { npmNameOf } from "@site/src/utils/npm-name";
 
-import "./integration-picker.css";
+import "./section-picker.css";
 
-/** npm names that do not follow `@hyper-fetch/<package>` */
-const npmNames: Record<string, string> = {
-  "plugin-eslint": "eslint-plugin-hyper-fetch",
-  "plugin-oxlint": "oxlint-plugin-hyper-fetch",
+/** A heading in the picker list and a category chip above it */
+export type PickerGroup = {
+  title: string;
+  /** The chip label */
+  short: string;
 };
 
-/** Title of the group an integration is listed under, the same groups as the integrations overview */
-const groupOf = (item: SidebarItem) => groupOfSection(item.section).title;
-
-/** The short label of a group, for the category chips */
-const shortOf = (title: string) =>
-  [...integrationGroups, moreGroup].find((group) => group.title === title)
-    ?.short ?? title;
-
-const npmName = (item: SidebarItem) =>
-  item.section.package
-    ? (npmNames[item.section.package] ?? `@hyper-fetch/${item.section.package}`)
-    : null;
+export type SectionPickerProps = {
+  items: SidebarItem[];
+  activeItem: SidebarItem;
+  /** What one entry is, for the search placeholder and counts: "integration", "package" */
+  noun: { one: string; many: string };
+  /** The group an entry is listed under */
+  groupOf: (item: SidebarItem) => PickerGroup;
+  /** Position of an entry's group, for sorting entries into group order */
+  groupIndexOf: (item: SidebarItem) => number;
+  /** How the overview page shows in the button and the footer link */
+  overview: { label: string; icon: LucideIcon };
+};
 
 const PANEL_WIDTH = 720;
 const GAP = 8;
@@ -57,8 +53,12 @@ const EDGE = 16;
 const hasLightTile = (item: SidebarItem) =>
   item.section.icon.includes("bg-zinc-100");
 
+/** The overview is the "Getting Started" page of the area, every other entry is a package or a guide */
+const isOverviewItem = (item: SidebarItem) =>
+  item.section.category.toLowerCase() === "docs";
+
 /** The logo on its tile. `glow` adds a blurred tile in the brand color behind it. */
-const IconTile = ({
+export const IconTile = ({
   item,
   size,
   glow,
@@ -100,103 +100,112 @@ const IconTile = ({
   );
 };
 
-const Kbd = ({ children }: { children: React.ReactNode }) => (
+export const Kbd = ({ children }: { children: React.ReactNode }) => (
   <kbd className="inline-flex !h-5 !min-w-5 items-center justify-center !rounded-md !border !border-white/10 !bg-white/[0.06] !px-1 !py-0 font-sans !text-[10px] font-semibold leading-none !text-zinc-400 !shadow-[inset_0_-1px_0_rgba(255,255,255,0.06)]">
     {children}
   </kbd>
 );
 
+/** The trigger card at the top of the sidebar, shared by the section pickers and the version picker */
+export const pickerTriggerClass = (open: boolean) =>
+  cn(
+    "group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border p-2 pr-3 text-left",
+    "border-white/[0.08] bg-gradient-to-b from-white/[0.06] to-white/[0.02]",
+    "shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_8px_24px_-12px_rgba(0,0,0,0.6)]",
+    "outline-none transition-all duration-200",
+    "hover:border-white/[0.14] hover:from-white/[0.08]",
+    "focus-visible:ring-2 focus-visible:ring-amber-400/40",
+    open && "border-amber-400/30 from-white/[0.08]",
+  );
+
+/** The floating panel, shared by the section pickers and the version picker */
+export const pickerPanelClass = cn(
+  "section-picker fixed z-[1000] flex flex-col overflow-hidden rounded-2xl text-sm text-zinc-300",
+  "border border-white/10 bg-[#141416]",
+  "shadow-[0_32px_80px_-16px_rgba(0,0,0,0.85),0_0_0_1px_rgba(0,0,0,0.4)]",
+);
+
+export const panelMotion = {
+  initial: { opacity: 0, y: -6, scale: 0.98 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: -4, scale: 0.98, transition: { duration: 0.1 } },
+  transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] as const },
+};
+
+/** The thin gold highlight along the top edge of a panel */
+export const PanelHighlight = () => (
+  <div
+    className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-amber-200/30 to-transparent"
+    aria-hidden
+  />
+);
+
+/** The square chevron button on the right of a trigger */
+export const TriggerChevron = ({ open }: { open: boolean }) => (
+  <span
+    className={cn(
+      "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-zinc-400",
+      "transition-colors group-hover:text-zinc-200",
+      open && "border-amber-400/30 text-amber-300",
+    )}
+  >
+    <ChevronsUpDown className="h-3.5 w-3.5" aria-hidden />
+  </span>
+);
+
 /**
- * Picks one integration from a command palette: search, category chips, a list and a preview of the highlighted
- * one. The integrations outgrew a plain list in the sidebar, so the sidebar shows the current one and opens the rest
- * on demand. The panel is portaled to the body, so the scrolling sidebar never clips it.
+ * Places a panel portaled to the body under its trigger, inside the viewport, and closes it on a click outside.
+ * The sidebar scrolls and would clip a panel placed inside it.
  */
-export const IntegrationPicker = ({
-  items,
-  activeItem,
+export const usePanelPosition = ({
+  open,
+  triggerRef,
+  panelRef,
+  width,
+  align = "start",
+  onOutside,
 }: {
-  items: SidebarItem[];
-  activeItem: SidebarItem;
+  open: boolean;
+  triggerRef: React.RefObject<HTMLElement | null>;
+  panelRef: React.RefObject<HTMLElement | null>;
+  /** Fixed width, or the width of the trigger when left out */
+  width?: number;
+  /** Which edge of the trigger the panel lines up with */
+  align?: "start" | "end";
+  onOutside: () => void;
 }) => {
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [group, setGroup] = useState<string | null>(null);
-  const [highlighted, setHighlighted] = useState(0);
   const [position, setPosition] = useState<{
     top: number;
     left: number;
     width: number;
     maxHeight: number;
   }>();
-  // The portal needs the document, so it renders only after hydration
-  const [mounted, setMounted] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
-  const listId = useId();
+  const outside = useRef(onOutside);
+  outside.current = onOutside;
 
-  // "Getting Started" is the overview of every integration, the rest are grouped like on that overview
-  const overview = items.find((item) => item.section.category === "docs");
-  // Kept in group order, so each group heading shows once
-  const integrations = useMemo(
-    () =>
-      items
-        .filter((item) => item !== overview)
-        .sort((a, b) => groupIndexOf(a.section) - groupIndexOf(b.section)),
-    [items, overview],
-  );
-  const groups = useMemo(
-    () => [...new Set(integrations.map(groupOf))],
-    [integrations],
-  );
-
-  const options = useMemo(() => {
-    const search = query.trim().toLowerCase();
-    return integrations.filter(
-      (item) =>
-        (!group || groupOf(item) === group) &&
-        (!search ||
-          item.name.toLowerCase().includes(search) ||
-          groupOf(item).toLowerCase().includes(search) ||
-          item.description.toLowerCase().includes(search)),
-    );
-  }, [integrations, query, group]);
-
-  const preview = options[highlighted];
-  const isOverview = activeItem === overview;
-
-  const close = (focusButton = false) => {
-    setOpen(false);
-    setQuery("");
-    setGroup(null);
-    if (focusButton) {
-      buttonRef.current?.focus();
-    }
-  };
-
-  useEffect(() => setMounted(true), []);
-
-  // Place the panel under the button, inside the viewport
   useLayoutEffect(() => {
     if (!open) {
       return undefined;
     }
     const place = () => {
-      const rect = buttonRef.current?.getBoundingClientRect();
+      const rect = triggerRef.current?.getBoundingClientRect();
       if (!rect) {
         return;
       }
-      const width = Math.min(PANEL_WIDTH, window.innerWidth - EDGE * 2);
+      const panelWidth = Math.min(
+        width ?? rect.width,
+        window.innerWidth - EDGE * 2,
+      );
+      const anchor = align === "end" ? rect.right - panelWidth : rect.left;
       const left = Math.min(
-        Math.max(EDGE, rect.left),
-        window.innerWidth - width - EDGE,
+        Math.max(EDGE, anchor),
+        window.innerWidth - panelWidth - EDGE,
       );
       const top = rect.bottom + GAP;
       setPosition({
         top,
         left,
-        width,
+        width: panelWidth,
         maxHeight: Math.max(320, window.innerHeight - top - EDGE),
       });
     };
@@ -207,27 +216,111 @@ export const IntegrationPicker = ({
       window.removeEventListener("resize", place);
       window.removeEventListener("scroll", place, true);
     };
-  }, [open]);
+  }, [open, triggerRef, width, align]);
 
-  // Start on the current integration, focus the search and close on a click outside
   useEffect(() => {
     if (!open) {
       return undefined;
     }
-    setHighlighted(Math.max(0, integrations.indexOf(activeItem)));
-    requestAnimationFrame(() => inputRef.current?.focus());
-
     const onMouseDown = (event: MouseEvent) => {
       const target = event.target as Node;
       if (
         !panelRef.current?.contains(target) &&
-        !buttonRef.current?.contains(target)
+        !triggerRef.current?.contains(target)
       ) {
-        close();
+        outside.current();
       }
     };
     document.addEventListener("mousedown", onMouseDown);
     return () => document.removeEventListener("mousedown", onMouseDown);
+  }, [open, panelRef, triggerRef]);
+
+  return position;
+};
+
+/**
+ * Picks one page of an area from a command palette: search, category chips, a list and a preview of the highlighted
+ * entry. The integrations and the API packages outgrew a plain list in the sidebar, so the sidebar shows the current
+ * one and opens the rest on demand. The panel is portaled to the body, so the scrolling sidebar never clips it.
+ */
+export const SectionPicker = ({
+  items,
+  activeItem,
+  noun,
+  groupOf,
+  groupIndexOf,
+  overview,
+}: SectionPickerProps) => {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [group, setGroup] = useState<string | null>(null);
+  const [highlighted, setHighlighted] = useState(0);
+  // The portal needs the document, so it renders only after hydration
+  const [mounted, setMounted] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const listId = useId();
+
+  const overviewItem = items.find(isOverviewItem);
+  // Kept in group order, so each group heading shows once
+  const entries = useMemo(
+    () =>
+      items
+        .filter((item) => item !== overviewItem)
+        .sort((a, b) => groupIndexOf(a) - groupIndexOf(b)),
+    [items, overviewItem, groupIndexOf],
+  );
+  const groups = useMemo(
+    () => [...new Set(entries.map((item) => groupOf(item).title))],
+    [entries, groupOf],
+  );
+  const shortOf = (title: string) =>
+    entries.map(groupOf).find((g) => g.title === title)?.short ?? title;
+
+  const options = useMemo(() => {
+    const search = query.trim().toLowerCase();
+    return entries.filter(
+      (item) =>
+        (!group || groupOf(item).title === group) &&
+        (!search ||
+          item.name.toLowerCase().includes(search) ||
+          groupOf(item).title.toLowerCase().includes(search) ||
+          (npmNameOf(item.section) ?? "").includes(search) ||
+          item.description.toLowerCase().includes(search)),
+    );
+  }, [entries, query, group, groupOf]);
+
+  const preview = options[highlighted];
+  const isOverview = activeItem === overviewItem;
+
+  const close = (focusButton = false) => {
+    setOpen(false);
+    setQuery("");
+    setGroup(null);
+    if (focusButton) {
+      buttonRef.current?.focus();
+    }
+  };
+
+  const position = usePanelPosition({
+    open,
+    triggerRef: buttonRef,
+    panelRef,
+    width: PANEL_WIDTH,
+    onOutside: () => close(),
+  });
+
+  useEffect(() => setMounted(true), []);
+
+  // Start on the current entry and focus the search
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    setHighlighted(Math.max(0, entries.indexOf(activeItem)));
+    requestAnimationFrame(() => inputRef.current?.focus());
     // Runs when the panel opens, not on every keystroke
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -271,6 +364,8 @@ export const IntegrationPicker = ({
     }
   };
 
+  const OverviewIcon = overview.icon;
+
   const panel = (
     <AnimatePresence>
       {open && position && (
@@ -288,35 +383,19 @@ export const IntegrationPicker = ({
         <motion.div
           key="panel"
           ref={panelRef}
-          initial={{ opacity: 0, y: -6, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{
-            opacity: 0,
-            y: -4,
-            scale: 0.98,
-            transition: { duration: 0.1 },
-          }}
-          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          {...panelMotion}
           style={{
             top: position.top,
             left: position.left,
             width: position.width,
             transformOrigin: "top left",
           }}
-          className={cn(
-            "integration-picker fixed z-[1000] flex flex-col overflow-hidden rounded-2xl text-sm text-zinc-300",
-            "border border-white/10 bg-[#141416]",
-            "shadow-[0_32px_80px_-16px_rgba(0,0,0,0.85),0_0_0_1px_rgba(0,0,0,0.4)]",
-          )}
+          className={pickerPanelClass}
         >
-          {/* A thin highlight along the top edge */}
-          <div
-            className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-amber-200/30 to-transparent"
-            aria-hidden
-          />
+          <PanelHighlight />
 
           {/* Search */}
-          <div className="flex items-center gap-3 px-4 pt-3.5 pb-3">
+          <div className="flex items-center gap-3 px-4 pb-3 pt-3.5">
             <Search
               className="h-[18px] w-[18px] shrink-0 text-zinc-500"
               aria-hidden
@@ -329,7 +408,7 @@ export const IntegrationPicker = ({
                 setHighlighted(0);
               }}
               onKeyDown={onKeyDown}
-              placeholder="Search integrations..."
+              placeholder={`Search ${noun.many}...`}
               className="min-w-0 flex-1 border-0 bg-transparent text-[15px] font-medium text-zinc-100 outline-none placeholder:text-zinc-500"
               role="combobox"
               aria-expanded
@@ -338,7 +417,7 @@ export const IntegrationPicker = ({
               aria-activedescendant={
                 preview ? `${listId}-${highlighted}` : undefined
               }
-              aria-label="Search integrations"
+              aria-label={`Search ${noun.many}`}
               spellCheck={false}
               autoComplete="off"
             />
@@ -355,8 +434,8 @@ export const IntegrationPicker = ({
           >
             {[null, ...groups].map((title) => {
               const count = title
-                ? integrations.filter((item) => groupOf(item) === title).length
-                : integrations.length;
+                ? entries.filter((item) => groupOf(item).title === title).length
+                : entries.length;
               const selected = group === title;
               return (
                 <button
@@ -398,7 +477,7 @@ export const IntegrationPicker = ({
               ref={listRef}
               id={listId}
               role="listbox"
-              aria-label="Integrations"
+              aria-label={noun.many}
               className="min-w-0 flex-1 overflow-y-auto overscroll-contain p-1.5"
             >
               {options.map((item, index) => {
@@ -408,12 +487,12 @@ export const IntegrationPicker = ({
                   !group &&
                   !query &&
                   (index === 0 ||
-                    groupOf(options[index - 1]) !== groupOf(item));
+                    groupOf(options[index - 1]).title !== groupOf(item).title);
                 return (
                   <div key={item.link.path}>
                     {showGroup && (
                       <div className="px-2.5 pb-1.5 pt-3 text-[10px] font-bold uppercase tracking-[0.12em] text-zinc-500 first:pt-1.5">
-                        {groupOf(item)}
+                        {groupOf(item).title}
                       </div>
                     )}
                     <Link
@@ -446,6 +525,11 @@ export const IntegrationPicker = ({
                               New
                             </span>
                           )}
+                          {item.isBeta && (
+                            <span className="rounded-full bg-amber-400/15 px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-amber-300">
+                              Beta
+                            </span>
+                          )}
                         </span>
                         <span className="truncate text-xs text-zinc-500">
                           {item.description}
@@ -476,7 +560,7 @@ export const IntegrationPicker = ({
                     <Search className="h-4 w-4 text-zinc-500" aria-hidden />
                   </span>
                   <span className="text-sm font-semibold text-zinc-200">
-                    No integrations match &ldquo;{query}&rdquo;
+                    No {noun.many} match &ldquo;{query}&rdquo;
                   </span>
                   <a
                     href="https://github.com/BetterTyped/hyper-fetch/issues"
@@ -498,7 +582,7 @@ export const IntegrationPicker = ({
                   {preview.name}
                 </div>
                 <div className="mt-1 text-xs font-medium text-zinc-500">
-                  {groupOf(preview)}
+                  {groupOf(preview).title}
                 </div>
                 {preview.section.isPackage ? (
                   <span className="mt-3 inline-flex w-fit items-center gap-1 rounded-full bg-amber-400/10 px-2 py-0.5 text-[11px] font-semibold text-amber-300 ring-1 ring-inset ring-amber-400/20">
@@ -514,10 +598,10 @@ export const IntegrationPicker = ({
                 <div className="mt-3 text-[13px] leading-relaxed text-zinc-400">
                   {preview.description}
                 </div>
-                {npmName(preview) && (
+                {npmNameOf(preview.section) && (
                   <code className="mt-4 block truncate !rounded-lg !border !border-white/[0.06] !bg-black/30 !px-2.5 !py-1.5 font-mono !text-[11px] !text-zinc-300">
                     <span className="text-zinc-500">npm i </span>
-                    {npmName(preview)}
+                    {npmNameOf(preview.section)}
                   </code>
                 )}
                 <Link
@@ -553,14 +637,14 @@ export const IntegrationPicker = ({
                 Category
               </span>
             </div>
-            {overview && (
+            {overviewItem && (
               <Link
-                to={overview.link.path}
+                to={overviewItem.link.path}
                 onClick={() => close()}
                 className="group ml-auto inline-flex items-center gap-1.5 text-xs font-semibold !text-zinc-400 !no-underline hover:!text-white"
               >
-                <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
-                All integrations
+                <OverviewIcon className="h-3.5 w-3.5" aria-hidden />
+                {overview.label}
                 <ArrowRight
                   className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
                   aria-hidden
@@ -574,22 +658,11 @@ export const IntegrationPicker = ({
   );
 
   return (
-    <div className="integration-picker mb-5">
-      <span className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-        Integration
-      </span>
+    <div className="section-picker">
       <button
         ref={buttonRef}
         type="button"
-        className={cn(
-          "group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border p-2 pr-3 text-left",
-          "border-white/[0.08] bg-gradient-to-b from-white/[0.06] to-white/[0.02]",
-          "shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_8px_24px_-12px_rgba(0,0,0,0.6)]",
-          "outline-none transition-all duration-200",
-          "hover:border-white/[0.14] hover:from-white/[0.08]",
-          "focus-visible:ring-2 focus-visible:ring-amber-400/40",
-          open && "border-amber-400/30 from-white/[0.08]",
-        )}
+        className={pickerTriggerClass(open)}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listId}
@@ -603,7 +676,7 @@ export const IntegrationPicker = ({
       >
         {isOverview ? (
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-white/[0.06] text-zinc-300 ring-1 ring-white/10">
-            <LayoutGrid className="h-[18px] w-[18px]" />
+            <OverviewIcon className="h-[18px] w-[18px]" />
           </span>
         ) : (
           <IconTile item={activeItem} size="md" glow />
@@ -615,23 +688,15 @@ export const IntegrationPicker = ({
               isOverview ? "text-zinc-100" : activeItem.section.text,
             )}
           >
-            {isOverview ? "All integrations" : activeItem.name}
+            {isOverview ? overview.label : activeItem.name}
           </span>
           <span className="truncate text-[11px] font-medium text-zinc-500">
             {isOverview
-              ? `${integrations.length} integrations`
-              : shortOf(groupOf(activeItem))}
+              ? `${entries.length} ${noun.many}`
+              : shortOf(groupOf(activeItem).title)}
           </span>
         </span>
-        <span
-          className={cn(
-            "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-zinc-400",
-            "transition-colors group-hover:text-zinc-200",
-            open && "border-amber-400/30 text-amber-300",
-          )}
-        >
-          <ChevronsUpDown className="h-3.5 w-3.5" aria-hidden />
-        </span>
+        <TriggerChevron open={open} />
       </button>
 
       {mounted && createPortal(panel, document.body)}

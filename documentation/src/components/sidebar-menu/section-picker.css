@@ -1,0 +1,12 @@
+/*
+ * custom.css sets every p, span and div to 17px, weight 400 and zinc-300. The pickers size their own text, so inside
+ * `.section-picker` those elements inherit instead. `:where()` keeps the specificity of this reset equal to the
+ * global element rule (it wins by source order), so Tailwind classes still win.
+ */
+:where(.section-picker) p,
+:where(.section-picker) span,
+:where(.section-picker) div {
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}

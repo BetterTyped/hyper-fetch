@@ -1,0 +1,164 @@
+/*
+ * The tagline card above "On this page", the size of the package card it replaces. custom.css colors every link and
+ * its direct spans gold (`main a > span`), so the rules here carry `main` to win on specificity.
+ */
+main .toc-hype {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 58px;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  overflow: hidden;
+  border: 1px solid rgba(63, 63, 70, 0.8);
+  border-radius: 8px;
+  background:
+    radial-gradient(
+      90% 120% at 0% 50%,
+      rgba(251, 198, 70, 0.1),
+      transparent 60%
+    ),
+    linear-gradient(to top right, rgba(39, 39, 42, 0.9), rgba(24, 24, 27, 0.85));
+  color: #e4e4e7;
+  text-decoration: none !important;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* A soft light crosses the card now and then */
+main .toc-hype::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 224, 138, 0.07) 50%,
+    transparent 65%
+  );
+  transform: translateX(-100%);
+  animation: toc-hype-sheen 7s ease-in-out 1.5s infinite;
+  pointer-events: none;
+}
+
+main .toc-hype:hover {
+  border-color: rgba(251, 198, 70, 0.35);
+  box-shadow: 0 0 0 3px rgba(251, 198, 70, 0.05);
+}
+
+main .toc-hype > span,
+main .toc-hype span {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+}
+
+main .toc-hype .toc-hype__tile {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(251, 198, 70, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px rgba(251, 198, 70, 0.22),
+    0 0 22px -6px rgba(251, 198, 70, 0.55);
+}
+
+main .toc-hype .toc-hype__tile svg {
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 0 6px rgba(251, 198, 70, 0.45));
+}
+
+main .toc-hype .toc-hype__text {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+}
+
+main .toc-hype .toc-hype__line {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  color: #f4f4f5;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* The cycling word slides inside a clipped slot, so its neighbours never move */
+main .toc-hype .toc-hype__word {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+  padding-bottom: 2px;
+  margin-bottom: -2px;
+}
+
+main .toc-hype .toc-hype__word > span {
+  display: inline-block;
+  color: transparent;
+}
+
+main .toc-hype .toc-hype__sub {
+  color: #a1a1aa;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+main .toc-hype .toc-hype__arrow {
+  display: flex;
+  flex-shrink: 0;
+  align-self: flex-start;
+  color: #71717a;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+main .toc-hype .toc-hype__arrow svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+main .toc-hype:hover .toc-hype__arrow {
+  color: #fbc646;
+  transform: translate(1px, -1px);
+}
+
+@keyframes toc-hype-sheen {
+  0%,
+  70% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main .toc-hype::after {
+    animation: none;
+  }
+}

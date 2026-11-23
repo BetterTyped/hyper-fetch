@@ -1,0 +1,293 @@
+/*
+ * Site footer. custom.css sets every p, span and div to 17px zinc-300 through a dark-theme selector (0,1,1), so the
+ * footer resets them with `footer.hf-footer` (0,1,2) and sizes its text itself with `.hf-footer .x` rules (0,2,0).
+ */
+footer.hf-footer p,
+footer.hf-footer span,
+footer.hf-footer div {
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
+.hf-footer {
+  position: relative;
+  overflow: hidden;
+  margin-top: 48px;
+  padding: 0 20px;
+  color: #a1a1aa;
+  font-size: 14px;
+}
+
+.hf-footer__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+/* The panel: one solid card with a gold glow in its corner and a lit top edge */
+.hf-footer__panel {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 48px;
+  overflow: hidden;
+  padding: 36px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 28px;
+  background: linear-gradient(to bottom, #222224, #1b1b1d);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 40px 80px -48px rgba(0, 0, 0, 0.9);
+}
+
+.hf-footer__panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 224, 138, 0.35),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.hf-footer__glow {
+  position: absolute;
+  top: -180px;
+  left: -140px;
+  z-index: -1;
+  width: 520px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(251, 198, 70, 0.13),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.hf-footer__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.hf-footer__brand-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.hf-footer__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #fafafa !important;
+  text-decoration: none !important;
+}
+
+.hf-footer__logo-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: rgba(251, 198, 70, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px rgba(251, 198, 70, 0.22),
+    0 0 24px -6px rgba(251, 198, 70, 0.5);
+}
+
+.hf-footer__logo-tile svg {
+  width: 20px;
+  height: 20px;
+}
+
+.hf-footer .hf-footer__logo-name {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.hf-footer .hf-footer__tagline {
+  margin: 28px 0 0;
+  color: #f4f4f5;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.hf-footer .hf-footer__line {
+  max-width: 380px;
+  margin: 14px 0 0;
+  color: #a1a1aa;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.hf-footer .hf-footer__command {
+  width: 100%;
+  height: 42px;
+  margin-top: 26px;
+  font-size: 12.5px;
+}
+
+.hf-footer__columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px 24px;
+}
+
+.hf-footer .hf-footer__title {
+  margin-bottom: 14px;
+  color: #71717a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hf-footer__column ul {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hf-footer .hf-footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #a1a1aa !important;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-decoration: none !important;
+  transition: color 0.15s ease;
+}
+
+.hf-footer .hf-footer__link:hover {
+  color: #fafafa !important;
+}
+
+.hf-footer__external {
+  width: 13px;
+  height: 13px;
+  color: #52525b;
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.hf-footer__link:hover .hf-footer__external {
+  color: #fbc646;
+  transform: translate(1px, -1px);
+}
+
+/* The bottom bar */
+/* `.hf-footer` in front outranks the themed global div color */
+.hf-footer .hf-footer__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 22px 8px 0;
+  color: #71717a;
+  font-size: 13px;
+}
+
+.hf-footer__bar-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hf-footer__bar a {
+  color: #71717a !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease;
+}
+
+.hf-footer__bar a:hover {
+  color: #e4e4e7 !important;
+}
+
+.hf-footer .hf-footer__dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #3f3f46;
+}
+
+/* The wordmark under the page, cut by the bottom edge */
+.hf-footer .hf-footer__wordmark {
+  position: relative;
+  z-index: 0;
+  margin: 8px auto -0.22em;
+  max-width: 1240px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.075),
+    rgba(255, 255, 255, 0) 80%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: clamp(64px, 17vw, 236px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.055em;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .hf-footer {
+    padding: 0 32px;
+  }
+  .hf-footer__panel {
+    padding: 44px;
+  }
+  .hf-footer__columns {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .hf-footer {
+    margin-top: 80px;
+    padding: 0 40px;
+  }
+  .hf-footer__panel {
+    grid-template-columns: 340px minmax(0, 1fr);
+    gap: 64px;
+    padding: 48px;
+  }
+  /* Each column as wide as its longest link, the spare room between them; they wrap only when it runs out */
+  .hf-footer__columns {
+    grid-template-columns: repeat(5, minmax(0, auto));
+    justify-content: space-between;
+    column-gap: 28px;
+    padding-top: 6px;
+  }
+}

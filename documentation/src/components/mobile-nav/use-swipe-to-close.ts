@@ -25,11 +25,23 @@ interface Sample {
 
 interface Pull {
   pointerId: number;
+  startX: number;
   startY: number;
   samples: Sample[];
-  /** `pending` until the finger picks a direction, `drag` moves the sheet, `scroll` leaves the list alone */
+  /** `pending` until the finger picks a direction, `drag` moves the sheet, `scroll` leaves the page alone */
   phase: "pending" | "drag" | "scroll";
 }
+
+/**
+ * Picks what a pending gesture is once the finger has moved far enough. A mostly sideways move is a scroll, so rows
+ * that scroll horizontally (the section pills) keep working. A downward move pulls the sheet.
+ */
+const decide = (dx: number, dy: number): Pull["phase"] => {
+  if (Math.abs(dx) >= PULL_SLOP && Math.abs(dx) > Math.abs(dy)) return "scroll";
+  if (dy <= -PULL_SLOP) return "scroll";
+  if (dy >= PULL_SLOP) return "drag";
+  return "pending";
+};
 
 const releaseVelocity = (samples: Sample[]) => {
   const now = performance.now();
@@ -44,8 +56,9 @@ const releaseVelocity = (samples: Sample[]) => {
 };
 
 /**
- * Swipe down to close a bottom sheet. Outside the scrolling list the sheet follows the finger at once. Inside it a
- * downward pull only takes over when the list is already at the top, so scrolling back up never drags the sheet.
+ * Swipe down to close a bottom sheet. A downward pull drags the sheet after a few pixels. Inside the scrolling list it
+ * only takes over when the list is already at the top, so scrolling back up never drags the sheet. Sideways swipes
+ * are left to the browser, so the section pills scroll.
  */
 export const useSwipeToClose = ({
   open,
@@ -75,12 +88,7 @@ export const useSwipeToClose = ({
       const offset = event.clientY - current.startY;
 
       if (current.phase === "pending") {
-        if (offset <= -PULL_SLOP) {
-          current.phase = "scroll";
-          return;
-        }
-        if (offset < PULL_SLOP) return;
-        current.phase = "drag";
+        current.phase = decide(event.clientX - current.startX, offset);
       }
       if (current.phase !== "drag") return;
 
@@ -126,14 +134,14 @@ export const useSwipeToClose = ({
       if (!current || current.phase === "scroll") return;
       const touch = event.touches[0];
       if (!touch) return;
-      const offset = touch.clientY - current.startY;
+      const dx = touch.clientX - current.startX;
+      const dy = touch.clientY - current.startY;
 
       if (current.phase === "pending") {
-        if (offset < 0) {
-          current.phase = "scroll";
-          return;
-        }
-        if (offset === 0) return;
+        current.phase = decide(dx, dy);
+        if (current.phase === "scroll") return;
+        // Still deciding: hold the page only for a downward move, so a sideways swipe keeps its native scroll
+        if (dy <= 0 || Math.abs(dx) > Math.abs(dy)) return;
       }
       event.preventDefault();
     };
@@ -162,9 +170,10 @@ export const useSwipeToClose = ({
 
     pull.current = {
       pointerId: event.pointerId,
+      startX: event.clientX,
       startY: event.clientY,
       samples: [],
-      phase: insideList ? "pending" : "drag",
+      phase: "pending",
     };
   };
 
