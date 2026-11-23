@@ -25,9 +25,9 @@ write to your client's cache and stop, start or clear its queues.
 npm install -D @hyper-fetch/plugin-devtools @hyper-fetch/sockets
 ```
 
-`@hyper-fetch/sockets` is declared as an optional peer dependency, but the plugin imports `Socket` from it at runtime,
-so install it. Download HyperFlow from the GitHub releases page of `BetterTyped/hyper-fetch` and start it before the
-app.
+`@hyper-fetch/core` and `@hyper-fetch/sockets` are peer dependencies. The plugin connects to HyperFlow over a
+`Socket`, so it needs both at runtime. npm 7+ installs peers by itself; with pnpm or Yarn, install them. Download
+HyperFlow from the GitHub releases page of `BetterTyped/hyper-fetch` and start it before the app.
 
 ## Minimal setup
 

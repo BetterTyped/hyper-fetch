@@ -15,6 +15,7 @@
     "typecheck": "tsgo"
   },
   "dependencies": {
+    "@codesandbox/sandpack-react": "^2.20.0",
     "@docsearch/docusaurus-adapter": "^4.6.2",
     "@docsgen/core": "^1.2.6",
     "@docsgen/docusaurus": "^1.2.6",
