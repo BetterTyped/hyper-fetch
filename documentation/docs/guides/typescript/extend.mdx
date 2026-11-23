@@ -1,166 +1,127 @@
 ---
 sidebar_position: 0
-title: Typescript - Extend Request
+title: Accept Any Request in TypeScript Helpers
 description: "Type reusable functions and components that accept any HyperFetch request of a given shape with RequestInstance, and learn when to use RequestModel instead."
 sidebar_label: Extend Request
 ---
 
-In HyperFetch, you can create highly reusable functions and components by building them to work with generic
-`RequestInstance` objects. This approach lets you enforce a **partial shape constraint** on a request - for example "any
-request whose response is an array of strings" - while letting the caller decide every other detail.
+# Accept any request
 
-This guide walks you through that pattern. Before diving in, make sure you pick the right tool for the job:
-
-:::tip `RequestInstance` vs `RequestModel` — pick the right tool
-
-HyperFetch ships two complementary types. They look similar but mean opposite things at the type level. Using the wrong
-one silently leaks `any` into your codebase.
-
-|                               | `RequestInstance<{...}>` (this guide)                                                        | `RequestModel<{...}>`                                                       |
-| ----------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| **Mindset**                   | "**Any** request that matches this partial shape."                                           | "**This** specific endpoint."                                               |
-| **Use for**                   | Generic constraints, reusable components / hooks / helpers that accept any matching request. | SDK schema leaves, single-endpoint definitions.                             |
-| **Omitted fields default to** | `any` - on purpose, so any concrete `Request` satisfies the constraint.                      | Strict, non-`any` (`unknown`, `undefined`, `Error`, `string`, `false`).     |
-| **Why those defaults?**       | "I don't care about that field." Caller picks anything.                                      | "There is no payload / no query / no params here." Mismatches are rejected. |
-
-The rule of thumb:
-
-- Writing a **reusable abstraction** that accepts requests from outside? → `RequestInstance` (this guide).
-- Defining **one endpoint** in a schema? → `RequestModel` (see the [SDK guide](/docs/core/sdk#defining-the-schema)).
-
-:::
-
-This guide will walk you through how to extend requests using TypeScript generics to build flexible, type-safe, and
-modular features.
+Reusable helpers and components often need "any request that returns `string[]`" rather than one specific request.
+`RequestInstance` is that constraint: pin down the fields you care about and leave the rest open. This guide builds such
+a helper and explains when to use `RequestModel` instead.
 
 :::secondary What you'll learn
 
-1.  How to create **generic functions** that accept `RequestInstance` objects.
-2.  How to use **TypeScript generics** to enforce type constraints on requests.
-3.  A practical example of building a **reusable autocomplete** function.
-4.  The benefits of this pattern for creating **type-safe** and **modular** code.
+1. How to accept **any request** with `RequestInstance`.
+2. How to **constrain** only the response, payload or other parts you need.
+3. The difference between **`RequestInstance`** and **`RequestModel`**.
 
 :::
 
-### The Core Concept
+---
 
-The key to this pattern is TypeScript's generics. By creating a function or component that accepts a generic type, you
-can set constraints on what kind of requests are allowed. By default, you can create a generic function that accepts any
-request instance like this:
+## Accept any request
 
-```ts
-import { RequestInstance } from "@hyper-fetch/core";
+A generic parameter that extends `RequestInstance` accepts every request and keeps its exact type inside the function:
 
-function someFunction<T extends RequestInstance>(request: T) {
-  // Accepts ANY Request - response, payload, queryParams, error all default to `any`,
-  // because you do not care what the caller passes.
+```ts title="src/helpers/log-request.ts"
+import type { RequestInstance } from "@hyper-fetch/core";
+
+export function logRequest<R extends RequestInstance>(request: R) {
+  console.log(request.method, request.endpoint);
+  return request;
 }
 ```
 
-However, the real power comes from making this more specific. `RequestInstance` is a generic type itself, so you can
-**partially constrain** it — pin down only the fields you care about and let the rest stay `any`. For many reusable
-components you only need to constrain the `response` type.
+---
 
-### Practical Example: Autocomplete
+## Constrain the shape
 
-Let's build on this concept with a generic `autocomplete` function. We want this function to accept any request that
-returns an array of strings (`string[]`) in its response. Any other response type should result in a TypeScript error.
+`RequestInstance` takes the same keys as `createRequest`. Omitted keys stay `any`, so any request matches them. Here
+the helper accepts only requests whose response is `string[]`:
 
-First, let's define two requests: one that fits our criteria and one that does not.
+```ts title="src/helpers/autocomplete.ts"
+import type { RequestInstance } from "@hyper-fetch/core";
 
-```ts
-// highlight-start
-// We assume 'client' is a pre-configured Client instance
-// For example:
-// import { createClient } from "@hyper-fetch/core";
-// const client = createClient({ url: "..." });
-// highlight-end
+export async function autocomplete(
+  request: RequestInstance<{ response: string[] }>,
+) {
+  const { data } = await request.send();
+  return data ?? []; // data: string[] | null
+}
+```
 
-// This request's response is `string[]`, which is what our function expects.
+Use a generic parameter, `<R extends RequestInstance<{ response: string[] }>>(request: R)`, when the helper returns the
+request or passes it on and must keep its exact type. Inside such a generic, `send()` cannot tell which options are
+required, so send from a function typed with the plain constraint as above.
+
+```ts title="src/app.ts"
 const getSuggestions = client.createRequest<{ response: string[] }>()({
-  endpoint: "suggestions",
+  endpoint: "/suggestions",
 });
-
-// This request's response is `string`, which should be rejected.
 const getUsername = client.createRequest<{ response: string }>()({
-  endpoint: "username",
+  endpoint: "/username",
 });
-```
 
-Now, let's create our generic `autocomplete` function. We'll use a generic constraint to ensure the `request` parameter
-has a `response` type of `string[]`.
+await autocomplete(getSuggestions); // ok
 
-```ts
-function autocomplete<Request extends RequestInstance<{ response: string[] }>>(request: Request) {
-  // Now, inside this function, TypeScript knows that `request.send()`
-  // will eventually return a `data` property of type `string[]` on success.
-  console.log("Request received, can be used for fetching suggestions.");
-  return request.send();
-}
-```
-
-With this setup, TypeScript will enforce our constraint at compile time.
-
-```ts
-// ✅ Correct Usage
-// This works because `getSuggestions` has a response type of `string[]`.
-// highlight-next-line
-autocomplete(getSuggestions);
-
-// ⛔ Incorrect Usage
-// This will cause a TypeScript error because `getUsername`'s response is `string`, not `string[]`.
 // error-next-line
-autocomplete(getUsername);
+await autocomplete(getUsername); // response is string, not string[]
 ```
 
-### When to Use It?
+A request with required params, payload or query params needs them before `send()`. Pass the request with its values
+set, such as `getSuggestions.setQueryParams(...)`, or constrain those keys too.
 
-This pattern is powerful for building reusable, type-safe components and functions. Use it for:
+Use this pattern for:
 
-- **Generic UI Components** like `<DataTable />` or `<SelectField />`.
-- **Type-safe utilities** for data processing.
-- **Abstracting business logic** into reusable functions.
-- **Mock / interceptor / configuration callbacks** in `sdk.$configure({...})`.
+- **Generic components** such as a `<DataTable request={...} />` or a select that loads its options.
+- **Helpers** that send, log or transform requests of one shape.
+- **Callbacks** in `sdk.$configure({...})`, mocks and plugins.
 
-By using this approach, you promote code reuse and maintain strong type safety across your application.
+---
 
-### Not for schema definitions
+## RequestInstance or RequestModel
 
-If you find yourself reaching for `RequestInstance` inside a schema declaration like this:
+Both types take the same keys but treat omitted ones in opposite ways:
 
-```ts
-// ⛔ This silently widens response, payload, queryParams, error to `any` for that endpoint.
+|                     | `RequestInstance<{...}>`                        | `RequestModel<{...}>`                                      |
+| ------------------- | ----------------------------------------------- | ---------------------------------------------------------- |
+| Means               | Any request that matches this partial shape     | This one endpoint                                          |
+| Omitted keys        | `any`, so every request satisfies them           | Strict: no payload, no query params, `Error` as the error  |
+| Use for             | Generic constraints in helpers and components   | Leaves of an [SDK schema](/docs/core/sdk#write-the-schema) |
+
+In a schema, `RequestInstance` silently turns the omitted parts of an endpoint into `any`:
+
+```ts title="src/api/schema.ts"
+import type { RequestInstance, RequestModel } from "@hyper-fetch/core";
+
 type ApiSchema = {
   users: {
+    // diff-remove-next-line
+    // payload and queryParams become any
     $get: RequestInstance<{ response: User[]; endpoint: "/users" }>;
-  };
-};
-```
-
-…that is a signal you wanted `RequestModel` instead. Inside a schema, omitted fields should mean "**there is no payload
-here**" — not "anything goes". Switch the type and the rest of your code keeps the strictness it deserves:
-
-```ts
-import { RequestModel } from "@hyper-fetch/core";
-
-// ✅ Omitted payload / queryParams / error stay strict (undefined / Error) instead of any.
-type ApiSchema = {
-  users: {
+    // diff-add-next-line
+    // no payload, no query params
     $get: RequestModel<{ response: User[]; endpoint: "/users" }>;
   };
 };
 ```
 
-See the [SDK guide](/docs/core/sdk#defining-the-schema) for the full schema pattern.
-
 ---
 
 :::success Congratulations!
 
-You've learned how to extend HyperFetch requests for building flexible and type-safe components!
+You've learned how to accept requests in reusable code.
 
-- You can create **generic functions** that constrain request types.
-- You understand how to enforce a specific **response shape** on a request.
-- You are able to build **reusable components** that are decoupled from specific API endpoints.
+- You can accept **any request** with `R extends RequestInstance`.
+- You can **constrain** only the parts you need, such as the response.
+- You can use **`RequestModel`** for schema leaves and **`RequestInstance`** for constraints.
 
 :::
+
+Runnable example: [Custom hooks](/examples/getting-started/custom-hooks).
+
+<LinkCard type="guides" title="Request extractors" description="Read types back from a request." to="/docs/guides/typescript/request-extractors" />
+
+<LinkCard type="docs" title="SDK" description="Schemas built from RequestModel leaves." to="/docs/core/sdk#requestmodel-or-requestinstance" />

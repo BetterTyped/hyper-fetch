@@ -10,9 +10,8 @@ sidebar_label: REST Resources
 # Collections from a REST SDK
 
 Most REST APIs repeat one shape per resource: `GET /posts` lists, `GET /posts/:postId` reads one, `POST` creates,
-`PATCH` or `PUT` updates and `DELETE` deletes. When your API is described by a [typed SDK](../../../core/sdk.mdx),
-`.resource()` reads those conventions and declares the loaders and writes for you. Teamboard's posts go from a page of
-`.load()` and `.mutate()` calls to one line.
+`PATCH` or `PUT` updates and `DELETE` deletes. When your API is described by a [typed SDK](/docs/core/sdk),
+`.resource()` reads those conventions and declares the loaders and writes for you, so Teamboard's posts take one line.
 
 :::secondary What you'll learn
 
@@ -28,10 +27,10 @@ Most REST APIs repeat one shape per resource: `GET /posts` lists, `GET /posts/:p
 
 ## By hand first
 
-Here are Teamboard's posts declared by hand, the way the [Loaders](../01-basics/loaders.mdx) and
-[Optimistic Writes](../01-basics/optimistic-writes.mdx) guides do it:
+Here are Teamboard's posts declared by hand, the way the [loaders](/docs/guides/db/basics/loaders) and
+[optimistic writes](/docs/guides/db/basics/optimistic-writes) guides do it:
 
-```ts
+```ts title="src/db.ts"
 const Post = collection(PostSchema, { key: "id" })
   .load(getPosts, {
     where: {
@@ -42,8 +41,15 @@ const Post = collection(PostSchema, { key: "id" })
   .load(getPost, { byKey: (id) => ({ params: { postId: id } }) })
   .mutate({
     insert: { request: createPost, map: (row) => ({ payload: row }) },
-    update: { request: updatePost, map: (key, changes) => ({ params: { postId: key }, payload: changes }) },
-    delete: { request: deletePost, map: (key) => ({ params: { postId: key } }), onSuccess: "keep" },
+    update: {
+      request: updatePost,
+      map: (key, changes) => ({ params: { postId: key }, payload: changes }),
+    },
+    delete: {
+      request: deletePost,
+      map: (key) => ({ params: { postId: key } }),
+      onSuccess: "keep",
+    },
   });
 ```
 
@@ -64,10 +70,18 @@ type ApiSchema = {
       response: Post[];
       queryParams?: { teamId?: string; status?: Post["status"]; sort?: string };
     }>;
-    $post: RequestModel<{ endpoint: "/posts"; response: Post; payload: Post & { idempotencyKey?: string } }>;
+    $post: RequestModel<{
+      endpoint: "/posts";
+      response: Post;
+      payload: Post & { idempotencyKey?: string };
+    }>;
     $postId: {
       $get: RequestModel<{ endpoint: "/posts/:postId"; response: Post }>;
-      $patch: RequestModel<{ endpoint: "/posts/:postId"; response: Post; payload: Partial<Post> }>;
+      $patch: RequestModel<{
+        endpoint: "/posts/:postId";
+        response: Post;
+        payload: Partial<Post>;
+      }>;
       $delete: RequestModel<{ endpoint: "/posts/:postId"; response: null }>;
     };
   };
@@ -77,7 +91,10 @@ export const sdk = createSdk<typeof client, ApiSchema>(client);
 ```
 
 ```ts title="src/db.ts"
-const Post = collection(PostSchema, { key: "id", version: "updatedAt" }).resource(sdk.posts, {
+const Post = collection(PostSchema, {
+  key: "id",
+  version: "updatedAt",
+}).resource(sdk.posts, {
   item: "$postId",
   list: { where: ["teamId", "status"] },
 });
@@ -104,9 +121,11 @@ That one call declares the same collection as the page above:
 
 Queries and writes are the same as with hand-written loaders:
 
-```tsx
+```tsx title="src/team-feed.tsx"
 const { data } = useLiveQuery(
-  db.post.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+  db.post
+    .where((post) => eq(post.teamId, teamId))
+    .orderBy((post) => post.createdAt, "desc"),
 );
 
 await db.post.update(postId, { title: "Renamed" });
@@ -123,7 +142,7 @@ and in the types.
 **Query params** cannot be read at runtime, so `list.where` names the ones to send as `eq` filters. The types only offer
 query params that are **row fields** of the same name and type:
 
-```ts
+```ts title="src/db.ts"
 collection(PostSchema, { key: "id" }).resource(sdk.posts, {
   item: "$postId",
   // error-next-line
@@ -142,26 +161,37 @@ Need more than equality filters? See [Overriding parts](#overriding-parts).
 Teamboard's team feed returns posts without `body`. Those are not complete `Post` rows, so they belong to their own
 collection. Turn the derived list off with `list: false`, and load the summaries as a collection of their own:
 
-```ts
-const Post = collection(PostSchema, { key: "id" }).resource(sdk.posts, { item: "$postId", list: false });
-
-const PostSummary = collection(PostSummarySchema, { key: "id" }).load(sdk.teams.$teamId.posts.$get, {
-  rows: (response) => response.items,
-  cursor: (response) => response.next,
-  page: (cursor) => ({ queryParams: { cursor } }),
-  where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+```ts title="src/db.ts"
+const Post = collection(PostSchema, { key: "id" }).resource(sdk.posts, {
+  item: "$postId",
+  list: false,
 });
 
-export const db = createDb({ post: Post, postSummary: PostSummary }, { links: [["post", "postSummary"]] });
+const PostSummary = collection(PostSummarySchema, { key: "id" }).load(
+  sdk.teams.$teamId.posts.$get,
+  {
+    rows: (response) => response.items,
+    cursor: (response) => response.next,
+    page: (cursor) => ({ queryParams: { cursor } }),
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
+  },
+);
+
+export const db = createDb(
+  { post: Post, postSummary: PostSummary },
+  { links: [["post", "postSummary"]] },
+);
 ```
 
 `post` still reads by key and writes, and the link keeps the summaries in step with every write. The
-[List and Detail Views](./list-and-detail.mdx) guide builds the screens on top.
+[list and detail views](/docs/guides/db/patterns/list-and-detail) guide builds the screens on top.
 
 A list that wraps complete rows, or pages through them, keeps the derived list and maps it. Here `GET /posts` answers
 `{ items, next }`:
 
-```ts
+```ts title="src/db.ts"
 collection(PostSchema, { key: "id" }).resource(sdk.posts, {
   item: "$postId",
   list: {
@@ -183,7 +213,7 @@ derived list, filter on those fields only, and declare the list with `.load()` w
 The derived insert and update write the response back as the row. When your API answers differently, the collection does
 not compile until you say what to do instead:
 
-```ts
+```ts title="src/db.ts"
 // POST /drafts answers { id }, PATCH /drafts/:draftId answers 204
 const Draft = collection(PostSchema, { key: "id" }).resource(sdk.drafts, {
   item: "$draftId",
@@ -195,13 +225,9 @@ const Draft = collection(PostSchema, { key: "id" }).resource(sdk.drafts, {
 });
 ```
 
-| `onSuccess` | After a successful write                                                                  |
-| ----------- | ----------------------------------------------------------------------------------------- |
-| `"keep"`    | The optimistic change becomes the server state                                            |
-| `"refetch"` | The loaded subsets holding the row reload, then the change is dropped                     |
-| `"sync"`    | The change stays until a [sync](../01-basics/realtime-sync.mdx) event for the row arrives |
-
-For an API that updates with `PUT`, set `update: { method: "$put" }`.
+`onSuccess` takes the same values as in `.mutate()`: `"keep"`, `"refetch"` or `"sync"` (see
+[when the response is not the row](/docs/guides/db/basics/optimistic-writes#when-the-response-is-not-the-row)). For an
+API that updates with `PUT`, set `update: { method: "$put" }`.
 
 ---
 
@@ -211,22 +237,31 @@ For an API that updates with `PUT`, set `update: { method: "$put" }`.
 
 Writes declared with `.mutate()` replace the derived ones, for example to send the write's id as an idempotency key:
 
-```ts
+```ts title="src/db.ts"
 const Post = collection(PostSchema, { key: "id" })
   .resource(sdk.posts, { item: "$postId" })
   .mutate({
-    insert: { request: sdk.posts.$post, map: (row, { id }) => ({ payload: { ...row, idempotencyKey: id } }) },
+    insert: {
+      request: sdk.posts.$post,
+      map: (row, { id }) => ({ payload: { ...row, idempotencyKey: id } }),
+    },
   });
 ```
 
 To send orders or other operators, replace the list. Turn the derived list off and add your own with `.load()`:
 
-```ts
+```ts title="src/db.ts"
 const Post = collection(PostSchema, { key: "id" })
   .resource(sdk.posts, { item: "$postId", list: false })
   .load(sdk.posts.$get, {
-    where: { teamId: { eq: (teamId) => ({ queryParams: { teamId } }), required: true } },
-    orderBy: { createdAt: (direction) => ({ queryParams: { sort: `createdAt:${direction}` } }) },
+    where: {
+      teamId: { eq: (teamId) => ({ queryParams: { teamId } }), required: true },
+    },
+    orderBy: {
+      createdAt: (direction) => ({
+        queryParams: { sort: `createdAt:${direction}` },
+      }),
+    },
   });
 ```
 
@@ -235,7 +270,7 @@ const Post = collection(PostSchema, { key: "id" })
 A second list loader added next to the derived one does not replace it. The db picks the loader that sends the most
 **conditions**, and ties go to the loader declared first, which is the derived list. Orders do not count, so the custom
 loader would never be picked for a query that only filters by team. Use `list: false`, and check with
-[`explain()`](../01-basics/loaders.mdx#several-loaders-on-one-collection).
+[`explain()`](/docs/guides/db/basics/loaders#several-loaders-on-one-collection).
 
 :::
 
@@ -249,12 +284,12 @@ loader would never be picked for a query that only filters by team. Use `list: f
 `.resource()` works with any SDK built by `createSdk`, as long as the routes follow REST conventions:
 
 - **OpenAPI or Swagger.** `npx @hyper-fetch/cli generate` writes an `SdkSchema` and a `createSdk` from your schema. See
-  [Generate a typed client](../../../cli/openapi-typescript-client.mdx).
-- **[Hono](../../../integrations/hono/overview.mdx).** `HonoSchema<typeof app>` turns a chained Hono app into a schema.
+  [Generate a typed client](/docs/cli/openapi-typescript-client).
+- **[Hono](/docs/integrations/hono/overview).** `HonoSchema<typeof app>` turns a chained Hono app into a schema.
   A route that returns error bodies through `c.json` has a union response type, which is not a row, so the collection
   does not compile until the list or the write maps it.
-- **[Elysia](../../../integrations/elysia/overview.mdx).** `ElysiaSchema<typeof app>` does the same for an Elysia app.
-- **[oRPC](../../../integrations/adapter-orpc/overview.mdx).** Procedures are not REST resources, so declare them with
+- **[Elysia](/docs/integrations/elysia/overview).** `ElysiaSchema<typeof app>` does the same for an Elysia app.
+- **[oRPC](/docs/integrations/adapter-orpc/overview).** Procedures are not REST resources, so declare them with
   `.load()` and `.mutate()`, mapping filters to the procedure's payload.
 
 :::note When to use it
@@ -268,7 +303,7 @@ loader would never be picked for a query that only filters by team. Use `list: f
 
 ---
 
-:::success One line per resource!
+:::success Congratulations!
 
 Teamboard's posts are derived from the SDK.
 
@@ -285,8 +320,18 @@ Teamboard's posts are derived from the SDK.
 ## Next steps
 
 <LinkCard
+  type="guides"
+  title="Testing collections and live queries"
+  description="Mock loaders, assert reverts and plans, and push socket events in tests."
+  to="/docs/guides/db/production/testing"
+/>
+
+<LinkCard
   type="docs"
   title="SDK"
   description="How createSdk turns a schema into typed requests, with options per endpoint."
   to="/docs/core/sdk"
 />
+
+- API reference: [`ResourceOptions`](/docs/api/db/Types/ResourceOptions),
+  [`ResourceListOptions`](/docs/api/db/Types/ResourceListOptions), [`createSdk`](/docs/api/core/Functions/createSdk).

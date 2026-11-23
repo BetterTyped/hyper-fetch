@@ -7,27 +7,23 @@ sidebar_label: Quick Start
 
 # Quick start
 
-In this guide you connect to a public echo server, which sends back every message it receives. You send a typed chat
-message and receive it again through a listener, so you see both directions working in under 20 lines.
+<Lead>
 
-:::tip What you'll learn
+**Send a typed chat message to a public echo server and receive it back through a listener.** You see both
+directions working in under 20 lines.
 
-1. **Create a socket** for one server.
-2. **Define a listener and an emitter** with typed data.
-3. **Receive and send** messages, and react to the connection state.
-
-:::
+</Lead>
 
 ---
 
 ## 1. Install
 
-```npm2yarn2pnpm
-npm install @hyper-fetch/sockets
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core @hyper-fetch/sockets
 ```
 
-Browsers, Node.js 22+, Bun and Deno have a global `WebSocket`. On older Node.js versions, install `ws` and pass it
-with `adapterOptions: { WebSocket }`.
+`@hyper-fetch/core` is a peer dependency. Browsers, Node.js 22+, Bun and Deno have a global `WebSocket`. On older
+Node.js versions, install `ws` and pass it with `adapterOptions: { WebSocket }`.
 
 ---
 
@@ -42,7 +38,9 @@ import { createSocketClient } from "@hyper-fetch/sockets";
 // highlight-next-line
 export const socket = createSocketClient({ url: "wss://echo.websocket.org" });
 
-socket.onConnected(() => console.log("connected")).onDisconnected(() => console.log("disconnected"));
+socket
+  .onConnected(() => console.log("connected"))
+  .onDisconnected(() => console.log("disconnected"));
 ```
 
 ---
@@ -58,8 +56,12 @@ import { socket } from "./socket";
 type ChatMessage = { author: string; text: string };
 
 // highlight-start
-export const onChatMessage = socket.createListener<ChatMessage>()({ topic: "chat" });
-export const sendChatMessage = socket.createEmitter<ChatMessage>()({ topic: "chat" });
+export const onChatMessage = socket.createListener<ChatMessage>()({
+  topic: "chat",
+});
+export const sendChatMessage = socket.createEmitter<ChatMessage>()({
+  topic: "chat",
+});
 // highlight-end
 ```
 
@@ -101,49 +103,52 @@ listener receives messages from other users the same way.
 
 Put params in the topic string to address rooms, users or documents. They are typed, and required when you send.
 
-```ts
-const onRoomMessage = socket.createListener<ChatMessage>()({ topic: "rooms/:roomId" });
-const sendRoomMessage = socket.createEmitter<ChatMessage>()({ topic: "rooms/:roomId" });
+```ts title="rooms.ts"
+const onRoomMessage = socket.createListener<ChatMessage>()({
+  topic: "rooms/:roomId",
+});
+const sendRoomMessage = socket.createEmitter<ChatMessage>()({
+  topic: "rooms/:roomId",
+});
 
-onRoomMessage.setParams({ roomId: "general" }).listen(({ data }) => console.log(data.text));
-sendRoomMessage.emit({ params: { roomId: "general" }, payload: { author: "Ann", text: "Hi room" } });
+onRoomMessage
+  .setParams({ roomId: "general" })
+  .listen(({ data }) => console.log(data.text));
+sendRoomMessage.emit({
+  params: { roomId: "general" },
+  payload: { author: "Ann", text: "Hi room" },
+});
 ```
 
 ---
 
-## Next steps
+## What just happened
 
-<div className="row">
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Authentication"
-      description="Send a fresh token on every connection attempt with onConnect."
-      to="/docs/sockets/socket"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Server-Sent Events"
-      description="Switch the adapter and keep your listeners."
-      to="/docs/sockets/adapter"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="useListener"
-      description="Show realtime data in React components."
-      to="/docs/react/sockets/use-listener"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="promo"
-      title="Inspect sockets in HyperFlow"
-      description="See every message in and out, the connection state and errors."
-      to="/docs/hyper-flow/features/sockets"
-    />
-  </div>
-</div>
+- The [Socket](/docs/sockets/socket) opened one connection and will reconnect it with backoff when it drops.
+- The [Listener](/docs/sockets/listener) typed `data` and filtered messages by topic.
+- The [Emitter](/docs/sockets/emitter) checked the payload and params at compile time and sent them as one JSON frame.
+
+---
+
+## Next
+
+<Tiles>
+  <Tile title="WebSocket chat" icon="play" meta="example" to="/examples/realtime/websocket-chat">
+    The same echo server in a React chat.
+  </Tile>
+  <Tile title="Socket authentication" icon="shield" to="/docs/guides/sockets/authentication">
+    Send a fresh token on every connection attempt.
+  </Tile>
+  <Tile title="Adapters" icon="plug" to="/docs/sockets/adapter">
+    Switch to Server-Sent Events or map your message format.
+  </Tile>
+  <Tile title="useListener" icon="atom" to="/docs/react/sockets/use-listener">
+    Show realtime data in React components.
+  </Tile>
+  <Tile title="Server-Sent Events" icon="play" meta="example" to="/examples/realtime/server-sent-events">
+    A receive-only feed with the SSE adapter.
+  </Tile>
+  <Tile title="Inspect in HyperFlow" icon="activity" to="/docs/hyper-flow/features/sockets">
+    Every message in and out, connection state and errors.
+  </Tile>
+</Tiles>

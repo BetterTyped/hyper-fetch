@@ -7,27 +7,28 @@ sidebar_label: Overview
 
 # Node.js
 
-HyperFetch runs on Node.js 18 and newer. Its default adapter calls the `fetch` built into the runtime, so there is no
-polyfill and no Node-specific adapter to install. `createClient`, `createRequest` and `send()` work the same way they do
-in the browser.
-
----
+HyperFetch runs on Node.js 18 and newer with the `fetch` built into the runtime, so there is no polyfill and no
+Node-specific adapter. Use it in backends, scripts and jobs that call other APIs and need typed responses and retries.
 
 :::tip Purpose
 
-1.  **Nothing extra to install**: `@hyper-fetch/core` uses the runtime's own `fetch`.
-2.  **Same requests on both sides**: Share request definitions between your server and your frontend.
-3.  **Typed third-party APIs**: Generate an SDK from any OpenAPI document and call it from scripts, jobs and backends.
+1. **Nothing extra to install**: `@hyper-fetch/core` uses the runtime's own `fetch`.
+2. **Same requests on both sides**: share request definitions between your server and your frontend.
+3. **Safe on shared servers**: outside the browser the client caches nothing unless a request has a scope.
 
 :::
 
 ---
 
-## Getting started
+## Install
 
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core
 ```
+
+---
+
+## Send a request
 
 ```ts title="sync-users.ts"
 import { createClient } from "@hyper-fetch/core";
@@ -42,39 +43,42 @@ const getUsers = client.createRequest<{
 
 const { data, error, status } = await getUsers.setRetry(2).send();
 
-if (error) {
-  console.error(status, error);
-} else {
+if (data) {
   console.log(`${data.length} users`);
+} else {
+  console.error(status, error);
 }
 ```
 
-`send()` resolves with the result instead of throwing, so a failed call never crashes the process with an unhandled
-rejection. Requests time out after 5 seconds by default. Change it with `setOptions({ timeout: 30_000 })`.
+`send()` resolves with the [response](/docs/core/request) instead of throwing, so a failed call never crashes the
+process with an unhandled rejection. Requests time out after 5 seconds by default, change it with
+`setOptions({ timeout: 30000 })`.
 
 ---
 
-## Servers: one client per user
+## Use it in a server
 
-The cache and the deduplication of a client are shared by everything that uses it. That is what you want in a browser,
-where one person uses the app. On a server, a request sent with one user's token could answer another user's identical
-request. When calls carry the user's credentials, create the client inside the handler:
+One client can serve every incoming request. Outside the browser the [client](/docs/core/client) runs in `"server"`
+mode, where the cache stays off unless the request has a scope, so one user's data never reaches another. Set a scope
+to cache per user:
 
 ```ts title="server.ts"
 import express from "express";
 import { createClient } from "@hyper-fetch/core";
 
+const client = createClient({ url: "https://api.example.com" });
+const getProfile = client.createRequest<{ response: { name: string } }>()({
+  endpoint: "/me",
+});
+
 const app = express();
 
 app.get("/dashboard", async (req, res) => {
-  // highlight-next-line
-  const client = createClient({ url: "https://api.example.com" });
-  const getProfile = client.createRequest<{ response: { name: string } }>()({
-    endpoint: "/me",
-  });
-
+  const token = req.headers.authorization ?? "";
   const { data, error } = await getProfile
-    .setHeaders({ Authorization: req.headers.authorization ?? "" })
+    .setHeaders({ Authorization: token })
+    // highlight-next-line
+    .setScope(token)
     .send();
 
   if (error) return res.status(502).json(error);
@@ -82,37 +86,43 @@ app.get("/dashboard", async (req, res) => {
 });
 ```
 
-Calls that are the same for everyone, like a public price list, can share one client and its cache.
+Data that is the same for everyone, like a public price list, can share one scope such as `setScope("public")`.
 
 ---
 
-## Generate an SDK for an API
+## Runtime quirks
 
-The CLI turns any OpenAPI document into a typed SDK, which is handy for the third-party APIs a backend talks to:
+- **Node.js 18 or newer**: older versions have no global `fetch`.
+- **Typed third-party APIs**: generate an SDK from any OpenAPI document with
+  `npx @hyper-fetch/cli@latest generate`, see the [OpenAPI TypeScript client](/docs/cli/openapi-typescript-client).
+- **Realtime**: a `Socket` connects from Node.js too, see the
+  [Node.js WebSocket client](/docs/guides/sockets/nodejs-websocket-client) guide.
 
-```bash
-npx @hyper-fetch/cli@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --fileName petstore.sdk.ts
-```
-
-<LinkCard
-  type="docs"
-  title="OpenAPI TypeScript client"
-  description="Generate a typed SDK from an OpenAPI document and call it with send()."
-  to="/docs/cli/openapi-typescript-client"
-/>
-
-:::note When it's helpful
-
-- Backends, scripts and cron jobs that call other APIs and need retries and typed responses.
-- Monorepos where the server and the frontend should share the same request definitions.
-- Server-side rendering, where requests run on the server first. See [hydration](/docs/react/06-hydrate.mdx).
-
-:::
+---
 
 :::secondary Summary
 
 - HyperFetch runs on Node.js 18+ with the built-in `fetch`, with no extra adapter.
 - `send()` resolves with `data` or `error`, so a failed call never throws.
-- On servers, create a client per user request when calls carry the user's credentials.
+- On servers the cache stays off unless a request has a scope, so users' data stays apart.
 
 :::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="integrations"
+  title="Example: HyperFetch on the server"
+  description="A Node.js script that sends typed requests in parallel and retries failures."
+  to="/examples/integrations/server-runtimes"
+/>
+<LinkCard
+  type="docs"
+  title="Cache"
+  description="How scopes, server mode and cache keys decide what is cached."
+  to="/docs/core/cache"
+/>
+
+For server rendering, pass responses to the browser with [hydration](/docs/react/hydrate).

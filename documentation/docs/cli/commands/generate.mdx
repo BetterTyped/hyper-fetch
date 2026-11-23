@@ -5,154 +5,261 @@ description: The generate command reads an OpenAPI or Swagger JSON schema and wr
 sidebar_label: Generate
 ---
 
-The `generate` command reads your OpenAPI or Swagger JSON schema and writes one TypeScript file with typed requests and
-data models, plus a `createSdk` factory you call with your own HyperFetch client.
+The `generate` command reads an OpenAPI 3 or Swagger JSON schema and writes one TypeScript file with the model types,
+the types of every operation, an `SdkSchema` and a `createSdk` factory you call with your own client.
 
 ```bash
-npx @hyper-fetch/cli@latest generate
+npx @hyper-fetch/cli@latest generate --template openapi --url ./openapi.json \
+  --fileName pets.sdk.ts --overwrite
 ```
-
----
 
 :::tip Purpose
 
-By using the code generator, you can:
-
-1.  **Automatically generate** a ready-to-use SDK for your HyperFetch client.
-2.  **Create typed requests** for all your API endpoints.
-3.  **Define data models** based on your schema components.
-4.  **Boost productivity** by eliminating manual setup for API integration.
+1.  **Generate** typed requests for every operation of your schema.
+2.  **Model types** from `components.schemas`, exported as the `Components` namespace.
+3.  **Regenerate** without prompts in scripts and CI.
 
 :::
 
 ---
 
-## Usage
+## From schema to SDK
 
-You can use it in two ways - by going through wizard or passing individual arguments.
+For this schema, with `Pet`, `NewPet` and `Error` in `components.schemas`:
 
-Remember to initialize a project first - this way hyper-fetch will be able to find the project's configuration and
-generate files in the correct location.
-
-:::info Initialize a project
-
-If you don't have a project yet, you can initialize one with the [`init`](/docs/cli/commands/init/) command.
-
-```bash
-npx @hyper-fetch/cli@latest init
+```json title="openapi.json (excerpt)"
+{
+  "paths": {
+    "/pets": {
+      "get": {
+        "operationId": "listPets",
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Pet" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createPet",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/NewPet" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Pet" }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pets/{petId}": {
+      "get": {
+        "operationId": "getPet",
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Pet" }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 ```
+
+`generate` writes `src/api/pets.sdk.ts` (the folder comes from `api.json`). Its end, as generated:
+
+```ts title="src/api/pets.sdk.ts (excerpt)"
+export type ListPetsQueryParams = Paths.ListPets.QueryParameters;
+export type ListPetsErrorType = undefined;
+export type ListPetsResponseType = Paths.ListPets.Responses.$200;
+
+export type CreatePetRequestBody = Paths.CreatePet.RequestBody;
+export type CreatePetErrorType = Paths.CreatePet.Responses.$422;
+export type CreatePetResponseType = Paths.CreatePet.Responses.$201;
+
+export type GetPetPathParams = Paths.GetPet.PathParameters;
+export type GetPetErrorType = Paths.GetPet.Responses.$404;
+export type GetPetResponseType = Paths.GetPet.Responses.$200;
+
+export type SdkSchema = {
+  pets: {
+    $get: RequestModel<{
+      response: ListPetsResponseType;
+      queryParams?: ListPetsQueryParams;
+      error: ListPetsErrorType;
+      endpoint: "/pets";
+    }>;
+    $post: RequestModel<{
+      response: CreatePetResponseType;
+      payload: CreatePetRequestBody;
+      error: CreatePetErrorType;
+      endpoint: "/pets";
+    }>;
+    $petId: {
+      $get: RequestModel<{
+        response: GetPetResponseType;
+        error: GetPetErrorType;
+        endpoint: "/pets/:petId";
+      }>;
+    };
+  };
+};
+
+export const createSdk = <Client extends ClientInstance>(
+  client: Client,
+  options?: Parameters<typeof coreCreateSdk>[1] | undefined,
+) => {
+  return coreCreateSdk<Client, SdkSchema>(client, {
+    ...options,
+    pathSegments: { ...sdkPathSegments, ...options?.pathSegments },
+  });
+};
+```
+
+Above it are the `Components` and `Paths` namespaces with the model and operation types, and `sdkPathSegments`.
+
+| Schema                        | Generated                                                                      |
+| ----------------------------- | ------------------------------------------------------------------------------ |
+| `components.schemas.Pet`      | `Components.Schemas.Pet`                                                       |
+| 2xx responses                 | `<Op>ResponseType`, a union, `any` when none is described                      |
+| 4xx and 5xx responses         | `<Op>ErrorType`, a union, `undefined` when none is described                   |
+| `requestBody`                 | `<Op>RequestBody`, the `payload`                                               |
+| Query parameters              | `<Op>QueryParams`, required when any query param is required                   |
+| Path `/pets/{petId}`          | Endpoint `"/pets/:petId"`, keys `pets.$petId`                                  |
+| HTTP method                   | `$get`, `$post`, `$put`, `$patch`, `$delete` on the path                       |
+| Path `/user-profiles`         | Key `userProfiles`. camelCase segments such as `findByStatus` go in `sdkPathSegments` |
+
+Type names come from the `operationId`. Operations without one get names built from the method and path.
+
+---
+
+## Use the generated SDK
+
+```ts title="src/api/index.ts"
+import { createClient } from "@hyper-fetch/core";
+import { createSdk } from "./pets.sdk";
+
+export const client = createClient({ url: "https://api.example.com" });
+
+export const sdk = createSdk(client).$configure({
+  "*": { retry: 2 },
+});
+
+const { data, error } = await sdk.pets.$petId.$get.send({ params: { petId: 1 } });
+await sdk.pets.$post.send({ payload: { name: "Rex" } });
+```
+
+Do not edit the generated file, the next run replaces it. Put defaults in `$configure`, and auth or interceptors on the
+client. See [SDK](/docs/core/sdk).
+
+---
+
+## Flags
+
+| Flag          | Alias | Default                       | Description                                                                 |
+| ------------- | ----- | ----------------------------- | --------------------------------------------------------------------------- |
+| `--template`  | `-t`  | asked                         | `openapi` or `swagger`, both use the same generator                         |
+| `--url`       | `-u`  | asked                         | An `http(s)` URL, or a local `.json` path relative to `--cwd`               |
+| `--fileName`  | `-f`  | asked, `api-<template>.sdk.ts` | File name inside the `api` folder from `api.json`                           |
+| `--overwrite` | `-o`  | asked when the file exists    | Replace an existing file without asking                                     |
+| `--cwd`       | `-c`  | current directory             | Working directory with `package.json` and `tsconfig.json`                    |
+| `--help`      | `-h`  |                               | Print the flags                                                             |
+
+There is no `--output` flag, and `-o` means `--overwrite`. The folder comes from `aliases.api` in `api.json`, see
+[`init`](/docs/cli/commands/init). The interactive prompt accepts URLs only, so pass local files with `--url`.
+
+---
+
+## Regenerate in CI
+
+Pass `-t`, `-u`, `-f` and `-o` so the command never prompts, and fail the build when the committed SDK is stale:
+
+```json title="package.json"
+{
+  "scripts": {
+    "api:generate": "hyper-fetch generate -t openapi -u ./openapi.json -f pets.sdk.ts -o",
+    "api:check": "npm run api:generate && git diff --exit-code -- src/api/pets.sdk.ts"
+  }
+}
+```
+
+Run `tsc` after it: calls that no longer match the API fail to compile.
+
+---
+
+## Troubleshooting
+
+| Problem                             | Cause and fix                                                                   |
+| ----------------------------------- | ------------------------------------------------------------------------------- |
+| `unknown option '--output'`         | There is no such flag. Set the folder in `api.json`, the name with `-f`         |
+| `Failed to load tsconfig.json`      | Add a `tsconfig.json` to the working directory                                  |
+| `Cannot reach the server`           | The schema URL is unreachable. Download the schema and pass the local path      |
+| Protected schema URL                | The CLI sends no auth headers. Download it with your credentials first          |
+| YAML schema                         | Only JSON is parsed. Convert the file first                                     |
+| File written to another folder      | `aliases.api` resolves through tsconfig `paths`. Check the alias and the paths  |
+
+---
+
+:::secondary Summary
+
+- `generate` writes types, an `SdkSchema` and `createSdk` into the `api` folder from `api.json`.
+- Pass `-t`, `-u`, `-f` and `-o` in scripts so it never prompts.
+- Never edit the output: configure with `$configure` and the client, then regenerate.
 
 :::
 
-1. ### Wizard
+## Next steps
 
-To use the wizard, run the following command:
-
-```bash
-npx @hyper-fetch/cli@latest generate
-```
-
-It will guide you through the process of generating the typed requests and data models.
-
-2. ### Custom arguments
-
-You can also pass individual arguments to the command. Which is useful for the scripts.
-
-```bash
-npx @hyper-fetch/cli@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --fileName petstore.sdk.ts
-```
+See the [OpenAPI codegen example](/examples/integrations/openapi-codegen) for a runnable project.
 
 <LinkCard
-  type="docs"
-  title="Initialize a cli project"
-  description="Learn how to initialize a cli project and generate code from your api"
-  to="/docs/cli/commands/init/"
+  type="guides"
+  title="OpenAPI to TypeScript"
+  description="Compare OpenAPI generators and go from a schema to a React component."
+  to="/docs/cli/openapi-typescript-client"
 />
 
----
-
-## Example
-
-```bash
-npx @hyper-fetch/cli@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --fileName petstore.sdk.ts
-```
-
-This writes `petstore.sdk.ts` to the `api` directory configured in `api.json` (`src/api` by default). Each path becomes a
-nested key and each HTTP method a `$`-prefixed key on it, so `GET /store/inventory` is `sdk.store.inventory.$get`.
-
-Kebab-case segments become camelCase keys: `GET /user-profiles` is `sdk.userProfiles.$get`. Segments that are already
-camelCase keep their spelling in the url: `GET /pet/findByStatus` is `sdk.pet.findByStatus.$get` and calls
-`/pet/findByStatus`. The generated file exports these segments as `sdkPathSegments` and passes them to `createSdk` as
-the `pathSegments` option. Segments you pass yourself take precedence.
-
-Then to use generated SDK you can do the following:
-
-```ts
-import { createClient } from "@hyper-fetch/core";
-// This is the path to the generated SDK
-// highlight-start
-import { createSdk } from "./path-to-my-sdk";
-// highlight-end
-
-const client = createClient({
-  url: "http://localhost:3000",
-});
-// Export the sdk
-// highlight-start
-export const sdk = createSdk(client);
-// highlight-end
-
-// code-editor-split
-
-import { sdk } from "./client";
-
-// Use the sdk
-// highlight-start
-const { data, error } = await sdk.store.inventory.$get.send();
-// highlight-end
-
-if (error) {
-  console.error(error);
-}
-
-console.log(data);
-```
-
----
-
-## Available arguments
-
-| Flag                      | Description                                                                          |
-| ------------------------- | ------------------------------------------------------------------------------------ |
-| `-t`, `--template <name>` | Schema template: `openapi` or `swagger`                                              |
-| `-u`, `--url <source>`    | Schema source: an `http(s)` URL or a local `.json` path relative to `--cwd`          |
-| `-f`, `--fileName <name>` | Name of the generated file. It is written to the `api` directory from `api.json`     |
-| `-o`, `--overwrite`       | Overwrite an existing file without asking                                            |
-| `-c`, `--cwd <dir>`       | Working directory (default: the current directory)                                   |
-| `-h`, `--help`            | Print the available arguments                                                        |
-
-Every value you leave out is asked for interactively. Pass `-t`, `-u`, `-f` and `-o` in scripts and CI so the command
-never prompts.
-
-:::info Output location
-
-There is no `--output` flag. The folder comes from `aliases.api` in `api.json`, and `--fileName` only sets the file name.
-
-:::
-
-Run the following command to print the arguments in your terminal:
-
-```bash
-npx @hyper-fetch/cli@latest generate --help
-```
-
----
-
-:::success Congratulations!
-
-You've learned how to use the code generator in HyperFetch!
-
-1.  You can use the wizard to guide you through the process.
-2.  You can pass individual arguments to the command for more control.
-
-:::
+<LinkCard type="docs" title="SDK" description="createSdk, $configure and RequestModel." to="/docs/core/sdk" />

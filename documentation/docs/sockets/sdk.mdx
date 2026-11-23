@@ -1,276 +1,165 @@
 ---
 sidebar_position: 7
 title: Socket SDK
-description: "The Socket SDK describes your real-time API as one typed object. Create listeners and emitters by dot notation with the $listener and $emitter keys."
+description: "The Socket SDK describes every topic of a realtime server as one typed object. Reach listeners and emitters by dot notation with $listener and $emitter."
 sidebar_label: SDK
 ---
 
-The **Socket SDK** brings the same proxy-based, type-safe SDK pattern from `@hyper-fetch/core` to real-time sockets.
-Instead of HTTP methods (`$get`, `$post`), you use `$listener` and `$emitter` as leaf keys to create listener and
-emitter instances on the fly.
+# Socket SDK
 
----
+The **socket SDK** is a typed tree of every listener and emitter of a server, the realtime twin of the
+[HTTP SDK](/docs/core/sdk). You describe the topics once in a schema type, and `createSocketSdk` builds the
+[listener](/docs/sockets/listener) or [emitter](/docs/sockets/emitter) for a path when you access its `$listener` or
+`$emitter` key.
 
-:::tip Purpose
+```ts title="sdk.ts"
+import { createSocketClient, createSocketSdk } from "@hyper-fetch/sockets";
+import type { EmitterModel, ListenerModel } from "@hyper-fetch/sockets";
 
-1. **Type-Safe Sockets**: Full TypeScript coverage for topics, responses, and payloads.
-2. **tRPC-like Syntax**: Access listeners and emitters with dot-notation (e.g., `sdk.chat.messages.$listener`).
-3. **Zero Performance Overhead**: Generates instances on-demand using proxies.
-4. **Dynamic Topic Support**: Handle parameterized topics like `chat/:roomId`.
-5. **Centralized Configuration**: Configure all listeners/emitters from one place with `$configure`.
+type ChatMessage = { text: string; user: string };
 
-:::
-
----
-
-## Initialization
-
-```typescript
-import { Socket, createSocketSdk } from "@hyper-fetch/sockets";
-
-const socket = new Socket({ url: "ws://localhost:3000" });
-
-type MyChatSchema = {
-  // ... schema definition
-};
-
-const sdk = createSocketSdk<typeof socket, MyChatSchema>(socket);
-```
-
-:::note Default topic naming
-
-`createSocketSdk` defaults to `camelCaseToKebabCase: true`. This means property names in your SDK schema are
-automatically converted to kebab-case topic strings (e.g., `chatMessages` becomes `chat-messages`). You can disable
-this by passing `{ camelCaseToKebabCase: false }` as the third argument.
-
-:::
-
----
-
-## Defining the Schema
-
-The schema maps your socket topics as a nested type. Leaf nodes use `$listener` for receiving events and `$emitter` for
-sending events. Dynamic topic segments are prefixed with `$` (e.g., `$roomId` becomes `/:roomId`).
-
-:::tip Use `ListenerModel` / `EmitterModel` for schema leaves — not the `*Instance` types
-
-When defining a schema you are describing **one specific topic**. Use `ListenerModel<{...}>` / `EmitterModel<{...}>` —
-omitted fields stay strict (`unknown`, `undefined`, `string`, `false`) so the type system catches mismatches instead of
-silently collapsing to `any`. The mental model below explains when to reach for each type.
-
-:::
-
-```typescript
-import type { ListenerModel, EmitterModel } from "@hyper-fetch/sockets";
-
-// Schemas describe shape, response, payload and topic only. The socket (and its adapter)
-// is injected automatically by createSocketSdk(socket) - no need to repeat per leaf.
-type MyChatSchema = {
+type ChatSchema = {
   chat: {
     messages: {
-      // highlight-start
       $listener: ListenerModel<{
-        response: { text: string; user: string };
+        response: ChatMessage;
         topic: "chat/messages";
       }>;
       $emitter: EmitterModel<{
         payload: { text: string };
         topic: "chat/messages";
       }>;
-      // highlight-end
     };
+  };
+};
+
+export const socket = createSocketClient({ url: "wss://api.example.com/ws" });
+export const sdk = createSocketSdk<typeof socket, ChatSchema>(socket);
+
+sdk.chat.messages.$listener.listen(({ data }) =>
+  console.log(data.user, data.text),
+);
+sdk.chat.messages.$emitter.emit({ payload: { text: "Hello" } });
+```
+
+The generics are the socket type first and the schema second. Instances are created on access, so a large schema costs
+nothing until you use it.
+
+:::tip Purpose
+
+1. **One typed tree** for every topic of a server, with responses and payloads checked.
+2. **No per-topic boilerplate**: listeners and emitters are created from the path.
+3. **Central configuration** with `$configure`, by topic, wildcard or path.
+
+:::
+
+---
+
+## Topics come from the path
+
+The runtime topic is built from the property path, not from the `topic` in the model. Keep the two equal, or the types
+describe a topic the SDK never uses.
+
+| Access                           | Topic            | Rule                                          |
+| -------------------------------- | ---------------- | --------------------------------------------- |
+| `sdk.chat.messages.$listener`    | `chat/messages`  | Segments are joined with `/`                  |
+| `sdk.chat.$roomId.$listener`     | `chat/:roomId`   | A `$name` segment becomes a param             |
+| `sdk.liveTrades.$listener`       | `live-trades`    | camelCase becomes kebab-case, default `true`  |
+
+Turn the kebab-case conversion off with `createSocketSdk(socket, { camelCaseToKebabCase: false })`.
+
+```ts title="rooms.ts"
+type RoomSchema = {
+  chat: {
     $roomId: {
       $listener: ListenerModel<{
-        response: { text: string; user: string };
+        response: ChatMessage;
         topic: "chat/:roomId";
       }>;
     };
   };
-  notifications: {
+};
+
+const rooms = createSocketSdk<typeof socket, RoomSchema>(socket);
+
+rooms.chat.$roomId.$listener
+  .setParams({ roomId: "general" })
+  .listen(({ data }) => console.log(data.text));
+```
+
+---
+
+## Describe topics with models
+
+Use `ListenerModel` and `EmitterModel` for schema leaves. Fields you leave out stay strict, so a topic without a
+payload rejects one. `ListenerInstance` and `EmitterInstance` default every field to `any` and are for generic
+constraints in reusable helpers.
+
+| Model           | Fields                                                     | Defaults                                         |
+| --------------- | ---------------------------------------------------------- | ------------------------------------------------ |
+| `ListenerModel` | `response`, `payload`, `topic`, `hasPayload`, `hasParams`, `delivered` | `unknown`, `undefined`, `string`, `false`, `false`, `response` |
+| `EmitterModel`  | `payload`, `topic`, `hasPayload`, `hasParams`              | `undefined`, `string`, `false`, `false`          |
+
+You never set `socket` in a model: `createSocketSdk(socket)` adds it to every leaf, with its adapter types.
+
+Set `delivered` only when a [delivery strategy](/docs/sockets/listener#throttle-or-batch-fast-topics) changes what
+callbacks receive, because a strategy configured at runtime cannot change schema types:
+
+```ts title="trades.ts"
+type TradesSchema = {
+  liveTrades: {
     $listener: ListenerModel<{
-      response: { message: string };
-      topic: "notifications";
+      response: Trade;
+      topic: "live-trades";
+      delivered: Trade[];
     }>;
   };
 };
-```
 
-### `*Model` vs `*Instance` — two mindsets
-
-HyperFetch ships **two complementary type families** for describing listeners and emitters. They look similar but
-solve opposite problems. Picking the right one is the difference between strict end-to-end safety and accidental
-`any` leaks.
-
-| | `ListenerModel<{...}>` / `EmitterModel<{...}>` | `ListenerInstance<{...}>` / `EmitterInstance<{...}>` |
-| --- | --- | --- |
-| **Mindset** | "**This** specific topic." | "**Any** listener/emitter that matches this partial shape." |
-| **Use for** | Socket SDK schema leaves, single-topic definitions, listener / emitter factories. | Generic constraints (`<T extends ...>`), reusable hooks / wrappers / utilities that accept any listener or emitter. |
-| **Omitted fields default to** | Strict, non-`any` (`unknown`, `undefined`, `string`, `false`). | `any` — on purpose, so any concrete `Listener` / `Emitter` satisfies the constraint. |
-| **Why those defaults?** | Absence means "**there is no payload / no params**". The type should reject mismatches. | Absence means "**I don't care about that field**". The type should accept anything. |
-
-:::info `delivered` field
-
-`ListenerModel` also accepts an optional `delivered` field - the type `listen` callbacks receive. It defaults to
-`response` and only needs to be set when a `delivery` strategy changes the shape, because runtime defaults cannot
-change schema types:
-
-```ts
-type Schema = {
-  trades: {
-    $listener: ListenerModel<{ response: Trade; topic: "trades"; delivered: Trade[] }>;
-  };
-};
-
-const configured = sdk.$configure({
-  trades: { delivery: { strategy: "batch", interval: 100 } },
+const trades = createSocketSdk<typeof socket, TradesSchema>(socket, {
+  defaults: {
+    "live-trades": { delivery: { strategy: "batch", interval: 100 } },
+  },
 });
-```
 
-:::
-
-```ts
-// MODEL — defining the chat/messages topic exactly:
-//   response is { text, user }
-//   topic is the literal string
-//   strict types mean unrelated payloads / topics are rejected.
-type ChatMessages = ListenerModel<{
-  response: { text: string; user: string };
-  topic: "chat/messages";
-}>;
-
-// INSTANCE — accepting any listener whose response has a `text` field:
-//   response is constrained
-//   topic, params etc. can be ANY shape — caller picks.
-function MessageBubble<T extends ListenerInstance<{ response: { text: string } }>>(props: { listener: T }) {
-  // ...
-}
-```
-
-If you find yourself writing `ListenerInstance` inside a schema, that is a signal you wanted `ListenerModel`. If you
-find yourself writing `ListenerModel` as a generic constraint on a reusable component, that is a signal you wanted
-`ListenerInstance`.
-
-:::info Socket injection — you do not pass `socket` per leaf
-
-You do not have to add `socket: AppSocket` to every `ListenerModel` / `EmitterModel` declaration.
-`createSocketSdk(socket)` rewrites the schema type at the boundary so every `Listener` and `Emitter` leaf carries the
-actual socket (and therefore its adapter). The schema describes topic shape; the SDK supplies the runtime context.
-
-:::
-
----
-
-## Usage
-
-### Listening to events
-
-```typescript
-sdk.chat.messages.$listener.listen(({ data }) => {
-  console.log(data.text, data.user);
-});
-```
-
-### Emitting events
-
-```typescript
-sdk.chat.messages.$emitter.emit({ payload: { text: "Hello!" } });
-```
-
-### Dynamic topics with parameters
-
-```typescript
-sdk.chat.$roomId.$listener
-  .setParams({ roomId: "general" })
-  .listen(({ data }) => {
-    console.log(data);
-  });
+// data: Trade[]
+trades.liveTrades.$listener.listen(({ data }) => console.log(data.length));
 ```
 
 ---
 
-## SDK Configuration ($configure)
+## Configure many topics at once
 
-The `$configure` method works the same way as the core HTTP SDK. Configuration supports two value formats:
-**plain objects** for common settings and **functions** for full access to every Listener/Emitter setter.
+`defaults` in the options, or `sdk.$configure(map)`, applies settings to the leaves a key matches. `$configure` returns a
+new SDK and merges with the defaults it already has.
 
-### Instance-Specific Keys (Dot-Path)
-
-Use **dot-path keys** that mirror the SDK accessor chain to target a specific listener or emitter:
-
-```typescript
+```ts title="sdk.ts"
 const configured = sdk.$configure({
-  "chat.messages.$listener": (instance) => instance.setOptions({ buffer: true }),
-  "chat.messages.$emitter": (instance) => instance.setPayloadMapper(myMapper),
+  "chat/*": { delivery: { strategy: "latest", interval: 50 } },
+  "chat.messages.$emitter": (emitter) =>
+    emitter.setPayloadMapper((payload) => ({ ...payload, sentAt: Date.now() })),
 });
 ```
 
-### Topic Group Keys
+| Key                                       | Matches                                    |
+| ----------------------------------------- | ------------------------------------------ |
+| `"*"`                                     | Every listener and emitter                 |
+| An exact topic, such as `"chat/messages"` | The leaves with that topic                 |
+| A wildcard, such as `"chat/*"`            | Topics under `chat/`, and `chat` itself    |
+| A dot path, such as `"chat.messages.$listener"` | That one leaf                        |
 
-Use **topic-based keys** to configure all listeners and emitters on a topic at once:
+- A value is either an object or a function `(instance) => instance` with access to every setter.
+- In an object, `options` goes to `setOptions` and `delivery` to `setDelivery`. Emitters ignore `delivery`.
+- Keys apply in order: `"*"`, then topic keys, then dot paths, so the most specific one wins.
+- `options` must be options the adapter understands. The WebSocket and SSE adapters have none.
 
-```typescript
-const configured = sdk.$configure({
-  "chat/messages": { options: { priority: "high" } },
-  "chat/*": { options: { reconnect: true } },
-});
-```
+To keep the configuration in its own file, type it with `createSocketConfiguration`:
 
-### Function-Based Values
-
-Functions receive the instance and return a modified one, giving access to every setter:
-
-```typescript
-import type { SocketSdkConfigurationValue } from "@hyper-fetch/sockets";
-
-const setReconnect: SocketSdkConfigurationValue = (instance) =>
-  instance.setOptions({ reconnect: true });
-
-const configured = sdk.$configure({
-  "*": setReconnect,
-  "chat.messages.$emitter": (instance) => instance.setPayloadMapper(myMapper),
-});
-```
-
-### Plain Object Values
-
-For common settings, use a plain object shorthand:
-
-```typescript
-const configured = sdk.$configure({
-  "*": { options: { reconnect: true } },
-  "chat/*": { options: { priority: "high" } },
-});
-```
-
-| Key | Type | Description |
-|-----|------|-------------|
-| `options` | `Record<string, unknown>` | Adapter-specific options passed to `setOptions` |
-| `delivery` | `ListenerDeliveryType` | Delivery strategy passed to `setDelivery` on listeners (`latest` / `batch` preset or a custom strategy). Ignored for emitters. |
-
-### Application Order
-
-When multiple keys match, they apply in this order (later overrides earlier):
-
-1. **`"*"`** — Global defaults
-2. **Topic groups** — `"chat/messages"`, `"chat/*"`
-3. **Dot-path specific** — `"chat.messages.$listener"`
-
-### Configuration Keys
-
-- **`"*"`** — Matches all listeners and emitters (global defaults).
-- **Exact topic** — e.g. `"chat/messages"` matches all listeners/emitters on that topic.
-- **Wildcard** — e.g. `"chat/*"` matches topics like `chat/messages`, `chat/rooms`, etc.
-- **Dot-path** — e.g. `"chat.messages.$listener"` targets a specific instance.
-
-### Multi-file Configuration
-
-```typescript
+```ts title="chat.config.ts"
 import { createSocketConfiguration } from "@hyper-fetch/sockets";
-import type { MyChatSchema } from "./schema";
 
-export const chatConfig = createSocketConfiguration<MyChatSchema>()({
-  "chat/*": { options: { reconnect: true } },
-  "chat.messages.$listener": (instance) => instance.setOptions({ buffer: true }),
+export const chatConfig = createSocketConfiguration<ChatSchema>()({
+  "chat/*": { delivery: { strategy: "latest", interval: 50 } },
 });
 ```
 
@@ -278,41 +167,48 @@ export const chatConfig = createSocketConfiguration<MyChatSchema>()({
 
 :::secondary Summary
 
-The Socket SDK provides the same developer experience as the core HTTP SDK, adapted for real-time communication.
-Define your schema once, access listeners and emitters via dot-notation, and centralize configuration with `$configure`.
-Configuration supports plain-object shorthand, function-based values for full setter access, topic group matching with
-wildcards, and a clear 3-level application order (global -> topic group -> dot-path specific).
+- Describe topics with `ListenerModel` and `EmitterModel`, and keep each `topic` equal to its path.
+- `createSocketSdk<typeof socket, Schema>(socket)` builds listeners and emitters on access.
+- `$name` segments become params, and camelCase keys become kebab-case topics unless you turn it off.
+- Configure many leaves with `defaults` or `$configure`, from `"*"` to a single dot path.
 
 :::
 
 ---
 
-## See Also
+## Next steps
 
-<LinkCard
-  type="docs"
-  title="Socket Class"
-  description="Learn about the Socket class and connection management."
-  to="/docs/sockets/socket"
-/>
-
-<LinkCard
-  type="docs"
-  title="Listeners"
-  description="Dive deeper into creating and using listeners."
-  to="/docs/sockets/listener"
-/>
-
-<LinkCard
-  type="docs"
-  title="Emitters"
-  description="Dive deeper into creating and using emitters."
-  to="/docs/sockets/emitter"
-/>
-
-<LinkCard
-  type="docs"
-  title="HTTP SDK"
-  description="See how the same SDK pattern works for HTTP requests."
-  to="/docs/core/sdk"
-/>
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Listener"
+      description="Params, payloads and delivery strategies of a listener."
+      to="/docs/sockets/listener"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="HTTP SDK"
+      description="The same pattern for requests with createSdk."
+      to="/docs/core/sdk"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="guides"
+      title="WebSockets in React"
+      description="Use SDK listeners and emitters with useListener and useEmitter."
+      to="/docs/guides/sockets/websockets-in-react"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="api"
+      title="createSocketSdk API reference"
+      description="Parameters and types of createSocketSdk."
+      to="/docs/api/sockets/Functions/createSocketSdk"
+    />
+  </div>
+</div>

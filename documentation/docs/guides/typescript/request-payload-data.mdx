@@ -5,88 +5,87 @@ description: "Type the request payload in HyperFetch for POST and PUT calls, so 
 sidebar_label: Request Payload Data
 ---
 
-# Request Payload Data Type
+# Request payload type
 
-When sending data to a server, for instance with `POST` or `PUT` requests, ensuring the payload structure is correct is
-essential. HyperFetch provides a way to define a **payload type** for your requests. This gives you compile-time
-safety, preventing common errors and making your API interactions more reliable.
+The `payload` generic types the body a request sends. Every caller of the request is then checked against it, and the
+payload is required at `send()` until it is set. For encoding and `FormData`, see the
+[payload guide](/docs/guides/core/basics/payload).
 
 :::secondary What you'll learn
 
-1.  How to define a **payload type** for a request that sends data.
-2.  How to pass a **type-safe payload** when sending the request.
-3.  How this improves **developer experience** with autocompletion and error checking.
+1. How to type the payload with the **`payload` generic**.
+2. What TypeScript **catches** when the payload is wrong or missing.
+3. How to **reuse** the type with `ExtractPayloadType`.
 
 :::
 
-### Why is it helpful?
+---
 
-- **Data Integrity**: Ensures that the data sent to the server matches the expected structure, preventing
-  `400 Bad Request` errors.
-- **Type Safety**: Provides compile-time validation for the payload, catching errors before the code is even run.
-- **Developer Experience**: Offers autocompletion for payload properties, speeding up development and reducing typos.
-- **Clear API Contracts**: The typed request serves as clear documentation for what data an endpoint expects.
+## Type the payload
+
+```ts title="src/api/users.ts"
+type CreateUserPayload = { name: string; email: string; age?: number };
+
+export const createUser = client.createRequest<{
+  response: User;
+  payload: CreateUserPayload;
+}>()({ endpoint: "/users", method: "POST" });
+
+const { data } = await createUser.send({
+  payload: { name: "Ann", email: "ann@example.com" },
+});
+```
 
 ---
 
-### Example
+## What TypeScript catches
 
-By defining a `payload` type in the `createRequest` generic, you enforce a strict structure for the data sent with the
-`.send()` method.
+```ts title="src/app.ts"
+// error-next-line
+await createUser.send(); // payload is required
 
-```ts
-// import { createClient } from '@hyper-fetch/core';
+// error-next-line
+await createUser.send({ payload: { name: "Ann" } }); // email is missing
 
-export const client = createClient({
-  url: "https://api.example.com",
-});
-
-// 1. Define the response type for the creation endpoint
-type User = { id: number; name: string; email: string; age: number };
-type ResponseType = User;
-
-// 2. Define the type for the request payload
-// highlight-start
-type RequestPayloadType = {
-  name: string;
-  email: string;
-  age: number;
-};
-// highlight-end
-
-// 3. Create the request, specifying the response and payload types
-const postUser = client.createRequest<{
-  response: ResponseType;
-  payload: RequestPayloadType;
-}>()({
-  method: "POST",
-  endpoint: "/users",
-});
-
-// 4. Send the request with a type-safe payload
-// The `payload` property in the `send` method is now strongly typed.
-// Try adding a property that doesn't exist in `RequestPayloadType` to see an error.
-const { data, error } = await postUser.send({
-  payload: {
-    name: "Jane Doe",
-    email: "jane.doe@example.com",
-    age: 30,
-  },
-});
-
-if (data) {
-  console.log("Successfully created user:", data);
-}
+const prepared = createUser.setPayload({ name: "Ann", email: "ann@example.com" });
+await prepared.send(); // payload is set, send() takes no payload
 ```
+
+A request with a payload set no longer accepts another one in `send()`. Start from the original request to send a
+different payload. For an endpoint whose body is optional, make the fields optional, such as
+`payload: { from?: string }`, and send `payload: {}` when there is nothing to pass.
+
+---
+
+## Reuse the payload type
+
+`ExtractPayloadType` reads the payload type from a request, for forms and helpers:
+
+```ts title="src/user-form.ts"
+import type { ExtractPayloadType } from "@hyper-fetch/core";
+
+type UserForm = ExtractPayloadType<typeof createUser>; // CreateUserPayload
+
+export const submitUser = (values: UserForm) =>
+  createUser.send({ payload: values });
+```
+
+`setPayloadMapper` does not change the payload type: callers keep passing the typed object, and the mapper converts it
+right before sending.
 
 ---
 
 :::success Congratulations!
 
-You've learned how to define and use payload types!
+You've learned how payloads are typed.
 
-- You can specify a **`payload` type** for requests that send data to a server.
-- You can provide a **type-safe payload** to the `.send()` method.
-- You can build more **reliable API interactions** with compile-time checks.
+- You can type the payload with the **`payload`** generic and let TypeScript require it.
+- You can **reuse** the type with `ExtractPayloadType`.
 
 :::
+
+Runnable example: [Forms](/examples/mutations/forms).
+
+<LinkCard type="guides" title="Payload" description="Send JSON, FormData and binary bodies." to="/docs/guides/core/basics/payload" />
+
+<LinkCard type="guides" title="Request extractors" description="Read every part of a request's type." to="/docs/guides/typescript/request-extractors" />

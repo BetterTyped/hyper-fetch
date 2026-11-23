@@ -1,282 +1,215 @@
 ---
 sidebar_position: 3
 title: Mocking
-description: "Mock API requests in tests with request.setMock() in HyperFetch, keep mocks in one test SDK, override responses per test, mock sockets, or use MSW instead."
+description: "Mock API requests in tests with request.setMock() in HyperFetch, simulate errors and delays, keep mocks in one test SDK, or use MSW instead."
 sidebar_label: Mocking
 ---
 
-Mocking is a technique used to replace real API calls with controlled, fake responses during testing. This is crucial
-for creating fast, reliable, and deterministic tests, as you don't have to rely on a real backend. With HyperFetch, you
-can leverage your existing request definitions to create mocks easily.
+A mock replaces the network call of a request with a response you control, so tests are fast, deterministic and need no
+backend. In HyperFetch you attach it with `request.setMock()`, typed by the request itself. This guide covers mocks on
+single requests, timings and errors, a test SDK with all mocks in one place, and MSW.
 
 :::secondary What you'll learn
 
-1.  **Why mocking** is essential for robust testing.
-2.  How to create **reusable mock handlers** based on your HyperFetch requests.
-3.  How to write **tests using mocked** API responses.
-4.  How to **centralize mocks** with SDK `$configure` and inject them into tests.
-5.  How to create **per-test overrides** for error states, empty states, and edge cases.
-6.  How to mock **Socket SDK** listeners and emitters.
-7.  How to use **MSW (Mock Service Worker)** to intercept requests.
+1. How to **mock a request** with `setMock` and remove the mock.
+2. How to mock **errors, delays and timeouts**.
+3. How to **centralize mocks** in a test SDK and override them per test.
+4. When to use **MSW** instead.
 
 :::
 
 ---
 
-## Why Mock?
+## Mock a request
 
-When you're testing your application, you want to ensure that your components and logic work correctly without being
-affected by external factors like network issues or backend changes. Mocking allows you to:
+`setMock` takes a function that receives `{ request, requestId }` and returns a response: a `status` plus `data` for a
+success or `error` for a failure. The returned values are checked against the request's types.
 
-- **Isolate your frontend code**: Test your UI and business logic without needing a running backend.
-- **Control test data**: Define the exact data your API calls should return, making it easy to test various scenarios
-  (e.g., success, error, empty states).
-- **Increase test speed**: Network requests are slow. Mocking them makes your tests run significantly faster.
-- **Avoid rate limiting**: You won't hit real API rate limits during testing.
+```ts title="src/api/users.test.ts"
+import { getUsers } from "./users";
 
----
+afterEach(() => getUsers.clearMock());
 
-## Built-in Mock Handlers
+it("returns the mocked users", async () => {
+  getUsers.setMock(() => ({ data: [{ id: 1, name: "Ann" }], status: 200 }));
 
-You can attach a mock handler to your requests with `setMock`. The handler receives `{ request, requestId }` and returns
-the mocked response: a `status` plus `data` (success) or `error` (failure).
+  const { data, success } = await getUsers.send();
 
-```typescript
-import { getUsers } from "src/api/users";
-
-getUsers.setMock(() => ({ data: mockUsers, status: 200 }));
-
-const response = await getUsers.send();
-
-console.log(response.data); // mockUsers
-console.log(response.success); // true
+  expect(success).toBe(true);
+  expect(data).toEqual([{ id: 1, name: "Ann" }]);
+});
 ```
 
-The mock runs inside the adapter step, so deduplication, retries, cache writes and lifecycle callbacks behave the same
-as with a real server. Pass a config as the second argument to control timings (`requestTime`, `responseTime`, both
-`20` ms by default) or to simulate a timeout (`timeout` in milliseconds).
+The mock replaces only the adapter call. Interceptors, mappers, deduplication, retries, cache writes and lifecycle
+callbacks run as with a real server.
+
+`setMock` is the one setter that changes the request instance instead of returning a copy, so the mock stays on the
+exported request until `clearMock()`. `setMockingEnabled(false)` turns one request's mock off, and
+`client.setEnableGlobalMocking(false)` turns off every mock of the client.
 
 ---
 
-## Using Mocks in Tests
+## Mock errors, delays and timeouts
 
-Now, let's see how you can use this `setMock` method in your tests.
+Return `error` and a status to test failure states. The function can read the request, for example its params, and can
+be async.
 
-```tsx title="src/components/Users.test.tsx"
-import { screen } from "@testing-library/react";
-import { getUsers } from "src/api/users";
-import { Users } from "./Users";
+```ts title="src/api/users.test.ts"
+// A 404 for every user except 1
+getUser.setMock(({ request }) =>
+  request.params?.userId === 1
+    ? { data: { id: 1, name: "Ann", email: "ann@example.com" }, status: 200 }
+    : { error: { message: "Not found", code: "NOT_FOUND" }, status: 404 },
+);
+```
 
-it("should render a list of users", async () => {
-  // 1. Define the mock data
-  const mockUsers = [
-    { id: 1, name: "John Doe" },
-    { id: 2, name: "Jane Doe" },
-  ];
+The second argument controls timing:
 
-  // 2. Create and apply the mock handler
-  // highlight-start
-  getUsers.setMock(() => ({ data: mockUsers, status: 200 }));
-  // highlight-end
+| Option            | Default | Simulates                                                  |
+| ----------------- | ------- | ---------------------------------------------------------- |
+| `requestTime`     | `20`    | Upload time in milliseconds, with progress events          |
+| `responseTime`    | `20`    | Download time in milliseconds, with progress events        |
+| `timeout`         | none    | A `TimeoutError` after this many milliseconds              |
+| `totalUploaded`, `totalDownloaded` | `1000` | Sizes reported in progress events        |
 
-  // 3. Render your component that's using HyperFetch to get the data
+```ts title="src/api/users.test.ts"
+// A slow response, to test loading states
+getUsers.setMock(() => ({ data: [], status: 200 }), { responseTime: 1000 });
+
+// A timeout, to test the timeout message
+getUsers.setMock(() => ({ data: [], status: 200 }), {
+  requestTime: 500,
+  timeout: 100,
+});
+```
+
+---
+
+## Test a component
+
+In component tests, mock the request before rendering. The hooks read the mocked response like a real one.
+
+```tsx title="src/components/users.test.tsx"
+import { render, screen } from "@testing-library/react";
+
+import { client } from "../api/client";
+import { getUsers } from "../api/users";
+import { Users } from "./users";
+
+beforeEach(() => client.clear());
+afterEach(() => getUsers.clearMock());
+
+it("renders the users", async () => {
+  getUsers.setMock(() => ({ data: [{ id: 1, name: "Ann" }], status: 200 }));
+
   render(<Users />);
 
-  // 4. Assert that the component renders the mock data
-  expect(await screen.findByText("John Doe")).toBeInTheDocument();
-  expect(await screen.findByText("Jane Doe")).toBeInTheDocument();
+  expect(await screen.findByText("Ann")).toBeInTheDocument();
 });
 ```
 
-By using HyperFetch you can create a powerful and maintainable testing setup where your mocks are always in sync with
-your application code.
+See [isolation](/docs/guides/testing/isolation) for why the client is cleared before each test.
 
 ---
 
-## Mocking with SDK Configuration
+## Centralize mocks in a test SDK
 
-If you're using the SDK pattern (`createSdk`), you can centralize all your test mocks in a single `$configure` call.
-The key insight is that `$configure` is **immutable** — it returns a brand new SDK instance with mocks baked in, so
-your production code is never affected. You then **inject** this test SDK into your components during tests.
+With an [SDK](/docs/core/sdk), put every mock in one `$configure` call. `$configure` returns a new SDK, so the production
+SDK stays untouched, and the endpoint keys are checked against the schema.
 
-### Creating a Test SDK
+```ts title="test/sdk.ts"
+import { sdk } from "../src/api/sdk";
 
-Create a shared test setup file that wraps your production SDK with mocks for every endpoint:
-
-```typescript title="test/mocks.ts"
-import { sdk } from "src/api/sdk";
-import type { RequestInstance } from "@hyper-fetch/core";
-
-const mockUsers = [
-  { id: 1, name: "John Doe" },
-  { id: 2, name: "Jane Doe" },
-];
-
-// highlight-start
 export const testSdk = sdk.$configure({
-  "users.$get": (request: RequestInstance) => request.setMock(() => ({ data: mockUsers, status: 200 })),
-  "users.$userId.$get": (request: RequestInstance) =>
+  "users.$get": (request) =>
+    request.setMock(() => ({ data: [{ id: 1, name: "Ann" }], status: 200 })),
+  "users.$userId.$get": (request) =>
     request.setMock(({ request: sent }) => {
-      // The callback request is typed loosely, so read the filled endpoint ("/users/1")
-      const user = mockUsers.find((u) => u.id === Number(sent.endpoint.split("/").pop()));
-      return user ? { data: user, status: 200 } : { error: new Error("Not found"), status: 404 };
+      // Callback requests are typed loosely, so read the filled endpoint:
+      // "/users/1"
+      const userId = Number(sent.endpoint.split("/").pop());
+      return userId === 1
+        ? { data: { id: 1, name: "Ann" }, status: 200 }
+        : { error: new Error("Not found"), status: 404 };
     }),
-  "posts.$get": (request: RequestInstance) => request.setMock(() => ({ data: [], status: 200 })),
 });
-// highlight-end
 ```
 
-:::tip Why `RequestInstance` (and not `RequestModel`) here?
+Pass it to components the way your app passes the SDK, such as a prop or a context:
 
-`$configure` callbacks are a textbook **constraint** use case: the callback accepts the request that the SDK happens
-to dispatch and returns it (possibly mutated). You do not care about the exact shape — `RequestInstance` says "any
-request" and lets the chainable setters work without TypeScript fighting you. `RequestModel` is for **defining** an
-endpoint inside a schema; here we are **operating on** one. See the [Extend Request guide](/docs/guides/typescript/extend)
-for the full mental model.
-
-:::
-
-### Injecting the Test SDK
-
-The test SDK is a drop-in replacement for the production SDK. Pass it into your components or hooks through props,
-context, or a dependency injection mechanism — whatever your app already uses:
-
-```tsx title="src/components/Users.tsx"
-import { useFetch } from "@hyper-fetch/react";
-import type { SdkInstance } from "src/api/sdk";
-
-// The component accepts the SDK as a prop, making it testable
-export function Users({ sdk }: { sdk: SdkInstance }) {
-  const { data, loading, error } = useFetch(sdk.users.$get);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error!</p>;
-  return <ul>{data?.map((u) => <li key={u.id}>{u.name}</li>)}</ul>;
-}
-```
-
-```tsx title="src/components/Users.test.tsx"
-import { screen, render } from "@testing-library/react";
-// highlight-next-line
-import { testSdk } from "test/mocks";
-import { Users } from "./Users";
-
-it("should render a list of users", async () => {
-  // highlight-next-line
+```tsx title="src/components/users.test.tsx"
+it("renders the users", async () => {
   render(<Users sdk={testSdk} />);
-
-  expect(await screen.findByText("John Doe")).toBeInTheDocument();
-  expect(await screen.findByText("Jane Doe")).toBeInTheDocument();
+  expect(await screen.findByText("Ann")).toBeInTheDocument();
 });
 ```
 
-### Per-Test Overrides
+### Override mocks per test
 
-Since `$configure` is chainable, you can start from your base `testSdk` and override specific endpoints for individual
-tests without affecting other tests:
+`$configure` can be chained, so a test starts from `testSdk` and changes only what it needs:
 
-```tsx
-import { testSdk } from "test/mocks";
-import type { RequestInstance } from "@hyper-fetch/core";
-
-it("should show empty state when no users", async () => {
-  // highlight-start
-  const emptyUsersSdk = testSdk.$configure({
-    "users.$get": (request: RequestInstance) => request.setMock(() => ({ data: [], status: 200 })),
+```tsx title="src/components/users.test.tsx"
+it("shows the empty state", async () => {
+  const emptySdk = testSdk.$configure({
+    "users.$get": (request) =>
+      request.setMock(() => ({ data: [], status: 200 })),
   });
-  // highlight-end
 
-  render(<Users sdk={emptyUsersSdk} />);
+  render(<Users sdk={emptySdk} />);
   expect(await screen.findByText("No users found")).toBeInTheDocument();
 });
 
-it("should show error state", async () => {
-  // highlight-start
+it("shows the error state", async () => {
   const errorSdk = testSdk.$configure({
-    "users.$get": (request: RequestInstance) =>
-      request.setMock(() => ({ error: new Error("Server error"), status: 500 })),
+    "users.$get": (request) =>
+      request.setMock(() => ({
+        error: new Error("Server error"),
+        status: 500,
+      })),
   });
-  // highlight-end
 
   render(<Users sdk={errorSdk} />);
-  expect(await screen.findByText("Error!")).toBeInTheDocument();
+  expect(await screen.findByText("Something went wrong")).toBeInTheDocument();
 });
 ```
-
-### Mocking Response Mappers
-
-You can also inject response mappers through `$configure` to test how your components handle transformed data:
-
-```typescript
-const mappedSdk = sdk.$configure({
-  "users.$get": (request: RequestInstance) =>
-    request
-      .setMock(() => ({ data: rawApiResponse, status: 200 }))
-      // A response mapper receives the whole response and returns a response
-      .setResponseMapper((response) => ({ ...response, data: response.data?.users ?? null })),
-});
-```
-
-### Socket SDK Mocking
-
-The same pattern works for the Socket SDK. Create a test socket SDK with preconfigured listeners and emitters:
-
-```typescript title="test/socket-mocks.ts"
-import { socketSdk } from "src/api/socket-sdk";
-import type { SocketSdkConfigurationValue } from "@hyper-fetch/sockets";
-
-const setTestOptions: SocketSdkConfigurationValue = (instance) =>
-  instance.setOptions({ test: true });
-
-export const testSocketSdk = socketSdk.$configure({
-  "*": setTestOptions,
-  "chat.messages.$emitter": (instance) =>
-    instance.setPayloadMapper((payload) => ({
-      ...payload,
-      testMode: true,
-    })),
-});
-```
-
-:::note Why is this helpful?
-
-- **Centralized**: All mocks live in one place, easy to find and update.
-- **Type-safe**: The SDK schema validates that you're mocking real endpoints — typos are caught at compile time.
-- **Full control**: Function-based values let you use `setMock`, `setResponseMapper`, or any other Request setter.
-- **Immutable**: `$configure` returns a new SDK, so your production instance is never affected.
-- **Composable**: Chain `$configure` calls for per-test overrides without duplicating the entire mock setup.
-- **No network layer**: Mocks run inside the Request lifecycle - no need for MSW, interceptors, or fake servers.
-
-:::
 
 ---
 
-## Using MSW with HyperFetch
+## Mock with MSW
 
-We recommend using [MSW (Mock Service Worker)](https://mswjs.io/) for mocking API requests. It's a powerful library that
-intercepts requests on the network level, meaning your application doesn't even know it's not talking to a real server.
+[MSW](https://mswjs.io/) intercepts requests at the network level, so the adapter runs too. Use it when you want to test
+the adapter, such as headers sent by the fetch adapter, or when the same handlers serve other clients. `setMock` is
+faster to set up and is typed by the request, so prefer it for component and logic tests.
 
-The best part is that you can use your existing HyperFetch requests to configure MSW, which keeps your mocks in sync
-with your actual API definitions.
-
-:::note Work in progress
-
-We are working on the MSW integration docs.
-
-:::
+| Use                 | When                                                             |
+| ------------------- | ---------------------------------------------------------------- |
+| `request.setMock`   | A few requests in one test, typed against the request            |
+| Test SDK            | Many endpoints, one set of defaults, per-test overrides          |
+| MSW                 | Testing the adapter itself, or handlers shared with other tools  |
 
 ---
 
 :::success Congratulations!
 
-You've learned how to mock API requests in your HyperFetch application!
+You've learned how to mock requests.
 
-- You can explain the **benefits of mocking** for testing.
-- You can create **type-safe mock handlers** that stay in sync with your API.
-- You can **centralize all test mocks** using SDK `$configure` with `setMock`.
-- You can **inject a test SDK** into components and create **per-test overrides** for specific scenarios.
-- You can mock **Socket SDK** listeners and emitters with the same `$configure` pattern.
-- You can set up **MSW** to work with your HyperFetch requests.
-- You are able to write **isolated and reliable tests** for your components.
+- You can **mock** a request with `setMock` and remove the mock with `clearMock`.
+- You can simulate **errors, delays and timeouts**.
+- You can keep every mock in a **test SDK** and override them per test.
+- You know when **MSW** fits better.
 
 :::
+
+Runnable examples: [Testing](/examples/getting-started/testing), [Mocking](/examples/request-control/mocking) and
+[Optimistic updates](/examples/mutations/optimistic-updates), which uses mocks for its API.
+
+<LinkCard type="guides" title="Isolation" description="Reset the client between tests." to="/docs/guides/testing/isolation" />
+
+<LinkCard type="docs" title="Mocking" description="How mocks run inside the request pipeline." to="/docs/core/mocking" />
+
+<LinkCard
+  type="api"
+  title="Request API reference"
+  description="setMock, clearMock and setMockingEnabled."
+  to="/docs/api/core/Classes/Request"
+/>

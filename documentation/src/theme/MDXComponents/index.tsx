@@ -20,6 +20,7 @@ import {
   Highlights,
 } from "@site/src/components/highlights/highlights";
 import { Screenshot } from "@site/src/components/screenshot/screenshot";
+import { Flow, FlowStep, Lead, Tile, Tiles } from "@site/src/components/overview/overview";
 
 /**
  * MDX components
@@ -52,6 +53,11 @@ const MDXComponents: MDXComponentsObject = {
   Highlights,
   Highlight,
   Screenshot,
+  Lead,
+  Tiles,
+  Tile,
+  Flow,
+  FlowStep,
 };
 
 // eslint-disable-next-line import/no-default-export

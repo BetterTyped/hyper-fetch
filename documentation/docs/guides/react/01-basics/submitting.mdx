@@ -1,220 +1,226 @@
 ---
 sidebar_position: 2
 title: Mutations in React with useSubmit
-description: Run mutations in React with useSubmit, the HyperFetch counterpart of React Query useMutation. Create, update and delete data with loading states.
+description: Run mutations in React with useSubmit, the HyperFetch counterpart of React Query useMutation. Create, update and delete data and refresh lists.
 sidebar_label: Submitting
 ---
 
 # Mutations in React with useSubmit
 
-A mutation is any request that changes data on the server: creating, updating or deleting something. Reads run on their
-own when a component mounts. Mutations run when the user does something, like submitting a form or clicking "Delete".
-Mutations in React need a few things a read doesn't: a way to trigger the request by hand, a `submitting` flag to
-disable the button, a result you can act on, and a way to refresh the data the mutation changed.
-
-In HyperFetch, `useFetch` is for reading and `useSubmit` is for mutations. Its `submit` function returns a promise, so
-you can reset a form or show a notification once the request completes.
+A mutation changes data on the server: create, update or delete. It runs when the user acts, so it needs a manual
+trigger, a `submitting` flag, a result to act on and a way to refresh the data it changed. In HyperFetch,
+[`useSubmit`](/docs/react/hooks/use-submit) does this; [`useFetch`](/docs/guides/react/basics/fetching) is only for
+reading.
 
 :::secondary What you'll learn
 
-1.  How to use the **`useSubmit` hook** to send data to the server.
-2.  How `useSubmit` maps to React Query's **`useMutation`**.
-3.  How to handle **form submissions** for creating and updating data.
-4.  How to trigger **actions** like deleting an item.
-5.  How the **`submit` function** works as a promise for easy chaining of actions.
-6.  How to manage **loading states** (`submitting`) to provide user feedback.
+1.  How to submit a **form** and act on the awaited result.
+2.  How to pass **params and payload** to update and delete requests.
+3.  How to **refresh other data** after a mutation: refetch, invalidate or write to the cache.
+4.  How to **prevent double submits** with the hook and the request.
+5.  How `useSubmit` maps to React Query's **`useMutation`**.
 
 :::
+
+---
+
+## Submit a form
+
+`submit()` sends a copy of the request with the values you pass and resolves with the response. It never rejects: HTTP
+errors come back in `response.error`, so check `response.success` instead of using `try`/`catch`.
+
+```tsx title="components/add-todo.tsx"
+import { useState } from "react";
+import { useSubmit } from "@hyper-fetch/react";
+import { client } from "../api/client";
+import { createTodo, getTodos } from "../api/todos";
+
+export function AddTodo() {
+  const [title, setTitle] = useState("");
+  const { submit, submitting, error } = useSubmit(createTodo);
+
+  const onSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const response = await submit({ payload: { title, completed: false } });
+
+    if (response.success) {
+      setTitle("");
+      // Every mounted useFetch(getTodos) sends again
+      client.cache.invalidate(getTodos);
+    }
+  };
+
+  return (
+    <form onSubmit={onSubmit} className="flex gap-2">
+      <input
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="What needs to be done?"
+      />
+      <button type="submit" disabled={submitting}>
+        {submitting ? "Adding..." : "Add"}
+      </button>
+      {error && <p className="text-red-500">{error.message}</p>}
+    </form>
+  );
+}
+```
+
+The state field is `submitting`, not `loading`. `data` and `error` hold the result of the last submit of this hook.
+
+---
+
+## Update and delete with params
+
+Requests with URL params, such as `/todos/:todoId`, take them in `submit()`. TypeScript requires every value the request
+does not have yet, so a missing `todoId` is a compile error.
+
+```tsx title="components/todo-item.tsx"
+function TodoItem({ todo }: { todo: Todo }) {
+  const { submit: update } = useSubmit(updateTodo);
+  const { submit: remove, submitting: removing } = useSubmit(deleteTodo);
+
+  return (
+    <li className="flex justify-between">
+      <span
+        onClick={() =>
+          update({
+            params: { todoId: todo.id },
+            payload: { completed: !todo.completed },
+          })
+        }
+      >
+        {todo.title}
+      </span>
+      <button
+        onClick={() => remove({ params: { todoId: todo.id } })}
+        disabled={removing}
+      >
+        Delete
+      </button>
+    </li>
+  );
+}
+```
+
+One hook per action keeps each `submitting` flag separate. The request passed to the hook is never changed by
+`submit()`.
+
+---
+
+## Refresh the data a mutation changed
+
+A mutation has its own cache key, so a list that shows the changed item does not update by itself. Pick one of these:
+
+```tsx title="Three ways to refresh"
+const { submit, onSubmitSuccess } = useSubmit(createTodo);
+
+onSubmitSuccess(({ response }) => {
+  // 1. Refetch every mounted useFetch(getTodos), across components
+  client.cache.invalidate(getTodos);
+
+  // 2. Or write the result into the cached list, without a request
+  client.cache.update(getTodos, (cached) => ({
+    data: [...(cached?.data ?? []), response.data],
+  }));
+});
+
+// 3. Or refetch only in this component: const { refetch } = useFetch(getTodos)
+```
+
+- **Invalidate** when the server may change more than the item, such as sorting or counters.
+- **Update the cache** when the response is the full new item and you want no extra request.
+- **`refetch()`** from `useFetch` refreshes one component only. `useSubmit().refetch()` invalidates the mutation's own key,
+  not the list.
+
+To show the change before the server answers, use [optimistic updates](/docs/guides/react/basics/optimistic-approach).
+To refresh even after the form unmounted, declare it on the request with
+`setOptimistic(() => ({ invalidate: [getTodos] }))`.
+
+---
+
+## Callbacks or the awaited result
+
+Use the awaited result for logic tied to one call site, such as closing a dialog. Use callbacks for logic that applies
+to every submit of the hook. Callbacks receive one object, fire only for this hook's submits, and fire in this order:
+`onSubmitRequestStart`, then success, error, abort or offline error, then `onSubmitFinished`.
+
+```tsx title="components/contact-form.tsx"
+const { submit, onSubmitSuccess, onSubmitError, onSubmitFinished } =
+  useSubmit(sendMessage);
+
+onSubmitSuccess(() => toast("Message sent"));
+onSubmitError(({ response, details }) => {
+  // With retries, onSubmitError fires for every failed attempt
+  if (!details.willRetry) toast(response.error.message);
+});
+onSubmitFinished(({ response }) => console.log("Done", response.success));
+```
+
+---
+
+## Prevent double submits
+
+Disabling the button with `submitting` covers most forms. For rapid calls, choose by what should happen:
+
+| Behavior                                      | Set                                     |
+| --------------------------------------------- | --------------------------------------- |
+| Send only the last call within a time window  | `useSubmit(request, { bounce: true })`  |
+| Abort the previous call when a new one starts | `request.setCancelable(true)`           |
+| Send calls one at a time, in order            | `request.setQueued(true)`               |
+| Share one request between identical calls     | `request.setDeduplicate(true)`          |
+
+The [queues guide](/docs/guides/react/basics/queues) shows queued mutations with `useQueue`.
 
 ---
 
 ## useSubmit and useMutation
 
-If you're coming from React Query, `useSubmit` fills the same spot as
-[`useMutation`](https://tanstack.com/query/latest/docs/framework/react/guides/mutations). The main difference is that
-`useMutation` wraps a function you write (`mutationFn`), while `useSubmit` takes a request object that already knows its
-endpoint, method and types.
+`useSubmit` fills the spot of React Query's `useMutation`. It takes a request that already knows its endpoint, method and
+types, instead of a `mutationFn`.
 
-| React Query `useMutation`         | HyperFetch `useSubmit`                                   |
-| --------------------------------- | --------------------------------------------------------- |
-| `mutationFn: (vars) => fetch(...)` | `useSubmit(createTodo)`, the request is the definition  |
-| `mutate(vars)`                    | `submit({ payload, params, queryParams })`                |
-| `mutateAsync(vars)`, throws on error | `await submit(...)`, resolves with `{ data, error, success }`, never rejects |
-| `isPending`                       | `submitting`                                              |
-| `data`, `error`                   | `data`, `error`                                           |
-| `onMutate`                        | `onSubmitRequestStart`, or `setOptimistic` on the request |
-| `onSuccess`, `onError`, `onSettled` | `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`  |
-| `invalidateQueries` in `onSuccess` | `client.cache.invalidate(getTodos)`                     |
-
-Because `submit` resolves even when the server returns an error, you check `success` (or `error`) instead of wrapping
-the call in `try` / `catch`. All options and return values are in the
-[useSubmit reference](../../../react/04-hooks/use-submit.mdx).
-
----
-
-## Managing a To-Do List
-
-Let's build a complete example of a to-do list application. We'll use `useSubmit` for all the mutation logic: adding a
-new to-do, toggling its completion status, and deleting it.
-
-```tsx
-function TodoApp() {
-  const { data: todos, loading, refetch } = useFetch(getTodos);
-  const [newTodo, setNewTodo] = React.useState("");
-
-  // 1. Setup submit hooks for each action
-  // highlight-start
-  const { submit: addTodo, submitting: isAdding } = useSubmit(createTodo);
-  const { submit: updateTodo } = useSubmit(updateTodoRequest);
-  const { submit: deleteTodo } = useSubmit(deleteTodoRequest);
-  // highlight-end
-
-  const handleAddTodo = async (e) => {
-    e.preventDefault();
-    if (!newTodo.trim()) return;
-
-    // The submit function returns a promise
-    await addTodo({ payload: { title: newTodo, completed: false } });
-
-    // After success, clear the input and refetch the list
-    setNewTodo("");
-    refetch();
-  };
-
-  const handleToggleTodo = async (todo) => {
-    await updateTodo({
-      params: { todoId: todo.id },
-      payload: { completed: !todo.completed },
-    });
-    refetch();
-  };
-
-  const handleDeleteTodo = async (todoId) => {
-    await deleteTodo({ params: { todoId } });
-    refetch();
-  };
-
-  if (loading) return <p className="p-4">Loading to-do list...</p>;
-
-  return (
-    <div className="border rounded-md">
-      <div className="p-4 border-b">
-        <h2 className="text-xl font-bold">My To-Do List</h2>
-        <form onSubmit={handleAddTodo} className="flex items-center mt-4">
-          <input
-            type="text"
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
-            placeholder="What needs to be done?"
-            className="flex-grow p-2 border rounded-l-md"
-          />
-          <button
-            type="submit"
-            disabled={isAdding}
-            className="p-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 disabled:bg-gray-400"
-          >
-            {isAdding ? "Adding..." : "Add Todo"}
-          </button>
-        </form>
-      </div>
-      <ul className="divide-y divide-gray-200">
-        {todos?.map((todo) => (
-          <li key={todo.id} className="p-4 flex items-center justify-between">
-            <span
-              onClick={() => handleToggleTodo(todo)}
-              className={`cursor-pointer ${todo.completed ? "line-through text-gray-500" : ""}`}
-            >
-              {todo.title}
-            </span>
-            <button onClick={() => handleDeleteTodo(todo.id)} className="text-red-500 hover:text-red-700">
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-```
-
-### How It Works
-
-1.  **Setup**: We set up separate `useSubmit` hooks for each mutation: `createTodo`, `updateTodoRequest`, and
-    `deleteTodoRequest`. This keeps the logic for each action clean and separate.
-2.  **Creating**: The `handleAddTodo` function calls `addTodo` with the new to-do's data. Because `submit` is a promise,
-    we can `await` it and then run code after it completes, such as clearing the input field and calling `refetch()`
-    to refresh the to-do list.
-3.  **Updating**: `handleToggleTodo` calls `updateTodo` with the `todoId` in `params` and the new `completed` status in
-    `payload`. We then refetch to show the change.
-4.  **Deleting**: `handleDeleteTodo` calls `deleteTodo` with the appropriate `todoId` and refetches.
-5.  **Loading State**: The `submitting` boolean (which we aliased to `isAdding` for the create action) is used to
-    disable the "Add" button while the request is in flight, preventing duplicate submissions.
-
-This example shows how `useSubmit` covers all the data-changing parts of a screen.
-
-### Refreshing other components
-
-`refetch()` refreshes the list in this component only. When other components show the same data, invalidate the cache
-instead. Every `useFetch` reading it refetches:
-
-```tsx
-const { success } = await addTodo({ payload: { title: newTodo, completed: false } });
-
-if (success) {
-  // highlight-next-line
-  client.cache.invalidate(getTodos);
-}
-```
-
-To show the change before the server answers, use [optimistic updates](./optimistic-approach.mdx). For all invalidation
-options, see [cache invalidation](../../core/02-advanced/cache-revalidation.mdx).
-
----
-
-## Lifecycle Callbacks
-
-The `useSubmit` hook returns registrar functions for monitoring the submission lifecycle. These are called outside of the
-JSX, similar to React's effect hooks:
-
-```tsx
-function ContactForm() {
-  const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } = useSubmit(sendMessage);
-
-  // highlight-start
-  onSubmitSuccess(({ response }) => {
-    toast.success("Message sent successfully!");
-  });
-
-  onSubmitError(({ response }) => {
-    toast.error(`Failed: ${response.error?.message}`);
-  });
-
-  onSubmitFinished(({ response }) => {
-    console.log("Submission complete", response.success);
-  });
-  // highlight-end
-
-  return (
-    <button onClick={() => submit({ payload: { text: "Hello" } })} disabled={submitting}>
-      {submitting ? "Sending..." : "Send Message"}
-    </button>
-  );
-}
-```
-
-Available lifecycle registrars: `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`, `onSubmitRequestStart`,
-`onSubmitResponseStart`, `onSubmitAbort`, `onSubmitOfflineError`, `onSubmitDownloadProgress`,
-`onSubmitUploadProgress`.
+| React Query `useMutation`            | HyperFetch `useSubmit`                                    |
+| ------------------------------------ | --------------------------------------------------------- |
+| `mutationFn: (vars) => fetch(...)`   | `useSubmit(createTodo)`                                   |
+| `mutate(vars)` / `mutateAsync(vars)` | `submit({ payload, params, queryParams })`                |
+| `mutateAsync` throws on error        | `submit` resolves with `{ data, error, success }`         |
+| `isPending`                          | `submitting`                                              |
+| `onMutate`                           | `setOptimistic` on the request                            |
+| `onSuccess`, `onError`, `onSettled`  | `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`    |
+| `invalidateQueries` in `onSuccess`   | `client.cache.invalidate(getTodos)`                       |
 
 ---
 
 :::success Congratulations!
 
-You are now a pro at submitting data with `useSubmit`!
+You can now run mutations in React with `useSubmit`.
 
-- You can perform **create, update, and delete** operations with ease.
-- You know how to use the **`submit` promise** to chain actions after a request.
-- You can manage **loading states** to create a responsive and intuitive UI.
-- You can **refetch** data from `useFetch` to keep your UI in sync with server changes.
+- You can submit forms and act on the **awaited response** without `try`/`catch`.
+- You can pass **params and payload** to update and delete requests.
+- You can **invalidate** or **update the cache** so lists show the change.
+- You can stop **double submits** with `submitting`, `bounce` or request settings.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="useSubmit reference"
+  description="Every option, return value and callback of the hook."
+  to="/docs/react/hooks/use-submit"
+/>
+
+<LinkCard
+  type="guides"
+  title="Optimistic updates"
+  description="Show the change at once and roll it back when the request fails."
+  to="/docs/guides/react/basics/optimistic-approach"
+/>
+
+- Guides: [progress](/docs/guides/react/basics/progress), [queues](/docs/guides/react/basics/queues),
+  [cache revalidation](/docs/guides/core/advanced/cache-revalidation).
+- Runnable examples: [forms](/examples/mutations/forms), [CRUD](/examples/mutations/crud),
+  [invalidation](/examples/mutations/invalidation), [fetch on click](/examples/data-fetching/fetch-on-click),
+  [bulk actions](/examples/mutations/bulk-actions).
+- API: [`useSubmit`](/docs/api/react/Hooks/useSubmit).

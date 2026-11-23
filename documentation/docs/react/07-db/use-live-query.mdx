@@ -1,52 +1,135 @@
 ---
 sidebar_position: 1
 title: Live queries
+description: "useLiveQuery runs a @hyper-fetch/db query in React and keeps the component current as rows load, sync from sockets and change from writes."
 sidebar_label: useLiveQuery
 ---
 
 # useLiveQuery
 
-The `useLiveQuery` hook reads a [`@hyper-fetch/db`](/docs/db/overview) query and keeps the component current as the
-collection changes. It is exported from `@hyper-fetch/react`, with `@hyper-fetch/db` as an optional peer dependency.
+`useLiveQuery` runs a [`@hyper-fetch/db`](/docs/db/overview) query and keeps the component current as the collection
+changes from loads, syncs and writes. Use it when the same records show in several views; for a response used by one
+screen, [`useFetch`](/docs/react/hooks/use-fetch) is enough. For pages of an ordered list, use
+[`useLiveInfiniteQuery`](/docs/react/db/use-live-infinite-query).
+
+:::tip Purpose
+
+1. **Query, not endpoint**: the db picks the loader and sends what the backend can serve.
+2. **Always current**: rows change in place when writes, syncs or other queries touch them.
+3. **No dependency array**: a query is identified by its structure.
+
+:::
 
 ---
 
 ## Usage
 
-```tsx
+```tsx title="components/team-posts.tsx"
 import { eq } from "@hyper-fetch/db";
 import { useLiveQuery } from "@hyper-fetch/react";
+import { db } from "./db";
 
-const {
-  data,
-  status,
-  error,
-  stale,
-  isFetching,
-  hasNextPage,
-  refetch,
-  fetchNextPage,
-} = useLiveQuery(
-  db.post
-    .where((post) => eq(post.teamId, teamId))
-    .select((post) => ({ id: post.id, title: post.title })),
-);
+function TeamPosts({ teamId }: { teamId: number }) {
+  const { data, status, error } = useLiveQuery(
+    db.post
+      .where((post) => eq(post.teamId, teamId))
+      .orderBy((post) => post.createdAt, "desc")
+      .select((post) => ({ id: post.id, title: post.title })),
+  );
+
+  if (status === "loading") return <p>Loading...</p>;
+  if (status === "error") return <p>Could not load posts: {String(error)}</p>;
+  return (
+    <ul>
+      {data?.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+}
 ```
 
-- A query is data, so one rebuilt on every render with the same structure is the same query. The hook takes no
-  dependency array, and a changed `teamId` starts a new query.
-- `status` is `"loading"`, `"ready"`, or `"error"` when a first load failed and there is nothing to show. A refresh that
-  fails keeps the rows and sets `error`.
-- `stale` is true while the rows may be out of date, and `isFetching` while a request is in flight.
-- The hook does not compile for a query no loader of the collection can serve.
+`@hyper-fetch/react` exports the hook, with `@hyper-fetch/db` as an optional peer dependency.
 
 ---
 
-## List and detail
+## Options
 
-```tsx
-const header = useLiveQuery(db.postSummary.findOne(postId).local());
-const body = useLiveQuery(db.post.findOne(postId));
+The hook takes only the query. It does not compile for a query that no loader of the collection can serve, for example
+one that misses a loader's required filter.
+
+---
+
+## Returns
+
+| Field           | Type                                | Description                                                                  |
+| --------------- | ----------------------------------- | ---------------------------------------------------------------------------- |
+| `data`          | rows or `undefined`                 | `undefined` until the query has loaded, then the selected fields of every row. |
+| `status`        | `"loading" \| "ready" \| "error"`   | `"error"` only when a first load failed and there is nothing to show.        |
+| `error`         | `unknown`                           | The last failure, also when a refresh failed and the rows stay.              |
+| `stale`         | `boolean`                           | The rows may be out of date: their subset is stale or its syncs disconnected. |
+| `isFetching`    | `boolean`                           | A request for the query is in flight.                                        |
+| `hasNextPage`   | `boolean`                           | A paginated query has another page.                                          |
+| `refetch`       | `() => Promise<void>`               | Load the query's subset again.                                               |
+| `fetchNextPage` | `() => Promise<void>`               | Load the next page of a paginated query.                                     |
+
+---
+
+## Change the query
+
+A query is data, so one rebuilt on every render with the same structure is the same query. Build it inline; when
+`teamId` changes, the hook starts the new query. A query that falls inside rows the db already holds is answered
+without a request; `query.explain()` shows what is sent and what runs locally.
+
+---
+
+## Show a list item before its detail loads
+
+Read the summary the list already holds with `.local()`, and load the full record with `findOne`. The header renders at
+once, and the body waits for the full post.
+
+```tsx title="components/post-page.tsx"
+function PostPage({ postId }: { postId: number }) {
+  const header = useLiveQuery(db.postSummary.findOne(postId).local());
+  const body = useLiveQuery(db.post.findOne(postId));
+
+  return (
+    <article>
+      <h1>{header.data?.title}</h1>
+      {body.status === "ready" ? <p>{body.data?.body}</p> : <p>Loading...</p>}
+    </article>
+  );
+}
 ```
 
-The header renders from the list's summary at once, and the body waits for the full post.
+`.local()` queries never load and never start syncs.
+
+---
+
+:::secondary Summary
+
+1. `useLiveQuery(query)` runs a db query and re-renders as its rows change.
+2. Build the query inline; its structure is its identity.
+3. `status` is `"error"` only when nothing can be shown; a failed refresh keeps the rows and sets `error`.
+
+:::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Live queries"
+  description="Filter, sort and render collections with useLiveQuery."
+  to="/docs/guides/db/basics/live-queries"
+/>
+
+<LinkCard
+  type="api"
+  title="useLiveQuery API reference"
+  description="Generated types for the hook and its return value."
+  to="/docs/api/react/Hooks/useLiveQuery"
+/>
+
+- Guides: [list and detail](/docs/guides/db/patterns/list-and-detail),
+  [debugging live queries](/docs/guides/db/production/debugging).
+- Related: [DB quick start](/docs/db/quick-start), [`DbProvider`](/docs/react/db/db-provider).

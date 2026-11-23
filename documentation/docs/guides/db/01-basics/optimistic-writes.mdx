@@ -7,23 +7,20 @@ description:
 sidebar_label: Optimistic Writes
 ---
 
-# Optimistic Writes
+# Optimistic writes
 
-An optimistic write shows its result before the server answers. Like buttons, renames and checkboxes feel instant, even
-on a slow network. The hard part is the undo: when the request fails, the UI must go back, without wiping out other
-changes made in the meantime. With the db, a write is an **optimistic layer** on top of the server's rows. The layer
-records exactly what it changed, so a failure removes it and nothing else. You write no rollback code.
-
-This guide adds liking, renaming, creating and deleting posts to Teamboard.
+An optimistic write shows its result before the server answers, and must go back on failure without wiping out other
+changes made in the meantime. In the db, a write is an **optimistic layer** over the server's rows that records exactly
+what it changed, so a failure removes it and nothing else. This guide adds liking, renaming, creating and deleting posts
+to Teamboard, with no rollback code.
 
 :::secondary What you'll learn
 
-1.  How optimistic updates are done **with React Query**, and what the db does for you.
-2.  How to declare **insert, update and delete** once, with `.mutate()`.
-3.  How to write from components and read the **result** of a write.
-4.  What to do when the **response is not the row**: `keep`, `refetch` or `sync`.
-5.  How writes to one row are **ordered**, and what happens to writes built on a failed one.
-6.  How to send an **idempotency key**, and how keys and **render keys** work for new rows.
+1.  How to declare **insert, update and delete** once with `.mutate()`, and what it replaces from React Query.
+2.  How to write from components and read the **result** of a write.
+3.  What to do when the **response is not the row**: `keep`, `refetch` or `sync`.
+4.  How writes to one row are **ordered**, and what happens to writes built on a failed one.
+5.  How to send an **idempotency key**, and how keys and **render keys** work for new rows.
 
 :::
 
@@ -33,7 +30,7 @@ This guide adds liking, renaming, creating and deleting posts to Teamboard.
 
 With request-level caching, every optimistic update is a small protocol. In React Query it looks like this:
 
-```tsx
+```tsx title="React Query"
 useMutation({
   mutationFn: (changes) => api.patch(`/posts/${postId}`, changes),
   onMutate: async (changes) => {
@@ -44,8 +41,10 @@ useMutation({
     );
     return { previous };
   },
-  onError: (error, changes, context) => queryClient.setQueryData(["posts", teamId], context.previous),
-  onSettled: () => queryClient.invalidateQueries({ queryKey: ["posts", teamId] }),
+  onError: (error, changes, context) =>
+    queryClient.setQueryData(["posts", teamId], context.previous),
+  onSettled: () =>
+    queryClient.invalidateQueries({ queryKey: ["posts", teamId] }),
 });
 ```
 
@@ -54,7 +53,7 @@ own copies. Restoring a snapshot in `onError` can also erase a change another mu
 
 With the db, the same write is one line, and it reaches every query that shows the post:
 
-```ts
+```ts title="HyperFetch DB"
 await db.post.update(postId, { title: "Renamed" });
 ```
 
@@ -71,7 +70,7 @@ await db.post.update(postId, { title: "Renamed" });
 
 Writes are declared on the collection, next to its loaders. Each one maps the write to a request:
 
-```ts
+```ts title="src/db.ts"
 const Post = collection(PostSchema, { key: "id", version: "updatedAt" })
   .load(getPost, { byKey: (id) => ({ params: { postId: id } }) })
   .mutate({
@@ -98,20 +97,20 @@ const Post = collection(PostSchema, { key: "id", version: "updatedAt" })
 - Writes are validated against the schema **before** they show. An invalid write resolves with the issues and sends
   nothing.
 
-:::tip REST conventions
-
-If your API follows REST conventions and you have an SDK, `.resource()` derives the loaders and all three mutations in
-one call. See [Collections from a REST SDK](../02-patterns/rest-resources.mdx).
-
-:::
+With a typed REST SDK, `.resource()` derives the loaders and all three mutations in one call. See
+[Collections from a REST SDK](/docs/guides/db/patterns/rest-resources).
 
 ---
 
 ## Writing from components
 
-```tsx
+```tsx title="src/like-button.tsx"
 const LikeButton = ({ post }: { post: PostSummary }) => {
-  return <button onClick={() => db.post.update(post.id, { likes: post.likes + 1 })}>♥ {post.likes}</button>;
+  return (
+    <button onClick={() => db.post.update(post.id, { likes: post.likes + 1 })}>
+      ♥ {post.likes}
+    </button>
+  );
 };
 ```
 
@@ -120,12 +119,12 @@ fails, it goes back.
 
 Teamboard's feed reads `postSummary`, a second collection for the same posts. Declare the two as linked in `createDb`
 and an optimistic change to `post` shows in the feed at once too, and reverts in both. See
-[List and Detail Views](../02-patterns/list-and-detail.mdx).
+[List and detail views](/docs/guides/db/patterns/list-and-detail).
 
 Every write returns a **transaction**: a promise of `{ success, data, error }` with an `id`. Like `send()`, it never
 rejects, so you can await it for UI that depends on the outcome:
 
-```tsx
+```tsx title="src/rename-form.tsx"
 const RenameForm = ({ post }: { post: Post }) => {
   const [title, setTitle] = useState(post.title);
   const [error, setError] = useState<string | null>(null);
@@ -133,12 +132,17 @@ const RenameForm = ({ post }: { post: Post }) => {
   const save = async () => {
     setError(null);
     const result = await db.post.update(post.id, { title });
-    if (!result.success) setError("Could not rename the post. Your change was undone.");
+    if (!result.success)
+      setError("Could not rename the post. Your change was undone.");
   };
 
   return (
     <div className="flex flex-col gap-2">
-      <input className="rounded border px-2" value={title} onChange={(e) => setTitle(e.target.value)} />
+      <input
+        className="rounded border px-2"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
       <button onClick={save}>Rename</button>
       {error && <p className="text-red-600">{error}</p>}
     </div>
@@ -177,8 +181,11 @@ flowchart TD
 Many endpoints answer a write with `204 No Content`, `{ ok: true }` or some other shape. The db cannot write that into
 the collection, so it needs to know what to do instead. Leaving it out does not compile:
 
-```ts
-const archivePost = client.createRequest<{ response: { ok: boolean }; payload: Partial<Post> }>()({
+```ts title="src/db.ts"
+const archivePost = client.createRequest<{
+  response: { ok: boolean };
+  payload: Partial<Post>;
+}>()({
   endpoint: "/posts/:postId/archive",
   method: "POST",
 });
@@ -199,10 +206,9 @@ collection(PostSchema, { key: "id" }).mutate({
 | `"refetch"` | The loaded subsets holding the row reload; the layer stays until they land               | The server changes more than you sent   |
 | `"sync"`    | The layer stays until a sync event for the row arrives, or refetches after `syncTimeout` | A socket event follows every write      |
 
-`syncTimeout` defaults to five seconds and is set in `createDb`. With `"refetch"` and `"sync"`, the old value never
-flashes back between the response and the new data.
-
-Deletes need no `onSuccess`: a successful delete removes the row, whatever the response.
+`syncTimeout`: default five seconds, change it in `createDb`. With `"refetch"` and `"sync"`, the old value never flashes
+back between the response and the new data. Deletes need no `onSuccess`: a successful delete removes the row, whatever
+the response.
 
 ---
 
@@ -211,7 +217,7 @@ Deletes need no `onSuccess`: a successful delete removes the row, whatever the r
 Writes to the **same row** go out one at a time, in order, because each is built on the ones before it. When one fails,
 the writes queued behind it on that row are dropped too, and resolve with a `DependencyError`:
 
-```ts
+```ts title="src/publish.ts"
 import { DependencyError } from "@hyper-fetch/db";
 
 const rename = db.post.update(postId, { title: "Draft 2" });
@@ -223,17 +229,18 @@ if (result.error instanceof DependencyError) {
 }
 ```
 
-Writes to different rows run in parallel, unless they go through the [offline outbox](../02-patterns/offline-first.mdx),
-which replays every write in order. To make a write wait for another row's write, pass it in `dependsOn`:
+Writes to different rows run in parallel, unless they go through the
+[offline outbox](/docs/guides/db/patterns/offline-first), which replays every write in order. To make a write wait for another row's write, pass it in `dependsOn`:
 
-```ts
+```ts title="src/new-post.ts"
 const created = db.post.insert(newPost);
-db.comment.insert(firstComment, { dependsOn: [created] }); // dropped if the post is rejected
+// dropped if the post is rejected
+db.comment.insert(firstComment, { dependsOn: [created] });
 ```
 
 Writes are also ordered against everything else that writes rows. A list response that was in flight while a write or
 socket event landed never overwrites it, and a refetch waits for writes in flight before it replaces a list. With
-`version` on the collection, ordering uses the server's version field, which is the most robust choice.
+`version` on the collection, ordering uses the server's version field, which also guards against lagging replicas.
 
 ---
 
@@ -241,7 +248,7 @@ socket event landed never overwrites it, and a refetch waits for writes in fligh
 
 Generate keys on the client whenever you can:
 
-```ts
+```ts title="src/new-post.ts"
 await db.post.insert({
   id: crypto.randomUUID(),
   teamId,
@@ -255,15 +262,17 @@ await db.post.insert({
 });
 ```
 
-Client keys work offline, inside [transactions](../02-patterns/transactions.mdx), and for writes that depend on the new
-row. When the server must assign keys, the insert input has to allow leaving the key out. The optimistic row then gets a
+Client keys work offline, inside [transactions](/docs/guides/db/patterns/transactions), and for writes that depend on
+the new row. When the server must assign keys, the insert input has to allow leaving the key out. The optimistic row then gets a
 temporary key, and the server's row replaces it in one step when the response arrives. Writes made with the temporary
 key in the meantime wait, then use the server's key.
 
 Use `renderKey` for React keys, so a row does not remount when its temporary key is swapped:
 
-```tsx
-data?.map((post) => <PostCard key={db.postSummary.renderKey(post.id)} post={post} />);
+```tsx title="src/team-feed.tsx"
+data?.map((post) => (
+  <PostCard key={db.postSummary.renderKey(post.id)} post={post} />
+));
 ```
 
 :::caution Things that resolve with an error and send nothing
@@ -278,7 +287,8 @@ data?.map((post) => <PostCard key={db.postSummary.renderKey(post.id)} post={post
 :::note When to skip the optimistic layer
 
 - The server **computes** the result: an order number, a price with tax, a generated slug. Show a pending state and
-  write the response with [ingest](../02-patterns/list-and-detail.mdx) or `onSuccess: "refetch"`.
+  write the response with [ingest](/docs/guides/db/patterns/list-and-detail#ingesting-action-responses) or
+  `onSuccess: "refetch"`.
 - Failure is **common or costly**, like payments. A loading state is more honest than a change that often reverts.
 - The backend applies writes locally on its own, like Firestore. `firestoreCollection` already turns the db's layer off
   for you.
@@ -287,7 +297,7 @@ data?.map((post) => <PostCard key={db.postSummary.renderKey(post.id)} post={post
 
 ---
 
-:::success Writes done right!
+:::success Congratulations!
 
 Teamboard's writes feel instant and stay correct.
 
@@ -305,14 +315,18 @@ Teamboard's writes feel instant and stay correct.
 
 <LinkCard
   type="guides"
-  title="Real-time Sync with WebSockets"
+  title="Real-time sync with WebSockets"
   description="Keep every live query current from socket events, without patching caches."
   to="/docs/guides/db/basics/realtime-sync"
 />
 
 <LinkCard
   type="guides"
-  title="Multi-record Writes with Transactions"
+  title="Multi-record writes with transactions"
   description="Group writes to several rows and collections into one change that is kept or reverted as a whole."
   to="/docs/guides/db/patterns/transactions"
 />
+
+- Reference: [Offline-first](/docs/guides/db/patterns/offline-first), [Transactions](/docs/db/transactions).
+- API reference: [`MutationConfig`](/docs/api/db/Types/MutationConfig), [`MutationResult`](/docs/api/db/Types/MutationResult),
+  [`DependencyError`](/docs/api/db/Classes/DependencyError).

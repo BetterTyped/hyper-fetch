@@ -140,7 +140,7 @@ export default function DocBreadcrumbs(): JSX.Element | null {
                 <BreadcrumbsItemLink
                   href={href}
                   isLast={isLast}
-                  className={`${color.text} ${color.textAction} ${color.textHover} capitalize`}
+                  className={`${color.text} ${color.textAction} ${color.textHover}`}
                 >
                   {item.label}
                 </BreadcrumbsItemLink>

@@ -5,7 +5,8 @@
 .admonitionHeading {
   font: var(--ifm-heading-font-weight) var(--ifm-h5-font-size) /
     var(--ifm-heading-line-height) var(--ifm-heading-font-family);
-  text-transform: uppercase;
+  /* Titles render as written: sentence case, with names like Node.js or useFetch intact */
+  text-transform: none;
 }
 
 /* Heading alone without content (does not handle fragment content) */

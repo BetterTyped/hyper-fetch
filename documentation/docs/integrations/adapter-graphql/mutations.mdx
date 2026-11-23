@@ -7,127 +7,182 @@ sidebar_label: Mutations
 
 # GraphQL mutation examples with variables
 
-A graphql mutation changes data on the server: it creates, updates or deletes something, then returns the fields you
-select from the result. It looks like a query with `mutation` in front. The difference is what happens after it: the data your queries
-already hold may now be stale, and sending the same mutation twice can do the work twice.
+A GraphQL mutation changes data on the server and returns the fields you select from the result. With the
+[GraphQL adapter](/docs/integrations/adapter-graphql/overview) it is a request like a query: the document is the
+`endpoint` and the variables are the `payload`. What changes is what comes after it: the queries you already cached may
+now be stale.
 
-:::tip What you'll learn
+:::tip Purpose
 
-- How to create a GraphQL mutation.
-- How to pass variables to a mutation.
-- How to handle mutation responses.
-- How to refetch the queries a mutation changed.
+1. **Read the parts** of a mutation and how it differs from a query.
+2. **Send typed mutations** with generics or typed documents.
+3. **Refetch the queries** a mutation changed with `matchGqlOperation`.
 
 :::
 
 ---
 
-## How a mutation differs from a query
+## Anatomy of a GraphQL mutation
 
-|                      | Query                              | Mutation                                  |
-| -------------------- | ---------------------------------- | ----------------------------------------- |
-| Purpose              | Read                               | Write                                     |
-| Top-level fields     | The server may run them in parallel | The server runs them one after another   |
-| Safe to send twice   | Yes                                | Not always, it can repeat the write       |
-| After it succeeds    | Nothing to do                      | Refetch or update the queries it changed  |
+```graphql title="UpdateUser.graphql"
+mutation UpdateUser($id: ID!, $name: String!) {
+  updateUser(id: $id, name: $name) {
+    id
+    name
+  }
+}
+```
 
-Select the changed fields in the mutation's result, for example the updated `user { id name }`. Then the response alone
-tells you the new state, and you can decide which cached queries to refetch.
+|                    | Query                               | Mutation                                 |
+| ------------------ | ----------------------------------- | ---------------------------------------- |
+| Purpose            | Read                                | Write                                    |
+| Top-level fields   | The server may run them in parallel | The server runs them one after another   |
+| Safe to send twice | Yes                                 | Not always, it can repeat the write      |
+| After it succeeds  | Nothing to do                       | Refetch or update the queries it changed |
+
+Select the changed fields in the result, like `updateUser { id name }` above. The response then tells you the new state.
 
 ---
 
-## Basic Mutation
+## Send a mutation
 
-Here is a basic example of how to create a mutation to log in a user.
+Declare the response and the variables with generics, then pass the variables as the `payload`.
 
-```tsx
-import { Client } from "@hyper-fetch/core";
-import { GraphqlAdapter } from "@hyper-fetch/graphql";
+```ts title="api/users.ts"
 import gql from "graphql-tag";
 
-// 1. Initialize the client
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
+import { client } from "./client";
 
-// 2. Define types for the variables
-type Variables = {
-  username: string;
-  password: string;
-};
+type User = { id: string; name: string };
 
-// 3. Create the mutation request
-const login = client.createRequest<{ response: boolean; payload: Variables }>()({
+export const updateUser = client.createRequest<{
+  response: { updateUser: User };
+  payload: { id: string; name: string };
+}>()({
   endpoint: gql`
-    mutation Login($username: String!, $password: String!) {
-      login(username: $username, password: $password)
+    mutation UpdateUser($id: ID!, $name: String!) {
+      updateUser(id: $id, name: $name) {
+        id
+        name
+      }
     }
   `,
 });
 
-// 4. Send the mutation with variables
-const { data, error } = await login.send({
-  payload: {
-    username: "Some username",
-    password: "Some password",
-  },
+const { data, error } = await updateUser.send({
+  payload: { id: "1", name: "Ann" },
 });
+// or: await updateUser.setPayload({ id: "1", name: "Ann" }).send();
 ```
 
-Similar to queries, you can also use the `.setPayload()` method to provide variables for your mutation.
-
-```ts
-const { data, error } = await login
-  .setPayload({
-    username: "Some username",
-    password: "Some password",
-  })
-  .send();
-```
+Keep mutations on the default `POST`. `GraphqlMethod.GET` is only for queries.
 
 ---
 
-## Refetching queries after a mutation
+## Typed documents
 
-A mutation often changes data that queries already hold in the cache. `matchGqlOperation` matches the cache keys of
-every request of a query document - with any variables, params, query params and method. Pass it to
-`client.cache.invalidate()`, and the active queries of the operation refetch, like `refetchQueries` in Apollo.
+A typed document from GraphQL Code Generator or gql.tada types the result and the variables, so the request needs no
+generics.
 
-```ts
-import { matchGqlOperation } from "@hyper-fetch/graphql";
+```ts title="api/users.ts"
+import { UpdateUserDocument } from "./gql/graphql"; // generated
 
-const updateUser = client.createRequest()({ endpoint: UpdateUserDocument });
-
-const { success } = await updateUser.send({ payload: { id: "1", name: "Ann" } });
-
-if (success) {
-  // GetUser(id: 1), GetUser(id: 2)... are all marked stale and refetched where they are used
-  client.cache.invalidate(matchGqlOperation(GetUserDocument));
-}
+export const updateUser = client.createRequest()({
+  endpoint: UpdateUserDocument,
+});
 ```
-
-- Pass a document to match its requests on every url path of the `document` option, or a request to match only its
-  own path.
-- Documents with the same operation name but other fields are other operations, so they are not matched.
-- `invalidate` takes a list, so one mutation can refetch many operations:
-  `client.cache.invalidate([matchGqlOperation(GetUserDocument), matchGqlOperation(GetUsersDocument)])`.
 
 ---
 
 ## Mutations in React
 
-`useSubmit` sends the mutation when you call `submit`, and tracks its `submitting` state.
+[`useSubmit`](/docs/react/hooks/use-submit) sends the mutation when you call `submit` and tracks `submitting`.
 
-```tsx
+```tsx title="RenameButton.tsx"
 import { useSubmit } from "@hyper-fetch/react";
 
-export const LoginButton = () => {
-  const { submit, submitting } = useSubmit(login);
+import { updateUser } from "./api/users";
+
+export const RenameButton = ({ id }: { id: string }) => {
+  const { submit, submitting } = useSubmit(updateUser);
 
   return (
-    <button disabled={submitting} onClick={() => submit({ payload: { username: "ann", password: "secret" } })}>
-      Log in
+    <button
+      disabled={submitting}
+      onClick={() => submit({ payload: { id, name: "Ann" } })}
+    >
+      Rename
     </button>
   );
 };
 ```
 
-Read more about [queries](./queries.mdx) and the [React hooks](../../react/overview.mdx).
+---
+
+## Refetch queries after a mutation
+
+`matchGqlOperation` matches the cache keys of every request of a query document, with any variables, params and query
+params. Pass it to `client.cache.invalidate()` and the active queries of that operation refetch, like `refetchQueries` in
+Apollo.
+
+```ts title="api/users.ts"
+import { matchGqlOperation } from "@hyper-fetch/graphql";
+
+const { success } = await updateUser.send({ payload: { id: "1", name: "Ann" } });
+
+if (success) {
+  // GetUser with every id is marked stale and refetched where it is used
+  client.cache.invalidate(matchGqlOperation(GetUserDocument));
+}
+```
+
+- Pass a document to match it on every path of the `document` option, or a request to match only its own path.
+- Documents with the same operation name but other fields are other operations and are not matched.
+- `invalidate` takes a list, so one mutation can refetch several operations.
+
+To write the result into the cache instead of refetching, see the
+[GraphQL mutations example](/examples/integrations/graphql-mutations).
+
+---
+
+## Errors
+
+`send()` resolves with `error` as a list: the GraphQL `errors`, or one `Error` for a network failure, abort or timeout.
+HyperFetch [retries](/docs/guides/core/basics/retries) only when you turn them on, so a mutation that is not safe to
+repeat runs once. See [partial data](/docs/integrations/adapter-graphql/overview#partial-data) for responses with both
+`data` and `errors`.
+
+---
+
+:::secondary Summary
+
+- A mutation is a request: the document is the `endpoint`, the variables the `payload`.
+- `useSubmit` sends it on demand and tracks `submitting`.
+- `client.cache.invalidate(matchGqlOperation(Document))` refetches the queries it changed.
+
+:::
+
+## Next steps
+
+Runnable example: [GraphQL mutations](/examples/integrations/graphql-mutations).
+
+<LinkCard
+  type="docs"
+  title="Queries"
+  description="Send typed queries with variables and cache them in React."
+  to="/docs/integrations/adapter-graphql/queries"
+/>
+
+<LinkCard
+  type="docs"
+  title="Cache"
+  description="How invalidation marks data stale and refetches it."
+  to="/docs/core/cache"
+/>
+
+<LinkCard
+  type="api"
+  title="matchGqlOperation API reference"
+  description="Build the cache key matcher of a GraphQL operation."
+  to="/docs/api/adapter-graphql/Functions/matchGqlOperation"
+/>

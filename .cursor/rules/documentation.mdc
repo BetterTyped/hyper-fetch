@@ -342,3 +342,131 @@ console.log(123);
 ## Formatting Rules
 
 - NEVER use em dashes (`—`) anywhere in documentation. Use a regular dash (`-`) or rewrite the sentence instead.
+
+---
+
+# Page formulas
+
+The `docs-quality` skill (`.claude/skills/docs-quality/SKILL.md`) has the workflow and scripts that prove a page is
+right: source audit, production build, render checks and review sheets. Entry pages use the overview kit it describes.
+
+Similar pages must read the same way. Pick the formula for the page type and follow its section order. These come from
+studying the best competitor docs (TanStack Query, SWR, tRPC, Apollo, RTK Query, Socket.IO, Hono, orval, Zod).
+
+## Shared rules
+
+- **Intro**: at most 3 sentences (about 60 words) before the first code block or diagram. Say what it is and when to
+  use it. No history, no marketing words.
+- **Paragraphs**: at most 4 sentences. Lists of facts or defaults are bullets.
+- **Headings**: name a task, a rule or an API (`## Retry only idempotent requests`, `## setCache`). Never "Usage 2".
+- **Code**: snippets of 1-10 lines show one idea. One full realistic example per page, up to about 40 lines. Titles on
+  every block (`title="api/users.ts"` for multi-file flows). Installs use ` ```bash npm2yarn2pnpm ` (the bare fence renders no package manager tabs). Warnings may live in
+  code comments.
+- **Defaults**: always written as "default X, change it with `option`".
+- **Tables**: for options, returns, flags, rules, mappings and comparisons. Never for narrative.
+- **Admonitions**: the house ones (`:::tip Purpose` and the closing summary on docs, `:::secondary What you'll learn`
+  and `:::success` on guides) with 3-5 short items, plus at most 2 others for real pitfalls, requirements or
+  deprecations.
+- **Links**: link a concept at its first mention. Every page ends with next steps: the matching guide, the matching
+  runnable example from `/examples/...`, and the API reference. 2-4 of them as `LinkCard`.
+- **Length**: counted in prose words, without code blocks, tables and cards: overview and quick start 300-900,
+  concept and reference pages 500-1,500, guides up to 1,500. Split anything longer.
+
+## Overview and hub pages (a package, a product, a section index)
+
+Entry pages give the main idea and route the reader. They are not reference pages: no deep sections, no option
+tables, one to two screens before the next-step tiles.
+
+1. `<Lead>`: a bold one-clause promise and one sentence on what it does for you.
+2. One tiny example, 5-15 lines, titled.
+3. A `<Flow>` of the core idea when there is one: 3-5 steps, a few words each.
+4. What's inside as `<Tiles>`, each linking the concept to its reference page or guide.
+5. Next as `<Tiles>`: quick start, guides, examples. No Purpose or Summary admonitions on these pages.
+
+## Quick start
+
+1. `<Lead>`: one sentence on what you will build.
+2. Requirements as one short list, only when there are any.
+3. Install, one command.
+4. Numbered steps (client, request, send or hook), each a titled block of 5-20 lines.
+5. What just happened: 3 bullets naming the concepts with links.
+6. Next as `<Tiles>`.
+
+## Concept page (Client, Request, Cache, Dispatcher, Socket, Collection)
+
+1. Definition and the problem it solves, 2-3 sentences.
+2. A diagram only when there is a real flow (see `visualizations.mdc`).
+3. Minimal usage, 5-10 lines.
+4. One `##` per facet, headed as a task or rule, each a short paragraph plus a short snippet.
+5. Defaults and how to change them.
+6. Limits and tradeoffs, when there are any.
+7. Methods or options from `(@import ...)` instead of hand-written lists.
+8. Next steps.
+
+## React hook reference
+
+1. One sentence: what the hook does and when to pick it over its siblings.
+2. One complete component example.
+3. Options and returns, generated with `(@import ...)` or as a Name | Type | Default | Description table.
+4. One `##` per behavior (dependencies, callbacks, refetching), each with a short snippet.
+5. Related hooks, guides and examples.
+
+## Guide
+
+1. The goal and the approaches it covers, 1-2 sentences, then `:::secondary What you'll learn`.
+2. Optionally the naive version and its visible problem.
+3. One `##` per approach, simplest first, each with a full example of up to 40 lines.
+4. When to use which: bullets or a small table.
+5. Pitfalls in prose, code comments or at most one warning.
+6. `:::success` summary, then related docs, guides and examples.
+
+## Adapter integration (GraphQL, Firebase, tRPC, oRPC, Axios)
+
+1. One sentence on what the adapter connects.
+2. Install with peer dependencies.
+3. Numbered setup: client with the adapter, a request, sending it or using it in a hook. Titled blocks.
+4. How it maps: a table from the transport's concepts to HyperFetch's (endpoint, params, payload, errors, `extra`).
+5. Adapter options.
+6. Limits and differences from the HTTP adapter.
+7. Runnable example and next steps.
+
+## Server-framework integration (Hono, Elysia, Express, Django, ...)
+
+1. One sentence on what you get, usually a typed client from the server's routes.
+2. Install.
+3. Numbered steps: the server file, the exported type or the OpenAPI document, the client file.
+4. Runtime or version quirks.
+5. Runnable example and next steps.
+
+## CLI command
+
+1. One sentence on what the command produces.
+2. The one-liner that works.
+3. Input and output: a spec excerpt, the generated file tree and an excerpt of the generated code.
+4. Flags as a table: Flag | Alias | Default | Description.
+5. Recipes (CI, scripts, monorepo) and troubleshooting, only when there are real ones.
+6. Next steps.
+
+## HyperFlow and devtools pages
+
+1. Value in 1-2 sentences, then a screenshot.
+2. Install or connect, with the shortest working snippet.
+3. One `##` per feature: a screenshot and 2-3 sentences.
+4. Options once, as a table.
+5. Troubleshooting and next steps.
+
+## Comparison page
+
+1. A fairness note: what was compared and how to suggest corrections.
+2. When to choose each, 3-5 bullets.
+3. A feature table with a legend and footnotes for nuanced cells.
+4. Side-by-side code for 2-3 common tasks.
+5. Where the other library is the better choice.
+6. Migration links and next steps.
+
+## Lint plugin pages
+
+1. One sentence on what it catches.
+2. Install and the recommended config, then custom config.
+3. Rules table: Rule | Description | Recommended | Fixable.
+4. On rule pages: why the rule exists, incorrect and correct code, options, when not to use it.

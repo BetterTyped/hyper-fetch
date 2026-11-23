@@ -4,24 +4,18 @@ description: How to invalidate cache after a mutation, by key or pattern, and re
 sidebar_label: Cache Invalidation
 ---
 
-# Cache Invalidation and Revalidation
+# Cache invalidation and revalidation
 
-Once you cache API responses, you have to decide when a cached copy stops being true. Another user edits a record, a
-background job changes a total, or your own form creates a new item that the cached list doesn't have. Cache
-invalidation is how you tell the cache "this is out of date", and revalidation is the fresh request that replaces it.
-This guide covers the general strategies, how React Query and React's own `cache()` handle it, and how to invalidate
-cache in HyperFetch with `client.cache.invalidate`.
-
----
+A cached response stops being true when another user edits a record or your own form creates an item the cached list
+does not have. Invalidation marks the cached copy as out of date, and revalidation is the request that replaces it. This
+guide covers the strategies and how to apply them with `client.cache.invalidate`.
 
 :::secondary What you'll learn
 
-1.  What **cache invalidation** and **revalidation** mean, and the common strategies.
-2.  How this maps to **React Query** and React's **`cache()`** function.
-3.  How to invalidate the cache using `client.cache.invalidate` with **request instances**, **strings**, and **RegExp**.
-4.  How to **batch-invalidate** multiple cache entries in a single call.
-5.  How to **read**, **update**, and **delete** cache entries directly.
-6.  How invalidation **triggers automatic re-fetching** in React hooks.
+1. The **time-based, event-based and pattern-based** ways to keep a cache fresh.
+2. How to **invalidate** by request, key, RegExp or several at once.
+3. How to **read, update and delete** cache entries directly.
+4. How invalidation **triggers refetching** in React hooks.
 
 :::
 
@@ -43,8 +37,10 @@ In HyperFetch the time-based part is two request options:
 - `staleTime` (default 5 minutes): how long a cached response counts as fresh. After that, the next consumer refetches.
 - `cacheTime` (default 5 minutes): how long the entry stays in memory at all before garbage collection.
 
-```ts
-const getUsers = client.createRequest<{ response: { id: number; name: string }[] }>()({
+```ts title="src/api/users.ts"
+const getUsers = client.createRequest<{
+  response: { id: number; name: string }[];
+}>()({
   endpoint: "/users",
   staleTime: 30_000, // refetch on next use after 30 seconds
   cacheTime: 10 * 60_000, // keep in memory for 10 minutes
@@ -68,14 +64,13 @@ below.
 
 ---
 
-## The basics
+## How invalidation works
 
-Invalidation marks cached data as stale by setting its `staleTime` to `0`. The next consumer, whether a React
-`useFetch` hook or a manual `send()` call with caching enabled, sees that the data is out of date and requests it again.
+Invalidation marks cached data as stale by setting its `staleTime` to `0` and emits an event. Mounted `useFetch` hooks
+that show the data refetch it. The data stays in the cache and is shown until the new response arrives.
 
-Every cached request is identified by a `cacheKey`. By default it is built from the method, the endpoint (with params
-filled in) and the query string, joined with underscores. For example `GET_/users_`, `GET_/users/1_` or
-`GET_/users_?page=2`. Invalidation works by targeting these keys.
+Every cached response is stored under a `cacheKey`, built from the method, the filled endpoint and the query params
+joined with underscores: `GET_/users_`, `GET_/users/1_` or `GET_/users_{"page":2}`. Invalidation targets these keys.
 
 ---
 
@@ -83,9 +78,7 @@ filled in) and the query string, joined with underscores. For example `GET_/user
 
 The `client.cache.invalidate` method accepts three different argument types:
 
-```typescript
-import { client, getUsers } from "./api";
-
+```ts title="src/app.ts"
 // 1. Pass a request instance - uses the request's cacheKey and scope
 // highlight-next-line
 client.cache.invalidate(getUsers);
@@ -115,12 +108,13 @@ request's `scope`. Calling `invalidate()` with no arguments invalidates everythi
 
 ## Invalidate cache after mutations
 
-The most common pattern is invalidating a list after adding, updating, or deleting an item. Here is a practical example:
+The most common pattern is invalidating a list after adding, updating or deleting an item:
 
-```typescript
-const getUsers = client.createRequest()({
+```ts title="src/app.ts"
+const getUsers = client.createRequest<{
+  response: { id: number; name: string }[];
+}>()({
   endpoint: "/users",
-  method: "GET",
 });
 
 const addUser = client.createRequest<{
@@ -149,16 +143,16 @@ if (success) {
 ```
 
 If you'd rather show the new item before the server confirms it, update the cache first and roll back on error. That is
-covered in [optimistic updates](../../react/01-basics/optimistic-approach.mdx).
+covered in [optimistic updates](/docs/guides/react/basics/optimistic-approach).
 
 ---
 
 ## Batch invalidation
 
-You can invalidate multiple cache entries in a single call by passing an array. The array can mix request instances,
-strings, and RegExp patterns:
+Pass an array to invalidate several entries in one call, for example after a mutation that affects several resources.
+The array can mix request instances, strings and RegExp patterns:
 
-```ts
+```ts title="src/app.ts"
 // Invalidate several related endpoints at once
 // highlight-start
 client.cache.invalidate([
@@ -169,16 +163,14 @@ client.cache.invalidate([
 // highlight-end
 ```
 
-This is useful after a complex mutation that affects multiple resources.
-
 ---
 
 ## Pattern matching with RegExp
 
-Sometimes you need to invalidate multiple cache entries that follow a pattern. For instance, you might have cached data
-for individual items (`/articles/1`, `/articles/2`) and a list of all items (`/articles`). A `RegExp` handles this.
+A `RegExp` invalidates every entry that follows a pattern, such as cached data for individual items (`/articles/1`,
+`/articles/2`) and the list of all items (`/articles`).
 
-```ts
+```ts title="src/api/articles.ts"
 const getArticles = client.createRequest()({
   method: "GET",
   endpoint: "/articles",
@@ -192,11 +184,11 @@ const getArticle = client.createRequest()({
 
 When a single article is updated, you can invalidate the entire family of article caches:
 
-```ts
+```ts title="src/app.ts"
 // This will invalidate every cache entry whose key matches the pattern:
 // 1. The main list:      GET_/articles_
 // 2. Individual items:   GET_/articles/1_, GET_/articles/2_
-// 3. Paginated lists:    GET_/articles_?page=1, GET_/articles_?page=2
+// 3. Paginated lists:    GET_/articles_{"page":1}, GET_/articles_{"page":2}
 // highlight-next-line
 client.cache.invalidate(new RegExp("GET_/articles"));
 ```
@@ -205,12 +197,14 @@ client.cache.invalidate(new RegExp("GET_/articles"));
 
 ## Reading, updating, and deleting cache
 
-Beyond invalidation, the cache gives you direct access for advanced cases like optimistic updates or debugging:
+Beyond invalidation, the cache gives you direct access for advanced cases like optimistic updates or debugging.
 
 ### Reading cache
 
-```ts
-const cachedData = client.cache.get(getUsers.cacheKey);
+`request.read()` returns the cached response of a request. `client.cache.get(cacheKey)` reads any entry by key.
+
+```ts title="src/app.ts"
+const cachedData = getUsers.read();
 
 if (cachedData) {
   console.log("Cached response:", cachedData.data);
@@ -220,19 +214,15 @@ if (cachedData) {
 
 ### Updating cache directly
 
-Use `cache.update` to change the cached data without a network request. The update is merged with the existing cache
-entry, and it does nothing if there is no entry yet. It also sets `responseTimestamp` to the time of the update, so
+Use `cache.update` to change the cached data without a network request. The returned fields are merged into the
+existing entry, and nothing happens when there is no entry yet. It also sets `responseTimestamp` to the time of the update, so
 `staleTime` and `cacheTime` count from that moment. Use `cache.set` when the entry should keep another timestamp:
 
-```ts
-// Optimistically add a new user to the cached list
-client.cache.update(getUsers, (previousData) => {
-  if (!previousData) return previousData;
-  return {
-    ...previousData,
-    data: [...previousData.data, { id: 999, name: "Optimistic User" }],
-  };
-});
+```ts title="src/app.ts"
+// Add a user to the cached list, no request is sent
+client.cache.update(getUsers, (previous) => ({
+  data: [...(previous?.data ?? []), { id: 999, name: "New user" }],
+}));
 ```
 
 ### Deleting cache entries
@@ -240,14 +230,14 @@ client.cache.update(getUsers, (previousData) => {
 Use `cache.delete` to completely remove an entry from both sync and async storage. Unlike `invalidate`, which marks
 data as stale and keeps showing it until the new response arrives, `delete` removes it entirely:
 
-```ts
+```ts title="src/app.ts"
 // Remove the cached users list entirely
 client.cache.delete(getUsers.cacheKey);
 ```
 
 ### Clearing all cache
 
-```ts
+```ts title="src/app.ts"
 // Remove all cached data, for example on logout
 await client.cache.clear();
 ```
@@ -265,11 +255,10 @@ Two `useFetch` options are related:
 - `revalidate` (on by default) refetches in the background on mount even when the cache has data, so users see the
   cached copy instantly and the fresh one a moment later. Set it to `false` to fetch on mount only when the data is
   stale.
-- `refresh` and `refreshTime` refetch on an interval. See [auto-refreshing data](../../react/01-basics/refreshing.mdx).
+- `refresh` and `refreshTime` refetch on an interval. See [auto-refreshing data](/docs/guides/react/basics/refreshing).
 
-In plain TypeScript (without React hooks), invalidation only marks data as stale. Call `send()` again to fetch it. To
-keep the cache across reloads, see [persistence](./persistence.mdx), and for the full cache API see the
-[cache reference](../../../core/cache.mdx).
+Without React hooks, invalidation only marks data as stale. Call `send()` again to fetch it. To keep the cache across
+reloads, see [persistence](/docs/guides/core/advanced/persistence).
 
 ---
 
@@ -277,10 +266,23 @@ keep the cache across reloads, see [persistence](./persistence.mdx), and for the
 
 You've learned how to handle cache invalidation in HyperFetch.
 
-- You know the **time-based**, **event-based** and **pattern-based** ways to keep a cache fresh.
-- You can invalidate cache using `client.cache.invalidate` with **request instances**, **strings**, or **RegExp**.
-- You can **batch-invalidate** multiple entries by passing an **array**.
-- You can **read**, **update**, and **delete** cache entries directly for advanced use cases.
-- You understand how invalidation **automatically triggers re-fetching** in React hooks.
+- You can keep a cache fresh with **time-based**, **event-based** and **pattern-based** strategies.
+- You can invalidate by **request, key, RegExp** or an **array** of them.
+- You can **read, update and delete** cache entries directly.
+- You know that invalidation **triggers refetching** in mounted React hooks.
 
 :::
+
+Runnable examples: [Invalidation](/examples/mutations/invalidation), [Stale time](/examples/caching/stale-time),
+[Cache updates](/examples/caching/cache-updates) and [Cache playground](/examples/getting-started/cache-playground).
+
+<LinkCard type="docs" title="Cache" description="Freshness, removal, scopes and storage." to="/docs/core/cache" />
+
+<LinkCard type="guides" title="Refreshing in React" description="Refetch on an interval, on focus and on reconnect." to="/docs/guides/react/basics/refreshing" />
+
+<LinkCard
+  type="api"
+  title="Cache API reference"
+  description="invalidate, update, delete and the other methods."
+  to="/docs/api/core/Classes/Cache"
+/>

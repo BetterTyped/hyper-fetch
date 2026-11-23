@@ -5,89 +5,97 @@ description: "Type query parameters in HyperFetch requests to get autocompletion
 sidebar_label: Query Params
 ---
 
-# Query Params Type
+# Query params type
 
-Query parameters are a fundamental part of many REST APIs, used for filtering, sorting, and pagination. HyperFetch
-allows you to define a **type for your query parameters**, ensuring that you pass valid values and catch potential
-errors at compile time. This leads to more robust and maintainable code.
+The `queryParams` generic types the query string of a request, so filters, sorting and pagination are checked and
+autocompleted. Whether the key is optional decides if callers must pass query params. For serialization and sending,
+see the [query params guide](/docs/guides/core/basics/query-params).
 
 :::secondary What you'll learn
 
-1.  How to define a **type for query parameters** in a request.
-2.  How to pass **type-safe query parameters** when sending a request.
-3.  How HyperFetch handles **optional parameters** and provides autocompletion.
+1. How to type query params with the **`queryParams` generic**.
+2. The difference between **required, optional and absent** query params.
+3. What TypeScript **catches** at `send()`.
+4. How to **reuse** the type with `ExtractQueryParamsType`.
 
 :::
 
 ---
 
-### Why is it helpful?
+## Type the query params
 
-- **Prevents Bugs**: Catches typos and incorrect types in query parameters at compile time, not at runtime.
-- **API Contract Adherence**: Enforces the API contract for filtering, pagination, and sorting, ensuring requests are
-  always valid.
-- **Improved DX**: Provides autocompletion for query parameter keys and values in your IDE.
-- **Self-documenting Code**: The request definition clearly documents the available query parameters and their types.
+```ts title="src/api/users.ts"
+type UsersQuery = {
+  role: "admin" | "member"; // required key
+  search?: string; // optional key
+  tags?: string[];
+};
+
+export const getUsers = client.createRequest<{
+  response: User[];
+  queryParams: UsersQuery;
+}>()({ endpoint: "/users" });
+
+await getUsers.send({ queryParams: { role: "admin", tags: ["active"] } });
+```
 
 ---
 
-### Example
+## Required, optional or absent
 
-Here is how to add a type for query parameters to a request. By providing the `queryParams` generic, you get full type
-safety and autocompletion when using the `.send` method.
+The `?` on the generic key decides whether `send()` needs query params at all. The `?` on each field decides which
+fields are needed when they are passed.
 
-```ts
-// import { createClient } from '@hyper-fetch/core';
+| Generic              | `send()`                                  | Use it for                         |
+| -------------------- | ----------------------------------------- | ---------------------------------- |
+| `queryParams: Q`     | Requires `queryParams`                    | Endpoints that need a filter       |
+| `queryParams?: Q`    | Accepts `queryParams` or nothing          | Lists with optional filters        |
+| no `queryParams` key | Accepts no query params                   | Endpoints without a query string   |
 
-export const client = createClient({
-  url: "https://api.example.com",
+```ts title="src/app.ts"
+// error-next-line
+await getUsers.send(); // queryParams are required
+
+// error-next-line
+await getUsers.send({ queryParams: { role: "guest" } }); // "guest" is not a role
+
+const admins = getUsers.setQueryParams({ role: "admin" });
+await admins.send(); // already set, send() takes no query params
+```
+
+In an SDK schema with `RequestModel`, write optional query params as `queryParams?: Q | null`.
+
+---
+
+## Reuse the query params type
+
+`ExtractQueryParamsType` reads the type back, for example to build filters from the URL:
+
+```ts title="src/filters.ts"
+import type { ExtractQueryParamsType } from "@hyper-fetch/core";
+
+type Filters = ExtractQueryParamsType<typeof getUsers>;
+
+export const readFilters = (search: URLSearchParams): Filters => ({
+  role: search.get("role") === "admin" ? "admin" : "member",
+  search: search.get("q") ?? undefined,
 });
-
-// 1. Define the response type for our request
-type User = { id: number; name: string; role: "Admin" | "User" };
-type ResponseType = User[];
-
-// 2. Define the type for the query parameters
-// highlight-start
-type QueryParamsType = {
-  search?: string; // Optional search term
-  role: "Admin" | "User"; // Required role
-  tags?: string[]; // Optional array of tags
-};
-// highlight-end
-
-// 3. Create the request with the query parameters type
-const getUsers = client.createRequest<{
-  response: ResponseType;
-  queryParams: QueryParamsType;
-}>()({
-  endpoint: "/users",
-});
-
-// 4. Send the request with type-safe query parameters
-// HyperFetch will ensure you pass the correct types.
-// Try changing 'Admin' to 'Guest' or removing 'role' to see an error.
-const { data, error } = await getUsers.send({
-  queryParams: {
-    role: "Admin",
-    search: "John",
-    tags: ["active", "premium"],
-  },
-});
-
-if (data) {
-  console.log("Fetched users:", data);
-}
 ```
 
 ---
 
 :::success Congratulations!
 
-You've learned how to type-safe your query parameters!
+You've learned how query params are typed.
 
-- You can define a **`queryParams` type** for any request.
-- You can confidently pass **validated and typed** query parameters when making a request.
-- You know how to handle **optional, required, and array-based** query parameters.
+- You can type query params with the **`queryParams`** generic.
+- You can make them **required, optional or absent** with the generic key.
+- You can **reuse** the type with `ExtractQueryParamsType`.
 
 :::
+
+Runnable example: [Filters in the URL](/examples/data-fetching/url-filters).
+
+<LinkCard type="guides" title="Query params" description="Set and serialize query params." to="/docs/guides/core/basics/query-params" />
+
+<LinkCard type="guides" title="Request extractors" description="Read every part of a request's type." to="/docs/guides/typescript/request-extractors" />

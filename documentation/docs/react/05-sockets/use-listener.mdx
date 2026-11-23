@@ -7,308 +7,209 @@ sidebar_label: useListener
 
 # useListener
 
-[Read the API Reference »](/api/react/Hooks/useListener.mdx)
-
-The `useListener` hook is your main tool for **listening to real-time events** from a server in React components. It
-hooks into the `Socket` adapter and starts listening for a given event when a component is mounted.
+`useListener` subscribes a component to a socket [listener](/docs/sockets/listener) while it is mounted and returns the
+latest message with the connection state. Use it for chats, notifications and live updates over WebSocket, SSE, tRPC or
+oRPC subscriptions. To send messages, use [`useEmitter`](/docs/react/sockets/use-emitter).
 
 :::tip Purpose
 
-1. **Real-time event handling**: Listen to server-sent events without manual setup.
-2. **Automatic lifecycle management**: Manages socket connections when the component mounts and unmounts.
-3. **Reactive data updates**: Provides the latest `data` from the server as it arrives.
-4. **Connection state tracking**: Exposes `connected` and `connecting` states to build responsive UIs.
-5. **Helper event hooks**: Offers `onEvent`, `onError`, and `onReconnecting` for handling specific socket events.
-6. **Subscription status**: Follows subscriptions the server confirms and ends with `status`, `error`, `onStart` and
-   `onEnd`.
+1. **Typed messages**: `data` has the listener's message type.
+2. **Lifecycle handled**: subscribes on mount and unsubscribes on unmount.
+3. **Connection state**: `connected`, `connecting` and reconnect callbacks.
+4. **Subscription status**: follows subscriptions the server confirms and ends.
 
 :::
 
-> If you intend to **send** events to the server, we recommend choosing the
-> [`useEmitter`](/docs/react/sockets/use-emitter) hook.
-
 ---
 
-## Quick Start
+## Usage
 
-To use `useListener`, provide a `Listener` instance. The hook automatically listens for events and returns the latest
-`data`, `timestamp`, and connection status.
+```tsx title="components/chat.tsx"
+import { useState } from "react";
+import { useListener } from "@hyper-fetch/react";
+import { socket } from "./api/socket";
 
-First, create a `Listener` instance using your socket client.
+type ChatMessage = { id: string; text: string };
 
-```tsx title="Creating a listener"
-import { socketInstance } from "./socket";
-
-export const onChatMessage = socketInstance.createListener<ChatMessageType>()({
+export const onChatMessage = socket.createListener<ChatMessage>()({
   topic: "chat-message",
 });
-```
 
-Now, use it in your component to listen for new messages. The `onEvent` helper hook lets you react to incoming data and
-update your component's state.
+function Chat() {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const { connected, onEvent } = useListener(onChatMessage);
 
-```tsx title="Listening to chat messages"
-import { useListener } from "@hyper-fetch/react";
-import { onChatMessage } from "./api/socket";
+  onEvent(({ data }) => setMessages((prev) => [...prev, data]));
 
-function App() {
-  const [messages, setMessages] = useState([]);
-  const { connected, connecting, onEvent } = useListener(onChatMessage);
-
-  onEvent(({ data: message }) => {
-    if (message) {
-      setMessages((prev) => [...prev, message]);
-    }
-  });
-
-  if (!connected && connecting) {
-    return <CircularProgress />;
-  }
-
+  if (!connected) return <p>Connecting...</p>;
   return (
-    <Card>
-      <div className="font-bold mb-2">Chat Room</div>
-      <div className="flex flex-col gap-2 p-4 min-h-[200px] bg-gray-50/50 dark:bg-gray-900/50 rounded-lg">
-        {!messages.length && <div className="text-center text-gray-500">No messages yet.</div>}
-        {messages.map((message, i) => (
-          <div key={i} className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-sm">
-            {message.text}
-          </div>
-        ))}
-      </div>
-    </Card>
+    <ul>
+      {messages.map((message) => (
+        <li key={message.id}>{message.text}</li>
+      ))}
+    </ul>
   );
 }
 ```
 
----
-
-## Event Handlers
-
-`useListener` provides a set of event handler hooks to manage the socket lifecycle and react to events without
-cluttering your component's rendering logic.
-
-1.  **`onEvent`**: Fires whenever a new event is received from the server.
-2.  **`onError`**: Fires when the socket reports an error. It receives the socket error event.
-3.  **`onConnected`**: Fires when the socket connection is successfully opened.
-4.  **`onDisconnected`**: Fires when the socket connection is closed.
-5.  **`onConnecting`**: Fires when the socket is connecting.
-6.  **`onReconnecting`**: Fires when the socket is attempting to reconnect.
-7.  **`onReconnectingFailed`**: Fires when the socket fails to reconnect.
-
-```tsx title="Using event handlers"
-import { useListener } from "@hyper-fetch/react";
-import { onChatMessage } from "./api/socket";
-
-function App() {
-  const [messages, setMessages] = useState([]);
-  const { onEvent, onError, onConnected, onDisconnected, onConnecting, onReconnecting, onReconnectingFailed } =
-    useListener(onChatMessage);
-
-  onEvent(({ data: message }) => {
-    toast({ type: "success", message: `New message: ${message.text}` });
-    setMessages((prev) => [...prev, message]);
-  });
-
-  onError((event) => {
-    console.error("Socket error", event);
-  });
-
-  onConnected(() => {
-    toast({ type: "info", message: "Socket connection opened." });
-  });
-
-  onDisconnected(() => {
-    toast({ type: "warning", message: "Socket connection closed." });
-  });
-
-  onConnecting(() => {
-    toast({ type: "info", message: "Socket is connecting." });
-  });
-
-  onReconnecting(({ attempts }) => {
-    toast({ type: "warning", message: `Reconnecting... (attempt ${attempts})` });
-  });
-
-  onReconnectingFailed(({ attempts }) => {
-    toast({ type: "error", message: `Reconnecting failed after ${attempts} attempts.` });
-  });
-
-  return (
-    <Card>
-      <div className="font-bold mb-2">Chat Room</div>
-      <div className="flex flex-col gap-2 p-4 min-h-[200px] bg-gray-50/50 dark:bg-gray-900/50 rounded-lg">
-        {messages.map((message, i) => (
-          <div key={i} className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-sm">
-            {message.text}
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
-```
-
----
-
-## Subscription Status
-
-`status` tells where the subscription of the hook is. With the tRPC and oRPC socket adapters the server confirms and
-ends subscriptions, so the hook follows it. With adapters that route messages by topic, like the WebSocket and SSE
-adapters, it is `listening` right after the mount.
-
-| Status      | Meaning                                                                          |
-| ----------- | -------------------------------------------------------------------------------- |
-| `idle`      | Not subscribed yet, for example while rendering on the server                    |
-| `starting`  | Subscribed and waiting for the server to confirm it                              |
-| `listening` | Messages can arrive                                                              |
-| `ended`     | The server finished the subscription                                             |
-| `failed`    | The server ended the subscription with an error, available as `error`            |
-
-After `ended` or `failed` the hook stays unsubscribed and keeps the last `data`. Call `listen()` to subscribe again -
-changing the payload or params of the listener subscribes again too.
-
-```tsx
-function Progress({ jobId }: { jobId: string }) {
-  const { data, status, error, listen, onEnd } = useListener(onJobProgress.setPayload({ jobId }));
-
-  onEnd(({ error }) => {
-    if (!error) toast("Job finished");
-  });
-
-  if (status === "failed") return <Retry message={error?.message} onClick={listen} />;
-  if (status === "starting") return <Spinner />;
-  return <ProgressBar value={data?.percent ?? 0} done={status === "ended"} />;
-}
-```
-
-`onStart` runs when the subscription started, also when a reconnect restarted it. `onEnd` runs once, when the server
-ended it. Unsubscribing on unmount does not call it.
-
----
-
-## Server Rendering
-
-During server rendering `useListener` does not subscribe, `status` is `idle` and `data` is `null`. The socket itself
-still connects when it is created on the server, because Node.js has a global `WebSocket`. Create the socket with
-`adapterOptions: { autoConnect: typeof window !== "undefined" }`, or only on the client, to keep the server from
-opening connections.
-
----
-
-## Throttling & Batching
-
-Every delivered message is a state update, so a fast stream means fast re-rendering. Instead of throttling inside the
-component, configure a [delivery strategy](/docs/sockets/listener#delivery-strategies) on the listener. `useListener`
-needs no options for this - it simply receives fewer, better-shaped updates, and `data` follows the delivered type.
-
-```tsx title="Sampling - one render per frame at most"
-export const onPrice = socket.createListener<Price>()({
-  topic: "prices",
-  delivery: { strategy: "latest", interval: 16 },
-});
-
-function PriceTicker() {
-  const { data } = useListener(onPrice); // data: Price | null
-  return <span>{data?.value}</span>;
-}
-```
-
-```tsx title="Batching - arrays, one state update per window"
-export const onTrade = socket.createListener<Trade>()({
-  topic: "trades",
-  delivery: { strategy: "batch", interval: 100 },
-});
-
-function TradeLog() {
-  const [trades, setTrades] = useState<Trade[]>([]);
-  const { onEvent } = useListener(onTrade); // data: Trade[] | null
-
-  onEvent(({ data }) => {
-    setTrades((previous) => [...previous, ...data]);
-  });
-  // ...
-}
-```
-
-To let the user change the rate, memoize a `setDelivery` clone - the hook re-subscribes when the delivery changes:
-
-```tsx
-const live = useMemo(() => onPrice.setDelivery({ strategy: "latest", interval: rate }), [rate]);
-const { data } = useListener(live);
-```
-
-:::info Custom strategies
-
-Preset objects are compared by value and can be written inline. Custom strategy functions are compared by identity -
-define them at module level, or the hook will re-subscribe on every render. See the
-[React Throttling & Batching guide](/docs/guides/react/sockets/throttling).
-
-:::
-
----
-
-## Selecting Data
-
-When many components listen to the same topic but need only a part of each message, use the `select` option. The
-`data` value updates only when the selected value changes - messages that don't affect it don't re-render the
-component. The selected result is structurally shared, so an equal object recreated by the selector keeps its previous
-reference.
-
-```tsx title="Subscribing to a single symbol"
-const useSymbolPrice = (id: string) => {
-  // highlight-next-line
-  return useListener(onPrices, { select: (prices) => prices[id]?.price });
-};
-
-function Price({ id }: { id: string }) {
-  // Re-renders only when this symbol's price changes
-  const { data: price } = useSymbolPrice(id);
-  return <span>{price}</span>;
-}
-```
-
-- `onEvent` still receives the full message.
-- Without `select`, every message updates `data`, even when it is equal to the previous one - messages are events.
-- The selector can close over props - when it changes (e.g. a new `id`), it is applied to the last message right away.
-- An error thrown by the selector is passed to the closest Error Boundary.
-- Read only the fields you render - the hook re-renders only for the accessed values (`dependencyTracking`, enabled by
-  default), so reading `timestamp` or `extra` makes the component re-render on every message again.
+`data` holds only the latest message, so keep a list in state when you need history. There is no `disabled` option: to
+stop listening, stop rendering the component that calls the hook.
 
 ---
 
 ## Options
 
-Configuration options for `useListener` must be provided as the second parameter.
+| Option               | Default | Description                                                                       |
+| -------------------- | ------- | --------------------------------------------------------------------------------- |
+| `select`             | -       | `(data) => part`. `data` updates only when the selected part changes.             |
+| `structuralSharing`  | `true`  | Keep references of the unchanged parts of the selected data.                      |
+| `dependencyTracking` | `true`  | Re-render only for the returned fields the component reads.                       |
 
-```tsx
-const { ... } = useListener(listener, {
-  dependencyTracking: true,
-  select: (data) => data.text,
-});
-```
-
-There is no `disabled` option. To stop listening, stop rendering the component that calls the hook.
-
-Below is a full list of available options.
-
-(@import react UseListenerOptionsType type=returns)
-
-<LinkCard
-  type="api"
-  title="UseListenerOptionsType API Reference"
-  description="Learn more about the useListener hook options."
-  to="/docs/api/react/Types/UseListenerOptionsType"
-/>
+Set defaults for every `useListener` with the `useListener` key of the
+[`Provider`](/docs/react/overview#global-defaults) config.
 
 ---
 
-## State and Methods
-
-The `useListener` hook returns an object containing the socket's state and helper methods.
-
-```tsx
-const values = useListener(listener);
-```
+## Returns
 
 (@import react useListener type=returns)
+
+---
+
+## Callbacks
+
+Register callbacks by calling them in the render body; the latest closure is used.
+
+| Callback                                           | Fires when                                                 |
+| -------------------------------------------------- | ---------------------------------------------------------- |
+| `onEvent`                                          | A message arrives. Receives `{ data, extra }`.             |
+| `onError`                                          | The socket reports an error.                               |
+| `onConnected` / `onDisconnected` / `onConnecting`  | The connection opens, closes or starts opening.            |
+| `onReconnecting` / `onReconnectingFailed`          | A reconnect attempt starts, or all attempts failed. Receives `{ attempts }`. |
+| `onStart` / `onEnd`                                | The subscription started, or the server ended it.          |
+
+```tsx title="Connection toasts"
+const { onReconnecting, onReconnectingFailed } = useListener(onChatMessage);
+
+onReconnecting(({ attempts }) => toast(`Reconnecting (attempt ${attempts})`));
+onReconnectingFailed(({ attempts }) =>
+  toast(`Could not reconnect after ${attempts} attempts`),
+);
+```
+
+---
+
+## Follow the subscription status
+
+`status` tells where the hook's subscription is. With the tRPC and oRPC socket adapters the server confirms and ends
+subscriptions, and the hook follows it. With topic-based adapters, like WebSocket and SSE, it is `listening` right after
+mount.
+
+| Status      | Meaning                                                               |
+| ----------- | --------------------------------------------------------------------- |
+| `idle`      | Not subscribed yet, for example during server rendering.              |
+| `starting`  | Subscribed and waiting for the server to confirm it.                  |
+| `listening` | Messages can arrive.                                                  |
+| `ended`     | The server finished the subscription.                                 |
+| `failed`    | The server ended the subscription with an error, available as `error`. |
+
+After `ended` or `failed` the hook stays unsubscribed and keeps the last `data`. Call `listen()`, or change the
+listener's payload or params, to subscribe again. `onStart` runs when the subscription starts, also after a reconnect;
+`onEnd` runs once when the server ends it, not on unmount.
+
+```tsx title="Job progress over a server subscription"
+function Progress({ jobId }: { jobId: string }) {
+  const { data, status, error, listen } = useListener(
+    onJobProgress.setPayload({ jobId }),
+  );
+
+  if (status === "failed")
+    return <button onClick={listen}>Retry: {error?.message}</button>;
+  return <progress value={data?.percent ?? 0} max={100} />;
+}
+```
+
+---
+
+## Throttle or batch fast topics
+
+Every delivered message is a state update. For fast topics, set a
+[delivery strategy](/docs/sockets/listener#throttle-or-batch-fast-topics) on the listener instead of throttling in the
+component. The hook needs no options, and `data` follows the delivered type.
+
+```tsx title="At most one render per frame"
+export const onPrice = socket.createListener<Price>()({
+  topic: "prices",
+  delivery: { strategy: "latest", interval: 16 },
+});
+```
+
+With `{ strategy: "batch", interval: 100 }`, `data` and `onEvent` receive arrays. To let the user change the rate,
+memoize a `setDelivery` clone; custom strategy functions must be defined at module level, or the hook subscribes again on
+every render.
+
+---
+
+## Select part of a message
+
+`select` picks the part of each message the component uses. `data` updates only when the selected value changes, while
+`onEvent` still receives the full message. Without `select`, every message updates `data`, even an equal one.
+
+```tsx title="One symbol's price"
+function SymbolPrice({ id }: { id: string }) {
+  const { data: price } = useListener(onPrices, {
+    select: (prices) => prices[id]?.price,
+  });
+
+  return <span>{price}</span>;
+}
+```
+
+---
+
+## Server rendering
+
+During server rendering the hook does not subscribe, `status` is `idle` and `data` is `null`. The socket itself still
+connects when it is created on the server, because Node.js has a global `WebSocket`. Create it with
+`adapterOptions: { autoConnect: typeof window !== "undefined" }`, or only on the client.
+
+---
+
+:::secondary Summary
+
+1. `useListener` subscribes on mount, unsubscribes on unmount and returns the latest message.
+2. Use `onEvent` to collect messages and `status` to follow server subscriptions.
+3. Throttle fast topics with a delivery strategy on the listener, and narrow re-renders with `select`.
+
+:::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Listening in React"
+  description="Patterns for chats, notifications and live cache updates."
+  to="/docs/guides/react/sockets/listening"
+/>
+
+<LinkCard
+  type="docs"
+  title="Listener"
+  description="Create listeners with topics, params, payloads and delivery strategies."
+  to="/docs/sockets/listener"
+/>
+
+<LinkCard
+  type="api"
+  title="useListener API reference"
+  description="Generated types for the hook, its options and its return value."
+  to="/docs/api/react/Hooks/useListener"
+/>
+
+- Guides: [throttling in React](/docs/guides/react/sockets/throttling),
+  [WebSockets in React](/docs/guides/sockets/websockets-in-react).
+- Runnable examples: [WebSocket chat](/examples/realtime/websocket-chat),
+  [server-sent events](/examples/realtime/server-sent-events), [notifications](/examples/realtime/notifications),
+  [live cache updates](/examples/realtime/live-cache-updates),
+  [tRPC subscriptions](/examples/integrations/trpc-subscriptions),
+  [oRPC event iterators](/examples/integrations/orpc-event-iterator).

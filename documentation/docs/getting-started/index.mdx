@@ -8,79 +8,127 @@ sidebar_label: Intro
 import { Cards } from "./components/cards";
 import { Environments } from "./components/environments";
 
-> **`HyperFetch`** is a modern, open source framework for request-based and real-time communication, purpose-built to
-> eliminate boilerplate and streamline data handling across any TypeScript environment—whether you're working in the
-> browser, on the server, or in native platforms like React Native or Electron.
+# HyperFetch
+
+<Lead>
+
+**Define each endpoint once, send it anywhere.** HyperFetch turns your API into typed requests, and handles the
+cache, retries, queues and offline mode for you, in the browser, on the server and in native apps.
+
+</Lead>
+
+```ts title="api.ts"
+import { createClient } from "@hyper-fetch/core";
+
+const client = createClient({ url: "https://api.example.com" });
+
+export const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+});
+
+// Typed params, typed data. send() never throws.
+const { data, error } = await getUser.send({ params: { userId: 1 } });
+```
+
+In React, the same request goes into a hook: `useFetch(getUser.setParams({ userId: 1 }))`.
+
+<Flow caption="Every request takes the same path, whatever the transport.">
+  <FlowStep title="Request" icon="code">
+    Typed endpoint, defined once
+  </FlowStep>
+  <FlowStep title="Dispatcher" icon="list">
+    Dedupes, queues, retries
+  </FlowStep>
+  <FlowStep title="Adapter" icon="plug">
+    fetch, Axios, GraphQL, Firebase
+  </FlowStep>
+  <FlowStep title="Cache" icon="database">
+    Shared by every reader
+  </FlowStep>
+  <FlowStep title="Your UI" icon="atom" active>
+    Re-renders with fresh data
+  </FlowStep>
+</Flow>
+
+---
+
+## Pick your path
+
+<Tiles>
+  <Tile title="React app" icon="atom" meta="5 min" to="/docs/react/quick-start">
+    Fetch, mutate and refetch with hooks that share one cache.
+  </Tile>
+  <Tile title="Any TypeScript runtime" icon="code" meta="5 min" to="/docs/core/quick-start">
+    Typed requests on Node.js, Bun, Deno, edge workers or the browser.
+  </Tile>
+  <Tile title="Realtime" icon="radio" meta="5 min" to="/docs/sockets/quick-start">
+    WebSocket and SSE listeners, typed like your requests.
+  </Tile>
+  <Tile title="Live local data" icon="database" meta="beta" to="/docs/db/quick-start">
+    Query collections synced from your API, updated live.
+  </Tile>
+</Tiles>
+
+---
+
+## What you get
+
+<Tiles cols={3}>
+  <Tile title="End-to-end types" icon="shield" to="/docs/core/request">
+    Params, payload, response and errors checked when you send.
+  </Tile>
+  <Tile title="Cache that is shared" icon="database" to="/docs/core/cache">
+    One response per key, stale time and invalidation.
+  </Tile>
+  <Tile title="Request control" icon="list" to="/docs/core/dispatcher">
+    Deduplication, cancelation, queues and retries.
+  </Tile>
+  <Tile title="Offline first" icon="offline" to="/docs/guides/core/advanced/offline">
+    Requests wait for the network and resume on their own.
+  </Tile>
+  <Tile title="Any transport" icon="plug" to="/docs/core/adapter">
+    fetch, Axios, GraphQL, Firebase, tRPC and oRPC.
+  </Tile>
+  <Tile title="Devtools app" icon="activity" to="/docs/hyper-flow">
+    Watch requests, cache and queues live in HyperFlow.
+  </Tile>
+</Tiles>
 
 ---
 
 ## Modules
 
-Our framework consist of the core modules which are responsible for the request-based and real-time communication or
-connecting to particular framework - like HyperFetch React.
+Core does the work. The other packages bind it to a framework or add a transport.
 
 <Cards />
 
-## Environments
+---
 
-Core library should work in any JavaScript environment.
-
-For frontend frameworks and libraries, we release additional packages that enrich core logic and add appropriate API
-connections for the given environment (as with the addition of hooks in React).
+## Runs where you do
 
 <Environments />
 
-## Integrations
-
-We also provide integrations for some of the most popular data-exchange libraries or services like Firebase.
-
-<LinkCard
-  type="promo"
-  title="Check out our integrations"
-  description="We have integrations for some of the most popular data-exchange libraries and services."
-  to="/docs/integrations/getting-started"
-/>
-
 ---
 
-## Our Motivation
+## Explore
 
-We got the idea for HyperFetch after leading several React projects. There are many great libraries using for fetching
-data like `Axios`, `SWR`, and `React Query`. However, the logic that they provide is detached from each other – i.e. the
-hooks are detached from the fetchers. So you often need to mix them together in order to fetch the data.
-
-This gives users a lot of customization options, but it also comes with some issues - for example how to track
-upload/download progress, how to call the requests outside of the components while still using the caching and other
-features. It is hard to inform the hooks about the request status inside of the components or SSR environments.
-
-Usually you’d need to build your logic every time you start developing a new application. And there is no
-`standard schema` nor any standards on how to manage this. It usually causes the challenges on the project level in how
-to name things, how to organize requests and of course you have to build the whole logic around it.
-
-We decided to overcome this issue by creating a _straightforward_, _opinionated_, yet _flexible_ fetching solution.
-
----
-
-## Our Goals
-
-1. Establish a consistent, neutral standard for seamless data exchange.
-2. Accelerate development by reusing logic and configurations, eliminating repetitive work across projects.
-3. Benefit from a comprehensive set of built-in fetching capabilities, easily extendable to meet custom requirements.
-4. Centralize server configurations to avoid duplication and ensure consistency between and within projects.
-5. Boost development speed: set up fetchers and dependencies in minutes, drastically reducing setup time.
-6. Effortlessly monitor request progress and manage queues with intuitive tracking tools.
-7. Leverage advanced offline support and data persistence features for robust application behavior.
-8. Improve developer experience and code quality through automated processes that prevent common errors.
-
----
-
-## Guides
-
-We have many examples and guides to help you get started.
-
-<LinkCard
-  type="guides"
-  title="Learn more with Guides"
-  description="Learn basics and advanced concepts of data exchange and caching."
-  to="/docs/guides/getting-started"
-/>
+<Tiles cols={3}>
+  <Tile title="Examples" icon="play" to="/examples">
+    Runnable apps you can open in StackBlitz.
+  </Tile>
+  <Tile title="Guides" icon="learn" to="/docs/guides/getting-started">
+    Auth, pagination, optimistic updates, testing.
+  </Tile>
+  <Tile title="Integrations" icon="puzzle" to="/docs/integrations/getting-started">
+    Adapters, server frameworks and plugins.
+  </Tile>
+  <Tile title="Generate from OpenAPI" icon="terminal" to="/docs/cli/overview">
+    A typed SDK for your API in one command.
+  </Tile>
+  <Tile title="Use it with AI" icon="bot" to="/docs/getting-started/ai">
+    Skills that teach your agent HyperFetch.
+  </Tile>
+  <Tile title="Compare" icon="compass" to="/docs/getting-started/comparison">
+    How it differs from TanStack Query, SWR and others.
+  </Tile>
+</Tiles>

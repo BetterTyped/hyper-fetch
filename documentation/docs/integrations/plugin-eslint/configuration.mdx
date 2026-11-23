@@ -7,21 +7,20 @@ sidebar_label: Configuration
 
 # Configure eslint-plugin-hyper-fetch in flat config
 
-This guide explains how to configure the HyperFetch ESLint plugin in flat config (`eslint.config.*`) and in the legacy
-`.eslintrc` format.
+Set up the HyperFetch ESLint plugin in flat config (`eslint.config.*`, the only format of ESLint 10) or in a legacy
+`.eslintrc` file, and choose the severity of each rule.
 
 :::tip Purpose
 
-1.  **Flat config first**: `configs.recommended` is a flat config object, the format of ESLint 9 and the only one in
-    ESLint 10.
-2.  **Legacy support**: `configs["recommended-legacy"]` keeps `.eslintrc` setups on ESLint 8 working.
-3.  **Fine-grained control**: set each rule's severity yourself when the preset does not fit.
+1. **Flat config first**: `configs.recommended` is a flat config object.
+2. **Legacy support**: `configs["recommended-legacy"]` keeps `.eslintrc` setups on ESLint 8 working.
+3. **Fine-grained control**: set each rule's severity yourself when the preset does not fit.
 
 :::
 
 ---
 
-## Recommended Configuration
+## Recommended config
 
 The default export is the plugin. Its `configs.recommended` preset registers the plugin under `hyper-fetch` and sets
 both rules to `"error"`. Pair it with a block that parses TypeScript files with typescript-eslint:
@@ -39,17 +38,17 @@ export default [
 ];
 ```
 
-The preset has no `files` key, so it applies to every file your config lints. Wrap it to scope it:
+The preset has no `files` key, so it applies to every file your config lints. Spread it to scope it:
 
-```js
+```js title="eslint.config.mjs"
 { ...hyperFetch.configs.recommended, files: ["src/**/*.ts"] },
 ```
 
 ---
 
-## Manual Configuration
+## Custom config
 
-For more control, register the plugin and list the rules yourself:
+Register the plugin and list the rules yourself to pick their severity:
 
 ```js title="eslint.config.mjs"
 import hyperFetch from "eslint-plugin-hyper-fetch";
@@ -68,14 +67,16 @@ export default [
 ];
 ```
 
-Registering the plugin again next to `hyperFetch.configs.recommended` is fine: both hold the same plugin object, so
-ESLint does not report `Cannot redefine plugin "hyper-fetch"`.
+Each rule takes `"off"`, `"warn"` (reported, exit code stays 0) or `"error"` (exit code 1). Registering the plugin next
+to `hyperFetch.configs.recommended` is fine: both hold the same plugin object, so ESLint does not report
+`Cannot redefine plugin "hyper-fetch"`.
 
 ---
 
-## Legacy Configuration (`.eslintrc`)
+## Legacy config (`.eslintrc`)
 
-ESLint 8 still reads `.eslintrc.*` files. Extend the legacy preset there:
+ESLint 8 still reads `.eslintrc.*` files. Extend the legacy preset there, or register the plugin by name and list the
+rules:
 
 ```json title=".eslintrc.json"
 {
@@ -83,8 +84,6 @@ ESLint 8 still reads `.eslintrc.*` files. Extend the legacy preset there:
   "extends": ["plugin:hyper-fetch/recommended-legacy"]
 }
 ```
-
-Or register the plugin by name and configure each rule:
 
 ```json title=".eslintrc.json"
 {
@@ -97,36 +96,32 @@ Or register the plugin by name and configure each rule:
 }
 ```
 
-:::caution
+:::caution Use the legacy preset in `.eslintrc`
 
-`plugin:hyper-fetch/recommended` now points to the flat preset, which `.eslintrc` cannot load. Use
+`plugin:hyper-fetch/recommended` points to the flat preset, which `.eslintrc` cannot load. Use
 `plugin:hyper-fetch/recommended-legacy` instead.
 
 :::
 
 ---
 
-## Rule Severity Levels
-
-Each rule can be set to one of these severity levels:
-
-- `"off"` or `0` - Turn the rule off
-- `"warn"` or `1` - Turn the rule on as a warning (doesn't affect exit code)
-- `"error"` or `2` - Turn the rule on as an error (exit code will be 1)
-
----
-
 :::secondary Summary
 
 - Use `hyperFetch.configs.recommended` in `eslint.config.*` together with the typescript-eslint parser.
-- Register `plugins: { "hyper-fetch": hyperFetch }` and list the rules when you want different severities.
+- Register `plugins: { "hyper-fetch": hyperFetch }` and list the rules when you want other severities.
 - In `.eslintrc`, extend `plugin:hyper-fetch/recommended-legacy`.
 
 :::
 
 ---
 
-## Next Steps
+## Next steps
 
-Now that you've configured the plugin, proceed to the [Rules](/docs/integrations/plugin-eslint/rules.mdx) section to
-learn about the specific rules and what issues they help you identify.
+<LinkCard
+  type="integrations"
+  title="Rules"
+  description="What each rule reports and accepts, with incorrect and correct code."
+  to="/docs/integrations/plugin-eslint/rules"
+/>
+
+See the [API reference](/docs/api/plugin-eslint/Variables/configs) for the exported presets.

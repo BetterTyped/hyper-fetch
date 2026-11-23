@@ -6,19 +6,16 @@ sidebar_label: From React Query
 
 # Migrating from React Query (TanStack Query)
 
-TanStack Query caches the result of any async function you give it. You pick a `queryKey`, write a `queryFn` that calls
-`fetch`, and `useQuery` keeps the result in sync. Migrating from react query to HyperFetch moves that work into the
-request itself: a request knows its endpoint, method, params and types, and its cache key comes from those values. Hooks
-take the request instead of a key and a function.
-
-This page maps every TanStack Query concept you are likely using to its HyperFetch counterpart, lists what has no
-counterpart, and then moves one small feature over with before and after code.
+TanStack Query caches the result of any async function you give it under a `queryKey` you pick. HyperFetch moves that
+work into the request: it knows its endpoint, method, params and types, and its cache key comes from those values. This
+guide maps the TanStack Query API to HyperFetch, lists the defaults that differ, and moves one feature over step by
+step.
 
 :::secondary What you'll learn
 
 1.  How **`useQuery`, `useMutation` and query keys** map to `useFetch`, `useSubmit` and cache keys.
 2.  Which **defaults differ** (`staleTime`, `gcTime`, retries, refetch on focus) and how to match them.
-3.  How to replace **`invalidateQueries`** and **React Query Devtools**.
+3.  How to move a feature over **step by step**, devtools included.
 4.  What has **no equivalent** in HyperFetch.
 
 :::
@@ -35,23 +32,26 @@ the server. If your app is happy on it, stay.
 HyperFetch is worth the move when you also want the parts TanStack Query leaves to you: typed request definitions, one
 place for headers and auth, request queues, offline replay, upload and download progress, sockets with the same API, and
 an SDK generated from OpenAPI. Both libraries can run side by side while you move screen by screen. They don't share a
-cache, so a screen should read a given resource through one of them.
+cache, so a screen should read a given resource through one of them. The
+[TanStack Query comparison](/docs/guides/comparisons/tanstack-query) compares both feature by feature.
 
 ---
 
 ## The mental model in one example
 
-```tsx
-// TanStack Query: you own the key and the fetch function
+```tsx title="TanStack Query"
+// You own the key and the fetch function
 const { data } = useQuery({
   queryKey: ["todos", todoId],
   queryFn: () => fetch(`/api/todos/${todoId}`).then((res) => res.json()),
 });
 ```
 
-```tsx
-// HyperFetch: the request is defined once, the key is derived from it
-const getTodo = client.createRequest<{ response: Todo }>()({ endpoint: "/todos/:todoId" });
+```tsx title="HyperFetch"
+// The request is defined once, the key is derived from it
+const getTodo = client.createRequest<{ response: Todo }>()({
+  endpoint: "/todos/:todoId",
+});
 
 const { data } = useFetch(getTodo.setParams({ todoId }));
 ```
@@ -93,7 +93,7 @@ Every TanStack name below comes from the
 | `useInfiniteQuery`                                 | `useInfiniteFetch(request, { pagination })`                 | No `getNextPageParam`, you name the paging fields                                       |
 | `useIsFetching`                                    | `useIsFetching(client)`                                     | Filter with `queryKey` or `predicate`                                                   |
 | `onMutate` for optimistic updates                  | `request.setOptimistic()`                                   | Rollback is declared next to the change                                                 |
-| `dehydrate` + `HydrationBoundary`                  | `request.dehydrate()` + `Hydrate`                           | See [Data fetching in Next.js](./nextjs-data-fetching.mdx)                              |
+| `dehydrate` + `HydrationBoundary`                  | `request.dehydrate()` + `Hydrate`                           | See [Data fetching in Next.js](/docs/guides/react/basics/nextjs-data-fetching)                              |
 | React Query Devtools                               | HyperFlow + `DevtoolsPlugin`                                | Desktop app instead of an in-page panel                                                 |
 | `useQueries`                                       | Not built in                                                | See [What has no equivalent](#what-has-no-equivalent)                                   |
 
@@ -111,20 +111,26 @@ defaults to `revalidate: true`, which refetches in the background on every mount
 
 To get close to TanStack's behaviour:
 
-```tsx
+```tsx title="app.tsx"
 import { Provider } from "@hyper-fetch/react";
 
-// Refetch when the tab gets focus or the network comes back, for every useFetch in the tree
+// Refetch when the tab gets focus or the network comes back, for every useFetch
+// in the tree
 export const App = () => (
-  <Provider config={{ useFetchConfig: { refetchOnFocus: true, refetchOnReconnect: true } }}>
+  <Provider
+    config={{
+      useFetchConfig: { refetchOnFocus: true, refetchOnReconnect: true },
+    }}
+  >
     <Routes />
   </Provider>
 );
 ```
 
 Retries live on the request: `getTodos.setRetry(3)`. The delay between attempts is a fixed 500 ms by default. For a
-delay that grows with every attempt, pass `setRetryTime(exponentialBackoff())`, exported from `@hyper-fetch/core`. If you used `staleTime` to skip refetches, set it on the request
-and pass `revalidate: false` to the hook, so `useFetch` only fetches when the cached data is stale.
+delay that grows with every attempt, pass `setRetryTime(exponentialBackoff())`, exported from `@hyper-fetch/core`. If you used `staleTime` to skip
+refetches, set it on the request and pass `revalidate: false` to the hook, so `useFetch` only fetches when the cached
+data is stale.
 
 Two more differences are worth knowing:
 
@@ -143,7 +149,13 @@ The feature: a list of to-dos, a button that adds one, and the list refreshing a
 ### Before: TanStack Query
 
 ```tsx title="todos.tsx"
-import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 type Todo = { id: number; title: string };
@@ -168,7 +180,11 @@ const createTodo = async (title: string): Promise<Todo> => {
 
 function Todos() {
   const queryClient = useQueryClient();
-  const { data, isPending, error } = useQuery({ queryKey: ["todos"], queryFn: fetchTodos, staleTime: 30_000 });
+  const { data, isPending, error } = useQuery({
+    queryKey: ["todos"],
+    queryFn: fetchTodos,
+    staleTime: 30_000,
+  });
   const addTodo = useMutation({
     mutationFn: createTodo,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
@@ -179,8 +195,15 @@ function Todos() {
 
   return (
     <div>
-      <ul>{data.map((todo) => <li key={todo.id}>{todo.title}</li>)}</ul>
-      <button disabled={addTodo.isPending} onClick={() => addTodo.mutate("Write the docs")}>
+      <ul>
+        {data.map((todo) => (
+          <li key={todo.id}>{todo.title}</li>
+        ))}
+      </ul>
+      <button
+        disabled={addTodo.isPending}
+        onClick={() => addTodo.mutate("Write the docs")}
+      >
         Add
       </button>
     </div>
@@ -197,7 +220,7 @@ export const App = () => (
 
 ### 1. Install the packages
 
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/react
 ```
 
@@ -219,7 +242,10 @@ export const getTodos = client
   .createRequest<{ response: Todo[] }>()({ endpoint: "/todos" })
   .setStaleTime(30 * Time.SEC);
 
-export const createTodo = client.createRequest<{ response: Todo; payload: { title: string } }>()({
+export const createTodo = client.createRequest<{
+  response: Todo;
+  payload: { title: string };
+}>()({
   endpoint: "/todos",
   method: "POST",
 });
@@ -233,8 +259,13 @@ import { useFetch, useSubmit } from "@hyper-fetch/react";
 import { client, createTodo, getTodos } from "./api";
 
 export function Todos() {
-  // diff-remove-next-line
-  const { data, isPending, error } = useQuery({ queryKey: ["todos"], queryFn: fetchTodos, staleTime: 30_000 });
+  // diff-remove-start
+  const { data, isPending, error } = useQuery({
+    queryKey: ["todos"],
+    queryFn: fetchTodos,
+    staleTime: 30_000,
+  });
+  // diff-remove-end
   // diff-add-next-line
   const { data, loading, error } = useFetch(getTodos);
   // diff-add-next-line
@@ -248,8 +279,15 @@ export function Todos() {
 
   return (
     <div>
-      <ul>{data?.map((todo) => <li key={todo.id}>{todo.title}</li>)}</ul>
-      <button disabled={submitting} onClick={() => submit({ payload: { title: "Write the docs" } })}>
+      <ul>
+        {data?.map((todo) => (
+          <li key={todo.id}>{todo.title}</li>
+        ))}
+      </ul>
+      <button
+        disabled={submitting}
+        onClick={() => submit({ payload: { title: "Write the docs" } })}
+      >
         Add
       </button>
     </div>
@@ -263,20 +301,22 @@ TanStack's prefix matching (`["todos"]` also matching `["todos", 1]`), pass a Re
 
 If the server returns the new item, you can skip the refetch and patch the list instead:
 
-```tsx
+```tsx title="todos.tsx"
 onSubmitSuccess(({ response }) => {
-  client.cache.update(getTodos, (previous) => ({ data: [...(previous?.data ?? []), response.data] }));
+  client.cache.update(getTodos, (previous) => ({
+    data: [...(previous?.data ?? []), response.data],
+  }));
 });
 ```
 
 For updates that show before the server answers, move the logic to the request with
-[`setOptimistic()`](./optimistic-approach.mdx).
+[`setOptimistic()`](/docs/guides/react/basics/optimistic-approach).
 
 ### 4. Replace React Query Devtools
 
 [React Query Devtools](https://tanstack.com/query/latest/docs/framework/react/devtools) is a component you render in
 the page, and it is left out of production builds. The HyperFetch counterpart is
-[HyperFlow](../../../hyper-flow/index.mdx), a desktop app for macOS, Windows and Linux. Your app streams requests,
+[HyperFlow](/docs/hyper-flow), a desktop app for macOS, Windows and Linux. Your app streams requests,
 cache and queue events to it through a plugin:
 
 ```ts title="api.ts"
@@ -287,7 +327,7 @@ if (process.env.NODE_ENV === "development") {
 }
 ```
 
-The [connecting guide](../../../hyper-flow/connecting.mdx) covers installing the plugin and checking the connection.
+The [connecting guide](/docs/hyper-flow/connecting) covers installing the plugin and checking the connection.
 
 ### 5. Remove the provider
 
@@ -313,21 +353,22 @@ uninstall `@tanstack/react-query` and `@tanstack/react-query-devtools`.
 
 `useSuspenseQuery` becomes the `suspense` option. Wrap the component in a `Suspense` boundary as before:
 
-```tsx
+```tsx title="Suspense"
 const { data } = useFetch(getTodos, { suspense: true });
 ```
 
 `useInfiniteQuery` needs `initialPageParam` and `getNextPageParam`, and you flatten `data.pages` yourself.
 `useInfiniteFetch` takes the names of the paging fields instead and returns a flat `items` list:
 
-```tsx
-const { items, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteFetch(getFeed, {
-  pagination: { cursor: "cursor", next: "nextCursor", items: "data" },
-});
+```tsx title="Infinite list"
+const { items, hasNextPage, isFetchingNextPage, fetchNextPage } =
+  useInfiniteFetch(getFeed, {
+    pagination: { cursor: "cursor", next: "nextCursor", items: "data" },
+  });
 ```
 
-Page numbers, offsets and cursors are covered in the [infinite scroll guide](./infinite-scroll.mdx) and the
-[`useInfiniteFetch` reference](../../../react/04-hooks/use-infinite-fetch.mdx).
+Page numbers, offsets and cursors are covered in the [infinite scroll guide](/docs/guides/react/basics/infinite-scroll) and the
+[`useInfiniteFetch` reference](/docs/react/hooks/use-infinite-fetch).
 
 ---
 
@@ -338,23 +379,46 @@ Some TanStack Query features have no direct counterpart. Plan for these before y
 - **`useQueries`.** There is no hook that takes a dynamic list of requests. Call `useFetch` once per request when the
   number is fixed, or render a child component per item that calls `useFetch` itself.
 - **Caching any async function.** A `queryFn` can read IndexedDB or call a vendor SDK. HyperFetch caches requests sent
-  through an [adapter](../../../core/adapter.mdx). For a non-HTTP source, write an adapter for it.
+  through an [adapter](/docs/core/adapter). For a non-HTTP source, write an adapter for it.
 - **`gcTime` counted from the last unmount.** `cacheTime` starts when the response is stored, as described above.
-- **Streaming pending queries from the server.** `request.dehydrate()` captures finished responses only.
+- **Streaming pending queries from the server.** `request.dehydrate()` captures finished responses only. In the App
+  Router, stream sections with their own `Suspense` boundaries instead, as in the
+  [Next.js streaming example](/examples/frameworks/nextjs-streaming).
 - **An in-page devtools panel.** HyperFlow runs as a separate app.
 
 ---
 
-:::success Summary
+:::success Congratulations!
 
-1.  `useQuery` becomes **`useFetch(request)`** and `useMutation` becomes **`useSubmit(request)`**.
-2.  Query keys disappear: the **cache key comes from the request**, and `client.cache.invalidate()` replaces
-    `invalidateQueries`.
-3.  **Defaults differ**: stale time 5 minutes, no retries, no refetch on focus. Set them on the request or in `Provider`.
-4.  React Query Devtools becomes **HyperFlow** with `DevtoolsPlugin`.
-5.  `useQueries`, caching arbitrary async functions and streaming pending queries have **no direct equivalent**.
+You can now move a TanStack Query app to HyperFetch screen by screen.
+
+- You can replace `useQuery` with **`useFetch(request)`** and `useMutation` with **`useSubmit(request)`**.
+- You can drop query keys: the **cache key comes from the request**, and `client.cache.invalidate()` replaces
+  `invalidateQueries`.
+- You can match TanStack's **defaults** on the request and in the `Provider`.
+- You know which features have **no direct equivalent**.
 
 :::
 
-Next, read the [`useFetch` guide](./fetching.mdx), the [`useSubmit` guide](./submitting.mdx) and the
-[cache reference](../../../core/cache.mdx).
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="HyperFetch vs TanStack Query"
+  description="A feature-by-feature comparison and when each library fits better."
+  to="/docs/guides/comparisons/tanstack-query"
+/>
+
+<LinkCard
+  type="guides"
+  title="React Query Devtools alternative"
+  description="Inspect requests, cache and queues in HyperFlow."
+  to="/docs/guides/comparisons/react-query-devtools"
+/>
+
+- Guides: [fetching](/docs/guides/react/basics/fetching), [submitting](/docs/guides/react/basics/submitting),
+  [infinite scroll](/docs/guides/react/basics/infinite-scroll), [Next.js data fetching](/docs/guides/react/basics/nextjs-data-fetching).
+- Runnable examples: [basic data fetching](/examples/getting-started/basic), [CRUD](/examples/mutations/crud),
+  [invalidation](/examples/mutations/invalidation), [optimistic updates](/examples/mutations/optimistic-updates),
+  [infinite scroll](/examples/data-fetching/infinite-scroll), [devtools](/examples/integrations/devtools).
+- Docs: [cache](/docs/core/cache), [useFetch](/docs/react/hooks/use-fetch).

@@ -5,430 +5,296 @@ description: "The Request class defines an endpoint once: method, params, query 
 sidebar_label: Request
 ---
 
-[Read the API Reference »](/docs/api/core/Classes/Request.mdx)
+[Read the API Reference »](/docs/api/core/Classes/Request)
 
-The `Request` class is the cornerstone of HyperFetch's data-fetching system. It provides a **powerful, type-safe way to
-define, configure, and manage API requests** throughout your application. By encapsulating all the details needed to
-perform a request—such as endpoint, method, parameters, payload, and behavior - `Request` ensures consistency,
-predictability, and flexibility in how you interact with remote data sources.
-
-With a strict and predictable data structure, `Request` makes it easy to serialize, persist, and rehydrate request
-states, enabling advanced features like offline support, caching, and queueing. Its design, especially when paired with
-TypeScript, helps you catch errors early and build robust, maintainable data flows.
-
----
+A **Request** is an immutable, typed description of one endpoint call: its endpoint, method, types and options. You
+create it once from the [client](/docs/core/client) and send it from components, servers, tests or scripts. It is plain
+data, so it can be cloned, serialized, queued while offline and restored later.
 
 :::tip Purpose
 
-1. Requests role is to create **consistent API request templates**.
-2. All requests "templates" are **reusable** and share the data structure.
-3. They behave in the same way no matter what the adapter is, to improve reusability.
-4. Request class **holds instructions** on how requests should be sent, queued, retried, or cancelled.
-5. Responses are **typed** and **structured** to make it easy to work with the data.
+1. **Define an endpoint once** with its response, payload, query params and error types.
+2. **Send it anywhere** with `send()`, which always resolves with a response object.
+3. **Carry its behavior**: cache, retries, cancelation, queueing and offline options.
 
 :::
 
----
-
-## Initialization
-
-Request should be initialized from the [Client](/docs/core/client) instance with `createRequest` method. This passes a
-shared reference to the place that manages communication in the application.
-
-```tsx title="Example of Request initialization"
+```ts title="api/users.ts"
 import { client } from "./client";
 
-const getUser = client.createRequest()({
+export const getUser = client.createRequest<{ response: User }>()({
   endpoint: "/users/:userId",
 });
 ```
 
-```tsx live  title="Simple fetch" size="small"
-const response = await getUser.send({ params: { userId: 1 } });
+```tsx live title="Send a request" size="small"
+const response = await getUser.send({
+  params: { userId: 1 },
+});
 
 console.log(response);
 ```
 
-:::caution TypeScript Currying Note
-
-The `createRequest` method currently employs a currying pattern to facilitate auto-generated TypeScript types for
-endpoint strings. This is a temporary approach until
-[this specific TypeScript issue](https://github.com/microsoft/TypeScript/issues/10571) is resolved, which will allow for
-a more direct typing mechanism.
-
-:::
+`createRequest` is called twice: the first call takes the types, the second the options. The split lets TypeScript
+read `:userId` from the endpoint string and require it when you send.
 
 ---
 
-## Quick Start
+## Type the request
 
-Here is a quick start guide to help you get started with Requests.
+All generics are optional. Leave out what the endpoint does not have.
 
-### Fetching
+| Generic       | Types                                                                 |
+| ------------- | --------------------------------------------------------------------- |
+| `response`    | `data` of a successful response                                       |
+| `payload`     | The body you send, set with `setPayload` or `send({ payload })`        |
+| `queryParams` | Query params. `queryParams?:` makes them optional, `queryParams:` required |
+| `error`       | Endpoint errors, merged with the client's global error                |
 
-There are two main methods to send a request with HyperFetch - `send(options)` and `exec(options)`.
-
-```mermaid
-    timeline
-        title Request Lifecycle
-          1. Pre-Request : Deduplication : Queueing : Interceptors
-          2. Request : onRequestStart() : onUploadProgress() : onRequestEnd()
-          3. Side Effects : onAbort() : onRemoved() : Stop() : Start()
-          4. Response : onResponseStart() : onDownloadProgress() : onResponseEnd()
-          5. Result : Interceptors : onSuccess() : onError() : onFinish()
+```ts title="api/users.ts"
+export const updateUser = client.createRequest<{
+  response: User;
+  payload: { name: string };
+  queryParams?: { notify?: boolean };
+  error: { fields: Record<string, string[]> };
+}>()({ endpoint: "/users/:userId", method: "PATCH" });
 ```
 
-1. #### `.send(options)`
+TypeScript does not reject unknown keys in an object generic, so `rsponse` would pass silently. The
+[lint plugin](/docs/integrations/plugin-eslint) reports it. When the endpoint is a typed GraphQL document, `response`
+and `payload` come from it, see [typed documents](/docs/integrations/adapter-graphql/queries#typed-documents).
 
-You can perform a request with the `send(options)` method. This is the most common way to send a request with Hyper
-Fetch. It triggers the request's lifecycle, including queueing, deduplication, and response handling, and returns the
-server's response in a developer-friendly format.
+---
 
-```tsx
-// Simple fetch
-const { data, error } = await getNotes.setQueryParams({ sort: "age" }).send();
+## Pass params, query params and payload
 
-// Multiple chained methods
-const { data, error } = await getCategory.setParams({ categoryId: 2 }).send();
+Set values ahead of time with setters, or pass them to `send()`. Both are typed by the generics and the endpoint.
 
-// Passing options
-const { data, error } = await getCategory.send({ params: { categoryId: 1 }, queryParams: { sort: "createdAt" } });
+```ts title="src/update-user.ts"
+// Setters return a new request
+const response = await updateUser
+  .setParams({ userId: 1 })
+  .setPayload({ name: "Ann" })
+  .send();
+
+// Or all at once
+await updateUser.send({
+  params: { userId: 1 },
+  payload: { name: "Ann" },
+  queryParams: { notify: true },
+});
 ```
 
-##### Cache Policy
+- **Params** come from `:name` segments of the endpoint. A missing one is a compile error.
+- **Query params** are serialized by the adapter. The fetch adapter's array format and encoding are set with
+  `client.adapter.setQueryParamsMapperConfig`.
+- **Payload** can be JSON data or `FormData`. Falsy values like `0` or `""` are sent as they are, `null` removes the
+  payload.
 
-The `send()` method accepts a `cachePolicy` option that controls how the request interacts with the cache:
+Guides: [parameters](/docs/guides/core/basics/parameters), [query params](/docs/guides/core/basics/query-params) and
+[payload](/docs/guides/core/basics/payload).
 
-- **`"network-only"`** (default) - Always fetches from the network, ignoring any cached data.
-- **`"cache-first"`** - Returns cached data if available, fresh or stale. Falls back to a network request otherwise.
-- **`"revalidate"`** - Returns cached data immediately (if available), then fetches from the network in the background
-  to refresh the cache (stale-while-revalidate pattern). Without cached data it waits for the network.
+---
 
-Neither policy looks at `staleTime`. Compare `Date.now()` with `responseTimestamp + staleTime` of the cache entry when
-you need freshness-aware behavior.
+## Setters return a clone
 
-```ts
-// Default - always goes to network
-const { data } = await getUser.send();
+Every setter returns a new request and leaves the original untouched. Use the returned value. The mock setters
+(`setMock`, `clearMock`, `setMockingEnabled`) are the only exception: they change the instance.
 
-// Use cache if available, otherwise fetch
+```ts title="src/get-user.ts"
+// error-next-line
+getUser.setParams({ userId: 1 }); // result discarded
+await getUser.send(); // compile error: params are still required
+
 // highlight-next-line
-const { data } = await getUser.send({ cachePolicy: "cache-first" });
-
-// Return cache immediately, refresh in background
-// highlight-next-line
-const { data } = await getUser.send({ cachePolicy: "revalidate" });
+await getUser.setParams({ userId: 1 }).send(); // correct
 ```
-
-##### Dispatcher Type
-
-You can force which dispatcher handles a request using the `dispatcherType` option:
-
-- **`"auto"`** (default) - GET requests go to `fetchDispatcher`, mutations go to `submitDispatcher`.
-- **`"fetch"`** - Force use of `fetchDispatcher` regardless of method.
-- **`"submit"`** - Force use of `submitDispatcher` regardless of method.
-
-```ts
-// Force a GET request through the submit dispatcher
-const { data } = await getUser.send({ dispatcherType: "submit" });
-```
-
-2. #### `.exec(options)`
-
-This method is very similar to `send` but it ignores the built-in features - like for example deduplication or caching.
-It is useful when you want to execute a request outside of the normal flow or when you want to bypass the cache
-interactions - for example while using in SSR environments.
-
-```tsx
-const { data, error } = await getUser.exec();
-```
-
-<LinkCard
-  type="guides"
-  title="Fetching"
-  description="Discover how HyperFetch handles request execution."
-  to="/docs/guides/core/basics/fetching"
-/>
 
 ---
 
-### Request Options
+## Send it
 
-Each request can be configured with options. We can specify things like `endpoint`, `method`, `caching strategy`,
-`deduplication`, etc. This information is stored as a template for later use.
+`send()` goes through the [dispatcher](/docs/core/dispatcher), the adapter and the cache. It resolves with
+`{ data, error, status, success, extra, requestTimestamp, responseTimestamp }` for every outcome, including HTTP errors,
+timeouts and aborts, so you never need `try/catch`.
 
-```ts
-const request = client.createRequest()({
-  // Here are some basic options
-  // highlight-start
-  endpoint: "/some-endpoint",
-  method: "POST",
-  deduplicate: true,
-  // highlight-end
-});
+```ts title="src/get-user.ts"
+const { data, error, status } = await getUser.send({ params: { userId: 1 } });
+
+if (data) console.log(data.name);
+else console.error(status, error);
 ```
 
-(@import core RequestOptionsType type=returns)
+`send()` accepts every request option except `endpoint` and `method`, plus these:
+
+| Option           | Default          | Description                                                                                   |
+| ---------------- | ---------------- | --------------------------------------------------------------------------------------------- |
+| `cachePolicy`    | `"network-only"` | `"cache-first"` returns a cached entry, fresh or stale, else fetches. `"revalidate"` returns the cached entry and refetches in the background. |
+| `dispatcherType` | `"auto"`         | `"auto"` sends GET and QUERY through `fetchDispatcher`, the rest through `submitDispatcher`. Force one with `"fetch"` or `"submit"`. |
+| `optimistic`     | none             | [Optimistic changes](#update-the-cache-optimistically) for this call only.                     |
+
+Neither cache policy looks at `staleTime`. `request.read()` returns the cached response without a network call.
+
+`exec()` sends straight through the adapter: interceptors and mappers run, but there is no deduplication, queue, retry,
+offline handling or cache write. Use it for one-off server calls. See the [fetching guide](/docs/guides/core/basics/fetching).
 
 ---
 
-### Payload
+## Control how it is sent
 
-When you want to send some data along with the request, you can use the `setPayload` method. This can be a json,
-FormData or other format - depending on the adapter you use.
+The dispatcher reads these options from the request. Each has a setter, such as `setCancelable(true)`.
 
-First we define request expecting proper type.
+| Option        | Default                    | What it does                                                         |
+| ------------- | -------------------------- | -------------------------------------------------------------------- |
+| `deduplicate` | `true` for GET and QUERY ¹ | Identical requests in flight share one call                          |
+| `cancelable`  | `false`                    | A new send aborts the previous one with the same `queryKey`          |
+| `queued`      | `false`                    | Requests with the same `queryKey` go one at a time, in order         |
+| `offline`     | `true`                     | Requests wait for the connection instead of failing                  |
+| `retry`       | `0`                        | Failed attempts to retry, delayed by `retryTime` (default 500 ms)    |
 
-```ts
-const postUser = client.createRequest<{
-  response: UserModel;
-  // highlight-start
-  payload: UserPostDataType;
-  // highlight-end
-}>()({
-  method: "POST",
-  endpoint: "/users",
+1. The fetch adapter turns deduplication on for GET and QUERY. Other methods and adapters default to `false`.
+
+Abort in-flight requests with `request.abort()`, which aborts every request with the same `abortKey`.
+
+```tsx live title="Cancel the previous call" size="small"
+const cancelableRequest =
+  getUser.setCancelable(true);
+
+cancelableRequest.send({
+  params: { userId: 1 },
 });
 
-const postFile = client.createRequest<{
-  // highlight-start
-  payload: FormData;
-  // highlight-end
-}>()({
-  method: "POST",
-  endpoint: "/files",
-});
+setTimeout(() => {
+  // Aborts the first call
+  cancelableRequest.send({
+    params: { userId: 1 },
+  });
+}, 500);
 ```
 
-```ts
-// Regular data
-const response = await postUser.setPayload({ name: "John", age: 18 }).send();
+Decide per response whether to retry with `setRetryOnError`:
+
+```ts title="api/reports.ts"
+const getReport = client
+  .createRequest()({ endpoint: "/reports", retry: 3, retryTime: 1000 })
+  // skip retries for 4xx
+  .setRetryOnError(({ status }) => !!status && status >= 500);
 ```
 
-You can also pass payload directly to the `send` method.
-
-```ts
-const response = await postFile.send({ payload: data });
-```
-
-Falsy values like `0`, `false` or an empty string are sent as they are. Passing `null` removes the payload set on the
-request before, so the request is sent without a body.
-
-<LinkCard
-  type="guides"
-  title="Payload"
-  description="Understand how to send payload data with your requests."
-  to="/docs/guides/core/basics/payload"
-/>
-
-#### Payload with files
-
-When you want to send a file, you can use the `FormData`.
-
-```ts
-// Form data
-const data = new FormData();
-const file = new File([], "file.txt");
-data.append("file", file);
-
-const response = await postFile.setPayload(data).send();
-```
-
-<LinkCard
-  type="guides"
-  title="Data Mapping Guide"
-  description="Discover how to map and transform data effectively."
-  to="/docs/guides/core/basics/data-mapping"
-/>
+Guides: [cancellation](/docs/guides/core/advanced/cancellation), [deduplication](/docs/guides/core/advanced/deduplication),
+[queueing](/docs/guides/core/advanced/queueing), [offline](/docs/guides/core/advanced/offline) and
+[retries](/docs/guides/core/basics/retries).
 
 ---
 
-### Parameters
+## Keys
 
-Parameters are the URL parts used to identify a specific resource. In HyperFetch they are defined in the endpoint part
-with `:` prefix. For example:
+Three keys tie a request to the cache, the queues and aborting. They are derived from the request, so equal requests
+share cache entries and deduplication automatically.
 
-```ts
-const getNote = client.createRequest()({
-  endpoint: "/note/:noteId", // noteId is a parameter
-});
-const getCategory = client.createRequest()({
-  endpoint: "/category/:categoryId", // categoryId is a parameter
-});
-const getCategoryNote = client.createRequest()({
-  endpoint: "/category/:categoryId/note/:noteId", // categoryId and noteId are parameters
-});
+| Key        | Identifies                    | Default value                              | Example for `GET /users/1?page=2` | Setter        |
+| ---------- | ----------------------------- | ------------------------------------------ | --------------------------------- | ------------- |
+| `cacheKey` | The cached response           | method, filled endpoint, query params      | `GET_/users/1_{"page":2}`         | `setCacheKey` |
+| `queryKey` | The dispatcher queue          | method, filled endpoint, query params      | `GET_/users/1_{"page":2}`         | `setQueryKey` |
+| `abortKey` | Requests aborted together     | method, endpoint template, `cancelable`    | `GET_/users/:userId_false`        | `setAbortKey` |
+
+Override a key to group requests on purpose. For search-as-you-type, give a cancelable request one `queryKey`, because
+the default one changes with every query:
+
+```ts title="api/users.ts"
+const searchUsers = getUsers.setCancelable(true).setQueryKey("users-search");
 ```
 
-When you have properly prepared requests that expect parameters, you can add parameters using the `setParams` method. In
-generic TypeScript, these parameters will match the endpoint parameters by using literal types and will require literal
-types.
-
-```tsx
-getNote.setParams({ noteId: 1 });
-getCategory.setParams({ categoryId: 2 });
-getCategoryNote.setParams({ categoryId: 2, noteId: 1 });
-```
-
-You can also pass parameters directly to the `send` method.
-
-```ts
-const response = await getCategoryNote.send({ params: { categoryId: 1, noteId: 2 } });
-```
-
-<LinkCard
-  type="guides"
-  title="Parameters"
-  description="Learn how to define and use route parameters in your requests."
-  to="/docs/guides/core/basics/parameters"
-/>
+To change how keys are built for every request, use `client.setCacheKeyMapper`, `setQueryKeyMapper` or
+`setAbortKeyMapper`. The mapper must return a key for every request, so fall back to `getRequestKey(request)`.
 
 ---
 
-### Query parameters
+## Scope requests on the server
 
-Query parameters are used to filter or sort the data. In Http requests they are defined in the endpoint part with `?`
-prefix. For example `?search=John&sort=age`.
+`setScope(id)` prefixes all three keys with the scope, so scoped requests never share cache, queues or aborts. On a
+client in `"server"` mode a request is only cached when it has a scope. See [Cache](/docs/core/cache).
 
-We can set query params with the `setQueryParams` method.
-
-```ts
-const getUsers = client.createRequest<{
-  // highlight-start
-  queryParams?: { search?: string; sort?: string };
-  // highlight-end
-}>()({
-  endpoint: "/users",
-});
+```ts title="src/get-user.ts"
+const { data } = await getUser
+  .setParams({ userId: 1 })
+  .setScope(session.id)
+  .send();
 ```
-
-```tsx
-const response = await getUsers.setQueryParams({ search: "John" }).send();
-```
-
-Note that we use `?:` prefix to make query params optional. We can make it required as a whole but also particular
-params from the set.
-
-:::note Required Query Params
-
-You can make query params required by specifying them without `?:` prefix.
-
-```ts
-// All params are required before request is sent
-const getUsers = client.createRequest<{
-  // highlight-start
-  queryParams: { search: string; sort: string };
-  // highlight-end
-}>()({
-  endpoint: "/users",
-});
-
-// Typescript error - sort is required
-// error-start
-const response = await getUsers.setQueryParams({ search: "John" }).send();
-// error-end
-
-// Typescript error - search is required
-// error-start
-const response = await getUsers.setQueryParams({ sort: "age" }).send();
-// error-end
-
-// Typescript error - query params are required
-// error-start
-const response = await getUsers.send();
-// error-end
-```
-
-:::
-
-```tsx
-getUsers.setQueryParams({ search: "John", sort: "age" });
-```
-
-The encoding type for arrays and other options can be set up in the Client. You can also provide your own encoding
-logic.
-
-```tsx
-getUsers.setQueryParams({ search: "John", sort: "age" });
-```
-
-<LinkCard
-  type="guides"
-  title="Query Parameters"
-  description="Explore how to set and manage query parameters for API requests."
-  to="/docs/guides/core/basics/query-params"
-/>
 
 ---
 
-### Adapter Options
+## Map and validate
 
-You can pass adapter options down with the request options.
+- `setResponseMapper` reshapes or validates the response and changes the type of `data`. A throw becomes an error
+  response. The cache keeps the raw response.
+- `setRequestMapper` changes the request right before it is sent. A throw stops the request and returns an error.
+- `setPayloadMapper` transforms the payload, for example into `FormData`.
 
-```ts
-const request = client.createRequest()({
-  endpoint: "/some-endpoint",
-  // highlight-start
-  // Here are adapter options for the Http adapter (default one)
-  options: { timeout: 1000, withCredentials: true },
-  // highlight-end
-});
+```ts title="api/profile.ts"
+const getProfile = client
+  .createRequest<{ response: { full_name: string } }>()({ endpoint: "/me" })
+  .setResponseMapper((response) => {
+    if (!response.data) return response;
+    return { ...response, data: { name: response.data.full_name } };
+  });
 ```
 
-:::info
-
-Adapter options may vary depending on the adapter you use.
-
-:::
+Guides: [data mapping](/docs/guides/core/basics/data-mapping), [mapping](/docs/guides/core/advanced/mapping) and
+[validation](/docs/guides/core/advanced/validation).
 
 ---
 
-### Default Values
+## Update the cache optimistically
 
-When creating a request, the following defaults are applied unless overridden:
+`setOptimistic` changes cached data before the server answers. Build each change with `optimistic()`. Core rolls it back
+on failure, abort or removal from the queue, and refreshes the target once the last pending change on it settles.
 
-| Option              | Default                  | Description                                                                       |
-| ------------------- | ------------------------ | --------------------------------------------------------------------------------- |
-| `auth`              | `true`                   | Whether auth interceptor runs for this request                                    |
-| `method`            | Adapter's default method | HTTP method (typically `"GET"`)                                                   |
-| `cancelable`        | `false`                  | Whether sending a new request auto-cancels the previous one                       |
-| `retry`             | `0`                      | Number of retry attempts on failure                                               |
-| `retryTime`         | `500` (ms)               | Delay between retries                                                             |
-| `cacheTime`         | `300000` (5 min)         | How long cached data is stored                                                    |
-| `cache`             | `true`                   | Whether the response is cached                                                    |
-| `staleTime`         | `300000` (5 min)         | How long cached data is considered fresh                                          |
-| `queued`            | `false`                  | Whether requests are queued (sequential execution)                                |
-| `offline`           | `true`                   | Whether requests are stored when offline                                          |
-| `deduplicate`       | `true` for GET and QUERY, otherwise `false` | Whether identical in-flight requests are deduplicated. The HTTP adapter turns it on for safe reads |
-| `deduplicateTime`   | `null`                   | Custom deduplication window (uses request duration when `null`)                   |
-| `structuralSharing` | `true`                   | Keep references of the unchanged parts of the data when saving responses to cache |
+```ts title="api/todos.ts"
+import { optimistic } from "@hyper-fetch/core";
+
+export const toggleTodo = client
+  .createRequest<{ response: Todo; payload: { done: boolean } }>()({
+    endpoint: "/todos/:todoId",
+    method: "PATCH",
+  })
+  .setOptimistic(({ params, payload }) => [
+    optimistic(getTodos).patch(params.todoId, payload),
+  ]);
+```
+
+The callback can also return `{ updates, context, rollback, invalidate }`. The
+[optimistic updates guide](/docs/guides/react/basics/optimistic-approach) covers every field.
 
 ---
 
-### Disabling Interceptors
+## Listen to the lifecycle
 
-Individual requests can opt out of client-level interceptors. This is useful when a specific endpoint should bypass
-global auth or response processing logic.
+`send()` takes callbacks for one call. `$hooks` registers listeners on the request instance, which run for every
+`send()` and `exec()` of it and of clones made afterwards. Each `$hooks` method returns an unsubscribe function.
 
-```ts
-const publicRequest = client.createRequest()({
-  endpoint: "/public/health",
-  // highlight-start
-  disableRequestInterceptors: true,
-  disableResponseInterceptors: true,
-  // highlight-end
+```ts title="src/get-user.ts"
+await getUser.send({
+  params: { userId: 1 },
+  onRequestStart: ({ requestId }) => console.log("started", requestId),
+  onDownloadProgress: ({ progress }) => console.log(progress),
+  onRetry: ({ retry, delay }) => console.log(`retry ${retry} in ${delay} ms`),
+  onResponse: ({ response }) => console.log(response.status),
 });
+
+const unsubscribe = getUser.$hooks.onResponse(({ response }) =>
+  track(response.status),
+);
 ```
 
-When `disableRequestInterceptors` is `true`, the `onRequest` and `onAuth` interceptors are skipped. When
-`disableResponseInterceptors` is `true`, the `onResponse`, `onSuccess`, and `onError` interceptors are skipped.
+The callbacks are `onBeforeSent`, `onRequestStart`, `onResponseStart`, `onUploadProgress`, `onDownloadProgress`,
+`onRetry`, `onResponse` and `onRemove`. A callback that throws does not break the request: `send()` still resolves and
+the error is thrown from a timer, where `window.onerror` or `uncaughtException` handlers see it. `$hooks` are not part
+of `toJSON()`.
 
 ---
 
 ## Methods
-
-The `Request` class offers a suite of methods to configure and interact with a request instance. You can find a
-comprehensive list of these methods and their detailed descriptions in the API reference.
 
 <ShowMore>
 
@@ -436,752 +302,40 @@ comprehensive list of these methods and their detailed descriptions in the API r
 
 </ShowMore>
 
+---
+
+## Options
+
+(@import core RequestOptionsType type=returns)
+
+---
+
+:::secondary Summary
+
+- Define each endpoint once with `createRequest<Types>()(options)` and keep it at module level.
+- Setters return a **new** request. `send()` always **resolves** with `{ data, error, status }`.
+- `cacheKey`, `queryKey` and `abortKey` are derived from the request and decide cache, queues and aborting.
+
+:::
+
+## Next steps
+
+Runnable examples: [Fetch on click](/examples/data-fetching/fetch-on-click),
+[Typed errors](/examples/request-control/typed-errors), [Response mapping](/examples/request-control/response-mapping)
+and [Cancellation](/examples/request-control/cancellation).
+
+<LinkCard
+  type="guides"
+  title="Fetching"
+  description="How send() and exec() run a request, step by step."
+  to="/docs/guides/core/basics/fetching"
+/>
+
+<LinkCard type="docs" title="Cache" description="How responses are stored, refreshed and invalidated." to="/docs/core/cache" />
+
 <LinkCard
   type="api"
-  title="Detailed Request API Methods"
-  description="Explore all available methods, their parameters, and return values for the Request class."
-  to="/docs/api/core/Classes/Request#methods"
+  title="Request API reference"
+  description="Every method and property of the Request class."
+  to="/docs/api/core/Classes/Request"
 />
-
-It is crucial to understand how these methods operate to ensure predictable behavior:
-
-:::danger Methods Return Clones
-
-Most methods on a `Request` instance (e.g., `setParams`, `setData`, `setHeaders`) do not modify the original request
-instance in place. Instead, they return a **new, cloned instance** of the request with the specified modifications
-applied. The original request instance remains unchanged.
-
-Always use the returned new instance for subsequent operations or for sending the request. This immutable approach
-ensures isolation between different request configurations and is fundamental to how HyperFetch manages request states
-for features like caching and queueing.
-
-:::
-
-```tsx
-const initialRequest = getUser;
-// ❌ WRONG - Original request (getUser) remains unchanged
-initialRequest.setParams({ userId: 1 }); // setParams returns a new request instance
-// 'initialRequest' still refers to the original getUser without params.
-
-// Sends the original request without params, likely leading to an error.
-const { data, error } = await initialRequest.send();
-```
-
-```tsx
-// ✅ CORRECT - Use the returned (cloned) instance
-const originalRequest = getUser;
-
-// Assign the new, cloned request with parameters to a new variable
-const requestWithParams = originalRequest.setParams({ userId: 1 });
-
-// Send the correctly configured request
-const { data, error } = await requestWithParams.send(); // Success!
-
-// ✅ Also correct (method chaining creates and passes clones implicitly)
-const { data: chainedData, error: chainedError } = await getUser
-  .setParams({ userId: 1 }) // .setParams returns a clone
-  .send(); // .send operates on the final configured clone
-```
-
----
-
-## Keys
-
-Each `Request` instance is assigned several unique identifiers, known as **keys**. These keys are essential for internal
-mechanisms—such as caching, queueing, request cancellation, deduplication, effect management and many more. Think of
-them as "fingerprints" that help HyperFetch track, manage, and use for assigning side-effects to requests.
-
-:::note Keys are generated automatically
-
-Keys are generated automatically based on the request's endpoint, method, and parameters. Currently there are two types
-of the generation mechanisms - simple and complex keys. Complex keys include query params in the generation - simple
-keys include only endpoint and method.
-
-:::
-
-### `queryKey`
-
-General identifier for the request, used for query management (e.g., refetching, optimistic updates, invalidation).
-
-```ts
-const key = request.queryKey;
-```
-
-Set custom key with `setQueryKey` method.
-
-```ts
-const customRequest = request.setQueryKey("custom-key");
-```
-
-<LinkCard
-  type="docs"
-  title="More about queryKey"
-  description="Learn more about queryKey."
-  to="/docs/core/dispatcher#querykey"
-/>
-
----
-
-### `cacheKey`
-
-Determines how the response is stored and retrieved from the cache. Ensures correct data is cached and served.
-
-```ts
-const key = request.cacheKey;
-```
-
-Set custom key with `setCacheKey` method.
-
-```ts
-const customRequest = request.setCacheKey("custom-key");
-```
-
-<LinkCard
-  type="docs"
-  title="More about cacheKey"
-  description="Learn more about cacheKey."
-  to="/docs/core/cache#cachekey"
-/>
-
----
-
-### `abortKey`
-
-Identifies and manages ongoing requests for cancellation (e.g., aborting in-flight requests).
-
-```ts
-const key = request.abortKey;
-```
-
-Set custom key with `setAbortKey` method.
-
-```ts
-const customRequest = request.setAbortKey("custom-key");
-```
-
-<LinkCard
-  type="docs"
-  title="More about abortKey"
-  description="Learn more about abortKey."
-  to="/docs/core/managers#abortkey"
-/>
-
----
-
-#### Generation mechanism
-
-By default, these keys are auto-generated based on the request's endpoint, method, and parameters. This ensures that
-each unique request configuration is tracked separately. Your can override this mechanism by providing your own
-implementation.
-
-```tsx
-import { getRequestKey } from "@hyper-fetch/core";
-import { client } from "./api";
-
-client.setCacheKeyMapper((request) => {
-  if (request.requestOptions.endpoint === "/users/:userId") {
-    return `CUSTOM_CACHE_KEY_${request.params?.userId || "unknown"}`;
-  }
-  // The mapper must return a key for every request, fall back to the default one
-  return getRequestKey(request);
-});
-```
-
-#### Why override keys?
-
-In most cases, the default keys are sufficient. However, you may want to override them for advanced scenarios, such as:
-
-- **Custom cache strategies**: Grouping multiple endpoints under a single cache key.
-- **Manual request deduplication**: Treating different requests as identical for deduplication or cancellation.
-- **Abort groups**: Being able to abort multiple requests at once.
-
-#### Overriding keys
-
-You can override any key using the corresponding method:
-
-```ts
-const customRequest = request.setQueryKey("custom-key");
-const customCacheRequest = request.setCacheKey("my-cache-key");
-const abortableRequest = request.setAbortKey("my-abort-key");
-```
-
-> **Note:** Overriding keys is an advanced feature. Make sure you understand the implications for caching,
-> deduplication, and request management.
-
----
-
-## Features
-
-The `Request` class is packed with features to streamline your data fetching and management. Here are some key
-capabilities:
-
-1. ### Cancellation
-
-Cancellation allows you to abort an in-progress request before it completes. This is useful in scenarios where the
-result of a request is no longer needed, such as when a user navigates away from a page or changes a filter before the
-previous request finishes. Aborting a request helps prevent unnecessary processing and side effects from outdated
-responses.
-
-1. #### Manual cancellation
-
-Triggered by the `.abort()` request method, allow us to stop the request execution.
-
-```tsx live title="Manual cancellation"
-import { getUser } from "./api";
-
-// Start the request
-const response = getUser.send();
-
-setTimeout(() => {
-  // Cancel the request by its abortKey
-  getUser.abort();
-  // Show a toast notification
-  toast({ title: "Cancelled", message: "This request was cancelled manually" });
-}, 1000);
-```
-
-2. #### Automatic cancellation
-
-It is automatically executed when we send two identical requests at the same time. Older request will be cancelled and
-the new one will be sent.
-
-```tsx live title="Automatic cancellation"
-import { getUser } from "./api";
-
-const cancelableRequest = getUser.setCancelable(true);
-
-cancelableRequest.send();
-
-setTimeout(() => {
-  cancelableRequest.send();
-}, 1000);
-```
-
-<LinkCard
-  type="guides"
-  title="Cancellation Guide"
-  description="Learn how to cancel requests and manage their lifecycle."
-  to="/docs/guides/core/advanced/cancellation"
-/>
-
----
-
-2. ### Queueing
-
-Queueing ensures that requests are sent one after another, rather than in parallel. When enabled, each request waits for
-the previous one to finish before starting. This is important for operations that must be performed in order, or when
-interacting with APIs that require serialized access.
-
-```tsx live title="Queueing"
-import { postFile } from "./api";
-
-// Queue requests to be sent one-by-one
-const queuedRequest = postFile.setQueued(true);
-queuedRequest.send();
-// This will wait until the previous with th same queryKey one finishes
-queuedRequest.send();
-```
-
-<LinkCard
-  type="guides"
-  title="Queueing"
-  description="Understand how requests are queued and processed in sequence."
-  to="/docs/guides/core/advanced/queueing"
-/>
-
----
-
-3. ### Offline Support
-
-Offline support allows requests to be stored when the application is offline. These requests are automatically retried
-once the network connection is restored. This feature is useful for applications that need to function reliably in
-environments with intermittent connectivity.
-
-```tsx live  title=Offline handling
-import { client, getUser } from "./api";
-
-// Simulate the connection loss
-client.appManager.setOnline(false);
-
-// Trigger the request being offline
-getUser.setOffline(true).send();
-
-// Return back online and the request will be resumed
-setTimeout(() => {
-  client.appManager.setOnline(true);
-}, 2000);
-```
-
-<LinkCard
-  type="guides"
-  title="Offline Guide"
-  description="Learn how to leverage offline capabilities for robust applications."
-  to="/docs/guides/core/advanced/offline"
-/>
-
----
-
-4. ### Deduplication
-
-Deduplication prevents multiple identical requests from being sent at the same time. If a request is already in
-progress, additional requests with the same parameters will reuse the ongoing request and share its response. This
-reduces redundant network traffic and ensures consistent results.
-
-```tsx live
-import { getUser } from "./api";
-
-const getUserDeduplicated = getUser.setDeduplicate(true);
-
-// First request
-getUserDeduplicated.send();
-
-// Second request (Deduplicated - it will never be triggered)
-getUserDeduplicated.send();
-
-// Third request (Deduplicated - it will never be triggered)
-setTimeout(() => {
-  getUserDeduplicated.send();
-}, 500);
-```
-
-<LinkCard
-  type="guides"
-  title="Deduplication"
-  description="Learn how to prevent duplicate requests using the deduplication feature."
-  to="/docs/guides/core/advanced/deduplication"
-/>
-
----
-
-5. ### Authentication
-
-Authentication integrates the request with the client's authentication mechanism. When enabled, authentication tokens or
-credentials are automatically included with the request. This is necessary for accessing protected resources or APIs
-that require user identity.
-
-```tsx
-// Add the onAuth interceptor
-client.onAuth(({ request }) => {
-  // Modify request - by adding the auth token to the headers
-  request.setHeaders({
-    Authorization: `Bearer ${auth.token}`,
-  });
-
-  return request;
-});
-
-// Authenticated request (uses Client's auth setup)
-const authRequest = client.createRequest()({ endpoint: "/profile", auth: true });
-
-// it will authenticate the request
-authRequest.send();
-```
-
-<LinkCard
-  type="guides"
-  title="Authentication Guide"
-  description="Learn about setting up authentication for your requests via the Client."
-  to="/docs/guides/core/basics/authentication"
-/>
-
----
-
-6. ### Mapping
-
-**Response mapping** allows you to transform the request payload before sending it, or the response data after receiving
-it. This is useful for adapting data formats between your application and external APIs, or for preprocessing data for
-validation or display.
-
-```tsx
-// Map response data to a new structure
-const { data: mappedResponse } = await client
-  .createRequest<{ response: { name: string } }>()({ endpoint: "/user" })
-  .setResponseMapper((res) => ({ ...res, data: { displayName: res.data.name } }))
-  .send();
-
-console.log(mappedResponse); // { displayName: "John" }
-```
-
-<LinkCard
-  type="guides"
-  title="Response Mapping Guide"
-  description="Discover how to map and transform data effectively."
-  to="/docs/guides/core/basics/data-mapping"
-/>
-
-**Request mapping** provides hooks for custom transformations of payloads, requests, and responses. This allows for
-complex data processing scenarios, such as chaining multiple transformations, integrating with third-party services, or
-adapting to evolving API contracts.
-
-```tsx
-// Advanced mapping: transform payload before sending
-const request = client
-  .createRequest<{ payload: { name: string } }>()({ endpoint: "/advanced" })
-  .setPayloadMapper((payload) => ({ ...payload, name: payload.name.toUpperCase() }));
-
-// Will send the request with the payload { name: "JOHN" }
-const mappedRequest = request.setPayload({ name: "john" }).send();
-```
-
-<LinkCard
-  type="guides"
-  title="Request Mapping Guide"
-  description="Explore advanced data mapping techniques for complex scenarios."
-  to="/docs/guides/core/advanced/mapping"
-/>
-
----
-
-7. ### Retries
-
-Retries automatically resend a request if it fails due to network errors or server issues. You can configure the number
-of retry attempts and the delay between them. This feature helps improve reliability in the face of transient errors.
-
-```tsx
-// Retry failed requests automatically
-const retryRequest = client.createRequest()({ endpoint: "/unstable", retry: 2, retryTime: 1000 });
-retryRequest.send(); // Will retry up to 2 times on failure
-```
-
-#### Conditional retries
-
-Use `setRetryOnError` to decide at runtime whether a failed request should be retried. The callback receives the error
-response and returns a boolean. When it returns `false`, retries are skipped even if the `retry` count has not been
-exhausted.
-
-```ts
-const request = client
-  .createRequest()({ endpoint: "/unstable", retry: 3, retryTime: 1000 })
-  // highlight-start
-  .setRetryOnError((response) => {
-    // Only retry on server errors, not on 4xx client errors
-    return response.status >= 500;
-  });
-// highlight-end
-```
-
-<LinkCard
-  type="guides"
-  title="Retries"
-  description="Learn how to configure automatic retries for failed requests."
-  to="/docs/guides/core/basics/retries"
-/>
-
----
-
-8. ### Error handling
-
-Error handling provides mechanisms to detect and respond to errors that occur during the request lifecycle. You can
-define callbacks for different error types, such as network failures, validation errors, or server responses, allowing
-your application to handle failures appropriately.
-
-```tsx
-// Handle errors with onError callback
-const errorRequest = client.createRequest()({ endpoint: "/fail" });
-
-// Will return error without throwing it
-const { error } = await errorRequest.send();
-
-// You can also handle the error with callback
-await errorRequest.send({
-  onError: ({ response }) => {
-    console.error("Request failed:", response.error);
-  },
-});
-```
-
-<LinkCard
-  type="guides"
-  title="Error handling"
-  description="Understand the error handling mechanisms in HyperFetch requests."
-  to="/docs/guides/core/basics/error-handling"
-/>
-
----
-
-9. ### Scoping
-
-Use `setScope` to isolate all keys (cache, queue, abort) by scope (user, session, tenant, etc.). On the server, this is
-required to enable caching at all. On the client, it acts as an optional key prefix for organization.
-
-```tsx
-const getUser = client.createRequest<{ response: User }>()({
-  endpoint: "/users/:userId",
-  method: "GET",
-});
-
-// Scoped cache — isolated per session
-const scopedRequest = getUser.setParams({ userId: 1 }).setScope(sessionId);
-
-const { data } = await scopedRequest.send();
-```
-
-:::info
-
-`setScope` returns a new cloned request (immutable). The scope string is included in `toJSON()` so it survives
-serialization through dispatchers and queues. All keys — cache, queue, and abort — are prefixed with the scope, ensuring
-complete isolation between scoped requests.
-
-:::
-
----
-
-10. ### Validation
-
-Validation enables you to check the request data before it is sent, and the response data after it is received. This
-helps ensure that only valid data is processed by your application, and that errors are caught early in the data flow.
-
-```tsx
-// Validate request data before sending
-const validatedRequest = client
-  .createRequest<{ payload: { age: number } }>()({ endpoint: "/validate" })
-  .setRequestMapper((req) => {
-    if (req.payload.age < 18) throw new Error("Must be 18+");
-    return req;
-  });
-const { error } = await validatedRequest.setPayload({ age: 16 }).send();
-
-console.log(error); // Error: Must be 18+
-```
-
-<LinkCard
-  type="guides"
-  title="Validation"
-  description="Learn about validating request data before sending and response data upon receipt."
-  to="/docs/guides/core/advanced/validation"
-/>
-
-11. ### Optimistic Updates
-
-Optimistic updates change the cache before the server responds. Describe each change with `optimistic()` and its undo
-with `.rollback()` - core applies the change, runs the undo on failure, abort or queue removal, and refreshes the target
-once the last pending mutation on it settles:
-
-```typescript
-import { optimistic } from "@hyper-fetch/core";
-
-const patchUser = client
-  .createRequest<{ response: User; payload: Partial<User> }>()({
-    endpoint: "/users/:userId",
-    method: "PATCH",
-  })
-  .setOptimistic(({ params, payload }) => [
-    optimistic(getUsers)
-      .patch(params.userId, payload)
-      .rollback(({ data, previous }) => {
-        const before = previous.find((user) => user.id === Number(params.userId));
-        return data.map((user) => (user.id === Number(params.userId) && before ? before : user));
-      }),
-  ]);
-```
-
-The callback receives `request`, `client`, `payload`, `params`, `queryParams` and an `optimistic` builder typed by the
-mutation. It returns an array of changes, or an object:
-
-- **`updates`** — changes built with `optimistic()`: `set`, `patch`, `insert`, `remove`, `increment`.
-- **`context`** — arbitrary data available as `mutationContext` in all lifecycle callbacks. The type is auto-inferred.
-- **`rollback`** — a hand-written undo, called once on failure, abort or queue removal with `{ reason, response, request }`.
-- **`invalidate`** — requests invalidated on success.
-- **`rollbackOnError`** / **`revalidate`** — skip the rollback for some errors, or the refresh of the targets.
-
-All fields are optional. The callback runs before the request is dispatched — if it throws, the request is not sent
-and an error response is returned. Pass `send({ optimistic })` to use other changes for a single call.
-
-The `context` is delivered to the lifecycle callbacks. React hooks (`onSubmitSuccess`, `onSubmitError`, etc.) receive it
-as `mutationContext`, typed from the `context` return value. `send()` callbacks and `$hooks` listeners receive the whole
-optimistic result as `mutationContext`, with your value under `context`:
-
-```typescript
-patchUser.send({
-  params: { userId: 1 },
-  payload: { name: "New Name" },
-  onResponse: ({ mutationContext }) => {
-    console.log(mutationContext?.context);
-  },
-});
-
-patchUser.$hooks.onResponse(({ mutationContext }) => {
-  console.log("Context:", mutationContext?.context);
-});
-```
-
-<LinkCard
-  type="guides"
-  title="Optimistic Updates"
-  description="Learn how to implement optimistic updates with rollback, invalidation, and concurrent mutations."
-  to="/docs/guides/react/basics/optimistic-approach"
-/>
-
----
-
-## Instance Hooks ($hooks)
-
-The `$hooks` API provides **persistent, instance-level lifecycle hooks** on a `Request`. Unlike per-`send()` callbacks
-(which are one-shot), `$hooks` callbacks run on every send of that request instance. They survive `.clone()` and are
-ideal for cross-cutting concerns like logging, analytics, or auth token injection.
-
-Each hook method registers a callback and returns an **unsubscribe function**. Multiple listeners per hook are
-supported.
-
-```tsx title="Adding persistent hooks"
-const getUser = client.createRequest<{ response: User }>()({
-  endpoint: "/users/:userId",
-  method: "GET",
-});
-
-getUser.$hooks.onBeforeSent(({ requestId }) => {
-  console.log(`Request ${requestId} about to be sent`);
-});
-
-const unsubscribe = getUser.$hooks.onResponse(({ response }) => {
-  analytics.track("api_call", { endpoint: "/users/:userId", status: response.status });
-});
-
-getUser.$hooks.onRetry(({ retry, response }) => {
-  analytics.track("api_retry", { endpoint: "/users/:userId", status: response.status, retry });
-});
-
-// Hooks fire on every send
-await getUser.setParams({ userId: 1 }).send();
-await getUser.setParams({ userId: 2 }).send();
-
-// Unsubscribe when no longer needed
-unsubscribe();
-```
-
-:::info Serialization
-
-`$hooks` is a **runtime-only** property. It is excluded from `toJSON()` serialization, so hooks are not persisted to
-storage or queues. When a request is restored from JSON, hooks are simply not present (no crash).
-
-The `$` prefix convention indicates runtime-only properties throughout HyperFetch.
-
-:::
-
----
-
-## Lifecycle listeners
-
-The `send()` method accepts an options object where you can define lifecycle callback functions. These callbacks allow
-you to hook into various stages of the request's lifecycle—`onBeforeSent` (right before the request is sent),
-`onRequestStart`, `onResponseStart`, `onUploadProgress`, `onDownloadProgress`, `onRetry` (a failed attempt scheduled
-a retry), `onResponse` (the final response, successful or not) and `onRemove`—to perform actions based on the
-request's progress and outcome.
-
-```tsx
-await someRequest.send({
-  onBeforeSent: ({ request, requestId }) => {
-    console.log(`Request ${requestId} is about to be sent.`);
-    // Called right before the request is sent—useful for quickly accessing the requestId for tracking or logging
-  },
-  onRequestStart: ({ requestId, request }) => {
-    console.log(`Request ${requestId} has started.`);
-    // Called when the request is started—useful for showing a loading indicator
-  },
-  onUploadProgress: ({ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, request, requestId }) => {
-    console.log(`Request ${requestId} upload progress:`, progress);
-    // Called when the upload progress is updated—useful for showing a progress bar
-  },
-  onDownloadProgress: ({ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, request, requestId }) => {
-    console.log(`Request ${requestId} download progress:`, progress);
-    // Called when the download progress is updated—useful for showing a progress bar
-  },
-  onRetry: ({ retry, delay, response, requestId }) => {
-    console.log(`Request ${requestId} failed with ${response.status}, retry ${retry} in ${delay} ms`);
-    // Called for every failed attempt which schedules a retry—these attempts don't reach onResponse
-  },
-  onResponse: ({ response, requestId }) => {
-    console.log(`Request ${requestId} finished:`, response.success ? response.data : response.error);
-    // Called with the final response, successful or not
-  },
-  onRemove: ({ request, requestId }) => {
-    console.log(`Request ${requestId} removed.`);
-    // Called when the request is removed—useful for cleaning up
-  },
-});
-```
-
-:::info Errors thrown by callbacks
-
-Callbacks, `$hooks` listeners, event listeners, plugins and the optimistic helpers, `rollback` and `commit` run inside the
-request lifecycle.
-When one of them throws, the request still finishes, `send()` still resolves with the response and the other listeners
-still run. The error is not swallowed - it is thrown from a timer, outside of the lifecycle, so it reaches
-`window.onerror` in the browser and the `uncaughtException` handlers in Node.js.
-
-:::
-
----
-
-## TypeScript
-
-When creating a request with `client.createRequest`, you can specify up to four generic types to ensure type safety and
-enhance the developer experience throughout the request lifecycle:
-
-- **`response`**: The expected type of the successful response data from the server.
-- **`payload`**: The type of the data to be sent in the request body.
-- **`error`**: The type for errors specific to this request, often used for local validation or business logic errors,
-  complementing the global error type defined on the `Client`.
-- **`queryParams`**: The expected structure and types for the request's query parameters.
-
-```tsx
-const request = client.createRequest<{
-  response: { name: string };
-  payload: { age: number };
-  error: { message: string };
-  queryParams: { search: string };
-}>()({ endpoint: "/user" });
-
-const { data, error } = await request.send();
-
-console.log(data); // { name: "John" }
-console.log(error); // undefined
-```
-
-When the endpoint is a typed document, like a GraphQL `TypedDocumentNode` from graphql-codegen or a gql.tada document,
-the request reads `response` and `payload` from it, so you can leave them out. Declared generics still win. See
-[typed documents](/docs/integrations/adapter-graphql/overview#typed-documents).
-
-:::warning Install Eslint plugin
-
-To ensure type safety, we recommend installing the
-[eslint-plugin-hyper-fetch](https://www.npmjs.com/package/eslint-plugin-hyper-fetch) plugin. It will help you catch type
-errors early and build robust, maintainable data flows.
-
-Learn how to install and configure the plugin in the [Eslint plugin guide](/docs/integrations/plugin-eslint).
-
-:::
-
----
-
-### Generics
-
-Starting from `HyperFetch v7.0.0`, the generics of `createClient` and the `createRequest` method are passed as
-objects. This way, user can specify **only** what they want, in any order, in very a readable way.
-
-```ts
-const client = createClient<{ error: ErrorType }>({ url });
-
-const getUsers = client.createRequest<{ response: ResponseType; queryParams: QueryParamsType }>()({
-  endpoint: "/users",
-});
-```
-
-:::caution
-
-We firmly believe that it is more readable approach. Yet, it comes at a cost - currently, TypeScript does not handle
-well the autosuggestions and type inference for the extended object-like generics
-(https://github.com/microsoft/TypeScript/issues/28662). Fear not - the types are working correctly and we found a way to
-make it work with our own eslint plugin.
-
-For example, when writing a request, e.g.:
-
-```ts
-const postUser = client.createRequest<{ invalidGeneric: string }>()({ endpoint: "/" });
-```
-
-TypeScript will not throw an error if you use an invalid key like `invalidGeneric` that isn't part of our API. To catch
-these issues early, we recommend using our custom ESLint plugin. This approach combines the benefits of type safety and
-readability, while ensuring your code uses the correct API syntax.
-
-:::

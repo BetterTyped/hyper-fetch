@@ -7,30 +7,30 @@ sidebar_label: Overview
 
 # Deno
 
-HyperFetch runs on Deno through its npm support. The default adapter calls Deno's native `fetch`, so `createClient`,
-`createRequest` and `send()` work the same way they do in Node.js and in the browser.
-
----
+HyperFetch runs on Deno through its npm support and Deno's native `fetch`, so `createClient`, `createRequest` and
+`send()` work as they do in Node.js and the browser. Use it in Deno scripts, servers and edge functions on Deno Deploy.
 
 :::tip Purpose
 
-1.  **No build step**: Import `@hyper-fetch/core` with an `npm:` specifier and run the file.
-2.  **Native fetch**: No polyfill and no Deno-specific adapter.
-3.  **Deploy anywhere Deno runs**: The same code runs locally and on Deno Deploy.
+1. **No build step**: import `@hyper-fetch/core` with an `npm:` specifier and run the file.
+2. **Native fetch**: no polyfill and no Deno-specific adapter.
+3. **Safe on shared servers**: outside the browser the client caches nothing unless a request has a scope.
 
 :::
 
 ---
 
-## Getting started
+## Install
 
-Add the package to `deno.json`:
+Add the package to `deno.json`, or skip this step and import it with an `npm:` specifier:
 
 ```bash
 deno add npm:@hyper-fetch/core
 ```
 
-Or import it straight from npm in a single file:
+---
+
+## Send a request
 
 ```ts title="main.ts"
 import { createClient } from "npm:@hyper-fetch/core";
@@ -48,47 +48,68 @@ console.log(error ?? data);
 ```
 
 ```bash
-deno run --allow-net main.ts
+deno run --allow-net=api.example.com main.ts
 ```
-
-Deno asks for network access, so pass `--allow-net`, or `--allow-net=api.example.com` to allow only your API.
 
 ---
 
-## In a Deno server
+## Use it in a server
 
-`Deno.serve` handles requests from many users. When your calls carry a user's credentials, create the client per request
-so the cache and deduplication never mix their data:
+`Deno.serve` handles requests from many users with one client. Outside the browser the [client](/docs/core/client)
+caches nothing unless the request has a scope, so set one to cache per user:
 
 ```ts title="server.ts"
 import { createClient } from "npm:@hyper-fetch/core";
 
-Deno.serve(async (req) => {
-  const client = createClient({ url: "https://api.example.com" });
-  const getProfile = client.createRequest<{ response: { name: string } }>()({
-    endpoint: "/me",
-  });
+const client = createClient({ url: "https://api.example.com" });
+const getProfile = client.createRequest<{ response: { name: string } }>()({
+  endpoint: "/me",
+});
 
+Deno.serve(async (req) => {
+  const token = req.headers.get("Authorization") ?? "";
+  // highlight-start
   const { data, error } = await getProfile
-    .setHeaders({ Authorization: req.headers.get("Authorization") ?? "" })
+    .setHeaders({ Authorization: token })
+    .setScope(token)
     .send();
+  // highlight-end
 
   return Response.json(error ?? data, { status: error ? 502 : 200 });
 });
 ```
 
-:::note When it's helpful
+---
 
-- Deno scripts and servers that call other APIs and need retries and typed responses.
-- Edge functions on Deno Deploy or Supabase Edge Functions, which run Deno.
-- Sharing request definitions between a Deno backend and a TypeScript frontend.
+## Runtime quirks
 
-:::
+- **Permissions**: Deno asks for network access. Pass `--allow-net`, or `--allow-net=api.example.com` to allow only your
+  API.
+- **Deno Deploy and Supabase Edge Functions** run Deno, so the same code runs there.
+
+---
 
 :::secondary Summary
 
 - Import HyperFetch with `npm:@hyper-fetch/core` and it runs on Deno's native `fetch`.
 - Pass `--allow-net` so Deno lets it reach your API.
-- In servers, create a client per request when calls carry the user's credentials.
+- On servers the cache stays off unless a request has a scope, so users' data stays apart.
 
 :::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="integrations"
+  title="Example: HyperFetch on the server"
+  description="A script that sends typed requests in parallel and retries failures, with code that runs on Deno too."
+  to="/examples/integrations/server-runtimes"
+/>
+<LinkCard
+  type="docs"
+  title="Cache"
+  description="How scopes, server mode and cache keys decide what is cached."
+  to="/docs/core/cache"
+/>

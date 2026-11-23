@@ -5,20 +5,18 @@ description: How to type API responses in TypeScript. Why fetch returns any, why
 sidebar_label: Response Type
 ---
 
-# Typing API Responses in TypeScript
+# Typing API responses in TypeScript
 
-Typing API responses in TypeScript is where most of the safety in a frontend comes from. If `data.user.name` is typed,
-the compiler catches the typo, the renamed field and the forgotten `null` check before your users do. This guide shows
-why the usual `fetch` approach gives you less safety than it looks, and how HyperFetch attaches a **response type** to
-each request so every caller gets it for free.
+A typed response lets the compiler catch a typo, a renamed field or a forgotten `null` check before your users do. This
+guide shows why the usual `fetch` approach is weaker than it looks, and how HyperFetch attaches a response type to each
+request so every caller gets it.
 
 :::secondary What you'll learn
 
-1.  Why `response.json()` is untyped and what a **cast** really does.
-2.  How to define the **expected response type** for a request.
-3.  How the response type provides **type safety and autocompletion** for the returned data.
-4.  How to handle both **successful data and null** responses.
-5.  How to **reuse** a response type and **check it at runtime**.
+1. Why `response.json()` is untyped and what a **cast** really does.
+2. How to declare the **response type** of a request.
+3. How to type the **error** next to it.
+4. How to **reuse** the type and **check it at runtime**.
 
 :::
 
@@ -29,7 +27,7 @@ each request so every caller gets it for free.
 `response.json()` returns `Promise<any>`. Whatever you do next is a promise you make to the compiler, not something it
 checks:
 
-```ts
+```ts title="plain-fetch.ts"
 type User = { id: number; name: string };
 
 // A cast: TypeScript believes you, nothing is checked
@@ -54,69 +52,35 @@ validation, covered at the end.
 
 ---
 
-## Why is it helpful?
+## Declare the response type
 
-- **Runtime error prevention**: You only access properties that exist on the response data, so `undefined is not a
-  function` errors get caught at compile time.
-- **Code reliability**: Components and functions get a guaranteed shape for the data they work with.
-- **Faster development**: IDE autocompletion for response data properties means fewer trips to the API docs.
-- **Self-documenting**: The request itself becomes the source of truth for the API's response structure.
+Pass the type to the `response` generic. It is declared once, next to the endpoint, and every caller gets it.
 
----
+```ts title="src/api/users.ts"
+type User = { id: number; name: string; email: string };
 
-## Example
-
-By providing a type to the `response` generic, you ensure that the `data` returned from the `.send()` method is strongly
-typed.
-
-```ts
-// import { createClient } from '@hyper-fetch/core';
-
-export const client = createClient({
-  url: "https://api.example.com",
-});
-
-// 1. Define the shape of a single user object
-type User = {
-  id: number;
-  name: string;
-  email: string;
-};
-
-// 2. Define the response type for the request, which is an array of users
-// highlight-start
-type ResponseType = User[];
-// highlight-end
-
-// 3. Create the request, specifying the response type
-const getUsers = client.createRequest<{
-  response: ResponseType;
-}>()({
+export const getUsers = client.createRequest<{ response: User[] }>()({
   endpoint: "/users",
-  method: "GET",
 });
 
-// 4. When you send the request, the `data` property will be strongly typed
-const { data, error } = await getUsers.send();
+const { data } = await getUsers.send();
 
-// `data` is of type `User[] | null`
+// data: User[] | null
 if (data) {
-  // You get autocompletion for user properties here
-  data.forEach((user) => {
-    console.log(user.name);
-  });
+  data.forEach((user) => console.log(user.name));
 }
 ```
 
 `data` is `null` until a request succeeds, so TypeScript makes you handle that case. The same type flows into
 `useFetch(getUsers).data` in React and into the cache, without repeating it.
 
-The `response` generic only types `data`. How the body is read is up to the adapter. The default HTTP adapter parses
-JSON, and its `responseType` option (`"text"`, `"blob"`, `"arrayBuffer"`) returns other shapes, so a file download is
-typed as `{ response: Blob }` with `options: { responseType: "blob" }`. See the
-[adapter docs](../../core/adapter.mdx) for the full table. With the GraphQL adapter, a typed document
-(`TypedDocumentNode` from graphql-codegen, or gql.tada) passed as `endpoint` fills the response and payload types
-without generics.
+The `response` generic only types `data`. How the body is read is up to the adapter:
+
+- **HTTP adapter**: parses JSON by default. Its `responseType` option (`"text"`, `"blob"`, `"arrayBuffer"`) returns
+  other shapes, so a file download is typed as `{ response: Blob }` with `options: { responseType: "blob" }`. See the
+  [adapter docs](/docs/core/adapter) for the full table.
+- **GraphQL adapter**: a typed document (`TypedDocumentNode` from graphql-codegen, or gql.tada) passed as `endpoint`
+  fills the response and payload types without generics.
 
 ---
 
@@ -125,7 +89,7 @@ without generics.
 The response type has a partner: the error type. Declare it on the request for endpoint-specific errors, or on the
 client for the shape every endpoint returns. `error` is then typed instead of `unknown`:
 
-```ts
+```ts title="src/api/users.ts"
 type ValidationError = { message: string; fields: Record<string, string> };
 
 const createUser = client.createRequest<{
@@ -138,7 +102,8 @@ const createUser = client.createRequest<{
 });
 ```
 
-See [local error types](./local-error.mdx) and [global error types](./global-error.mdx) for both sides.
+See [local error types](/docs/guides/typescript/local-error) and [global error types](/docs/guides/typescript/global-error)
+for both sides.
 
 ---
 
@@ -147,18 +112,17 @@ See [local error types](./local-error.mdx) and [global error types](./global-err
 You rarely need to export `ResponseType` by hand. The request already carries it, and `ExtractResponseType` reads it
 back:
 
-```ts
+```ts title="src/user-table.ts"
 import type { ExtractResponseType } from "@hyper-fetch/core";
 
 type Users = ExtractResponseType<typeof getUsers>; // User[]
 
-function UserTable({ users }: { users: Users }) {
-  // ...
-}
+export const renderUserTable = (users: Users) =>
+  users.map((user) => `${user.name} <${user.email}>`).join("\n");
 ```
 
 The other extractors (payload, params, query params, error) work the same way. See
-[request extractors](./request-extractors.mdx).
+[request extractors](/docs/guides/typescript/request-extractors).
 
 ---
 
@@ -167,7 +131,7 @@ The other extractors (payload, params, query params, error) work the same way. S
 Types disappear when the code is compiled. If you can't trust the API, or it's a third-party one, validate the response
 with a schema library and derive the type from the schema, so the two can't drift. HyperFetch runs the check in
 `setResponseMapper`, and a failed parse ends up in `error`. The full example with Zod is in the
-[validation guide](../core/02-advanced/validation.mdx).
+[validation guide](/docs/guides/core/advanced/validation).
 
 ---
 
@@ -175,9 +139,16 @@ with a schema library and derive the type from the schema, so the two can't drif
 
 You've learned how to type API responses in TypeScript with HyperFetch.
 
-- You know why a **cast** on `response.json()` is a promise to the compiler, not a check.
+- You can tell a **cast** on `response.json()`, a promise to the compiler, from a check.
 - You can define a **`response` type** for any request to get strongly-typed data.
 - You can type the **error** next to it and **reuse** both with extractors.
 - You know when to add **runtime validation** on top of the types.
 
 :::
+
+Runnable examples: [Basic data fetching](/examples/getting-started/basic) and
+[Response mapping](/examples/request-control/response-mapping).
+
+<LinkCard type="guides" title="Request extractors" description="Read every part of a request's type." to="/docs/guides/typescript/request-extractors" />
+
+<LinkCard type="guides" title="Validation" description="Check responses at runtime with Zod." to="/docs/guides/core/advanced/validation" />

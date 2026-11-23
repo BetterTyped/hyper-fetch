@@ -7,102 +7,155 @@ sidebar_label: Emitting
 
 # Socket Emitting
 
-While listening for events is crucial, your application also needs to send data to the server. HyperFetch's
-`useEmitter` hook provides a clean and efficient way to emit socket events. It gives you a dedicated `emit` function to
-trigger events on demand, along with helpers to track the connection state and react to messages that could not be
-sent. This hook is perfect for actions like sending messages, updating user status, or any other client-to-server communication.
+[`useEmitter`](/docs/react/sockets/use-emitter) gives a component an `emit` function for one topic, plus the connection
+state. This guide sends chat messages from a form, handles messages that could not be sent, and gets a reply from the
+server.
 
 :::secondary What you'll learn
 
-1.  How to use the **`useEmitter`** hook to send data to a socket server.
-2.  How to trigger an event using the returned **`emit` function**.
-3.  How to react to messages that could not be sent with **`onEmitError`**.
-4.  How to use helper hooks like **`onEmit`** and **`onReconnecting`** to manage the emitter's lifecycle.
+1.  How to **send a message** from a form with `emit`.
+2.  How to pass **topic params** per component or per call.
+3.  How to handle **failed sends** with `onEmitError`.
+4.  How to get a **server reply** with a listener and a correlation id.
 
 :::
 
 ---
 
-## Basic Usage
+## Send from a form
 
-The `useEmitter` hook takes an emitter and returns an `emit` function, connection status, and several helper
-hooks. You call the `emit` function whenever you want to send data to the server. A common use case is sending data from
-a form.
+`emit` takes `{ payload, params }`, typed by the emitter. It returns `void`: there is no acknowledgement, and nothing is
+queued while the socket is offline. Disable the send button while `connected` is `false`.
 
-`emit` returns `void` and has no acknowledgement callback. Messages are not queued: a message emitted while the socket
-is not connected (or one whose payload cannot be encoded) is dropped and reported through `onEmitError`. Disable the
-send action while `connected` is `false`, and render a [`useListener`](/docs/react/sockets/use-listener) on a reply
-topic when the server needs to answer.
+```tsx title="components/chat-input.tsx"
+import { useState } from "react";
+import { useEmitter } from "@hyper-fetch/react";
+// socket.createEmitter<{ text: string }>()({ topic: "rooms/:roomId" })
+import { sendChatMessage } from "../api/socket";
 
-```tsx
-function ChatInput() {
-  const [message, setMessage] = React.useState("");
-  const [status, setStatus] = React.useState("Waiting for message...");
+export function ChatInput({ roomId }: { roomId: string }) {
+  const [text, setText] = useState("");
+  const [warning, setWarning] = useState<string | null>(null);
+  // highlight-start
+  const { emit, connected, onEmitError } = useEmitter(
+    sendChatMessage.setParams({ roomId }),
+  );
+  // highlight-end
 
-  const { emit, connected, onEmit, onEmitError, onReconnecting } = useEmitter(sendMessage);
+  onEmitError(({ error }) => setWarning(`Not sent: ${error.message}`));
 
-  onEmit((emitter) => {
-    console.log("Event was sent!", emitter);
-  });
-
-  onEmitError(({ error }) => {
-    setStatus(`Message not sent: ${error.message}`);
-  });
-
-  onReconnecting(({ attempts }) => {
-    setStatus(`Attempting to reconnect... (${attempts})`);
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!message) return;
-
-    // The data we send
-    const payload = { message, user: "Me", timestamp: Date.now() };
-
-    // Emit the event with payload as an options object
+  const onSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!text) return;
     // highlight-next-line
-    emit({ payload });
-    setMessage("");
+    emit({ payload: { text } });
+    setText("");
   };
 
   return (
-    <div className="w-full">
-      <p>Connection status: {connected ? "Connected" : "Disconnected"}</p>
-      <form onSubmit={handleSubmit} className="flex gap-2 mt-2">
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Write a message..."
-          className="p-2 border rounded-md flex-grow"
-        />
-        <button
-          type="submit"
-          disabled={!connected}
-          className="bg-blue-500 text-white p-2 rounded-md disabled:bg-gray-400"
-        >
-          Send
-        </button>
-      </form>
-      <p className="text-sm text-gray-600 mt-2">Status: {status}</p>
-    </div>
+    <form onSubmit={onSubmit} className="flex gap-2">
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Write a message..."
+      />
+      <button type="submit" disabled={!connected}>
+        Send
+      </button>
+      {warning && <p className="text-red-500">{warning}</p>}
+    </form>
   );
 }
 ```
 
-In this example, `sendMessage` is a pre-defined emitter. You can learn more about creating them in the
-[sockets guide](/docs/guides/sockets/emitting). The `emit` function takes an options object with a `payload` property.
+`setParams` in render fills the topic for every emit of this component. To choose the room per call, pass it in
+`emit({ payload, params: { roomId } })` instead. Params the emitter does not have yet are required by the types.
+
+---
+
+## Handle failed sends
+
+A message is dropped, not queued, when the socket is not connected or the payload cannot be encoded. `onEmitError`
+receives `{ error }` for every dropped message of this topic. `onEmit` receives the emitter when a message starts
+sending, which is a good place for logging.
+
+| Situation                                   | What to do                                                       |
+| ------------------------------------------- | ---------------------------------------------------------------- |
+| The user can retry, such as a chat message  | Keep the text in the input and show a warning in `onEmitError`   |
+| The message must arrive, such as an order   | Send it as an HTTP request with [`useSubmit`](/docs/guides/react/basics/submitting) |
+| A stream of updates, such as a cursor       | Drop failed ones; the next update replaces them                  |
+
+---
+
+## Get a reply from the server
+
+Emitters have no acknowledgement callback. When the server must answer, it sends the answer on another topic. Put an id
+in the payload and match it in a [`useListener`](/docs/guides/react/sockets/listening) on the reply topic.
+
+```tsx title="components/save-draft.tsx"
+export function SaveDraft({ draft }: { draft: Draft }) {
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const { emit, connected } = useEmitter(saveDraft);
+  // topic "drafts/saved", data: { requestId: string }
+  const { onEvent } = useListener(onDraftSaved);
+
+  onEvent(({ data }) => {
+    if (data.requestId === pendingId) setPendingId(null);
+  });
+
+  const save = () => {
+    const requestId = crypto.randomUUID();
+    setPendingId(requestId);
+    emit({ payload: { requestId, draft } });
+  };
+
+  return (
+    <button onClick={save} disabled={!connected || !!pendingId}>
+      {pendingId ? "Saving..." : "Save draft"}
+    </button>
+  );
+}
+```
+
+---
+
+## Emit or HTTP request
+
+| Use                                                       | For                                               |
+| --------------------------------------------------------- | ------------------------------------------------- |
+| `useEmitter`                                              | Chat messages, typing indicators, cursors, presence |
+| [`useSubmit`](/docs/guides/react/basics/submitting)       | Writes that need a response, retries, offline queueing or a status code |
+
+A common split: writes go over HTTP, and the server broadcasts the result to every client over the socket.
 
 ---
 
 :::success Congratulations!
 
-You've mastered emitting socket events from your React application!
+You can now send realtime messages from React components.
 
-- You can use **`useEmitter`** to get an `emit` function for sending data.
-- You can call the **`emit` function** with a data payload to send an event.
-- You can react to messages that could not be sent with **`onEmitError`**.
-- You can monitor the emitter's lifecycle with **`onEmit`** and **`onReconnecting`**.
+- You can **emit** a typed payload and disable sending while **offline**.
+- You can pass **topic params** with `setParams` or per call.
+- You can handle **dropped messages** with `onEmitError`.
+- You can get a **reply** through a listener and a correlation id.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="useEmitter reference"
+  description="Options, returned values and callbacks of the hook."
+  to="/docs/react/sockets/use-emitter"
+/>
+
+<LinkCard
+  type="guides"
+  title="Listening in React"
+  description="Collect messages, update the cache and show connection state."
+  to="/docs/guides/react/sockets/listening"
+/>
+
+- Guides: [emitting without React](/docs/guides/sockets/emitting), [Emitter](/docs/sockets/emitter).
+- Runnable examples: [WebSocket chat](/examples/realtime/websocket-chat).

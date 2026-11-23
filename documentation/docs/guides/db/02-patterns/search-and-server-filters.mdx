@@ -7,12 +7,12 @@ description:
 sidebar_label: Search and Server Filters
 ---
 
-# Search and Server-side Filters
+# Search and server-side filters
 
-Some filters only the server can run. Full-text search ranks, stems and ignores accents; a database collation compares
-`"Ada"` and `"ada"` as equal. The db evaluates its operators on the client, to answer queries from rows it holds and to
-place new rows in loaded lists, so it has to know which conditions it must **never** evaluate itself. This guide adds
-search to Teamboard and shows the two tools for that: **server-only operators** and **`serverOnly` fields**.
+Some filters only the server can run: full-text search ranks, stems and ignores accents, and a database collation
+compares `"Ada"` and `"ada"` as equal. The db runs operators on the client too, so it has to know which conditions it
+must **never** evaluate itself. This guide adds search to Teamboard with **server-only operators**, and shows when a
+**`serverOnly` field** or ingest fits better.
 
 :::secondary What you'll learn
 
@@ -20,8 +20,7 @@ search to Teamboard and shows the two tools for that: **server-only operators** 
 2.  How the db **picks the loader** for a search, and combines it with filters it runs itself.
 3.  How to **debounce** a search box in React.
 4.  Why search results **never answer** other queries, and why inserts mark them **stale**.
-5.  How **`serverOnly`** fields differ from server-only operators.
-6.  How to **ingest** results of a search you send yourself.
+5.  How **`serverOnly`** fields and **ingest** differ from server-only operators.
 
 :::
 
@@ -32,16 +31,21 @@ search to Teamboard and shows the two tools for that: **server-only operators** 
 Teamboard's API has a search endpoint. Declare it as a second loader of `postSummary`, with a `search` operator on
 `title`:
 
-```ts
+```ts title="src/db.ts"
 const searchPosts = client.createRequest<{
   response: { results: PostSummary[] };
   queryParams?: { q?: string; teamId?: string };
 }>()({ endpoint: "/search" });
 
-const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" })
+const PostSummary = collection(PostSummarySchema, {
+  key: "id",
+  version: "updatedAt",
+})
   .load(getTeamPosts, {
     rows: (response) => response.items,
-    where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
   })
   .load(searchPosts, {
     rows: (response) => response.results,
@@ -58,8 +62,13 @@ Any name other than the built-in operators declares a server-only operator. Quer
 ```ts
 import { and, eq, op } from "@hyper-fetch/db";
 
-db.postSummary.where((post) => and(eq(post.teamId, "t1"), op("search", post.title, "roadmap"))).explain();
-// { kind: "list", loader: 1, sent: [teamId = "t1", search(title, "roadmap")], local: [], answeredLocally: false, ... }
+db.postSummary
+  .where((post) =>
+    and(eq(post.teamId, "t1"), op("search", post.title, "roadmap")),
+  )
+  .explain();
+// { kind: "list", loader: 1, sent: [teamId = "t1", search(title, "roadmap")],
+// local: [], answeredLocally: false, ... }
 ```
 
 - The client cannot evaluate a server-only operator, so a loader that cannot send it is never picked. The team feed
@@ -80,7 +89,7 @@ useLiveQuery(db.postSummary.where((post) => op("match", post.title, "roadmap")))
 
 Each search text is its own loaded subset, so debounce the input to send one request per pause, not per keystroke:
 
-```tsx
+```tsx title="src/search-results.tsx"
 const useDebounced = <T,>(value: T, delay: number) => {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
@@ -93,12 +102,16 @@ const useDebounced = <T,>(value: T, delay: number) => {
 const SearchResults = ({ teamId, text }: { teamId: string; text: string }) => {
   const query = useDebounced(text, 300);
   const { data, isFetching } = useLiveQuery(
-    db.postSummary.where((post) => and(eq(post.teamId, teamId), op("search", post.title, query))),
+    db.postSummary.where((post) =>
+      and(eq(post.teamId, teamId), op("search", post.title, query)),
+    ),
   );
 
   return (
     <div className="flex flex-col gap-2">
-      {isFetching && <span className="text-sm text-gray-500">Searching...</span>}
+      {isFetching && (
+        <span className="text-sm text-gray-500">Searching...</span>
+      )}
       {data?.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
@@ -116,7 +129,9 @@ Render the team feed while the box is empty, and `SearchResults` once there is t
 - Filters the search endpoint cannot send run on the results, like any other query:
 
 ```ts
-db.postSummary.where((post) => op("search", post.title, "roadmap")).where((post) => gt(post.likes, 10));
+db.postSummary
+  .where((post) => op("search", post.title, "roadmap"))
+  .where((post) => gt(post.likes, 10));
 // Shares the subset of the plain "roadmap" search, and filters `likes` locally
 ```
 
@@ -141,29 +156,14 @@ These rules trade a request for correctness: the db never guesses what the serve
 
 Sometimes the operator is ordinary but the comparison is not. If the API matches `title=roadmap` case-insensitively,
 `eq(post.title, "roadmap")` on the server returns "Roadmap", while the same `eq` on the client does not. Mark the field
-`serverOnly` on the loader:
-
-```ts
-collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
-  rows: (response) => response.items,
-  where: {
-    teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
-    title: { eq: (title) => ({ queryParams: { title } }) },
-  },
-  // highlight-next-line
-  serverOnly: ["title"],
-});
-```
-
-Queries that filter or sort by `title` through this loader are then never answered from rows the db holds, and their
-subsets never answer other queries.
+`serverOnly: ["title"]` on the loader, as the [loaders guide](/docs/guides/db/basics/loaders#fields-the-backend-compares-differently)
+shows, and queries on `title` are never answered from rows the db holds.
 
 :::caution serverOnly is not search
 
-`serverOnly` only stops answers from held rows. Rows the db writes later, such as a socket insert, are still matched
-against the subset's conditions with exact comparisons, and the result is sorted on the client with exact comparisons.
-When the client cannot reproduce the server's matching at all, as with full-text search, use a server-only operator
-instead: its subsets hold exactly what the server returned.
+`serverOnly` only stops answers from held rows. Rows the db writes later, such as a socket insert, are still matched and
+sorted with exact comparisons. When the client cannot reproduce the server's matching at all, as with full-text search,
+use a server-only operator: its subsets hold exactly what the server returned.
 
 :::
 
@@ -174,31 +174,37 @@ instead: its subsets hold exactly what the server returned.
 Sometimes a search is not a list the db should load: a command palette, an autocomplete, a request another library
 sends. Keep it a plain request, and **ingest** its results, so the posts it returns are stored and kept current:
 
-```ts
-const quickSearch = client.createRequest<{ response: { results: PostSummary[] }; queryParams?: { q?: string } }>()({
+```ts title="src/db.ts"
+const quickSearch = client.createRequest<{
+  response: { results: PostSummary[] };
+  queryParams?: { q?: string };
+}>()({
   endpoint: "/quick-search",
 });
 
-collection(PostSummarySchema, { key: "id" }).ingest(quickSearch, { rows: (response) => response.results });
+collection(PostSummarySchema, { key: "id" }).ingest(quickSearch, {
+  rows: (response) => response.results,
+});
 ```
 
-Every successful `quickSearch` response writes its posts into `postSummary`, so opening one shows its header at once,
-see [List and Detail Views](./list-and-detail.mdx). The request's own Cache entry is not updated by later changes, so
-render rows from the db when they must stay current.
-
-:::note Which tool do I need?
-
-- The backend **searches or ranks**: declare a **server-only operator** and query it with `op()`.
-- The backend compares a field **differently**, such as case-insensitively: mark it **`serverOnly`**.
-- The endpoint **filters on its own**, such as only published posts: declare it as **`fixed`**. See
-  [Loaders](../01-basics/loaders.mdx#conditions-the-endpoint-applies-on-its-own).
-- The search is **not a list the db loads**: keep the request and **ingest** its results.
-
-:::
+Every successful `quickSearch` response writes its posts into `postSummary`, so opening one shows its header at once
+(see [list and detail views](/docs/guides/db/patterns/list-and-detail)). The request's own Cache entry is not updated
+by later changes, so render rows from the db when they must stay current.
 
 ---
 
-:::success Found it!
+## Which tool do I need?
+
+| The backend...                                     | Use                                                                                                      |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| searches or ranks                                  | a server-only operator, queried with `op()`                                                              |
+| compares a field differently, such as ignoring case | `serverOnly` on the loader                                                                               |
+| filters on its own, such as only published posts   | [`fixed`](/docs/guides/db/basics/loaders#conditions-the-endpoint-applies-on-its-own) on the loader       |
+| answers a search the db does not load              | a plain request whose results you `ingest`                                                               |
+
+---
+
+:::success Congratulations!
 
 Teamboard has search that never shows the wrong posts.
 
@@ -215,8 +221,18 @@ Teamboard has search that never shows the wrong posts.
 ## Next steps
 
 <LinkCard
-  type="docs"
-  title="DB Overview"
-  description="Collections, loaders, syncs, queries, writes and errors in one reference page."
-  to="/docs/db/overview"
+  type="guides"
+  title="Server rendering with Next.js"
+  description="Load collections on the server, send them with the page and pick up live on the client."
+  to="/docs/guides/db/patterns/server-rendering"
 />
+
+<LinkCard
+  type="docs"
+  title="Live queries"
+  description="Operators, explain() and how a query picks its loader."
+  to="/docs/guides/db/basics/live-queries"
+/>
+
+- API reference: [`op`](/docs/api/db/Functions/op), [`IngestOptions`](/docs/api/db/Types/IngestOptions),
+  [`LoaderOptions`](/docs/api/db/Types/LoaderOptions).

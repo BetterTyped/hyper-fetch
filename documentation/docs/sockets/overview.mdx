@@ -1,224 +1,128 @@
 ---
 sidebar_position: 1
 title: Sockets Overview
-description: "HyperFetch Sockets gives you typed listeners and emitters over WebSockets, Server-Sent Events, GraphQL subscriptions, tRPC, oRPC and Firebase, with reconnects, auth and message batching built in."
+description: "Typed listeners and emitters over WebSocket, SSE, GraphQL, tRPC, oRPC and Firebase, with reconnects, auth and message batching built in."
 sidebar_label: Overview
 ---
 
 # Sockets overview
 
-`@hyper-fetch/sockets` handles realtime data the way [core](/docs/core/overview.mdx) handles requests. You open one
-**socket** per server, then define each topic once as a typed **listener** (to receive) or **emitter** (to send). The
-socket reconnects with backoff, refreshes credentials on every attempt and reports its state as events.
+<Lead>
+
+**Open one socket per server, then define each topic once as a typed listener or emitter.** The socket reconnects
+with backoff, refreshes credentials on every attempt and reports its state as events.
+
+</Lead>
 
 ```ts title="realtime.ts"
 import { createSocketClient } from "@hyper-fetch/sockets";
 
-export const socket = createSocketClient({ url: "wss://api.example.com/ws" });
+type ChatMessage = { author: string; text: string };
 
-type ChatMessage = { id: string; text: string; author: string };
+const socket = createSocketClient({ url: "wss://api.example.com/ws" });
 
-// highlight-start
-export const onChatMessage = socket.createListener<ChatMessage>()({ topic: "chat/:roomId" });
-export const sendChatMessage = socket.createEmitter<{ text: string }>()({ topic: "chat/:roomId" });
-// highlight-end
+// Receive: typed data per topic
+const onMessage = socket.createListener<ChatMessage>()({ topic: "chat" });
+// Send: typed payload per topic
+const sendMessage = socket.createEmitter<ChatMessage>()({ topic: "chat" });
 
-const unlisten = onChatMessage.setParams({ roomId: "general" }).listen(({ data }) => {
-  console.log(data.author, data.text); // data: ChatMessage
-});
-
-sendChatMessage.emit({ params: { roomId: "general" }, payload: { text: "Hello" } });
+onMessage.listen(({ data }) => console.log(data.author, data.text));
+sendMessage.emit({ payload: { author: "Ann", text: "Hello" } });
 ```
 
-The WebSocket adapter connects as soon as the socket is created. `listen()` returns the function that stops listening.
+The WebSocket adapter connects as soon as the socket is created. Topics take typed params like endpoints do, such as
+`chat/:roomId`. `listen()` returns the function that stops listening.
+
+<Flow caption="An incoming message. Emitters send the other way, through the same socket.">
+  <FlowStep title="Server" icon="server">
+    Pushes a message
+  </FlowStep>
+  <FlowStep title="Adapter" icon="plug">
+    WebSocket, SSE, GraphQL, Firebase
+  </FlowStep>
+  <FlowStep title="Socket" icon="cable">
+    Reconnects, refreshes auth
+  </FlowStep>
+  <FlowStep title="Listener" icon="radio" active>
+    Typed data for one topic
+  </FlowStep>
+  <FlowStep title="Your code" icon="code">
+    A callback or a React hook
+  </FlowStep>
+</Flow>
 
 ---
 
-## What you get
+## Building blocks
 
-<Tabs>
-<TabItem value="types" label="Typed topics">
-
-Topic params come from the topic string, and payloads from the emitter's type. Both are checked before anything is sent.
-
-```ts
-const sendToRoom = socket.createEmitter<{ text: string }>()({ topic: "rooms/:roomId" });
-
-// error-next-line
-sendToRoom.emit({ payload: { text: "hi" } });
-// Property 'params' is missing: `:roomId` comes from the topic
-
-// highlight-next-line
-sendToRoom.emit({ params: { roomId: 1 }, payload: { text: "hi" } }); // ✅
-```
-
-</TabItem>
-<TabItem value="auth" label="Auth and reconnects">
-
-`onConnect` runs before every connection attempt, including automatic reconnects, so an expired token is never reused.
-Lost connections come back with exponential backoff and jitter, at once when the device is back online.
-
-```ts
-export const socket = createSocketClient({
-  url: "wss://api.example.com/ws",
-  // highlight-start
-  reconnect: 20, // attempts before giving up, Infinity by default
-  maxReconnectTime: 15_000, // never wait longer than 15 seconds
-  // highlight-end
-}).onConnect(async ({ connection, attempt }) => {
-  const token = await getAccessToken({ forceRefresh: attempt > 0 });
-  return { ...connection, queryParams: { token } };
-});
-```
-
-</TabItem>
-<TabItem value="delivery" label="Fast streams">
-
-High-frequency topics, such as prices or logs, can deliver only the newest message per interval or every message in
-batches, so your UI renders less often.
-
-```ts
-// At most one message, the newest, every 16 ms
-const onPrice = socket.createListener<Price>()({
-  topic: "prices",
-  // highlight-next-line
-  delivery: { strategy: "latest", interval: 16 },
-});
-
-// Every message, as an array per 100 ms window
-const onTrade = socket.createListener<Trade>()({
-  topic: "trades",
-  // highlight-next-line
-  delivery: { strategy: "batch", interval: 100 },
-});
-
-onTrade.listen(({ data }) => data.length); // data: Trade[]
-```
-
-</TabItem>
-<TabItem value="adapters" label="Any transport">
-
-WebSocket is the default. Swap the adapter for Server-Sent Events or another protocol, and keep your listeners.
-
-```ts
-import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
-
-const events = createSocketClient({
-  url: "https://api.example.com/events",
-  // highlight-next-line
-  adapter: ServerSentEventsAdapter(),
-});
-```
-
-| Transport                     | Adapter                                                   |
-| ----------------------------- | --------------------------------------------------------- |
-| WebSocket                     | `WebsocketAdapter` (default)                              |
-| Server-Sent Events            | `ServerSentEventsAdapter` (receive only)                  |
-| GraphQL subscriptions         | `GraphqlWsAdapter` from `@hyper-fetch/graphql`            |
-| tRPC subscriptions            | `TrpcWebsocketAdapter`, `TrpcSseAdapter`                  |
-| oRPC event iterators          | `OrpcWebsocketAdapter`, `OrpcStreamAdapter`               |
-| Firestore and Realtime DB     | `FirebaseSocketsAdapter` from `@hyper-fetch/firebase`     |
-
-</TabItem>
-<TabItem value="cache" label="Live HTTP cache">
-
-Write realtime updates into the HTTP cache, and every component showing that request updates without a refetch.
-
-```ts
-const getNote = client.createRequest<{ response: Note }>()({ endpoint: "/notes/:noteId" });
-const onNoteChange = socket.createListener<Note>()({ topic: "notes" });
-
-onNoteChange.listen(({ data }) => {
-  // highlight-next-line
-  client.cache.update(getNote.setParams({ noteId: data.id }), { data });
-});
-```
-
-</TabItem>
-<TabItem value="react" label="React">
-
-`useListener` keeps the latest message and `useEmitter` exposes `emit` and the connection state. Both unsubscribe on
-unmount.
-
-```tsx
-import { useEmitter, useListener } from "@hyper-fetch/react";
-
-const Chat = () => {
-  // highlight-start
-  const { data } = useListener(onChatMessage.setParams({ roomId: "general" }));
-  const { emit, connected } = useEmitter(sendChatMessage);
-  // highlight-end
-
-  return <p>{connected ? data?.text : "Reconnecting..."}</p>;
-};
-```
-
-</TabItem>
-</Tabs>
+<Tiles cols={3}>
+  <Tile title="Socket" icon="cable" to="/docs/sockets/socket">
+    The connection, reconnects, onConnect and events.
+  </Tile>
+  <Tile title="Listener" icon="radio" to="/docs/sockets/listener">
+    One topic you receive, its data type and delivery.
+  </Tile>
+  <Tile title="Emitter" icon="send" to="/docs/sockets/emitter">
+    One topic you send to, its payload type and mapper.
+  </Tile>
+  <Tile title="Adapter" icon="plug" to="/docs/sockets/adapter">
+    WebSocket, SSE, GraphQL, tRPC, oRPC or Firebase.
+  </Tile>
+  <Tile title="Socket SDK" icon="braces" to="/docs/sockets/sdk">
+    Every topic of a server in one typed tree.
+  </Tile>
+  <Tile title="React hooks" icon="atom" meta="@hyper-fetch/react" to="/docs/react/sockets/use-listener">
+    useListener and useEmitter, cleaned up on unmount.
+  </Tile>
+</Tiles>
 
 ---
 
-## How the pieces fit
+## Emit does not wait for an answer
 
-```mermaid
-flowchart LR
-  S["Socket<br/>connection · reconnects · auth"] --> A["Adapter<br/>WebSocket · SSE · GraphQL<br/>tRPC · oRPC · Firebase"]
-  A <--> Srv[(Server)]
-  L["Listener<br/>topic + response type"] -- listen --> S
-  E["Emitter<br/>topic + payload type"] -- emit --> S
-```
-
-| Building block                       | What it owns                                                                   |
-| ------------------------------------ | ------------------------------------------------------------------------------ |
-| [Socket](/docs/sockets/socket.mdx)   | The connection, reconnect policy, `onConnect` and lifecycle events             |
-| [Listener](/docs/sockets/listener.mdx) | One topic you receive, its data type and its delivery strategy               |
-| [Emitter](/docs/sockets/emitter.mdx) | One topic you send to, its payload type and payload mapper                     |
-| [Adapter](/docs/sockets/adapter.mdx) | The transport and its wire format, adjustable with `decode` and `encode`       |
-| [Socket SDK](/docs/sockets/sdk.mdx)  | Every topic of a server in one typed tree, built from a schema                 |
-
-:::note Before you build on it
-
-- **`emit()` does not wait for an answer.** It returns nothing and drops the message when the socket is disconnected.
-  Model replies as their own listener topic.
-- **Server-Sent Events only receive.** Calling `emit()` on an SSE socket throws.
-
-:::
+`emit()` returns nothing and drops the message when the socket is disconnected. Model replies as their own listener
+topic. Server-Sent Events only receive, so `emit()` on an SSE socket throws.
 
 ---
 
-## Next steps
+## Common tasks
 
-<div className="row">
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Quick start"
-      description="Connect to a server, listen to a topic and send messages."
-      to="/docs/sockets/quick-start"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Socket"
-      description="Connection options, auth, reconnects and lifecycle events."
-      to="/docs/sockets/socket"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="useListener"
-      description="Realtime data in React components."
-      to="/docs/react/sockets/use-listener"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="promo"
-      title="Inspect sockets in HyperFlow"
-      description="Connection state, every message in and out, and errors."
-      to="/docs/hyper-flow/features/sockets"
-    />
-  </div>
-</div>
+<Tiles cols={3}>
+  <Tile title="Authentication" icon="shield" to="/docs/guides/sockets/authentication">
+    Send a fresh token on every connection attempt.
+  </Tile>
+  <Tile title="Reconnects and errors" icon="refresh" to="/docs/guides/sockets/websocket-reconnection-and-errors">
+    Close codes, heartbeats, backoff and what HyperFetch does.
+  </Tile>
+  <Tile title="Fast streams" icon="gauge" to="/docs/guides/sockets/throttling">
+    Deliver the latest message or batches per interval.
+  </Tile>
+  <Tile title="Live HTTP cache" icon="database" meta="example" to="/examples/realtime/live-cache-updates">
+    Keep a cached list current with server events.
+  </Tile>
+  <Tile title="WebSockets in React" icon="atom" to="/docs/guides/sockets/websockets-in-react">
+    Connection state and cleanup in components.
+  </Tile>
+  <Tile title="Pick a transport" icon="compass" to="/docs/guides/sockets/sse-vs-websocket">
+    When Server-Sent Events beat a WebSocket.
+  </Tile>
+</Tiles>
+
+---
+
+## Next
+
+<Tiles>
+  <Tile title="Quick start" icon="rocket" meta="5 min" to="/docs/sockets/quick-start">
+    Connect, listen to a topic and send messages.
+  </Tile>
+  <Tile title="WebSocket chat" icon="play" meta="example" to="/examples/realtime/websocket-chat">
+    useListener, useEmitter, connection state and reconnects.
+  </Tile>
+  <Tile title="Server-Sent Events" icon="play" meta="example" to="/examples/realtime/server-sent-events">
+    A live feed with the SSE adapter, pause and resume.
+  </Tile>
+  <Tile title="API reference" icon="book" to="/docs/api/sockets/Classes/Socket">
+    Every class, function and type of the package.
+  </Tile>
+</Tiles>

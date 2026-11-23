@@ -7,32 +7,28 @@ sidebar_label: Throttling & Batching
 
 # Throttling & Batching in React
 
-With `useListener`, every delivered message is a state update, and every state update is a render. On a stream that
-pushes hundreds of messages per second, that is hundreds of renders per second for a screen that refreshes sixty times.
-
-The fix lives on the listener, not in the component. Configure a `delivery` strategy once, and `useListener` simply
-receives fewer, better-shaped updates. No hook options, no manual throttling in effects.
-
----
+With [`useListener`](/docs/react/sockets/use-listener), every delivered message is a state update and a render. On a
+stream of hundreds of messages per second, configure a `delivery` strategy on the listener; the hook then receives
+fewer, grouped updates with no options and no throttling in effects.
 
 :::secondary What you'll learn
 
 1.  How a **`latest`** listener turns a price firehose into one render per frame.
 2.  How a **`batch`** listener delivers arrays so you can append many rows in one state update.
 3.  How to let the user **choose the refresh rate** with `setDelivery` and `useMemo`.
-4.  The one **gotcha** with custom strategies and React re-renders.
+4.  Why **custom strategies** must live at module level.
 
 :::
 
-> Start with the framework-agnostic [Throttling & Batching guide](/docs/guides/sockets/throttling) if you have not
-> read it - this page focuses on the React side.
+The framework-agnostic [throttling and batching guide](/docs/guides/sockets/throttling) explains the strategies with
+timelines. This page covers the React side.
 
 ---
 
 ## Sampling a price ticker
 
-Define the listener with a `latest` strategy. `useListener` needs no changes: `data` is simply the newest price in the
-last window.
+Define the listener with a `latest` strategy. `useListener` needs no changes: `data` is the newest price of the last
+window.
 
 ```ts title="api/socket.ts"
 export const onPrice = socket.createListener<Price>()({
@@ -47,13 +43,12 @@ import { useListener } from "@hyper-fetch/react";
 import { onPrice } from "./api/socket";
 
 export function PriceTicker() {
-  // highlight-start
-  // Renders at most ~60 times per second regardless of how fast the server sends.
-  // highlight-end
+  // Renders at most about 60 times per second, however fast the server sends
+  // highlight-next-line
   const { data, connected } = useListener(onPrice);
 
-  if (!connected) return <span>Connecting…</span>;
-  return <span>{data ? data.value.toFixed(2) : "—"}</span>;
+  if (!connected) return <span>Connecting...</span>;
+  return <span>{data ? data.value.toFixed(2) : "-"}</span>;
 }
 ```
 
@@ -82,9 +77,8 @@ export function TradeLog() {
   const { onEvent } = useListener(onTrade);
 
   onEvent(({ data }) => {
-    // highlight-start
-    // `data` is Trade[] - one setState per window instead of one per trade.
-    // highlight-end
+    // data is Trade[]: one state update per window instead of one per trade
+    // highlight-next-line
     setTrades((previous) => [...previous, ...data].slice(-1000));
   });
 
@@ -114,20 +108,26 @@ import { onPrice } from "./api/socket";
 
 export function PriceTicker() {
   const [rate, setRate] = useState(16);
+  // A new listener only when rate changes, not on every render
   // highlight-start
-  // A new listener only when `rate` changes - not on every render.
+  const live = useMemo(
+    () => onPrice.setDelivery({ strategy: "latest", interval: rate }),
+    [rate],
+  );
   // highlight-end
-  const live = useMemo(() => onPrice.setDelivery({ strategy: "latest", interval: rate }), [rate]);
   const { data } = useListener(live);
 
   return (
     <>
-      <select value={rate} onChange={(event) => setRate(Number(event.target.value))}>
+      <select
+        value={rate}
+        onChange={(event) => setRate(Number(event.target.value))}
+      >
         <option value={16}>Realtime</option>
         <option value={250}>Relaxed</option>
         <option value={1000}>Slow</option>
       </select>
-      <span>{data?.value ?? "—"}</span>
+      <span>{data?.value ?? "-"}</span>
     </>
   );
 }
@@ -135,19 +135,22 @@ export function PriceTicker() {
 
 ---
 
-## The gotcha: custom strategies and identity
+## Keep custom strategies at module level
 
 `useListener` decides whether to re-subscribe by comparing the listener's `topic`, `options` and `delivery`:
 
 - **Preset objects** (`{ strategy: "latest", interval: 16 }`) are compared **by value**. Writing them inline is fine.
-- **Custom strategy functions** are compared **by identity**. Define them at module level, next to your listeners. A
+- **Custom strategies** are compared **by identity**. Define them at module level, next to your listeners. A
   strategy created inside a component is a new function on every render and would re-subscribe each time, dropping
   whatever was buffered.
 
 ```ts title="api/socket.ts"
-// ✅ module level - stable identity
+// Module level: a stable identity
 export const summarize = createDeliveryStrategy<Trade, Summary>(/* ... */);
-export const onTradeSummary = socket.createListener<Trade>()({ topic: "trades", delivery: summarize });
+export const onTradeSummary = socket.createListener<Trade>()({
+  topic: "trades",
+  delivery: summarize,
+});
 ```
 
 ---
@@ -156,12 +159,14 @@ export const onTradeSummary = socket.createListener<Trade>()({ topic: "trades", 
 
 You can now keep React UIs smooth on the busiest streams.
 
-- A **`latest`** listener caps renders at the rate you choose.
-- A **`batch`** listener gives you arrays and one state update per window.
-- **`setDelivery` + `useMemo`** lets the user control the rate.
-- Custom strategies live at **module level** to keep a stable identity.
+- You can cap renders at a chosen rate with a **`latest`** listener.
+- You can append arrays in one state update with a **`batch`** listener.
+- You can let the user control the rate with **`setDelivery`** and `useMemo`.
+- You can keep custom strategies at **module level** for a stable identity.
 
 :::
+
+## Next steps
 
 <LinkCard
   type="docs"
@@ -171,8 +176,11 @@ You can now keep React UIs smooth on the busiest streams.
 />
 
 <LinkCard
-  type="docs"
-  title="Throttling & Batching"
+  type="guides"
+  title="Throttling and batching"
   description="The framework-agnostic guide with timelines, semantics and custom strategies."
   to="/docs/guides/sockets/throttling"
 />
+
+- Docs: [listener delivery strategies](/docs/sockets/listener#throttle-or-batch-fast-topics).
+- Runnable examples: [WebSocket chat](/examples/realtime/websocket-chat), [dashboard](/examples/apps/dashboard).

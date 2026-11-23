@@ -7,11 +7,11 @@ description:
 sidebar_label: Common Mistakes
 ---
 
-# Common Mistakes
+# Common mistakes
 
 Most problems with the db come from a handful of patterns that look right but fight its model. Each one below is a short
-pair: the code that causes trouble, the code that works, and one line on why. Skim the headings: if you recognize your
-code, read that pair.
+pair: the code that causes trouble, the code that works, and one line on why. Skim the headings and read the pairs you
+recognize.
 
 :::secondary What you'll learn
 
@@ -26,24 +26,34 @@ code, read that pair.
 
 ## Modeling
 
+How collections, row types and links are declared.
+
 ### Loading summaries into the full collection
 
-```ts
+```ts title="src/db.ts"
 // ❌ The list has no `body`, so these rows are not complete posts
 const Post = collection(PostSchema, { key: "id" }).load(getTeamPosts, {
   rows: (response) => response.items.map((post) => ({ ...post, body: "" })),
 });
 
 // ✅ Summaries are their own collection, linked to the full one
-const PostSummary = collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
-  rows: (response) => response.items,
-  where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
-});
-const db = createDb({ post: Post, postSummary: PostSummary }, { links: [["post", "postSummary"]] });
+const PostSummary = collection(PostSummarySchema, { key: "id" }).load(
+  getTeamPosts,
+  {
+    rows: (response) => response.items,
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
+  },
+);
+const db = createDb(
+  { post: Post, postSummary: PostSummary },
+  { links: [["post", "postSummary"]] },
+);
 ```
 
 Filling missing fields with placeholders makes the types lie: every component would trust an empty `body`. See
-[List and Detail Views](../02-patterns/list-and-detail.mdx).
+[list and detail views](/docs/guides/db/patterns/list-and-detail).
 
 ### Passing the row type as a type argument
 
@@ -63,7 +73,8 @@ collection(rowType<Draft>(), { key: "id" });
 // ❌ Expecting the new post to appear in summary lists through the link
 await db.post.insert(newPost);
 
-// ✅ Summaries come from the lists that load them, or from a sync or ingest of the summary collection
+// ✅ Summaries come from the lists that load them, or from a sync or ingest of
+// the summary collection
 collection(PostSummarySchema, { key: "id" }).sync(onPostCreated, {
   type: "insert",
   row: ({ body, ...summary }) => summary,
@@ -76,11 +87,16 @@ A link only changes fields of rows both collections already hold. Rows of a summ
 
 ## Queries
 
+How queries are built, loaded and read next to plain requests.
+
 ### Putting a required filter inside `or`
 
 ```ts
-// ❌ Does not compile: no loader can serve it, because teamId is not a top-level eq
-db.postSummary.where((post) => or(eq(post.teamId, "t1"), eq(post.teamId, "t2")));
+// ❌ Does not compile: no loader can serve it, because teamId is not a top-level
+// eq
+db.postSummary.where((post) =>
+  or(eq(post.teamId, "t1"), eq(post.teamId, "t2")),
+);
 
 // ✅ One query per value of a required filter
 db.postSummary.where((post) => eq(post.teamId, "t1"));
@@ -102,11 +118,16 @@ useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
 
 ```tsx
 // ❌ Unnecessary: the query is identified by its structure
-const query = useMemo(() => db.postSummary.where((post) => eq(post.teamId, teamId)), [teamId]);
+const query = useMemo(
+  () => db.postSummary.where((post) => eq(post.teamId, teamId)),
+  [teamId],
+);
 const { data } = useLiveQuery(query);
 
 // ✅ Build it inline
-const { data } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+const { data } = useLiveQuery(
+  db.postSummary.where((post) => eq(post.teamId, teamId)),
+);
 ```
 
 ### A paginated list without an order
@@ -120,7 +141,9 @@ useLiveInfiniteQuery(
 
 // ✅ Order by a field the loader can send
 useLiveInfiniteQuery(
-  db.feed.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+  db.feed
+    .where((post) => eq(post.teamId, teamId))
+    .orderBy((post) => post.createdAt, "desc"),
   { pageSize: 20 },
 );
 ```
@@ -135,12 +158,16 @@ one, but new rows only join them once the backend has no more pages.
 const { data } = useFetch(getTeamPosts.setParams({ teamId }));
 
 // ✅ Read records through the db everywhere
-const { data } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+const { data } = useLiveQuery(
+  db.postSummary.where((post) => eq(post.teamId, teamId)),
+);
 ```
 
 ---
 
 ## Writes
+
+How inserts, updates and offline writes reach the server and the rows.
 
 ### Wrapping writes in try/catch
 
@@ -182,11 +209,14 @@ db.post.update(postId, { archivedAt: null });
 ### Keying React elements by a key that can change
 
 ```tsx
-// ❌ A row inserted without a key remounts when the server's key replaces the temporary one
+// ❌ A row inserted without a key remounts when the server's key replaces the
+// temporary one
 data?.map((post) => <PostCard key={post.id} post={post} />);
 
 // ✅ The render key stays the same
-data?.map((post) => <PostCard key={db.postSummary.renderKey(post.id)} post={post} />);
+data?.map((post) => (
+  <PostCard key={db.postSummary.renderKey(post.id)} post={post} />
+));
 ```
 
 Only needed when the server assigns keys. With client keys, `post.id` never changes.
@@ -194,7 +224,8 @@ Only needed when the server assigns keys. With client keys, `post.id` never chan
 ### Offline inserts without a key
 
 ```ts
-// ❌ Resolves with an error while offline: the server cannot assign a key it never sees
+// ❌ Resolves with an error while offline: the server cannot assign a key it
+// never sees
 db.post.insert(draftWithoutId);
 
 // ✅ Generate keys on the client
@@ -204,17 +235,22 @@ db.post.insert({ ...draft, id: crypto.randomUUID() });
 ### Replaying offline writes without an idempotency key
 
 ```ts
-// ❌ A write sent just before the app closed is sent again on restart, and may apply twice
+// ❌ A write sent just before the app closed is sent again on restart, and may
+// apply twice
 insert: { request: createPost, map: (row) => ({ payload: row }) },
 
 // ✅ Send the write's id, which stays the same across replays
-insert: { request: createPost, map: (row, { id }) => ({ payload: { ...row, idempotencyKey: id } }) },
+insert: {
+  request: createPost,
+  map: (row, { id }) => ({ payload: { ...row, idempotencyKey: id } }),
+},
 ```
 
 ### Patching other collections by hand after a write
 
 ```ts
-// ❌ Fighting the db: the next refetch or event overwrites this, and failures are not reverted
+// ❌ Fighting the db: the next refetch or event overwrites this, and failures
+// are not reverted
 await db.post.update(postId, { title });
 await db.postSummary.update(postId, { title });
 
@@ -226,17 +262,21 @@ createDb(collections, { links: [["post", "postSummary"]] });
 
 ## App setup
 
+How the db is created, cleared and watched for failures.
+
 ### One db for every request on the server
 
 ```ts
-// ❌ A module-level db on the server shares one user's rows with the next user's render
+// ❌ A module-level db on the server shares one user's rows with the next user's
+// render
 export const db = createDb(collections);
 
 // ✅ A db per request on the server, from shared collections
-export const createAppDb = (options?: DbOptions) => createDb(collections, options);
+export const createAppDb = (options?: DbOptions) =>
+  createDb(collections, options);
 ```
 
-A client-only app may keep a module-level db. See [Server Rendering](../02-patterns/server-rendering.mdx).
+A client-only app may keep a module-level db. See [server rendering](/docs/guides/db/patterns/server-rendering).
 
 ### Keeping data after sign-out
 
@@ -252,17 +292,20 @@ await signOut();
 ### Swallowing failures
 
 ```ts
-// ❌ A rows mapping that breaks after an API change shows up as "missing data" weeks later
+// ❌ A rows mapping that breaks after an API change shows up as "missing data"
+// weeks later
 
 // ✅ Report every failure
-db.onError(({ type, error, collection }) => reportError(error, { tags: { type, collection } }));
+db.onError(({ type, error, collection }) =>
+  reportError(error, { tags: { type, collection } }),
+);
 ```
 
 ---
 
-:::success Mistakes avoided!
+:::success Congratulations!
 
-You know the patterns that fight the db's model.
+You've learned the patterns that fight the db's model.
 
 - You can keep **rows complete**, with one collection per shape and links between them.
 - You can write queries that **compile and load**, without memoizing them.
@@ -281,3 +324,12 @@ You know the patterns that fight the db's model.
   description="Move a feature from useQuery and useMutation to collections and live queries, step by step."
   to="/docs/guides/db/production/migrating-from-react-query"
 />
+
+<LinkCard
+  type="guides"
+  title="Debugging the db"
+  description="Symptoms, causes and fixes for queries, syncs, writes and unexpected requests."
+  to="/docs/guides/db/production/debugging"
+/>
+
+- Reference: [DB overview](/docs/db/overview), [`useLiveQuery`](/docs/react/db/use-live-query).

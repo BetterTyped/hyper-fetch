@@ -45,10 +45,17 @@ html body {
   @apply !w-full !flex !flex-col;
 }
 .tabs-container ul {
-  @apply !bg-zinc-100 dark:bg-zinc-800 !text-zinc-500 dark:!text-zinc-400 !inline-flex !h-9 !w-fit !items-center !justify-center !rounded-lg !p-1 !m-0 !important;
+  @apply !bg-zinc-100 dark:bg-zinc-800 !text-zinc-500 dark:!text-zinc-400 !inline-flex !h-9 !w-fit !items-center !justify-start !rounded-lg !p-1 !m-0 !important;
   list-style: none;
   border: none;
   box-shadow: none;
+  /* Many tabs on a phone scroll inside the bar instead of widening the page */
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs-container ul::-webkit-scrollbar {
+  display: none;
 }
 .tabs-container ul li {
   @apply flex-1 !font-[600];
@@ -505,6 +512,9 @@ pre {
 
 .api-docs__info {
   @apply text-sm;
+  /* A flex item: without these the import snippet widens the page on phones */
+  min-width: 0;
+  max-width: 100%;
 }
 
 .api-docs__info a {
@@ -556,6 +566,11 @@ pre {
 }
 .api-docs__table * {
   @apply border-t-0 border-x-0 border-zinc-400/10;
+}
+/* Generated signatures and types wrap at spaces inside their cell instead of making the table scroll sideways */
+.api-docs__pre pre code,
+.api-docs__table pre code {
+  white-space: pre-wrap !important;
 }
 .api-docs__table thead tr {
   @apply border-0;
@@ -986,6 +1001,31 @@ strong {
   @apply border-b-0;
 }
 
+/*
+ * Code in a cell may break inside a token. It only does when the table would otherwise be wider than the column, where
+ * the rounded table clips its overflow.
+ */
+.docs-wrapper table:not(.api-docs__table) :is(td, th) code {
+  overflow-wrap: anywhere;
+}
+
+/* Comparison tables with five or more columns get tighter cells, so they fit the column instead of being clipped */
+.docs-wrapper table:not(.api-docs__table):has(th:nth-child(5)) :is(th, td) {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  overflow-wrap: anywhere;
+}
+
+/* On phones long tokens in cells wrap, so a table fits the screen instead of widening the page */
+@media (max-width: 996px) {
+  .docs-wrapper table:not(.api-docs__table) th,
+  .docs-wrapper table:not(.api-docs__table) td {
+    overflow-wrap: anywhere;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+}
+
 main a > span,
 main a > div,
 main a > p,
@@ -1098,9 +1138,11 @@ pre[class*="language-"] > code {
 }
 
 .code-block-diff-add-line {
-  @apply px-[40px] bg-green-400/20;
+  @apply bg-green-400/20;
   display: block;
-  margin: 0 -40px;
+  /* The code gets 40px on the left for the +/- sign and the usual pre padding on the right */
+  margin: 0 calc(-1 * var(--ifm-pre-padding)) 0 -40px;
+  padding: 0 var(--ifm-pre-padding) 0 40px;
 }
 
 .code-block-diff-add-line::before {
@@ -1111,9 +1153,11 @@ pre[class*="language-"] > code {
 }
 
 .code-block-diff-remove-line {
-  @apply px-[40px] bg-red-400/5;
+  @apply bg-red-400/5;
   display: block;
-  margin: 0 -40px;
+  /* The code gets 40px on the left for the +/- sign and the usual pre padding on the right */
+  margin: 0 calc(-1 * var(--ifm-pre-padding)) 0 -40px;
+  padding: 0 var(--ifm-pre-padding) 0 40px;
 }
 
 .code-block-diff-remove-line::before {
@@ -1123,10 +1167,26 @@ pre[class*="language-"] > code {
   content: "-";
 }
 
+/*
+ * Commands, JSON and plain text wrap instead of scrolling: a package.json script or an install line cannot be
+ * broken in the source, and a scrolled line hides the end of the command. Code keeps its exact formatting.
+ */
+pre.language-json code,
+pre.language-bash code,
+pre.language-sh code,
+pre.language-shell code,
+pre.language-text code,
+pre[class*="language-npm2yarn"] code {
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere;
+}
+
 .code-block-error-line {
-  @apply px-[40px] bg-red-400/5;
+  @apply bg-red-400/5;
   display: block;
-  margin: 0 -40px;
+  /* Bleed to the edges of the block without making it wider, like highlighted lines */
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
 }
 
 /**
@@ -1189,7 +1249,8 @@ pre code:has(.code-block-diff-remove-line) {
 }
 .alert > div:first-child {
   line-height: 1.9;
-  @apply mb-3 text-2xl capitalize font-extrabold flex items-center gap-2;
+  @apply mb-3 text-2xl font-extrabold flex items-center gap-2;
+  text-transform: none;
 }
 .alert > div:first-child svg {
   @apply -mt-1 -mr-2 w-8 h-8;

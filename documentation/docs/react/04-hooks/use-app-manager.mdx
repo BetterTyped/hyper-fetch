@@ -7,20 +7,15 @@ sidebar_label: useAppManager
 
 # useAppManager
 
-[Read the API Reference »](/api/react/Hooks/useAppManager.mdx)
-
-**`useAppManager`** allows you to use information about the connection status and screen focus state. It also offers
-options to manipulate its global state. This hook uses the [`AppManager`](/core/managers.mdx) available on the
-[`Client`](/core/client.mdx) instance.
-
-It returns the status of `isOnline` and `isFocused` and the actions that allow you to change them.
-
----
+`useAppManager` returns the online and focus state of a [client's](/docs/core/client)
+[`AppManager`](/docs/core/managers) and lets you change them. Use it for offline banners, or to set the state yourself
+in environments without browser events.
 
 :::tip Purpose
 
-1. Controls application **online/offline** state
-2. Controls application **window focus/blur** state
+1. **Online state**: render offline banners from `isOnline`.
+2. **Focus state**: know whether the window or app is in the foreground.
+3. **Manual control**: `setOnline` and `setFocused` update the state for the whole client.
 
 :::
 
@@ -28,36 +23,74 @@ It returns the status of `isOnline` and `isFocused` and the actions that allow y
 
 ## Usage
 
-Here is a simple example of how to use the `useAppManager` hook.
+```tsx title="components/offline-banner.tsx"
+import { useAppManager } from "@hyper-fetch/react";
+import { client } from "./api/client";
 
-### Get the connection status
+function OfflineBanner() {
+  const { isOnline } = useAppManager(client);
 
-Online state is the information if application is connected to the internet or not.
-
-```tsx
-const { isOnline, setOnline } = useAppManager(client);
-
-setOnline(true);
-```
-
-### Get the screen focus state
-
-Focus state is the information if user is currently using the application or not.
-
-```tsx
-const { isFocused, setFocused } = useAppManager(client);
-
-setFocused(true);
+  if (isOnline) return null;
+  return <p>You are offline. Changes will be sent when you reconnect.</p>;
+}
 ```
 
 ---
 
-## State and methods
+## Options
 
-This hook returns the following values.
+The hook takes only the `client`.
 
-```tsx
-const values = useAppManager(client);
-```
+---
+
+## Returns
 
 (@import react useAppManager type=returns)
+
+---
+
+## Set the state yourself
+
+`setOnline` and `setFocused` change the state of the client's `AppManager`, not only of this hook. Requests react to
+it: offline requests wait for the network, and hooks with `refetchOnFocus` or `refetchOnReconnect` fetch when the state
+changes back.
+
+```tsx title="Simulate offline mode"
+const { isOnline, setOnline } = useAppManager(client);
+
+<button onClick={() => setOnline(!isOnline)}>
+  {isOnline ? "Go offline" : "Go online"}
+</button>;
+```
+
+In the browser the `AppManager` listens to window events. In [React Native](/docs/react/environments/react-native) and
+[Electron](/docs/react/environments/electron), connect it to the platform's events when you create the client.
+
+---
+
+:::secondary Summary
+
+1. `useAppManager(client)` returns `isOnline`, `isFocused`, `setOnline` and `setFocused`.
+2. The setters change the state for the whole client.
+
+:::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="Managers"
+  description="The AppManager and the other managers of the client."
+  to="/docs/core/managers"
+/>
+
+<LinkCard
+  type="api"
+  title="useAppManager API reference"
+  description="Generated types for the hook and its return value."
+  to="/docs/api/react/Hooks/useAppManager"
+/>
+
+- Guide: [window focus and blur](/docs/guides/react/basics/window-focus-blur).
+- Runnable examples: [refetch on focus](/examples/data-fetching/refetch-on-focus),
+  [offline queue](/examples/offline/offline-queue).

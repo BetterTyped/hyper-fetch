@@ -5,447 +5,187 @@ description: "Describe your whole API as one typed object and get request instan
 sidebar_label: SDK
 ---
 
-[Read the API Reference »](/docs/api/core/Functions/createSdk.mdx)
+[Read the API Reference »](/docs/api/core/Functions/createSdk)
 
-The **`SDK`** feature in HyperFetch provides a powerful, type-safe way to structure your API interactions. It allows
-you to define your entire API surface as a typed object, which then **uses recursive proxies to generate request
-instances on-the-fly**. This approach, **inspired by tRPC**, promotes a highly organized and maintainable codebase where
-endpoints are accessed with an intuitive dot-notation.
-
----
+An **SDK** describes a whole API as one TypeScript type and gives you its requests by dot notation, such as
+`sdk.users.$userId.$get`. `createSdk(client)` builds each request on access with a proxy, so nothing is created up front.
+Use it for APIs with many endpoints, or generate the schema from OpenAPI with the [CLI](/docs/cli/overview).
 
 :::tip Purpose
 
-1.  **Type-Safe API**: Full TypeScript coverage for endpoints, responses, and parameters.
-2.  **tRPC-like Syntax**: Access endpoints with dot-notation (e.g., `sdk.users.get()`).
-3.  **Zero Performance Overhead**: Generates requests on-demand using proxies.
-4.  **Dynamic URL Support**: Handle parameterized routes like `/users/:id`.
-5.  **Centralized Schema**: Define your entire API structure in one place.
+1. **One schema** for the whole API, with response, payload, query params and endpoint per leaf.
+2. **Typed dot notation**: paths are keys, `$param` keys are URL params, `$get` and friends are methods.
+3. **Central defaults** per endpoint with `$configure`, checked against the schema.
 
 :::
 
----
+```ts title="api/sdk.ts"
+import { createClient, createSdk, type RequestModel } from "@hyper-fetch/core";
 
-## Initialization
+type User = { id: string; name: string };
 
-To get started, you first need a `Client` instance. Then, you can use the `createSdk` function to build your SDK.
-
-```typescript
-import { createClient, createSdk } from "@hyper-fetch/core";
-
-// 1. Create a client instance
-const client = createClient({ url: "http://localhost:3000" });
-
-// 2. Define the schema for your SDK (more on this below)
-type MyApiSchema = {
-  // ... schema definition
-};
-
-// 3. Create the SDK
-const sdk = createSdk<typeof client, MyApiSchema>(client);
-```
-
-<LinkCard
-  type="docs"
-  title="Client"
-  description="Learn about the central configuration class for HyperFetch."
-  to="/docs/core/client"
-/>
-
-### Options
-
-| Option                 | Default                            | Description                                                                         |
-| ---------------------- | ---------------------------------- | ----------------------------------------------------------------------------------- |
-| `camelCaseToKebabCase` | `true`                             | Turn camelCase keys into kebab-case url segments (`userProfiles` → `user-profiles`) |
-| `pathSegments`         | `undefined`                        | Url segment of a key when it differs from the key. Mapped keys are not converted    |
-| `methodTransform`      | `(method) => method.toUpperCase()` | Turn the `$`-prefixed key into the request method                                   |
-| `defaults`             | `undefined`                        | Request defaults per endpoint, see [`$configure`](#sdk-configuration-configure)     |
-
-```typescript
-// `findByStatus` stays camelCase in the url, `userProfiles` becomes `user-profiles`
-const sdk = createSdk<typeof client, MyApiSchema>(client, {
-  pathSegments: { findByStatus: "findByStatus" },
-});
-
-sdk.pet.findByStatus.$get; // GET /pet/findByStatus
-sdk.userProfiles.$get; // GET /user-profiles
-```
-
----
-
-## Defining the Schema
-
-The core of the SDK is its schema. This is a TypeScript type that maps your API's structure. You define nested objects
-for URL paths and then add properties for HTTP methods (`get`, `post`, `put`, `delete`, etc.).
-
-Dynamic path segments are prefixed with a `$` sign. For example, `$userId` becomes a `/:userId` parameter in the
-endpoint.
-
-:::tip Use `RequestModel` for schema leaves — not `RequestInstance`
-
-When defining a schema you are describing **one specific endpoint**. Use `RequestModel<{...}>` — omitted fields stay
-strict (`unknown`, `undefined`, `Error`, `string`, `false`) so the type system catches mistakes instead of silently
-collapsing to `any`. The mental model below explains when to reach for each type.
-
-:::
-
-```typescript
-import { RequestModel } from "@hyper-fetch/core";
-
-// Schemas describe shape and types only. The client (and its adapter / global error)
-// are injected automatically by createSdk(client) - no need to repeat per request.
-type MyApiSchema = {
-  // GET /users
-  // GET /users?page=1&limit=10
+type ApiSchema = {
   users: {
     $get: RequestModel<{
-      queryParams: { page: number; limit: number };
+      response: User[];
+      queryParams?: { page?: number } | null;
       endpoint: "/users";
     }>;
-    // GET /users/:userId
-    // DELETE /users/:userId
     $userId: {
-      $get: RequestModel<{
-        response: { id: string; name: string };
-        endpoint: "/users/:userId";
-      }>;
-      $delete: RequestModel<{
-        response: { id: string; name: string };
-        endpoint: "/users/:userId";
-      }>;
-      // DELETE /users/:userId/posts/:postId
-      posts: {
-        $postId: {
-          $delete: RequestModel<{
-            response: { id: string; title: string };
-            endpoint: "/users/:userId/posts/:postId";
-          }>;
-        };
-      };
+      $get: RequestModel<{ response: User; endpoint: "/users/:userId" }>;
+      $delete: RequestModel<{ response: User; endpoint: "/users/:userId" }>;
     };
   };
 };
+
+export const client = createClient({ url: "https://api.example.com" });
+export const sdk = createSdk<typeof client, ApiSchema>(client);
+
+// GET /users/123
+const { data } = await sdk.users.$userId.$get.send({
+  params: { userId: "123" },
+});
 ```
 
-### `RequestModel` vs `RequestInstance` — two mindsets
+Every leaf is a regular [request](/docs/core/request): `send()`, `setParams`, `useFetch` and `useSubmit` all work with it.
 
-HyperFetch ships **two complementary types** for describing requests at the type level. They look similar but solve
-opposite problems. Picking the right one is the difference between strict end-to-end safety and accidental `any` leaks.
+---
 
-| | `RequestModel<{...}>` | `RequestInstance<{...}>` |
-| --- | --- | --- |
-| **Mindset** | "**This** specific endpoint." | "**Any** request that matches this partial shape." |
-| **Use for** | SDK schema leaves, single-endpoint definitions, request factories. | Generic constraints (`<T extends ...>`), reusable components / hooks / helpers that accept any request. |
-| **Omitted fields default to** | Strict, non-`any` (`unknown`, `undefined`, `Error`, `string`, `false`). | `any` — on purpose, so any concrete `Request` satisfies the constraint. |
-| **Why those defaults?** | Absence means "**there is no payload / no query / no params**". The type should reject mismatches. | Absence means "**I don't care about that field**". The type should accept anything. |
+## Write the schema
 
-```ts
-// MODEL — defining the /users endpoint exactly:
-//   response is an array of User
-//   no payload, no queryParams, no params
-//   any attempt to send extra data is a compile error.
+- **Path keys** become URL segments. camelCase keys turn into kebab-case: `userProfiles` is `/user-profiles`.
+- **`$name` keys** below a path are URL params: `$userId` is `/:userId`.
+- **`$get`, `$post`, `$put`, `$patch`, `$delete`** are the methods, upper-cased by `methodTransform`.
+- **Leaves** are `RequestModel<{ response, payload, queryParams, error, endpoint }>`. You do not pass the client:
+  `createSdk` adds it, with its adapter and global error type.
+
+Nested keys must not be named like a request property (`send`, `cache`, `method`, `params` and so on), because the request
+property wins. The types mark such a key with `SdkReservedKeyError`, so rename it in the schema.
+
+---
+
+## RequestModel or RequestInstance
+
+Both describe requests at the type level, for opposite jobs.
+
+|                            | `RequestModel<{...}>`                                     | `RequestInstance<{...}>`                                      |
+| -------------------------- | --------------------------------------------------------- | ------------------------------------------------------------- |
+| Describes                  | This one endpoint                                         | Any request matching a partial shape                          |
+| Use for                    | SDK schema leaves, single-endpoint types                  | Generic constraints of helpers and components                 |
+| Omitted fields default to  | Strict types such as `unknown`, `Error` and `false` | `any`, so any concrete request satisfies it                   |
+
+```ts title="api/types.ts"
+// This endpoint: no payload, no query params
 type GetUsers = RequestModel<{ response: User[]; endpoint: "/users" }>;
 
-// INSTANCE — accepting any request whose response is User[]:
-//   response is constrained
-//   payload, queryParams, error etc. can be ANY shape — caller picks.
-function autocomplete<T extends RequestInstance<{ response: User[] }>>(request: T) {
-  return request.send();
+// Any request that returns User[], whatever its payload or query params
+function countCachedUsers<T extends RequestInstance<{ response: User[] }>>(
+  request: T,
+) {
+  return request.read()?.data?.length ?? 0;
 }
 ```
 
-If you find yourself writing `RequestInstance` inside a schema, that is a signal you wanted `RequestModel`. If you find
-yourself writing `RequestModel` as a generic constraint on a reusable component, that is a signal you wanted
-`RequestInstance`.
-
-:::info Client injection — you do not pass `client` per request
-
-You do not have to add `client: AppClient` to every `RequestModel` declaration. `createSdk(client)` rewrites the schema
-type at the boundary so every `Request` leaf carries the actual client (and therefore its adapter and global error
-type). The schema describes the API shape; the SDK supplies the runtime context.
-
-:::
-
-<LinkCard
-  type="docs"
-  title="Extend Request — the `RequestInstance` constraint pattern"
-  description="When (and how) to use RequestInstance to build reusable components that accept any matching request."
-  to="/docs/guides/typescript/extend"
-/>
+See [extend Request](/docs/guides/typescript/extend) for the helper pattern.
 
 ---
 
-## How It Works: The Magic of Proxies
+## Configure endpoints with $configure
 
-You might be wondering how the `sdk` object provides all these methods without you having to implement them. The magic
-lies in **Recursive Proxy Generation**.
+`$configure` sets request defaults per endpoint and returns a new SDK. Values are an object of options, or a function
+that receives the request and returns a changed one, with access to every setter.
 
-The `sdk` object is not a simple JavaScript object with predefined properties. Instead, it's a `Proxy` that dynamically
-constructs requests as you access its properties. When you write `sdk.users.$get`, you're triggering a chain of proxy
-getters:
-
-1.  `sdk.users`: The proxy intercepts this and internally notes down `users` as the first part of the endpoint path. It
-    then returns a _new_ proxy to handle the next property.
-2.  `.$get`: This access is caught by the new proxy. It recognizes the `$`-prefixed key as an HTTP method, finalizes
-    the request configuration (`GET /users`), and returns a fully configured `Request` instance, ready to be used.
-
-This approach has two major benefits:
-
-- **Performance**: It's incredibly fast. The SDK doesn't generate all possible request instances upfront. It only
-  creates a request when you explicitly access it. This means the startup time and memory footprint are minimal, even
-  for very large and complex APIs.
-- **Developer Experience**: It provides a fluid, tRPC-like experience where you can explore your API surface with
-  dot-notation, guided by TypeScript's autocompletion, while the underlying complexity is handled for you.
-
-:::caution Names taken by the request
-
-Every key below the top level is read from a request first. A nested key named like a request property (`send`,
-`cache`, `method`, `params` and so on) gives you that property, not a deeper path or procedure. The SDK types mark such
-a key with `SdkReservedKeyError`, so `sdk.messages.send` fails to compile. Rename the key in the schema.
-
-:::
-
----
-
-## Usage
-
-Once your SDK is created, you can access your endpoints using the structure you defined in the schema. This returns a
-`Request` instance, ready to be configured and sent.
-
-### Making a simple request
-
-Here's how to get a list of users. The `$get` property corresponds to the `GET` method for the `/users` endpoint.
-
-```typescript
-// GET /users?page=1&limit=10
-const getUsersRequest = sdk.users.$get.setQueryParams({ page: 1, limit: 10 });
-
-// Send the request
-const { data, error } = await getUsersRequest.send();
-```
-
-### Using dynamic segments
-
-To fetch a specific user, you access the `$userId` path and use `setParams` to provide the `userId`.
-
-```typescript
-// GET /users/123
-const getUserRequest = sdk.users.$userId.$get.setParams({ userId: "123" });
-
-const { data, error } = await getUserRequest.send();
-
-if (data) {
-  console.log(data.name); // Typed as { id: string, name: string }
-}
-```
-
-### Nested requests
-
-The SDK handles nested routes seamlessly.
-
-```typescript
-// DELETE /users/123/posts/456
-const deletePostRequest = sdk.users.$userId.posts.$postId.$delete.setParams({
-  userId: "123",
-  postId: "456",
-});
-
-const { data, error } = await deletePostRequest.send();
-```
-
-### Using with React Hooks
-
-The generated requests work seamlessly with `@hyper-fetch/react` hooks like `useFetch` and `useSubmit`.
-
-```tsx
-import { useFetch } from "@hyper-fetch/react";
-import { sdk } from "api/sdk"; // Assumes you've exported your sdk instance
-
-function UserProfile({ userId }) {
-  const { data, loading } = useFetch(sdk.users.$userId.$get.setParams({ userId }));
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  return <h1>{data.name}</h1>;
-}
-```
-
----
-
----
-
-## SDK Configuration ($configure)
-
-The `$configure` method lets you set **per-request defaults** that are automatically applied every time a request is
-created through the SDK. Configuration supports two value formats: **plain objects** for common settings like retry and
-cache, and **functions** for full access to every Request setter including mappers, mocking, and hooks.
-
-### Method-Specific Keys
-
-Use **dot-path keys** that mirror the SDK accessor chain to target a specific request (endpoint + method):
-
-```typescript title="Targeting specific methods"
-const configuredSdk = sdk.$configure({
-  // highlight-start
-  "users.$get": (request) => request.setResponseMapper(userListMapper).setCache(true),
-  "users.$userId.$get": (request) => request.setAuth(true).setCacheTime(60000),
-  "users.$userId.$delete": { auth: true, cancelable: true },
-  // highlight-end
-});
-
-const getUsersRequest = configuredSdk.users.$get; // has mapper + cache
-const deleteUserRequest = configuredSdk.users.$userId.$delete; // has auth + cancelable
-```
-
-### Group Keys (Endpoint-Level)
-
-Use **endpoint-based keys** to configure all methods on an endpoint at once:
-
-```typescript title="Configuring endpoint groups"
-const configuredSdk = sdk.$configure({
-  "*": { retry: 3 },
-  "/users": { cacheTime: 60000 },
-  "/users/*": { auth: true },
+```ts title="api/sdk.ts"
+export const api = sdk.$configure({
+  "*": { retry: 2 }, // every request
+  "/users/*": { staleTime: 60_000 }, // /users/:userId and deeper
+  // one SDK leaf
+  "users.$userId.$delete": (request) => request.setCancelable(true),
 });
 ```
 
-### Function-Based Values
+| Key pattern               | Matches                                           | Applied |
+| ------------------------- | ------------------------------------------------- | ------- |
+| `"*"`                     | Every request                                     | First   |
+| `"/users"`                | Every method of that exact endpoint               | Second  |
+| `"/users/*"`              | Endpoints below `/users`                          | Second  |
+| `"users.$userId.$get"`    | One SDK leaf                                      | Last    |
 
-Functions receive the request instance and return a modified one. This gives access to **every** Request setter —
-`setResponseMapper`, `setMock`, `setPayloadMapper`, `setOptimistic`, `$hooks`, and more:
+Later matches override earlier ones. Dot-path keys are checked against the schema, so a typo fails to compile. Object
+values accept `headers`, `auth`, `cache`, `cacheTime`, `staleTime`, `retry`, `retryTime`, `cancelable`, `queued`,
+`offline`, `deduplicate`, `deduplicateTime` and `structuralSharing`.
 
-```typescript title="Full Request API access"
-const configuredSdk = sdk.$configure({
-  "auth.login.$post": (request) =>
-    request
-      .setResponseMapper(loginMapper)
-      .setHeaders({ "X-Custom": "value" }),
-  "users.$get": (request) =>
-    request
-      .setResponseMapper(userListMapper)
-      .setCache(true)
-      .setCacheTime(30000),
-});
-```
+Split a large configuration by domain with `createConfiguration`, then chain the `$configure` calls:
 
-### Plain Object Values
-
-For common settings, use a plain object shorthand:
-
-```typescript
-const configuredSdk = sdk.$configure({
-  "*": { retry: 3, retryTime: 1000 },
-  "/users": { cache: false },
-});
-```
-
-| Key | Type | Request default | Description |
-|-----|------|-----------------|-------------|
-| `headers` | `HeadersInit` | `undefined` | Default headers |
-| `auth` | `boolean` | `true` | Enable authentication |
-| `cache` | `boolean` | `true` | Enable/disable caching |
-| `cacheTime` | `number` | `300000` (5 min) | Cache TTL in milliseconds |
-| `staleTime` | `number` | `300000` (5 min) | Stale time in milliseconds |
-| `retry` | `number` | `0` | Number of retries |
-| `retryTime` | `number` | `500` | Delay between retries in milliseconds |
-| `cancelable` | `boolean` | `false` | Enable auto-cancellation |
-| `queued` | `boolean` | `false` | Enable queueing |
-| `offline` | `boolean` | `true` | Enable offline support |
-| `deduplicate` | `boolean` | `false` | Enable deduplication |
-| `deduplicateTime` | `number \| null` | `null` | Deduplication window in milliseconds, `null` joins any in-flight request |
-| `structuralSharing` | `boolean` | `true` | Keep references of unchanged response data |
-
-### Application Order
-
-When multiple keys match, they apply in this order (later overrides earlier):
-
-1. **`"*"`** — Global defaults
-2. **Endpoint groups** — `"/users"`, `"/users/*"`
-3. **Method-specific** — `"users.$get"`, `"users.$userId.$post"`
-
-### Multi-file Configuration with createConfiguration
-
-For large APIs, split configuration across files by domain using the `createConfiguration` factory.
-Keys are validated against the SDK schema at compile time — typos are caught immediately.
-
-```typescript title="sdk/auth.configure.ts"
+```ts title="api/users.configure.ts"
 import { createConfiguration } from "@hyper-fetch/core";
-import type { MyApiSchema } from "./schema";
 
-export const authConfig = createConfiguration<MyApiSchema>()({
-  "auth.login.$post": (request) => request.setResponseMapper(loginMapper),
-  "auth.register.$post": { retry: 0 },
+export const usersConfig = createConfiguration<ApiSchema>()({
+  "users.$get": { staleTime: 30_000 },
 });
+
+// api/sdk.ts
+export const configuredSdk = sdk.$configure(usersConfig);
 ```
 
-```typescript title="sdk/users.configure.ts"
-import { createConfiguration } from "@hyper-fetch/core";
-import type { MyApiSchema } from "./schema";
+---
 
-export const usersConfig = createConfiguration<MyApiSchema>()({
-  "/users": { cacheTime: 30000 },
-  "users.$userId.$get": (request) => request.setAuth(true).setStaleTime(5000),
-});
+## Options
+
+| Option                 | Default                            | Description                                                               |
+| ---------------------- | ---------------------------------- | ------------------------------------------------------------------------- |
+| `camelCaseToKebabCase` | `true`                             | Turn camelCase keys into kebab-case segments (`userProfiles` → `user-profiles`) |
+| `pathSegments`         | none                               | URL segment of a key when it differs, such as `{ findByStatus: "findByStatus" }` |
+| `methodTransform`      | `(method) => method.toUpperCase()` | Turn a `$` key into the request method                                    |
+| `defaults`             | none                               | The same map as `$configure`                                              |
+
+Prefer `$configure` over `defaults`: its keys are type-checked against the schema.
+
+---
+
+## Keep a reference to a leaf
+
+Every property access creates a new request. When you attach a mock or `$hooks`, store the request first and use that
+variable:
+
+```ts title="api/users.ts"
+const getUsers = sdk.users.$get;
+
+getUsers.setMock(() => ({ data: [], status: 200 }));
+await getUsers.send();
 ```
-
-```typescript title="sdk/index.ts"
-import { authConfig } from "./auth.configure";
-import { usersConfig } from "./users.configure";
-
-export const configuredSdk = sdk.$configure(authConfig).$configure(usersConfig);
-```
-
-### Pattern Matching
-
-Configuration keys support four patterns:
-
-- **`"*"`** — Matches all endpoints (global defaults).
-- **Exact endpoint** — e.g. `"/users/:userId"` matches all methods on that endpoint.
-- **Wildcard** — e.g. `"/users/*"` matches `/users/:userId`, `/users/:userId/posts`, etc.
-- **Dot-path** — e.g. `"users.$get"` matches only `sdk.users.$get` (specific method + endpoint).
 
 ---
 
 :::secondary Summary
 
-In this guide, you've learned how to use the HyperFetch SDK to create a type-safe, organized, and intuitive API
-layer for your application. We've covered how to initialize the SDK, define a schema, use it to make requests, and
-configure per-request defaults with `$configure` and `createConfiguration`. Configuration supports both plain-object
-shorthand for common settings and function-based values for full access to mappers, mocking, hooks, and every Request
-setter.
+- Describe the API as a schema of `RequestModel` leaves and call `createSdk<typeof client, Schema>(client)`.
+- Paths are keys, `$param` keys are URL params, `$get`, `$post` and the others are methods.
+- Set defaults per endpoint with `$configure` or `createConfiguration`. Keep leaves in variables before mocking them.
 
 :::
 
----
+## Next steps
 
-## See Also
-
-<LinkCard
-  type="docs"
-  title="Client"
-  description="Learn about the central configuration class for HyperFetch."
-  to="/docs/core/client"
-/>
+Runnable examples: [Typed SDK](/examples/getting-started/sdk) and [OpenAPI codegen](/examples/integrations/openapi-codegen).
 
 <LinkCard
   type="docs"
-  title="Request"
-  description="Dive deeper into creating and managing individual requests."
-  to="/docs/core/request"
+  title="Generate the SDK"
+  description="Write the schema from an OpenAPI or Swagger document with the CLI."
+  to="/docs/cli/commands/generate"
 />
 
 <LinkCard
   type="docs"
   title="Socket SDK"
-  description="The same SDK pattern adapted for real-time listeners and emitters."
+  description="The same pattern for realtime listeners and emitters."
   to="/docs/sockets/sdk"
 />
 
 <LinkCard
-  type="docs"
-  title="Mocking"
-  description="Use SDK configuration to centralize mocks for testing."
-  to="/docs/core/mocking"
+  type="api"
+  title="createSdk API reference"
+  description="Signature and options of createSdk."
+  to="/docs/api/core/Functions/createSdk"
 />

@@ -7,23 +7,20 @@ description:
 sidebar_label: Pagination and Infinite Scroll
 ---
 
-# Pagination and Infinite Scroll
+# Pagination and infinite scroll
 
-Infinite lists are where request-level caches struggle most with real-time data. A new post has to be placed inside the
-right page, a deleted one leaves a gap, and a refetch has to reload every page without the list jumping. With the db,
-pages are a view over a live, ordered query. The loader knows how to fetch the next backend page, and
-[`useLiveInfiniteQuery`](../../../react/07-db/use-live-infinite-query.mdx) decides how much of the result to show.
-
-This guide turns Teamboard's feed into an infinite list that stays live.
+In the db, pages are a window over a live, ordered query: the loader fetches the next backend page, and
+[`useLiveInfiniteQuery`](/docs/react/db/use-live-infinite-query) decides how much of the result to show. New, changed
+and deleted rows land in the right page without a refetch. This guide turns Teamboard's feed into an infinite list that
+stays live.
 
 :::secondary What you'll learn
 
-1.  How to declare a **paginated loader** with a cursor, or with a limit.
-2.  Why a paginated loader must **send every condition and order** of a query.
-3.  How to build **"Load more"** and **scroll-triggered** lists with `useLiveInfiniteQuery`.
-4.  Why **UI pages are independent** of backend pages.
-5.  How loaded pages stay **live**, and which new rows join them.
-6.  How to paginate **outside React**, and how to read **GraphQL Relay** connections.
+1.  How to declare a **paginated loader** with a cursor or a limit, and why it must **send every condition and order**.
+2.  How to build **"Load more"** and **scroll-triggered** lists with `useLiveInfiniteQuery`.
+3.  Why **UI pages are independent** of backend pages.
+4.  How loaded pages stay **live**, and which new rows join them.
+5.  How to paginate **outside React**, and how to read **GraphQL Relay** connections.
 
 :::
 
@@ -33,15 +30,23 @@ This guide turns Teamboard's feed into an infinite list that stays live.
 
 A loader becomes paginated when it declares `cursor` or `limit`. Teamboard's feed endpoint returns a cursor:
 
-```ts
+```ts title="src/db.ts"
 const getTeamPosts = client.createRequest<{
   response: { items: PostSummary[]; next: string | null };
-  queryParams?: { status?: "draft" | "published"; sort?: string; cursor?: string };
+  queryParams?: {
+    status?: "draft" | "published";
+    sort?: string;
+    cursor?: string;
+  };
 }>()({ endpoint: "/teams/:teamId/posts" });
 
-const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" }).load(getTeamPosts, {
+const PostSummary = collection(PostSummarySchema, {
+  key: "id",
+  version: "updatedAt",
+}).load(getTeamPosts, {
   rows: (response) => response.items,
-  // Reads the next page's cursor. `null` or `undefined` means there are no more pages.
+  // Reads the next page's cursor. `null` or `undefined` means there are no more
+  // pages.
   cursor: (response) => response.next,
   // Sends a cursor to load the page after it
   page: (cursor) => ({ queryParams: { cursor } }),
@@ -49,15 +54,21 @@ const PostSummary = collection(PostSummarySchema, { key: "id", version: "updated
     teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
     status: { eq: (status) => ({ queryParams: { status } }) },
   },
-  orderBy: { createdAt: (direction) => ({ queryParams: { sort: `createdAt:${direction}` } }) },
+  orderBy: {
+    createdAt: (direction) => ({
+      queryParams: { sort: `createdAt:${direction}` },
+    }),
+  },
 });
 ```
 
 `useLiveQuery` already pages through it: `data` holds every loaded row, and `fetchNextPage` loads the next backend page.
 
-```tsx
+```tsx title="src/team-feed.tsx"
 const { data, hasNextPage, fetchNextPage } = useLiveQuery(
-  db.postSummary.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+  db.postSummary
+    .where((post) => eq(post.teamId, teamId))
+    .orderBy((post) => post.createdAt, "desc"),
 );
 ```
 
@@ -67,10 +78,13 @@ A page is a slice of the server's result. Filtering or sorting one page on the c
 page would hold rows that belong on the first. So a paginated loader serves a query only when it can **send every
 condition and every order**, and anything else does not compile:
 
-```ts
+```ts title="src/team-feed.tsx"
 useLiveQuery(
-  // error-next-line
-  db.postSummary.where((post) => eq(post.teamId, teamId)).where((post) => gt(post.likes, 10)),
+  // error-start
+  db.postSummary
+    .where((post) => eq(post.teamId, teamId))
+    .where((post) => gt(post.likes, 10)),
+  // error-end
 );
 // The paginated loader cannot send `likes`, so no loader can serve the query
 ```
@@ -84,15 +98,18 @@ Declare the filter on the loader, add a second loader that is not paginated, or 
 
 `useLiveInfiniteQuery` shows an ordered query as pages of a fixed size:
 
-```tsx
+```tsx title="src/team-feed.tsx"
 import { eq } from "@hyper-fetch/db";
 import { useLiveInfiniteQuery } from "@hyper-fetch/react";
 
 const TeamFeed = ({ teamId }: { teamId: string }) => {
-  const { pages, hasNextPage, fetchNextPage, isFetchingNextPage, status } = useLiveInfiniteQuery(
-    db.postSummary.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
-    { pageSize: 20 },
-  );
+  const { pages, hasNextPage, fetchNextPage, isFetchingNextPage, status } =
+    useLiveInfiniteQuery(
+      db.postSummary
+        .where((post) => eq(post.teamId, teamId))
+        .orderBy((post) => post.createdAt, "desc"),
+      { pageSize: 20 },
+    );
 
   if (status === "loading") return <p>Loading posts...</p>;
 
@@ -125,10 +142,12 @@ const TeamFeed = ({ teamId }: { teamId: string }) => {
 
 Replace the button with an element at the end of the list, and load when it scrolls into view:
 
-```tsx
+```tsx title="src/scrolling-feed.tsx"
 const ScrollingFeed = ({ teamId }: { teamId: string }) => {
   const { data, hasNextPage, fetchNextPage } = useLiveInfiniteQuery(
-    db.postSummary.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+    db.postSummary
+      .where((post) => eq(post.teamId, teamId))
+      .orderBy((post) => post.createdAt, "desc"),
     { pageSize: 20 },
   );
   const sentinel = useRef<HTMLDivElement>(null);
@@ -156,22 +175,25 @@ const ScrollingFeed = ({ teamId }: { teamId: string }) => {
 
 ### UI pages are not backend pages
 
-`pageSize` is the size of **your** pages. The backend's page size is whatever its endpoint returns:
+`pageSize` is the size of **your** pages; the backend's page size is whatever its endpoint returns. When the db
+already holds rows past the window, the next page shows **at once, with no request**. Otherwise a cursor loader loads
+backend pages until the db holds one row past the window, so a backend page of 50 fills two and a half UI pages of 20.
+The [reference](/docs/react/db/use-live-infinite-query#how-pages-load) lists how each kind of loader fills the window.
 
-- When the db already holds rows past the window, the next page shows **at once, with no request**.
-- Otherwise a **cursor** loader loads backend pages until the db holds one row past the window, or the backend has no
-  more. A backend page of 50 fills two and a half UI pages of 20.
-- A loader with **`limit`** and no cursor is sent the window size plus one, and the previous window stays on screen
-  while the wider one loads.
-- A loader that is **not paginated** has loaded every row already. The window only limits what is shown.
+A loader with `limit` and no cursor is sent the window size plus one:
 
-```ts
-const getTopPosts = client.createRequest<{ response: PostSummary[]; queryParams?: { limit?: number } }>()({
+```ts title="src/db.ts"
+const getTopPosts = client.createRequest<{
+  response: PostSummary[];
+  queryParams?: { limit?: number };
+}>()({
   endpoint: "/teams/:teamId/top-posts",
 });
 
 const TopPost = collection(PostSummarySchema, { key: "id" }).load(getTopPosts, {
-  where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+  where: {
+    teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+  },
   // Uses the db-wide `orderBy` notation from createDb, see the Loaders guide
   orderBy: { likes: true },
   // Pages of 10: sends limit=11, then limit=21, ...
@@ -214,7 +236,7 @@ page, in order from the first**, following each new cursor:
 
 `useLiveInfiniteQuery` wraps `query.infinite()`, which works anywhere:
 
-```ts
+```ts title="src/feed-store.ts"
 const feed = db.postSummary
   .where((post) => eq(post.teamId, "t1"))
   .orderBy((post) => post.createdAt, "desc")
@@ -234,7 +256,7 @@ nothing.
 Many GraphQL APIs paginate with Relay connections: `edges`, `node` and `pageInfo`. `relayConnection()` reads the rows
 and the next cursor from one, so you only add how to send the cursor:
 
-```ts
+```ts title="src/db.ts"
 import { relayConnection } from "@hyper-fetch/db";
 
 collection(PostSummarySchema, { key: "id" }).load(getPostsConnection, {
@@ -245,26 +267,25 @@ collection(PostSummarySchema, { key: "id" }).load(getPostsConnection, {
 
 The cursor is `pageInfo.endCursor` while `pageInfo.hasNextPage` is true. Empty edges are skipped.
 
-:::note Coming from useInfiniteFetch or React Query
+:::note Coming from page-based infinite lists
 
 - `useInfiniteFetch` and React Query's `useInfiniteQuery` store **pages of responses**. A socket event or a mutation has
   to find the item inside the right page, or refetch every page.
 - `useLiveInfiniteQuery` stores **rows**, and pages are a window over them. Events and writes update one row, and the
   window recalculates.
-- Use [`useInfiniteFetch`](../../react/01-basics/infinite-scroll.mdx) for lists nothing else changes, such as an
+- Use [`useInfiniteFetch`](/docs/guides/react/basics/infinite-scroll) for lists nothing else changes, such as an
   activity log. Use the db when the items also change from sockets, writes or other views.
 
 :::
 
 ---
 
-:::success Endless and live!
+:::success Congratulations!
 
-Teamboard's feed scrolls forever and never goes stale.
+Teamboard's feed scrolls and stays live.
 
 - You can declare **cursor** and **limit** loaders, and know why they must send every condition and order.
-- You can build **"Load more"** and **scroll-triggered** lists with `useLiveInfiniteQuery`.
-- You can pick a **UI page size** independent of the backend's.
+- You can build **"Load more"** and **scroll-triggered** lists with a **UI page size** of your own.
 - You can rely on pages that **stay live**, and know which new rows join them.
 - You can **refetch every page** without the list jumping.
 - You can paginate **outside React** and read **Relay connections**.
@@ -277,7 +298,17 @@ Teamboard's feed scrolls forever and never goes stale.
 
 <LinkCard
   type="guides"
-  title="List and Detail Views"
+  title="List and detail views"
   description="Show summaries in lists and full records on detail pages, with every view in step."
   to="/docs/guides/db/patterns/list-and-detail"
 />
+
+<LinkCard
+  type="docs"
+  title="useLiveInfiniteQuery"
+  description="Options, returns and how pages load, in short form."
+  to="/docs/react/db/use-live-infinite-query"
+/>
+
+- API reference: [`useLiveInfiniteQuery`](/docs/api/react/Hooks/useLiveInfiniteQuery),
+  [`InfiniteQuery`](/docs/api/db/Classes/InfiniteQuery), [`relayConnection`](/docs/api/db/Functions/relayConnection).

@@ -7,58 +7,38 @@ sidebar_label: Realtime
 
 # Hono WebSocket and SSE client with typed messages
 
-[Read the API Reference »](/docs/api/hono/Types/HonoSocketPath.mdx)
-
-A hono websocket route is a plain pipe: `upgradeWebSocket()` and `streamSSE()` carry whatever messages your handlers
-write, and Hono has no realtime protocol of its own. That makes the client side simple. A HyperFetch
-[`Socket`](/docs/sockets/socket) connects to those routes with the built-in `WebsocketAdapter` and
-`ServerSentEventsAdapter`. Write `{ topic, data }` messages on the server and every listener, emitter and React hook
-works without extra setup. `@hyper-fetch/hono` adds `HonoSocketPath`, which checks the address a socket connects to
+Hono's `upgradeWebSocket()` and `streamSSE()` routes carry whatever messages your handlers write, with no realtime
+protocol of their own. A HyperFetch [`Socket`](/docs/sockets/socket) connects to them with the built-in
+`WebsocketAdapter` and `ServerSentEventsAdapter`, and `@hyper-fetch/hono` adds `HonoSocketPath` to check the address
 against your app.
 
 :::tip Purpose
 
-1. **Typed addresses**: `HonoSocketPath<AppType>` rejects socket URLs that do not match an `upgradeWebSocket()`
-   route, with `:param` segments filled in.
-2. **Clean HTTP schema**: WebSocket routes are left out of `HonoSchema`, so nobody calls `send()` on them.
-3. **Typed messages**: a [`createSocketSdk`](/docs/sockets/sdk) schema exported from the backend types every listener
+1. **Typed addresses**: `HonoSocketPath<AppType>` rejects socket URLs that do not match an `upgradeWebSocket()` route.
+2. **Typed messages**: a [`createSocketSdk`](/docs/sockets/sdk) schema exported from the backend types every listener
    and emitter.
+3. **Reconnects and routing included**: the socket reconnects and routes each `{ topic, data }` message to the
+   listeners of that topic, which Hono's raw `$ws()` leaves to you.
 4. **Any message format**: `decode` and `encode` adapter options read apps that do not send `{ topic, data }`.
 
 :::
 
 ---
 
-## How WebSockets work in Hono
-
-Hono gives every runtime its own `upgradeWebSocket()` helper. On Node it comes from `@hono/node-ws`, which also returns
-`injectWebSocket` to attach to the HTTP server. The helper turns a `GET` route into a WebSocket endpoint and hands you
-`onOpen`, `onMessage`, `onClose` and `onError` callbacks. What goes through the connection is up to you, so the server
-and the client have to agree on a message shape.
-
-Hono's own RPC client can open these routes with `$ws()`, which returns a raw `WebSocket`. You still parse messages,
-route them by type and reconnect by hand. A HyperFetch `Socket` does that part: it reconnects, routes each
-`{ topic, data }` message to the listeners of that topic, and types the data through a socket schema.
-
-For one-way streams, `streamSSE()` sends Server-Sent Events over plain HTTP. They pass through proxies that block
-WebSockets and need no upgrade, and the browser's `EventSource` reconnects on its own. See
-[Server-Sent Events](#server-sent-events) below.
-
----
-
-## Installation
+## Install
 
 ```bash npm2yarn2pnpm
 npm install @hyper-fetch/sockets @hyper-fetch/hono
 ```
 
-On Node, Hono WebSockets come from `@hono/node-ws`. A Node client needs the `eventsource` package for Server-Sent
-Events, see [below](#server-sent-events). On Bun, Deno and Cloudflare Workers use the `upgradeWebSocket` of your runtime
-adapter, for example `hono/bun`. All of them mark the route the same way, so the types work everywhere.
+Each runtime has its own `upgradeWebSocket()`: on Node it comes from `@hono/node-ws`, which also returns
+`injectWebSocket` for the HTTP server, and on Bun, Deno and Cloudflare Workers from the runtime adapter, such as
+`hono/bun`. All of them mark the route the same way, so the types work everywhere. A Node client needs the
+`eventsource` package for [Server-Sent Events](#server-sent-events).
 
 ---
 
-## Getting Started
+## Connect a socket
 
 1. Send `{ topic, data }` messages from the Hono route, and export the app type with a socket schema for its messages.
 
@@ -70,7 +50,9 @@ import { Hono } from "hono";
 type ChatMessage = { roomId: string; text: string };
 
 const base = new Hono();
-export const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app: base });
+export const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({
+  app: base,
+});
 
 export const app = base.get(
   "/ws",
@@ -89,13 +71,29 @@ export type AppType = typeof app;
 export type ChatSchema = {
   chat: {
     $roomId: {
-      $listener: ListenerModel<{ response: ChatMessage; topic: "chat/:roomId" }>;
-      $emitter: EmitterModel<{ payload: { text: string }; topic: "chat/:roomId" }>;
+      $listener: ListenerModel<{
+        response: ChatMessage;
+        topic: "chat/:roomId";
+      }>;
+      $emitter: EmitterModel<{
+        payload: { text: string };
+        topic: "chat/:roomId";
+      }>;
     };
   };
   rooms: {
-    join: { $emitter: EmitterModel<{ payload: { roomId: string }; topic: "rooms/join" }> };
-    leave: { $emitter: EmitterModel<{ payload: { roomId: string }; topic: "rooms/leave" }> };
+    join: {
+      $emitter: EmitterModel<{
+        payload: { roomId: string };
+        topic: "rooms/join";
+      }>;
+    };
+    leave: {
+      $emitter: EmitterModel<{
+        payload: { roomId: string };
+        topic: "rooms/leave";
+      }>;
+    };
   };
 };
 ```
@@ -116,32 +114,31 @@ export const chat = createSocketSdk<typeof socket, ChatSchema>(socket);
 
 3. Listen and emit. Topic params fill the `chat/:roomId` topic.
 
-```ts
+```ts title="frontend/src/chat.ts"
 chat.chat.$roomId.$listener.setParams({ roomId: "1" }).listen(({ data }) => {
   console.log(data.text);
 });
 
-chat.chat.$roomId.$emitter.emit({ params: { roomId: "1" }, payload: { text: "Hello" } });
+chat.chat.$roomId.$emitter.emit({
+  params: { roomId: "1" },
+  payload: { text: "Hello" },
+});
 ```
 
 ---
 
 ## How realtime routes appear in the types
 
-| Hono route                                | `HonoSchema`            | `HonoSocketPath`     |
+| Hono route                                | `HonoSchema`                     | `HonoSocketPath`        |
 | ----------------------------------------- | -------------------------------- | ----------------------- |
 | `.get("/ws", upgradeWebSocket(...))`      | left out                         | `"/ws"`                 |
 | `.get("/chat/:roomId", upgradeWebSocket)` | left out                         | `` `/chat/${string}` `` |
 | `.post("/ws", ...)` next to a WebSocket   | `sdk.ws.$post`                   | -                       |
 | `.get("/events", (c) => streamSSE(...))`  | `sdk.events.$get`, response `{}` | -                       |
 
-:::note Why Server-Sent Events stay in the HTTP schema
-
-Hono types a `streamSSE()` route like any route that returns a raw `Response`, such as a file download, so the two
-cannot be told apart. The route stays a `$get` with an untyped response. Do not `send()` it - connect a socket instead.
-Its endpoint is still typed, so the HTTP SDK can give you the path.
-
-:::
+Server-Sent Events routes stay in the HTTP schema because Hono types a `streamSSE()` route like any route that returns
+a raw `Response`, such as a file download. The route stays a `$get` with an untyped response. Connect a socket to it
+instead of calling `send()`, and take its typed endpoint from the HTTP SDK.
 
 ---
 
@@ -150,7 +147,7 @@ Its endpoint is still typed, so the HTTP SDK can give you the path.
 A route with params opens one connection per value. `HonoSocketPath` accepts the path with the params filled in and
 rejects paths the app does not define.
 
-```ts
+```ts title="frontend/src/rooms.ts"
 import type { HonoSocketPath } from "@hyper-fetch/hono";
 
 const roomPath = (roomId: string): HonoSocketPath<AppType> => `/chat/${roomId}`;
@@ -167,7 +164,7 @@ const typo: HonoSocketPath<AppType> = "/rooms/1";
 ```
 
 When one connection carries many rooms, put the room into the topic instead and use `setParams()` on the listener, as in
-[Getting Started](#getting-started).
+[Connect a socket](#connect-a-socket).
 
 ---
 
@@ -181,11 +178,16 @@ yourself in one of two ways.
 Emit a join message when the connection opens and a leave message when you stop listening. The server forgets
 subscriptions with the connection, so join again on every reconnection.
 
-```ts
-// highlight-next-line
-socket.onConnected(() => chat.rooms.join.$emitter.emit({ payload: { roomId: "1" } }));
+```ts title="frontend/src/join.ts"
+// highlight-start
+socket.onConnected(() =>
+  chat.rooms.join.$emitter.emit({ payload: { roomId: "1" } }),
+);
+// highlight-end
 
-const stopListening = chat.chat.$roomId.$listener.setParams({ roomId: "1" }).listen(({ data }) => {});
+const stopListening = chat.chat.$roomId.$listener
+  .setParams({ roomId: "1" })
+  .listen(({ data }) => {});
 
 // Later
 stopListening();
@@ -197,7 +199,7 @@ chat.rooms.leave.$emitter.emit({ payload: { roomId: "1" } });
 Browsers cannot set headers on the WebSocket handshake, so query params are the usual place for a token or the
 subscription input. Read them with `c.req.query()` in the upgrade callback.
 
-```ts
+```ts title="notifications.ts"
 // backend
 app.get(
   "/notifications",
@@ -208,7 +210,10 @@ app.get(
 );
 
 // frontend
-const socket = new Socket({ url: "wss://api.example.com/notifications", queryParams: { userId: "1" } });
+const socket = new Socket({
+  url: "wss://api.example.com/notifications",
+  queryParams: { userId: "1" },
+});
 
 // New input, new handshake
 socket.setQueryParams({ userId: "2" });
@@ -229,12 +234,13 @@ not reach the app type. Type the socket `queryParams` yourself.
 When the Hono app already speaks another format, map it with the `decode` and `encode` adapter options. Return `null`
 from `decode` to skip frames such as plain-text pings.
 
-```ts
+```ts title="frontend/src/legacy-socket.ts"
 const socket = new Socket({
   url: "wss://api.example.com/legacy",
   adapterOptions: {
     decode: (event) => {
-      if (typeof event.data !== "string" || !event.data.startsWith("{")) return null;
+      if (typeof event.data !== "string" || !event.data.startsWith("{"))
+        return null;
       const { type, payload } = JSON.parse(event.data);
       return { topic: type, data: payload };
     },
@@ -257,15 +263,20 @@ The `WebsocketAdapter` decides from the close code the Hono handler sends.
 | `ws.close()` (sends 1005), other code | Reconnects after a backoff with jitter          |
 | Server crash or restart               | Keeps reconnecting until the server is back     |
 
-Two socket options control the timing:
+These socket options control the timing:
 
-- `reconnectTime` and `maxReconnectTime` bound the delay before the next attempt after the connection was lost - it
-  grows with every failed attempt, see [retries](/docs/guides/sockets/connection#retries).
+- `reconnectTime` (default `1000`) and `maxReconnectTime` (default `30000`) bound the delay before the next attempt. It
+  grows with every failed attempt, see [retries](/docs/guides/sockets/connection#how-retries-work).
 - `connectionTimeout` (default `5000`) limits one connection attempt. A handshake that does not finish in time is
   abandoned and a new attempt starts.
+- `shouldReconnect` replaces the close-code rule above, and `reconnect` (default `Infinity`) limits the attempts.
 
-```ts
-const socket = new Socket({ url: "wss://api.example.com/ws", reconnectTime: 500, connectionTimeout: 10000 });
+```ts title="frontend/src/socket.ts"
+const socket = new Socket({
+  url: "wss://api.example.com/ws",
+  reconnectTime: 500,
+  connectionTimeout: 10000,
+});
 ```
 
 ---
@@ -286,9 +297,16 @@ app.get("/events", (c) =>
   streamSSE(c, async (stream) => {
     const lastEventId = c.req.header("last-event-id");
     // highlight-start
-    await stream.writeSSE({ id: "1", event: "tick", data: JSON.stringify({ symbol: "BTC", price: 100 }) });
+    await stream.writeSSE({
+      id: "1",
+      event: "tick",
+      data: JSON.stringify({ symbol: "BTC", price: 100 }),
+    });
     await stream.writeSSE({ id: "2", event: "status", data: "online" });
-    await stream.writeSSE({ id: "3", data: JSON.stringify({ topic: "feed", data: { text: "Hello" } }) });
+    await stream.writeSSE({
+      id: "3",
+      data: JSON.stringify({ topic: "feed", data: { text: "Hello" } }),
+    });
     // highlight-end
   }),
 );
@@ -303,7 +321,10 @@ const client = createClient({ url: "https://api.example.com" });
 const sdk = createSdk<typeof client, HonoSchema<AppType>>(client);
 
 // The endpoint comes from the typed HTTP schema
-const events = new Socket({ url: `${client.url}${sdk.events.$get.endpoint}`, adapter: ServerSentEventsAdapter });
+const events = new Socket({
+  url: `${client.url}${sdk.events.$get.endpoint}`,
+  adapter: ServerSentEventsAdapter,
+});
 
 events
   .createListener<{ symbol: string; price: number }>()({ topic: "tick" })
@@ -320,7 +341,7 @@ events
 
 Node has no global `EventSource`. Pass one, for example from the `eventsource` package, in the adapter options:
 
-```ts
+```ts title="scripts/events.ts"
 import { EventSource } from "eventsource";
 
 const events = new Socket({
@@ -348,14 +369,16 @@ const events = new Socket({
 `useListener` and `useEmitter` work against Hono routes like against any socket. When the server needs a join message,
 send it from an effect that depends on the connection state, so it runs again after a reconnect.
 
-```tsx
+```tsx title="frontend/src/Room.tsx"
 import { useListener } from "@hyper-fetch/react";
 import { useEffect } from "react";
 
 import { chat } from "./socket";
 
 export const Room = ({ roomId }: { roomId: string }) => {
-  const { data, connected } = useListener(chat.chat.$roomId.$listener.setParams({ roomId }));
+  const { data, connected } = useListener(
+    chat.chat.$roomId.$listener.setParams({ roomId }),
+  );
 
   useEffect(() => {
     if (!connected) return;
@@ -367,41 +390,45 @@ export const Room = ({ roomId }: { roomId: string }) => {
 };
 ```
 
-:::note What this covers
+This effect covers the edge cases:
 
 - Changing `roomId` leaves the old room and joins the new one.
 - StrictMode runs the effect twice, and the cleanup in between leaves the room, so one subscription remains.
 - Unmounting leaves the room on the server while the shared connection stays open.
 
-:::
-
 ---
 
-## Summary
-
-:::secondary What you learned
+:::secondary Summary
 
 - Hono WebSocket and SSE routes work with the built-in socket adapters when they send `{ topic, data }`.
 - `HonoSocketPath<AppType>` checks socket addresses, including `:param` segments, `basePath()` and `app.route()`.
-- WebSocket routes are not part of `HonoSchema`, SSE routes stay there as an untyped `$get`.
-- Message types live in a `createSocketSdk` schema built from `ListenerModel` and `EmitterModel`.
+- WebSocket routes are left out of `HonoSchema`, SSE routes stay there as an untyped `$get`.
 - Subscription input travels in your own join messages or in the handshake query params.
 
 :::
 
 ---
 
-## Next Steps
+## Next steps
 
+<LinkCard
+  type="integrations"
+  title="Example: notifications"
+  description="Live notifications pushed over Server-Sent Events from a local Hono server."
+  to="/examples/realtime/notifications"
+/>
 <LinkCard
   type="docs"
   title="Socket SDK"
-  description="Learn how createSocketSdk builds listeners and emitters from a schema and how to configure them."
+  description="How createSocketSdk builds listeners and emitters from a schema."
   to="/docs/sockets/sdk"
 />
 <LinkCard
-  type="docs"
-  title="Adapter"
-  description="See every option of the WebSocket and Server-Sent Events adapters, including decode and encode."
-  to="/docs/sockets/adapter"
+  type="api"
+  title="HonoSocketPath API reference"
+  description="The type that lists the WebSocket addresses of a Hono app."
+  to="/docs/api/hono/Types/HonoSocketPath"
 />
+
+See every option of the WebSocket and Server-Sent Events adapters on the [Adapter](/docs/sockets/adapter) page, and the
+[live cache updates](/examples/realtime/live-cache-updates) example for listeners that write into the cache.

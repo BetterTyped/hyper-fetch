@@ -5,268 +5,76 @@ description: "The Adapter decides how HyperFetch sends requests. Swap HTTP for G
 sidebar_label: Adapter
 ---
 
-[Read the API Reference »](/docs/api/core/Classes/Adapter.mdx)
+[Read the API Reference »](/docs/api/core/Classes/Adapter)
 
-The `Adapter` class is the backbone of HyperFetch's communication system. It abstracts the details of how requests are
-executed, allowing you to swap between HTTP, GraphQL, Firebase, or any custom transport layer with ease. Adapters are
-responsible for executing requests, mapping payloads and headers, handling query parameters, and integrating with the
-request lifecycle—including progress tracking, cancellation, and error handling.
-
----
+The **Adapter** is the transport a client sends requests with. It turns a request into a network call and the result
+into a response, and it maps headers, payloads, endpoints and query params on the way. Swap it to talk to GraphQL,
+Firebase or your own protocol, and the request API stays the same.
 
 :::tip Purpose
 
-1. **Handles the network communication** for all requests.
-2. Provides **hooks for mapping** headers, payloads, endpoints, and **query parameters**.
-3. Allows you to switch between HTTP, GraphQL, Firebase, and more by swapping adapters.
-4. Enables progress tracking, cancellation and error handling.
-5. **Allows** you to **override default behaviors** for advanced scenarios.
+1. **Sends requests** and reports progress, cancelation and errors.
+2. **Maps** headers, payloads, endpoints and query params before sending.
+3. **Holds defaults** for request options and adapter options.
 
 :::
 
----
+The built-in adapter uses `fetch` and runs in browsers, Node.js 18+, Bun and Deno. Replace it with `setAdapter`:
 
-## Initialization
-
-By default, HyperFetch provides a unified HTTP adapter built on the native `fetch` API, which works in both browser and
-Node.js environments (Node 18+). You can also create your own adapters to support other protocols or advanced use cases.
-
-```ts title="GraphQL Adapter"
+```ts title="api/client.ts"
 import { createClient } from "@hyper-fetch/core";
-// highlight-start
 import { GraphqlAdapter } from "@hyper-fetch/graphql";
-// highlight-end
 
-const client = createClient({
-  url: "https://api.example.com",
-})
-  // highlight-start
-  // Change the adapter to GraphQL
-  .setAdapter(GraphqlAdapter());
-// highlight-end
+export const client = createClient({
+  url: "https://api.example.com/graphql",
+}).setAdapter(GraphqlAdapter());
 ```
+
+Available adapters: Axios, GraphQL, Firebase, Firebase Admin, tRPC and oRPC. See
+[integrations](/docs/integrations/getting-started).
 
 ---
 
-## Quick Start
+## Pass adapter options
 
-You can customize the adapter's behavior by using its configuration methods. For example, to set a custom header mapper:
+Each adapter defines its own `options`, typed per request. For the fetch adapter they are `RequestInit` fields plus
+`timeout`, `responseType` and `streaming`.
 
 ```ts
-client.adapter.setHeaderMapper((headers, config) => {
-  // Add custom logic for headers
-  return { ...headers, "X-Custom-Header": "value" };
+const getReport = client.createRequest<{ response: Report }>()({
+  endpoint: "/reports/:id",
+  options: { timeout: 20_000, credentials: "include" },
 });
 ```
 
-Or to change how payloads are processed:
+Set them for every request with `setAdapterDefaults`, and request options such as `retry` with `setRequestDefaults`:
 
-```ts
-client.adapter.setPayloadMapper((payload, config) => {
-  // Transform payload before sending
-  return JSON.stringify(payload);
-});
+```ts title="api/client.ts"
+client.adapter
+  .setAdapterDefaults(() => ({ timeout: 10_000 }))
+  .setRequestDefaults((options) => {
+    const method = options.method ?? "GET";
+    // Replaces the built-in default, so keep deduplication for reads
+    return method === "GET" || method === "QUERY"
+      ? { deduplicate: true, retry: 2 }
+      : {};
+  });
 ```
 
 ---
 
-## Available Methods
+## Set the timeout
 
-<ShowMore>
-
-(@import core Adapter type=methods&display=table)
-
-</ShowMore>
-
-<LinkCard
-  type="api"
-  title="Detailed methods docs"
-  description="Check all available methods and their descriptions"
-  to="/docs/api/core/Classes/Adapter#methods"
-/>
+The fetch adapter's `timeout` is 5000 ms by default, change it with `options: { timeout }`. It covers the whole exchange:
+sending, waiting and downloading the body, so raise it for large files. `timeout: 0` turns it off. With
+`streaming: true` it stops counting once the response headers arrive.
 
 ---
 
-## Features
+## Pick the response type
 
-1. ### Header Mapper
-
-The header mapper determines how headers are set for each request. By default, it handles FormData and JSON content
-types automatically. You can override this logic for advanced scenarios.
-
-```ts
-client.adapter.setHeaderMapper((headers, config) => {
-  if (config.isAuth) {
-    return { ...headers, Authorization: `Bearer ${config.token}` };
-  }
-  return headers;
-});
-```
-
----
-
-2. ### Payload Mapper
-
-The payload mapper transforms the request body before it is sent. By default, it handles FormData and JSON. You can
-provide your own logic for custom serialization or encryption.
-
-It is called with the raw payload of the request and the value set with `setPayloadMapperConfig`. One adapter serves
-every request of the client, so the payload is typed as `unknown`. Requests with their own `request.setPayloadMapper`
-skip the adapter's mapper.
-
-```ts
-client.adapter.setPayloadMapperConfig({ key: "secret" }).setPayloadMapper((payload, config) => {
-  // Encrypt or transform payload
-  return encryptPayload(payload, config);
-});
-```
-
----
-
-3. ### Query Params Mapper
-
-The query params mapper encodes query parameters for the request URL. You can customize the encoding or provide your own
-function.
-
-```ts
-client.adapter.setQueryParamsMapper((params, config) => {
-  // Custom query string encoding
-  return customStringify(params);
-});
-```
-
-You can also set configuration for the query params mapper:
-
-```ts
-client.adapter.setQueryParamsMapperConfig({ arrayFormat: "bracket" });
-```
-
-#### Query params as a callback
-
-An adapter can let requests take query params as a callback, for example to hand users a typed query builder. Register
-a resolver with `setQueryParamsResolver`. When a request gets a function as its query params, in `setQueryParams` or
-`send`, the resolver runs right away and the request stores what it returns. The request never holds a function, so
-cache keys, query keys and `toJSON()` keep working with data.
-
-```ts
-// The adapter decides what the callback receives and what gets stored
-adapter.setQueryParamsResolver((callback) => callback(createFilters()).toJSON());
-
-// Users of that adapter can then write
-getUsers.setQueryParams((filters) => filters.where("role", "admin"));
-```
-
-It is opt-in: adapters without a resolver store query params as given. Declare the callback in the adapter's query
-params type, so requests accept it. The [Firebase adapter](/docs/integrations/adapter-firebase/overview) uses it for
-typed constraints.
-
----
-
-4. ### Endpoint Mapper
-
-The endpoint mapper allows you to transform or format the endpoint before the request is sent. Useful for multi-tenant
-APIs or dynamic routing.
-
-```ts
-client.adapter.setEndpointMapper((endpoint, config) => {
-  return `/v2${endpoint}`;
-});
-```
-
----
-
-5. ### Defaults
-
-Set **adapter default options** for all requests sent through this adapter:
-
-```ts
-// HTTP adapter options (based on native fetch RequestInit)
-client.adapter.setAdapterDefaults((request) => ({
-  timeout: 5000,
-  credentials: "include",
-}));
-```
-
-:::warning
-
-Each adapter has its own options. Check the API reference for the available options.
-
-:::
-
----
-
-Set global defaults for **request configuration** (method, auth, deduplication, etc.).
-
-```ts
-client.adapter.setRequestDefaults((options) => ({ ...options, deduplicate: true }));
-```
-
----
-
-6. ### HyperFetch internal error mapping
-
-Customize how HyperFetch internal errors are mapped and handled:
-
-```ts
-client.adapter.setInternalErrorMapping((error) => {
-  // Map or transform error
-  return { ...error, internal: true };
-});
-```
-
----
-
-:::info Devtools Endpoint Getter
-
-Customize how endpoints of your adapter are displayed in devtools. It allows for nice formatting of the endpoint.
-
-```ts
-client.adapter.setDevtoolsEndpointGetter((endpoint) => endpoint.toUpperCase());
-```
-
-:::
-
----
-
-6. ### Streaming
-
-The default HTTP adapter supports **response streaming** via the native `ReadableStream` API. When a request is
-configured with `streaming: true`, the adapter returns the raw `response.body` stream instead of buffering the entire
-response. This is used internally by the [`useStream`](/docs/react/hooks/use-stream) hook.
-
-```ts title="Streaming a response"
-const streamRequest = client.createRequest()({
-  endpoint: "/api/chat/completions",
-  method: "POST",
-  options: { streaming: true },
-});
-
-const { data } = await streamRequest.send();
-
-// data is a ReadableStream<Uint8Array>
-const reader = data.getReader();
-const decoder = new TextDecoder();
-
-while (true) {
-  const { done, value } = await reader.read();
-  if (done) break;
-  console.log(decoder.decode(value, { stream: true }));
-}
-```
-
-:::tip React Integration
-
-For React apps, use the [`useStream`](/docs/react/hooks/use-stream) hook instead of manually consuming the stream.
-It handles chunk accumulation, lifecycle management, and reactive re-renders automatically.
-
-:::
-
----
-
-7. ### Response type
-
-By default the HTTP adapter decodes the body as text and parses it when it is valid JSON. Images, archives and other
-binary files need their raw bytes, so pick the shape of `data` with the `responseType` option:
+The fetch adapter decodes the body as text and parses it when it is valid JSON. Pick another shape of `data` with
+`responseType`:
 
 | `responseType`  | `data` of a successful response                          |
 | --------------- | -------------------------------------------------------- |
@@ -276,77 +84,112 @@ binary files need their raw bytes, so pick the shape of `data` with the `respons
 | `"blob"`        | A `Blob` with the `Content-Type` of the response         |
 | `"arrayBuffer"` | The raw bytes as an `ArrayBuffer`                        |
 
-```ts title="Downloading a file"
+```ts title="Download a file"
 const downloadAvatar = client.createRequest<{ response: Blob }>()({
   endpoint: "/users/:userId/avatar",
-  options: { responseType: "blob" },
+  options: { responseType: "blob", timeout: 60_000 },
 });
-
-const { data } = await downloadAvatar.setParams({ userId: 1 }).send();
-
-if (data) {
-  image.src = URL.createObjectURL(data);
-}
 ```
 
-The error body is parsed the same way whatever the response type, so `error` keeps its JSON shape. Download progress
-works for every response type. With `streaming: true` the option is ignored, because `data` is the stream.
+The error body is parsed the default way whatever the response type. Download progress works for every type.
 
 ---
 
-8. ### Timeout
+## Stream the response
 
-The `timeout` option (5 seconds by default) covers the whole exchange: sending the request, waiting for the response
-and downloading the body. A large download that takes longer than the timeout ends with the timeout error, even while
-the bytes keep arriving. Raise it for big files, or set `timeout: 0` to turn it off. With `streaming: true` the timeout
-stops once the response headers arrive.
+With `streaming: true`, `data` is the raw `ReadableStream` of the body instead of parsed data. In React, the
+[`useStream`](/docs/react/hooks/use-stream) hook reads it for you.
 
-```ts
-const downloadBackup = client.createRequest<{ response: Blob }>()({
-  endpoint: "/backups/latest",
-  options: { responseType: "blob", timeout: 120_000 },
+```ts title="Stream a completion"
+const streamChat = client.createRequest<{
+  response: ReadableStream<Uint8Array>;
+}>()({
+  endpoint: "/chat",
+  method: "POST",
+  options: { streaming: true },
 });
+
+const { data } = await streamChat.send();
+const reader = data?.getReader();
 ```
 
 ---
 
-## TypeScript Generics
+## Map requests before sending
 
-When you create custom adapter, you need to specify the types for the requests templates. Each adapter may have
-different statuses, endpoints, params, additional data returned or required. With generic types you can handle specific
-cases to ensure absolute type-safety and flexibility across different protocols and use cases.
+| Method                       | Called with                         | Default                                        |
+| ---------------------------- | ----------------------------------- | ---------------------------------------------- |
+| `setHeaderMapper`            | The request                         | Adds `Content-Type: application/json` for JSON |
+| `setPayloadMapper`           | The raw payload and its config      | JSON as a string, `FormData` and binary as is   |
+| `setEndpointMapper`          | The endpoint                        | Returns it unchanged                           |
+| `setQueryParamsMapper`       | The query params                    | Encodes them into a query string               |
+| `setQueryParamsMapperConfig` | Config for the query params mapper  | Encoding, array format, skipping empty values  |
 
-```ts
-class Adapter<
-  AdapterOptions,
-  MethodType extends string,
-  StatusType extends number | string,
-  Extra extends Record<string, any>,
-  QueryParams = unknown,
-  // ...other generics
-> {
-  /* ... */
-}
+The payload mapper gets the raw payload, typed `unknown` because one adapter serves every request, and the value set
+with `setPayloadMapperConfig`. A request with its own `request.setPayloadMapper` skips the adapter's mapper.
+
+```ts title="api/client.ts"
+// Send arrays as ids[]=1&ids[]=2
+client.adapter.setQueryParamsMapperConfig({ arrayFormat: "bracket" });
+
+// Prefix every endpoint
+client.adapter.setEndpointMapper((endpoint) => `/v2${endpoint}`);
 ```
 
-Each option describe the type template for requests to be created within client using your adapter.
+An adapter can also accept query params as a callback, such as a typed query builder, with `setQueryParamsResolver`.
+The resolver runs when the request gets the callback and stores the result, so keys and `toJSON()` keep working with
+data. The [Firebase adapter](/docs/integrations/adapter-firebase/overview) uses it for typed constraints.
 
-Refer to the API reference for detailed type parameters and usage examples.
+---
+
+## Write your own adapter
+
+An adapter is an `Adapter` instance with a fetcher. The fetcher receives the request and helpers that report progress
+and resolve the response, so the dispatcher, cache and events work with it unchanged. The
+[custom adapter guide](/docs/guides/core/advanced/custom-adapter) walks through one.
+
+---
+
+## Methods
+
+<ShowMore>
+
+(@import core Adapter type=methods&display=table)
+
+</ShowMore>
+
+---
+
+:::secondary Summary
+
+- The fetch adapter is the default. Swap it with `client.setAdapter()` and keep the same requests.
+- Adapter `options` such as `timeout` and `responseType` are typed per adapter.
+- Mappers change headers, payloads, endpoints and query params for every request.
+
+:::
+
+## Next steps
+
+Runnable examples: [Axios](/examples/integrations/axios), [Timeouts](/examples/request-control/timeouts) and
+[Download progress](/examples/data-fetching/download-progress).
 
 <LinkCard
-  type="api"
-  title="Detailed Adapter API"
-  description="Explore all available methods, their parameters, and return values for the Adapter class."
-  to="/docs/api/core/Classes/Adapter"
+  type="guides"
+  title="Custom adapter"
+  description="Build an adapter for your own transport."
+  to="/docs/guides/core/advanced/custom-adapter"
 />
-
----
-
-## Related Guides & API Docs
 
 <LinkCard
   type="integrations"
-  title="Available Adapters"
-  description="Explore all available adapters and their descriptions."
+  title="Adapters"
+  description="Axios, GraphQL, Firebase, tRPC and oRPC adapters."
   to="/docs/integrations/getting-started"
+/>
+
+<LinkCard
+  type="api"
+  title="Adapter API reference"
+  description="Every method of the Adapter class with its signature."
+  to="/docs/api/core/Classes/Adapter"
 />

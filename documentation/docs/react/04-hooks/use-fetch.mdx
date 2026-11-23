@@ -7,38 +7,30 @@ sidebar_label: useFetch
 
 # useFetch
 
-[Read the API Reference »](/docs/api/react/Hooks/useFetch)
-
-The `useFetch` hook is your main tool for **fetching and reading data** from a server in React components. It integrates
-directly with HyperFetch's core systems, such as the [`Dispatcher`](/docs/core/dispatcher) and
-[`Cache`](/docs/core/cache), to deliver a robust, reactive, and efficient data-fetching experience.
+`useFetch` sends a [request](/docs/core/request) when the component mounts and again when the request changes, and
+renders the response from the shared [cache](/docs/core/cache). Use it to read data. To create, update or delete, use
+[`useSubmit`](/docs/react/hooks/use-submit), which sends only when you call it.
 
 :::tip Purpose
 
-1. **Declarative data fetching**: Provide a `Request` and let the hook manage the process.
-2. **Automatic state management**: Handles `loading`, `error`, and `data` states for you.
-3. **Built-in reactivity**: Automatically re-fetches data when dependencies change.
-4. **Lifecycle callbacks**: Easily run side effects on success, error, or completion.
-5. **Deep cache integration**: Uses a central cache to avoid redundant requests and boost performance.
+1. **Read data declaratively**: pass a request, get `data`, `loading` and `error`.
+2. **Refetch on change**: new params, query params or `dependencies` send a new request.
+3. **Shared cache**: every component using the same request shares one response and one network call.
+4. **Fewer re-renders**: the component re-renders only for the fields it reads.
 
 :::
 
-> To send data to the server (such as creating, updating, or deleting resources), use the
-> [`useSubmit`](/react/04-hooks/use-submit.mdx) hook instead.
-
 ---
 
-## Quick Start
-
-To use `useFetch`, provide a prepared [`Request`](/docs/core/request) instance. The hook returns the current state of
-that request, including the fetched `data`, `loading` status, and any `error` that may have occurred.
+## Usage
 
 ```tsx live title="Fetching a list of users" size=md
 import { useFetch } from "@hyper-fetch/react";
 import { getUsers } from "./api/users";
 
 function App() {
-  const { data, loading, error } = useFetch(getUsers);
+  const { data, loading, error } =
+    useFetch(getUsers);
 
   if (error) {
     return (
@@ -51,53 +43,120 @@ function App() {
   return (
     <div>
       <h3 className="mb-4">Users:</h3>
-      <div className="flex flex-wrap gap-2">
-        <Table data={data} loading={loading} />
-      </div>
+      <Table
+        data={data}
+        loading={loading}
+      />
     </div>
   );
 }
 ```
 
-<LinkCard
-  type="docs"
-  title="Request"
-  description="Learn more about creating and configuring requests."
-  to="/docs/core/request"
-/>
+`data` is `null` until the first response or cached value exists. Cached data renders on the first render and, by
+default, a background request replaces it (stale-while-revalidate).
 
 ---
 
-## Dependencies
+## Options
 
-`useFetch` can automatically re-fetch data when its request or dependency array changes. Pass a dependency array in the
-options object (the second argument). When any value in the array changes, the hook triggers a new request.
+Pass options as the second argument. Hook options override [`Provider`](/docs/react/overview#global-defaults)
+defaults, which override the ones below. Caching (`staleTime`, `cacheTime`, `retry`, `deduplicate`) is set on the
+request, not on the hook.
 
-This is especially useful for fetching data based on props, state, or other dynamic values.
+| Option               | Default      | Description                                                                                       |
+| -------------------- | ------------ | ------------------------------------------------------------------------------------------------- |
+| `disabled`           | `false`      | Never send. Cached data and cache updates are still shown.                                        |
+| `dependencies`       | `[]`         | Extra values compared with `Object.is`. A change sends the request again.                         |
+| `revalidate`         | `true`       | Send on mount and on change even when cached data is fresh. `false` sends only for missing or stale data. |
+| `initialResponse`    | `null`       | Partial response (`{ data }`) shown while the cache is empty. Never written to the cache.         |
+| `keepPreviousData`   | `"auto"`     | What to show after the cache key changes: `"auto"`, `"preserve"` or `"clean"`.                    |
+| `select`             | -            | `(data) => part`. Changes the type of `data` and re-renders only when the part changes.           |
+| `structuralSharing`  | `true`       | Keep references of the unchanged parts of the selected data.                                      |
+| `deepCompare`        | `true`       | Equal incoming values keep their reference and do not re-render. Accepts a compare function.     |
+| `dependencyTracking` | `true`       | Re-render only for the returned fields the component reads.                                       |
+| `suspense`           | `false`      | Suspend until the first response.                                                                 |
+| `throwOnError`       | `false`      | Throw settled errors to the closest Error Boundary. Accepts `(error) => boolean`.                 |
+| `refresh`            | `false`      | Poll the request.                                                                                 |
+| `refreshTime`        | `Time.HOUR`  | Polling interval in milliseconds.                                                                 |
+| `refetchBlurred`     | `true`       | Keep polling while the window or app is blurred.                                                  |
+| `refetchOnFocus`     | `false`      | Send when the window or app gains focus.                                                          |
+| `refetchOnBlur`      | `false`      | Send when the window or app loses focus.                                                          |
+| `refetchOnReconnect` | `false`      | Send when the network comes back.                                                                 |
+| `bounce`             | `false`      | Debounce or throttle sends caused by request or dependency changes.                               |
+| `bounceType`         | `"debounce"` | `"debounce"` or `"throttle"`.                                                                     |
+| `bounceTime`         | `400`        | Debounce delay or throttle interval in milliseconds.                                              |
+| `bounceTimeout`      | `400`        | Throttle only: when the trailing call fires.                                                      |
 
-```tsx live title="Re-fetching on dependency change" size=md
+---
+
+## Returns
+
+(@import react UseFetchReturnType type=returns)
+
+`loading` stays `true` while a failed request waits for its retry. `error` already holds the failed attempt, but the
+result is final only when the retries end.
+
+---
+
+## Refetch when the request changes
+
+The hook compares the serialized request, so building it in render with `setParams` or `setQueryParams` is correct and
+cheap. A new value sends a new request; an equal clone on the next render does nothing. Use `dependencies` only for
+values that are not part of the request, and pass primitives: a new object or array on every render refetches every
+time.
+
+```tsx title="Params on the request, extra values in dependencies"
+function UserPosts({ userId, version }: { userId: number; version: number }) {
+  // Refetches when userId changes (new cache key) or when version changes
+  // (dependency)
+  const { data } = useFetch(getUserPosts.setParams({ userId }), {
+    dependencies: [version],
+  });
+
+  return <PostsList posts={data ?? []} />;
+}
+```
+
+With `revalidate: false`, a change sends only when the new key has no cached data or the data is stale.
+
+---
+
+## Debounce and throttle
+
+Set `bounce: true` to delay sends caused by request or dependency changes, for example while the user types. The first
+request on mount is never delayed. Use `bounceType: "throttle"` to send at most once per `bounceTime` instead.
+
+```tsx live title="Search as you type" size=md
 import { useFetch } from "@hyper-fetch/react";
 import { getUsers } from "./api/users";
 
 function App() {
-  const [search, setSearch] = useState("");
-  const { data, loading, error } = useFetch(getUsers.setQueryParams({ search }), {
-    // This will debounce the request for 400ms
-    bounce: true,
-    bounceTime: 400,
-    bounceType: "debounce",
-  });
+  const [search, setSearch] =
+    useState("");
+  const { data, loading } = useFetch(
+    getUsers.setQueryParams({ search }),
+    {
+      // Wait until the user stops typing
+      // for 400ms
+      bounce: true,
+      bounceTime: 400,
+    },
+  );
 
   return (
     <div>
-      <TextField label="Search" placeholder="Type to search by name" onChange={(e) => setSearch(e.target.value)} />
+      <TextField
+        label="Search"
+        placeholder="Search by name"
+        onChange={(e) =>
+          setSearch(e.target.value)
+        }
+      />
       {data && (
-        <div>
-          <h3 className="mb-4">Users:</h3>
-          <div className="flex flex-wrap gap-2">
-            <Table data={data} loading={loading} />
-          </div>
-        </div>
+        <Table
+          data={data}
+          loading={loading}
+        />
       )}
     </div>
   );
@@ -106,27 +165,60 @@ function App() {
 
 ---
 
-## Event Handlers
+## Wait for another request
 
-To handle side effects such as notifications, logging, or triggering other actions, `useFetch` provides a set of event
-handler hooks. This keeps your component's rendering logic clean and separates side effects from state management.
+Use `disabled` for dependent or conditional requests, never a conditional hook call. Nothing is sent while the hook is
+disabled and `loading` is `false`. It sends as soon as `disabled` becomes `false`.
 
-1. `onSuccess`: Fires when the request completes successfully. The callback receives the success `response`.
-2. `onError`: Fires when the request results in an error. The callback receives the error `response` - read the error
-   from `response.error`.
-3. `onFinished`: Fires when the request finishes, regardless of the outcome.
+```tsx title="Dependent request"
+function Profile() {
+  const { data: user } = useFetch(getCurrentUser);
+  // The placeholder param keeps the request typed; nothing is sent until user
+  // exists
+  const { data: posts } = useFetch(
+    getUserPosts.setParams({ userId: user?.id ?? 0 }),
+    { disabled: !user },
+  );
 
-```tsx live title="Using Event Handlers" size=md
+  return <PostsList posts={posts ?? []} />;
+}
+```
+
+---
+
+## Callbacks
+
+Register callbacks by calling them in the render body; the latest closure is used. Each receives one object with
+`response`, `request`, `requestId` and `details`. They fire for every response on the hook's cache key, also for
+requests sent by other components.
+
+| Callback                                 | Fires when                                                       |
+| ---------------------------------------- | ---------------------------------------------------------------- |
+| `onSuccess` / `onError`                  | A response succeeds or fails. Read the error from `response.error`. |
+| `onAbort` / `onOfflineError`             | The request is canceled, or fails offline and waits to be resent. |
+| `onFinished`                             | After any of the above.                                          |
+| `onRequestStart` / `onResponseStart`     | The request is sent, or the response starts arriving.            |
+| `onUploadProgress` / `onDownloadProgress` | Progress changes. Receives `progress` (0-100), `timeLeft`, `loaded` and `total`. |
+| `onRetry`                                | A failed attempt schedules the next one.                         |
+
+```tsx live title="Using callbacks" size=md
 import { useFetch } from "@hyper-fetch/react";
 import { getUsers } from "./api/users";
 
 const UsersListPage = () => {
-  const { data, loading, onSuccess, onError, onFinished } = useFetch(getUsers);
+  const {
+    data,
+    loading,
+    onSuccess,
+    onError,
+    onFinished,
+  } = useFetch(getUsers);
 
   onSuccess(({ response }) => {
+    const count = response.data.length;
     toast({
       title: "Success",
-      message: "Users fetched successfully",
+      message: `${count} users`,
       type: "success",
     });
   });
@@ -148,170 +240,163 @@ const UsersListPage = () => {
   });
 
   return (
-    <div>
-      <h3 className="mb-4">Users:</h3>
-      <div className="flex flex-wrap gap-2">
-        <Table data={data} loading={loading} />
-      </div>
-    </div>
+    <Table
+      data={data}
+      loading={loading}
+    />
   );
 };
 ```
 
----
+### Retries
 
-## Retries
+A request with `setRetry(n)` sends again after a failed attempt. `onError` fires for every failed attempt, with
+`details.willRetry` telling whether another one is coming. `onRetry` gets the `retry` number (from `1`) and the `delay`
+in milliseconds.
 
-A request with `retry` sends again after a failed attempt. `onRetry` fires when such an attempt schedules the next one,
-with the `retry` number (from `1`), the `delay` in milliseconds and the failed `response`. `onError` still fires for
-every failed attempt, with `details.willRetry` telling whether another one is coming.
-
-```tsx
-import { useState } from "react";
-import { useFetch } from "@hyper-fetch/react";
-import { getUsers } from "./api/users";
-
+```tsx title="Show the retry countdown"
 const getUsersWithRetries = getUsers.setRetry(3).setRetryTime(2000);
 
-const UsersListPage = () => {
+function UsersList() {
   const [message, setMessage] = useState("");
-  const { data, loading, onRetry, onFinished } = useFetch(getUsersWithRetries);
+  const { data, onRetry, onFinished } = useFetch(getUsersWithRetries);
 
-  onRetry(({ request, retry, delay }) => {
-    setMessage(`Retrying (${retry} of ${request.retry}) in ${delay / 1000}s...`);
-  });
-
+  onRetry(({ retry, delay }) =>
+    setMessage(`Retry ${retry} of 3 in ${delay / 1000}s`),
+  );
   onFinished(({ details }) => {
     if (!details.willRetry) setMessage("");
   });
 
-  return (
-    <div>
-      {message && <p>{message}</p>}
-      <Table data={data} loading={loading} />
-    </div>
-  );
-};
+  return <UsersTable users={data ?? []} footer={message} />;
+}
 ```
 
----
+### Progress
 
-## Download and Upload Progress
-
-`useFetch` provides two event handlers for tracking download and upload progress:
-
-- `onDownloadProgress`: Fires when the request is downloading data.
-- `onUploadProgress`: Fires when the request is uploading data.
-
-Both handlers receive give you access to a `ProgressType` object containing crucial information about the request's
-progress.
-
-(@import core ProgressType type=returns)
-
-:::success Rich progress tracking
-
-We are providing advanced progress tracking for both download and upload - with ETA, size left, total size, loaded size,
-and more.
-
-:::
-
-```tsx live title="Using Download and Upload Progress" size=md
+```tsx live title="Upload and download progress" size=md
 import { useFetch } from "@hyper-fetch/react";
 import { postFile } from "./api/files";
 
-const UsersListPage = () => {
-  const { data, onDownloadProgress, onUploadProgress } = useFetch(postFile);
-  const { requests } = useQueue(postFile);
-  console.log(requests);
+const UploadStatus = () => {
+  const {
+    onDownloadProgress,
+    onUploadProgress,
+  } = useFetch(postFile);
 
-  onDownloadProgress((progress) => {
-    // Do something with the progress data
-  });
-
-  onUploadProgress((progress) => {
-    // Do something with the progress data
-  });
+  onUploadProgress(({ progress }) =>
+    console.log(
+      `Uploaded ${progress}%`,
+    ),
+  );
+  onDownloadProgress(({ progress }) =>
+    console.log(
+      `Downloaded ${progress}%`,
+    ),
+  );
 
   return (
-    <div>
-      <h3 className="mb-4">Request Progress</h3>
-      {/* Custom component to visualize progress */}
-      {/* Uses 'useQueue' under the hood */}
-      <RequestsLifecycle request={postFile} dispatcherType="fetch" />
-    </div>
+    <RequestsLifecycle
+      request={postFile}
+      dispatcherType="fetch"
+    />
   );
 };
 ```
 
 ---
 
-## Suspense Mode
+## Polling and refetch on focus
 
-`useFetch` supports React's [Suspense](https://react.dev/reference/react/Suspense) for data loading out of the box.
-When `suspense: true` is set, the hook throws a Promise while the request is in flight. React catches this Promise at
-the nearest `<Suspense>` boundary and renders its `fallback` until the data arrives. Once the request resolves, the
-component re-renders with `data` immediately available - no `loading` state needed.
+`refresh: true` sends the request again every `refreshTime` milliseconds. `refetch()` restarts the countdown, so a
+scheduled refresh never fires right after a manual one. Polling continues in background tabs, change it with
+`refetchBlurred: false`.
 
-This means your component can be written as if data is always present, and the loading UI is handled entirely by the
-`<Suspense>` boundary.
+```tsx title="Poll every 10 seconds while the tab is visible"
+const { data } = useFetch(getStats, {
+  refresh: true,
+  refreshTime: Time.SEC * 10,
+  refetchBlurred: false,
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
+});
+```
 
-```tsx title="Using Suspense"
-import { Suspense } from "react";
-import { useFetch } from "@hyper-fetch/react";
-import { getUsers } from "./api/users";
+---
 
-function UsersList() {
-  const { data } = useFetch(getUsers, { suspense: true });
+## Keep previous data
+
+When the cache key changes and the new key has nothing cached yet, `keepPreviousData` decides what the component shows
+while the new request runs. Default `"auto"`, change it with `keepPreviousData`.
+
+| Mode               | URL params change (another resource) | Only query params change (page, filter) |
+| ------------------ | ------------------------------------ | --------------------------------------- |
+| `"auto"` (default) | Clear and show loading               | Keep previous data while loading        |
+| `"preserve"`       | Keep previous data                   | Keep previous data                      |
+| `"clean"`          | Clear                                | Clear                                   |
+
+```tsx title="Page buttons"
+function UsersPage() {
+  const [page, setPage] = useState(1);
+  // Only a query param changes, so "auto" keeps the old page visible while the
+  // next one loads
+  const { data, loading } = useFetch(getUsers.setQueryParams({ page }));
 
   return (
-    <ul>
-      {data.map((user) => (
-        <li key={user.id}>{user.name}</li>
-      ))}
-    </ul>
-  );
-}
-
-function App() {
-  return (
-    <Suspense fallback={<p>Loading users...</p>}>
-      <UsersList />
-    </Suspense>
+    <UsersTable
+      users={data ?? []}
+      dimmed={loading}
+      onNext={() => setPage((p) => p + 1)}
+    />
   );
 }
 ```
 
-:::info React 18+ Required
+---
 
-Suspense mode requires React 18 or later. You can combine it with `<ErrorBoundary>` components and the
-[`throwOnError`](#error-boundaries) option to handle error states declaratively.
+## Select part of the response
 
-:::
+`select` picks or transforms the part of the data the component uses. The request and its cache stay shared, and the
+component re-renders only when the selected value changes. The selector runs only when there is data, and callbacks
+and the cache keep the full response.
+
+```tsx title="Subscribe to one price"
+function Price({ symbol }: { symbol: string }) {
+  const { data: price } = useFetch(getQuotes, {
+    select: (quotes) => quotes[symbol]?.price,
+  });
+
+  return <span>{price}</span>;
+}
+```
+
+Responses and selected values are structurally shared: deeply equal parts keep their previous references, so
+`useEffect`, `useMemo` and `React.memo` react only to real changes. Turn it off per request with
+`setStructuralSharing(false)` or per hook with `structuralSharing: false`.
 
 ---
 
-## Error Boundaries
+## Suspense and error boundaries
 
-Set `throwOnError: true` to throw the request error to the closest React
-[Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary) instead of
-returning it in the `error` field. The error is thrown only once the request settles - attempts that will be retried,
-canceled requests and offline (re-queued) requests never reach the boundary.
+With `suspense: true` the hook suspends until the first response, so the nearest `<Suspense>` renders its fallback.
+Cached or hydrated data never suspends, and a refetch after the first response does not suspend again. With
+`throwOnError: true`, settled errors go to the closest Error Boundary; attempts that will retry, canceled and offline
+requests never do.
 
-```tsx title="Throwing errors to the boundary"
-import { ErrorBoundary } from "react-error-boundary";
-import { useFetch } from "@hyper-fetch/react";
-import { getUsers } from "./api/users";
-
+```tsx title="Suspense with an error boundary"
 function UsersList() {
-  // highlight-next-line
   const { data } = useFetch(getUsers, { suspense: true, throwOnError: true });
 
-  return <Table data={data} />;
+  return <UsersTable users={data ?? []} />;
 }
 
-function App() {
+export function App() {
   return (
-    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <button onClick={resetErrorBoundary}>Retry</button>}>
+    <ErrorBoundary
+      fallbackRender={({ resetErrorBoundary }) => (
+        <button onClick={resetErrorBoundary}>Retry</button>
+      )}
+    >
       <Suspense fallback={<p>Loading users...</p>}>
         <UsersList />
       </Suspense>
@@ -320,281 +405,61 @@ function App() {
 }
 ```
 
-Errors are not stored in the cache, so resetting the boundary remounts the component and fetches the data again. Pass a
-function to decide per error - for example handle validation errors in the component and throw all the others:
-
-```tsx
-const { data, error } = useFetch(getUsers, {
-  throwOnError: (error) => error.code !== "VALIDATION_ERROR",
-});
-```
+Errors are not cached, so resetting the boundary remounts the component and fetches again. Pass a function to throw
+only some errors, for example `throwOnError: (error) => error.name !== "ValidationError"`.
 
 ---
 
-## Keep Previous Data
+## Re-render only for what you read
 
-By default, when the cache key changes (e.g. switching from one resource to another), `useFetch` clears the previous
-state and shows a fresh loading cycle. This prevents stale data from one resource leaking into another.
+The returned object tracks which fields the component reads. A component that destructures only `data` does not
+re-render when `loading` or `error` change. Destructure what you render and do not spread the whole result into
+children. Set `dependencyTracking: false` to re-render on every change.
 
-You can control this behavior with the `keepPreviousData` option:
-
-| Mode | Behavior | Best for |
-|------|----------|----------|
-| `"auto"` (default) | Clears state when URL params change (different resource), preserves state when only query params change (pagination/filtering). | General use |
-| `"preserve"` | Always keeps previous data visible until new data arrives, even when switching between different resources. | Pagination, infinite scroll, tab switching |
-| `"clean"` | Always resets state to initial values when the cache key changes. Shows a clean loading state for every new request. | Distinct resources where stale data would be confusing |
-
-```tsx title="Pagination with keepPreviousData"
-import { useFetch } from "@hyper-fetch/react";
-import { getUsers } from "./api/users";
-
-function UsersList() {
-  const [page, setPage] = useState(1);
-  const { data, loading } = useFetch(getUsers.setQueryParams({ page }), {
-    keepPreviousData: "preserve",
-  });
-
-  return (
-    <div>
-      <Table data={data} loading={loading} />
-      <button type="button" onClick={() => setPage((p) => p + 1)}>
-        Next Page
-      </button>
-    </div>
-  );
-}
-```
+`setData`, `setError` and the other setters change only this hook's local state. To change data for every component,
+update the cache with `client.cache.update(request, updater)`. `clearState()` resets the local state; call `refetch()`
+after it to reload.
 
 ---
 
-## Dependency Tracking
+:::secondary Summary
 
-By default, `useFetch` uses **field-level dependency tracking** (`dependencyTracking: true`). The component only
-re-renders when a field it actually accesses changes. For example, if your component only destructures `data`, changes
-to `error` or `loading` will not cause a re-render.
-
-This optimization happens automatically through a proxy - just destructure the fields you need and the hook handles
-the rest.
-
-```tsx title="Only re-renders when data changes"
-function UsersList() {
-  // highlight-next-line
-  const { data } = useFetch(getUsers);
-
-  // Changes to `error`, `loading`, `status`, etc. won't trigger a re-render
-  // because this component never reads them.
-  return <Table data={data} />;
-}
-```
-
-When `dependencyTracking` is set to `false`, the component re-renders on every state change, regardless of which fields
-are used. This can be useful for debugging or when you need to ensure the component always has the latest state.
-
----
-
-## Selecting Data
-
-Many components often need only a small part of the same response. The `select` option picks (or transforms) the data
-the component uses, while the request and its cache stay shared between all the hooks. The component re-renders only
-when **the selected value** changes - updates of the other parts of the response are skipped.
-
-```tsx title="Subscribing to a part of the response"
-const useSymbol = (id: string) => {
-  // highlight-next-line
-  return useFetch(getSymbols, { select: (symbols) => symbols[id] });
-};
-
-const useSymbolPrice = (id: string) => {
-  // highlight-next-line
-  return useFetch(getSymbols, { select: (symbols) => symbols[id]?.price });
-};
-
-function Price({ id }: { id: string }) {
-  // Re-renders only when this symbol's price changes, even though all symbols are fetched and cached together
-  const { data: price } = useSymbolPrice(id);
-  return <span>{price}</span>;
-}
-```
-
-- The selector receives the response data and runs only when there is data - `data` stays `null` otherwise.
-- The selector can close over props. When it changes between renders (e.g. a new `id`), it is applied to the current
-  data right away, without waiting for a new response.
-- Inline selectors are fine - the result is [structurally shared](#structural-sharing), so a recreated but equal object
-  keeps its previous reference.
-- `data` and `setData` use the selected type. Event handlers like `onSuccess` and the cache keep the full response.
-- An error thrown by the selector is passed to the closest Error Boundary.
-
----
-
-## Structural Sharing
-
-Every response saved to the cache is merged with the previous one: all the parts that are deeply equal keep their
-previous object references. When the same data comes back from a refetch, `data` keeps the exact same reference, and
-when only a part changed, the untouched branches are reused. Thanks to this `useMemo`, `useEffect` and `React.memo`
-dependencies stay stable without any extra work. The same is applied to the `select` results inside the hook.
-
-```tsx
-const { data } = useFetch(getUsers);
-
-useEffect(() => {
-  // Runs only when the users data really changed - not on every refetch
-  syncUsers(data);
-}, [data]);
-```
-
-Structural sharing works on plain objects and arrays - class instances, dates, maps etc. are compared by reference. You
-can disable it per request with `request.setStructuralSharing(false)` (or the `structuralSharing` request option), and
-for the selected data with the `structuralSharing: false` hook option.
-
----
-
-## Clear State
-
-The `clearState` method resets all hook state (`data`, `error`, `status`, `extra`, timestamps) back to initial values.
-This is useful when you need to manually reset the UI, for example after a user action or before navigating away.
-
-```tsx title="Using clearState"
-import { useFetch } from "@hyper-fetch/react";
-import { getUsers } from "./api/users";
-
-function UsersList() {
-  const { data, error, clearState, refetch } = useFetch(getUsers);
-
-  const handleReset = () => {
-    clearState();
-    refetch();
-  };
-
-  return (
-    <div>
-      {data && <Table data={data} />}
-      {error && <p>Something went wrong</p>}
-      <button type="button" onClick={handleReset}>
-        Reset & Reload
-      </button>
-    </div>
-  );
-}
-```
-
----
-
-## Options
-
-Customize the behavior of `useFetch` by passing an options object as the second argument.
-
-```tsx
-const { ... } = useFetch(request, {
-  disabled: false,
-  dependencies: [],
-  revalidate: true,
-  // ... and more
-});
-```
-
-### Defaults
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `suspense` | `false` | Enable React Suspense integration |
-| `dependencies` | `[]` | Array of values that trigger refetch on change |
-| `disabled` | `false` | Disable automatic fetching |
-| `dependencyTracking` | `true` | Only re-render when accessed fields change |
-| `revalidate` | `true` | Refetch on mount and on key change even when cached data is fresh. With `false`, only stale data is refetched, and the cache `lazyStorage` is read first |
-| `initialResponse` | `null` | Initial data before first fetch |
-| `keepPreviousData` | `"auto"` | Keep previous data strategy: `"auto"`, `"preserve"`, `"clean"` |
-| `refresh` | `false` | Enable periodic refresh |
-| `refreshTime` | `3600000` (1 hour) | Interval between refreshes in ms |
-| `refetchBlurred` | `true` | Allow refresh when the tab is blurred |
-| `refetchOnBlur` | `false` | Refetch when the window loses focus |
-| `refetchOnFocus` | `false` | Refetch when the window gains focus |
-| `refetchOnReconnect` | `false` | Refetch when the network connection is restored |
-| `bounce` | `false` | Enable debounce/throttle for the request |
-| `bounceType` | `"debounce"` | Bounce strategy: `"debounce"` or `"throttle"` |
-| `bounceTime` | `400` | Bounce delay in ms |
-| `deepCompare` | `true` | Deep compare options for memoization |
-| `select` | `undefined` | Pick or transform the part of the data used by the component |
-| `structuralSharing` | `true` | Keep references of the unchanged parts of the selected data |
-| `throwOnError` | `false` | Throw settled request errors to the closest Error Boundary |
-
-:::caution Refreshing continues in background tabs
-
-`refetchBlurred` is `true` by default, so a request with `refresh` keeps polling while the tab is hidden or the window is
-not focused. Set `refetchBlurred: false` to pause the refresh until the user comes back.
+1. `useFetch` sends on mount and when the request or `dependencies` change, and reads from the shared cache.
+2. Use `disabled` for dependent requests and `bounce` for search inputs.
+3. Callbacks receive one object; read errors from `response.error`.
+4. `select`, structural sharing and dependency tracking keep re-renders to what changed.
 
 :::
 
-:::info Refetch restarts the refresh timer
-
-Calling `refetch()` not only triggers an immediate fetch but also **restarts the refresh timer** if `refresh` is
-enabled. This prevents a scheduled refresh from firing right after a manual refetch.
-
-:::
-
-Below is a full list of available options.
-
-(@import react UseFetchOptionsType type=returns)
-
-<LinkCard
-  type="api"
-  title="UseFetchOptionsType API Reference"
-  description="Learn more about the useFetch hook."
-  to="/docs/api/react/Types/UseFetchOptionsType"
-/>
-
----
-
-## State and Methods
-
-`useFetch` returns an object containing the request's state, helper methods, and event handlers.
-
-```tsx
-const {
-  data,
-  error,
-  loading,
-  status,
-  refetch,
-  onSuccess,
-  // ... and more
-} = useFetch(request);
-```
-
-`loading` stays `true` while a failed request waits for its retry. `error` already holds the failed attempt, so you can
-show it, but the result is not final until the retries end.
-
-Below is a full list of returned values.
-
-(@import react UseFetchReturnType type=returns)
-
-<LinkCard
-  type="api"
-  title="useFetch API Reference"
-  description="Learn more about the useFetch hook."
-  to="/docs/api/react/Hooks/useFetch"
-/>
-
----
-
-## See More
+## Next steps
 
 <LinkCard
   type="guides"
   title="Fetching data"
-  description="Learn more about fetching data with useFetch."
+  description="Load, refresh and share data across components with useFetch."
   to="/docs/guides/react/basics/fetching"
 />
 
 <LinkCard
   type="docs"
   title="useSubmit"
-  description="Learn more about the useSubmit hook."
+  description="Send requests on demand for forms and mutations."
   to="/docs/react/hooks/use-submit"
 />
 
 <LinkCard
-  type="docs"
-  title="useCache"
-  description="Learn more about the useCache hook."
-  to="/docs/react/hooks/use-cache"
+  type="api"
+  title="useFetch API reference"
+  description="Generated types for the hook, its options and its return value."
+  to="/docs/api/react/Hooks/useFetch"
 />
+
+- Guides: [dependent requests](/docs/guides/react/basics/dependent-requests),
+  [pagination](/docs/guides/react/basics/pagination), [refreshing](/docs/guides/react/basics/refreshing),
+  [window focus and blur](/docs/guides/react/basics/window-focus-blur).
+- Runnable examples: [basic data fetching](/examples/getting-started/basic),
+  [search as you type](/examples/data-fetching/search), [dependent requests](/examples/data-fetching/dependent-requests),
+  [polling](/examples/data-fetching/polling), [pagination](/examples/data-fetching/pagination),
+  [select](/examples/data-fetching/select), [suspense](/examples/data-fetching/suspense),
+  [error handling](/examples/getting-started/error-handling).
+- Types: [`UseFetchOptionsType`](/docs/api/react/Types/UseFetchOptionsType).

@@ -6,20 +6,18 @@ sidebar_label: Infinite Scroll
 
 # Infinite Scroll in React
 
-Infinite scroll loads a long list in small parts: as the user reaches the end, the next page is added to the list.
-Building infinite scroll in React by hand means tracking the next page, merging pages, knowing when the list ends,
-avoiding double requests while a page loads, and starting over when a filter changes.
-[`useInfiniteFetch`](../../../react/04-hooks/use-infinite-fetch.mdx) handles all of that. Your component only decides
-when to load more.
+Infinite scroll adds the next page to one growing list as the user reaches its end. By hand that means tracking the next
+page, merging pages, detecting the end, avoiding double requests and starting over when a filter changes.
+[`useInfiniteFetch`](/docs/react/hooks/use-infinite-fetch) does all of it; your component only decides when to load
+more.
 
 :::secondary What you'll learn
 
-1.  How infinite scroll works and which **pagination style** fits it.
-2.  How to describe a paginated request with the **`pagination`** option.
-3.  How to build a **"Load More"** button.
-4.  How to load pages **automatically while scrolling**.
-5.  How **filters** restart the list.
-6.  How it compares to React Query's **`useInfiniteQuery`**.
+1.  Which **pagination style** (page, offset or cursor) fits your API.
+2.  How to build a **Load More** button with the `pagination` option.
+3.  How to load pages **while scrolling** with an `IntersectionObserver`.
+4.  How **filters** restart the list.
+5.  How it compares to React Query's **`useInfiniteQuery`**.
 
 :::
 
@@ -30,11 +28,11 @@ when to load more.
 An infinite list needs a way to ask the server for "the next part". APIs do it in one of three ways, and
 `useInfiniteFetch` supports all of them through the `pagination` option:
 
-| Style  | Request                     | Good for                                     | `pagination` option                      |
-| ------ | --------------------------- | -------------------------------------------- | ---------------------------------------- |
-| Page   | `?page=3&limit=20`          | Simple lists, numbered pages                 | `{ page: "page", limit: "limit" }`       |
-| Offset | `?offset=40&limit=20`       | SQL-backed lists                             | `{ offset: "offset", limit: "limit" }`   |
-| Cursor | `?cursor=abc123`            | Feeds where items are added while you scroll | `{ cursor: "cursor", next: "nextCursor" }` |
+| Style  | Request               | Good for            | `pagination` option                        |
+| ------ | --------------------- | ------------------- | ------------------------------------------ |
+| Page   | `?page=3&limit=20`    | Numbered pages      | `{ page: "page", limit: "limit" }`         |
+| Offset | `?offset=40&limit=20` | SQL-backed lists    | `{ offset: "offset", limit: "limit" }`     |
+| Cursor | `?cursor=abc123`      | Live feeds          | `{ cursor: "cursor", next: "nextCursor" }` |
 
 Page and offset lists can skip or repeat items when new rows are inserted while the user scrolls, because every page
 moves by one. Cursor lists don't have that problem, which is why most feeds use them. With page and offset, set
@@ -46,19 +44,19 @@ Every key in `pagination` is checked against the request's types, so a typo in a
 
 ## Load More button
 
-Requests stay ordinary requests. The hook is told which field holds the page number.
+Requests stay ordinary requests. The `pagination` option tells the hook which field holds the page number.
 
-```tsx
+```tsx title="components/post-list.tsx"
 const getPosts = client.createRequest<{
   response: Post[];
   queryParams: { page?: number; limit?: number; search?: string };
 }>()({ endpoint: "/posts" });
 
 function PostList() {
-  const { items, loading, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteFetch(
-    getPosts.setQueryParams({ limit: 5 }),
-    { pagination: { page: "page", limit: "limit" } },
-  );
+  const { items, loading, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    useInfiniteFetch(getPosts.setQueryParams({ limit: 5 }), {
+      pagination: { page: "page", limit: "limit" },
+    });
 
   if (loading) return <p>Loading...</p>;
 
@@ -75,32 +73,35 @@ function PostList() {
           {isFetchingNextPage ? "Loading..." : "Load More"}
         </button>
       ) : (
-        <p>You've reached the end!</p>
+        <p>You reached the end.</p>
       )}
     </div>
   );
 }
 ```
 
-### How it works
+- The hook fetches the first page on mount. Each page is a normal request with its own cache key, so the usual
+  [cache rules](/docs/guides/core/advanced/cache-revalidation) apply.
+- `items` holds the items of all the loaded pages, in order.
+- `fetchNextPage` requests the next page. Calls made while that page loads share one request.
+- Declaring `limit` lets the hook end the list on a short page, without requesting an empty one.
+- Pages restored from the cache are refetched on mount only once they are stale, default `revalidate: false`.
 
-1.  The hook fetches the first page on mount. Each page is a normal request with its own cache key, so the usual
-    [cache rules](../../core/02-advanced/cache-revalidation.mdx) apply.
-2.  `items` holds the items of all the loaded pages, in order.
-3.  `fetchNextPage` requests the next page. Calling it again while the page loads does not send another request.
-4.  Declaring `limit` lets the hook end the list on a short page, without requesting an empty one.
+---
 
 ## Loading while scrolling
 
 The hook has no scroll logic, so it works with any trigger. Here an `IntersectionObserver` watches an element placed
 after the list:
 
-```tsx
+```tsx title="components/scrolling-post-list.tsx"
 function PostList() {
-  const { items, hasNextPage, fetchNextPage } = useInfiniteFetch(getPosts, { pagination: { page: "page" } });
-  const endRef = React.useRef<HTMLDivElement>(null);
+  const { items, hasNextPage, fetchNextPage } = useInfiniteFetch(getPosts, {
+    pagination: { page: "page" },
+  });
+  const endRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!endRef.current || !hasNextPage) return;
 
     const observer = new IntersectionObserver(([entry]) => {
@@ -122,20 +123,26 @@ function PostList() {
 }
 ```
 
-In React Native, call `fetchNextPage` from the `onEndReached` prop of `FlatList`.
+In React Native, call `fetchNextPage` from the `onEndReached` prop of `FlatList`. With a virtualizer, call it when the
+last rendered row is near the end.
+
+---
 
 ## Filters
 
 Put the filter on the request. A changed value starts a new list, and going back to an earlier value restores its pages
 from the cache.
 
-```tsx
+```tsx title="components/search-posts.tsx"
 function SearchPosts({ search }: { search: string }) {
-  const { items, isPreviousData } = useInfiniteFetch(getPosts.setQueryParams({ search }), {
-    pagination: { page: "page" },
-    bounce: true,
-    bounceTime: 300,
-  });
+  const { items, isPreviousData } = useInfiniteFetch(
+    getPosts.setQueryParams({ search }),
+    {
+      pagination: { page: "page" },
+      bounce: true,
+      bounceTime: 300,
+    },
+  );
 
   return (
     <ul style={{ opacity: isPreviousData ? 0.5 : 1 }}>
@@ -156,7 +163,7 @@ The previous results stay visible until the new ones arrive, and `bounce` waits 
 For a feed that returns `{ data: Post[], nextCursor: string | null }`, point `items` at the array and `next` at the
 cursor field. The list ends when `nextCursor` is `null`.
 
-```tsx
+```tsx title="components/feed.tsx"
 const getFeed = client.createRequest<{
   response: { data: Post[]; nextCursor: string | null };
   queryParams: { cursor?: string };
@@ -169,7 +176,12 @@ function Feed() {
     maxPages: 10, // keep at most 10 pages in memory
   });
 
-  // render items and a trigger, as above
+  return (
+    <PostGrid
+      posts={items}
+      onEndReached={hasNextPage ? fetchNextPage : undefined}
+    />
+  );
 }
 ```
 
@@ -193,16 +205,39 @@ against your request types, and gives you `items` already merged.
 | Drop duplicate items       | Write it in `select`                  | `uniqueBy`                                  |
 
 For a classic table with numbered pages instead of a growing list, use `useFetch` and change the page. See
-[pagination in React](./pagination.mdx).
+[pagination in React](/docs/guides/react/basics/pagination).
 
 ---
 
 :::success Congratulations!
 
-You've learned how to build an infinite scroll feature with HyperFetch!
+You can now build infinite lists with `useInfiniteFetch`.
 
 - You can describe paging with the **`pagination`** option.
-- You can load more data from a **button or while scrolling**.
+- You can load more from a **button** or **while scrolling**.
 - You can **change filters** without managing pages by hand.
+- You can limit memory with **`maxPages`** and drop repeats with **`uniqueBy`**.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="useInfiniteFetch reference"
+  description="Pagination options, refetching, starting over and server rendering."
+  to="/docs/react/hooks/use-infinite-fetch"
+/>
+
+<LinkCard
+  type="guides"
+  title="Pagination"
+  description="Numbered pages with useFetch, cached pages and prefetching."
+  to="/docs/guides/react/basics/pagination"
+/>
+
+- Runnable examples: [load more](/examples/data-fetching/load-more),
+  [infinite scroll](/examples/data-fetching/infinite-scroll),
+  [infinite list with max pages](/examples/data-fetching/infinite-max-pages),
+  [chat history](/examples/data-fetching/chat-history), [shop](/examples/apps/shop).
+- API: [`useInfiniteFetch`](/docs/api/react/Hooks/useInfiniteFetch).

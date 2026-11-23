@@ -4,158 +4,130 @@ description: "Validate API responses and request payloads in HyperFetch with map
 sidebar_label: Validation
 ---
 
-Data validation is a critical aspect of building robust and reliable applications. It ensures that the data flowing
-through your application, both from the server and from user inputs, adheres to a predefined structure and set of rules.
-Without proper validation, you risk encountering unexpected errors, data corruption, and security vulnerabilities.
-
-HyperFetch provides a powerful and flexible way to handle validation by leveraging mappers. When a mapper throws an
-error, HyperFetch catches it and treats it as a request error. This mechanism allows you to integrate any validation
-library, like [Zod](https://zod.dev/), to validate request and response data seamlessly.
+TypeScript types describe what you expect from an API, but they do not check what arrives at runtime. Validation does:
+a mapper parses the data with a schema, and when it throws, HyperFetch turns the throw into an error response. This
+guide validates responses and payloads with [Zod](https://zod.dev/), and the same works with any schema library.
 
 :::secondary What you'll learn
 
-1.  How to perform **response data validation** to ensure API responses are correct.
-2.  How to implement **request data validation** to prevent sending invalid data to the server.
-3.  Using **mappers** for centralized and reusable validation logic.
-4.  How to integrate with popular validation libraries like **Zod**.
+1. How to **validate responses** in `setResponseMapper` and infer types from the schema.
+2. How to **validate payloads** before they are sent with `setRequestMapper`.
+3. How to tell **validation errors** from API errors.
+4. When to validate **in the form** instead.
 
 :::
 
 ---
 
-## Response Validation
+## Validate the response
 
-Response validation is the process of verifying that the data received from the server matches the expected format. This
-is crucial for preventing runtime errors in your application when an API returns an unexpected response.
+Parse `data` in `setResponseMapper` and return the parsed value. A failed parse throws a `ZodError`, and `send()`
+resolves with it in `error`. Returning the parsed value also applies Zod's transforms and strips unknown keys.
 
-We can use the `.setResponseMapper()` method on a request to inspect the raw response and validate its structure. If the
-validation fails, we can throw an error, which HyperFetch will catch and place in the `error` state of the request.
-
-Let's see an example using `zod`:
-
-```ts
+```ts title="src/api/users.ts"
 import { z } from "zod";
 
 const UserSchema = z.object({
   id: z.number(),
   name: z.string(),
-  username: z.string(),
   email: z.string().email(),
+  createdAt: z.string().transform((value) => new Date(value)),
 });
 
-// We can infer the type from the schema
-type User = z.infer<typeof UserSchema>;
-
-const getUser = client
-  .createRequest<{ response: User }>()({
-    method: "GET",
-    endpoint: "users/:userId",
+export const getUser = client
+  .createRequest<{ response: z.input<typeof UserSchema> }>()({
+    endpoint: "/users/:userId",
   })
   .setResponseMapper((response) => {
-    if (response.data) {
-      // Validate the parsed response data against our schema.
-      // If parsing fails, Zod throws an error that HyperFetch will catch.
-      UserSchema.parse(response.data);
-    }
-
-    // Return the response object (possibly with transformed data)
-    return response;
+    if (!response.data) return response;
+    return { ...response, data: UserSchema.parse(response.data) };
   });
 
-// Usage
-(async () => {
-  const { data, error } = await getUser.setParams({ userId: 1 }).send();
-
-  if (error) {
-    // Here error will be an instance of ZodError if validation failed
-    console.error(error);
-  } else {
-    console.log(data);
-  }
-})();
+const { data } = await getUser.send({ params: { userId: 1 } });
+// data: { id: number; name: string; email: string; createdAt: Date } | null
 ```
 
-In this example, if the data received from `/users/:userId` does not conform to the `UserSchema`,
-`UserSchema.parse(data)` will throw a `ZodError`. HyperFetch will catch this error, stop the request processing, and
-you will get the `ZodError` instance in the `error` property of the request's return value.
+The `response` generic is the raw shape (`z.input`), and `data` gets the parsed shape (`z.output`) from the mapper. The
+cache keeps the raw response, and the mapper validates it again on every delivery.
 
 ---
 
-## Request Validation
+## Validate the payload
 
-Just as we validate responses, it's equally important to validate data before sending it to the server. This prevents
-invalid data from reaching your API, which can help avoid unnecessary API calls and potential server-side errors.
+Parse the payload in `setRequestMapper`. When it throws, the request is not sent and `send()` resolves with the
+`ZodError`, so invalid data never reaches the server.
 
-Request validation can be implemented using the `.setRequestMapper()` method. This mapper receives the request instance
-before it's sent, allowing you to inspect and validate its payload.
-
-Here's how you can validate a request payload with `zod`:
-
-```ts
-import { z } from "zod";
-
-const PostSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters long"),
-  body: z.string().min(10, "Body must be at least 10 characters long"),
-  userId: z.number(),
+```ts title="src/api/posts.ts"
+const PostInput = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  body: z.string().min(10, "Body must be at least 10 characters"),
 });
 
-type PostSchema = z.infer<typeof PostSchema>;
-
-// The second generic to createRequest is the payload type
-const createPost = client
-  .createRequest<{ response: Post; payload: PostSchema }>()({
-    method: "POST",
+export const createPost = client
+  .createRequest<{
+    response: { id: number };
+    payload: z.infer<typeof PostInput>;
+  }>()({
     endpoint: "/posts",
+    method: "POST",
   })
   .setRequestMapper((request) => {
-    // We access the payload of the request
-    const dataToValidate = request.payload;
-
-    // We parse it against our schema
-    PostSchema.parse(dataToValidate); // This will throw if validation fails
-
-    // If validation is successful, we must return the request instance
+    PostInput.parse(request.payload); // throws a ZodError for invalid data
     return request;
   });
-
-// code-editor-split
-
-// --- Usage ---
-
-// Example 1: Invalid data
-const { error: validationError } = await createPost.send({
-  payload: { title: "A", body: "Short", userId: 1 },
-});
-
-if (validationError) {
-  // The request was not sent, and we get a ZodError
-  console.log(validationError.errors);
-}
-
-// Example 2: Valid data
-const { data, error } = await createPost.send({
-  payload: { title: "A valid title", body: "A much longer and valid body", userId: 1 },
-});
-
-if (error) {
-  console.error("Request failed:", error);
-} else {
-  // The request was sent successfully
-  console.log("Post created:", data);
-}
 ```
-
-If you call `createPost.send()` with data that doesn't match `PostSchema`, the `.setRequestMapper()` will throw an
-error. The request will be aborted before it is sent, and the error will be returned.
 
 ---
 
-:::success Congratulations! You've learned how to implement data validation in HyperFetch!
+## Tell validation errors apart
 
-1.  You can perform **response validation** using `.setResponseMapper()` to ensure data from the server is safe to use.
-2.  You can implement **request validation** with `.setRequestMapper()` to prevent sending invalid data.
-3.  You know how to use **mappers** to integrate third-party validation libraries like Zod.
-4.  You can create **type-safe requests** where the types are inferred directly from your validation schemas.
+A `ZodError` is an `Error`, so check it with `instanceof` before reading your API's error shape.
+
+```ts title="src/post-form.ts"
+const { data, error } = await createPost.send({
+  payload: { title: "Hi", body: "Too short" },
+});
+
+if (error instanceof z.ZodError) {
+  // Not sent: show the field messages
+  showFieldErrors(error.flatten().fieldErrors);
+} else if (error) {
+  showToast("Could not save the post");
+} else {
+  navigate(`/posts/${data?.id}`);
+}
+```
+
+---
+
+## Where to validate
+
+| Where                             | Catches                                  | Use it when                                        |
+| --------------------------------- | ---------------------------------------- | -------------------------------------------------- |
+| `setResponseMapper`               | An API that changed or returns bad data  | You do not control the API, or it is critical data |
+| `setRequestMapper`                | Invalid payloads from any caller         | Several places send the request                    |
+| The form, before `send()`         | Invalid input as the user types          | You want messages before submit                    |
+
+Validate the form before `send()` for the best UX, and keep the request mapper as the last guard. Parsing large
+responses on every delivery has a cost: validate the fields you rely on, or validate in development only.
+
+---
+
+:::success Congratulations!
+
+You've learned how to validate data with mappers.
+
+- You can **validate responses** in `setResponseMapper` and get types from the schema.
+- You can **block invalid payloads** in `setRequestMapper` before they are sent.
+- You can tell a **`ZodError`** from an API error with `instanceof`.
 
 :::
+
+Runnable examples: [Payload validation](/examples/request-control/payload-validation) and
+[Response mapping](/examples/request-control/response-mapping).
+
+<LinkCard type="guides" title="Mapping" description="Async mappers, class models and mapper order." to="/docs/guides/core/advanced/mapping" />
+
+<LinkCard type="guides" title="Error handling" description="Kinds of errors and how to type them." to="/docs/guides/core/basics/error-handling" />
+
+<LinkCard type="docs" title="Request" description="Map and validate on the request." to="/docs/core/request#map-and-validate" />

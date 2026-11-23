@@ -7,29 +7,32 @@ sidebar_label: Overview
 
 # React Native
 
-HyperFetch runs in React Native and Expo without a native module. Requests go through React Native's `fetch`, and the
-hooks from `@hyper-fetch/react` work as they do on the web. The one thing to add is where focus and network status come
-from, because a phone has no browser window to listen to.
-
----
+HyperFetch runs in React Native and Expo with React Native's `fetch` and no native module, and the hooks from
+`@hyper-fetch/react` work as they do on the web. A phone has no browser window, so you tell the client where focus and
+network status come from.
 
 :::tip Purpose
 
-1.  **Same API as the web**: `createRequest`, `send()`, `useFetch` and `useSubmit` need no changes.
-2.  **Refetch on resume**: `AppState` tells HyperFetch when the app comes back to the foreground.
-3.  **Offline aware**: `NetInfo` pauses requests while the device is offline and resumes them when it reconnects.
+1. **Same API as the web**: `createRequest`, `send()`, `useFetch` and `useSubmit` need no changes.
+2. **Refetch on resume**: `AppState` tells HyperFetch when the app comes back to the foreground.
+3. **Offline aware**: `NetInfo` holds requests while the device is offline and resumes them when it reconnects.
 
 :::
 
 ---
 
-## Getting started
+## Install
 
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/react @react-native-community/netinfo
 ```
 
-Give the client an `AppManager` that reads focus from `AppState` and the connection from `NetInfo`:
+---
+
+## Send a request
+
+Give the client an [`AppManager`](/docs/core/managers) that reads focus from `AppState` and the connection from
+`NetInfo`:
 
 ```ts title="client.ts"
 import { AppState } from "react-native";
@@ -54,6 +57,12 @@ export const client = createClient({
     }),
   // highlight-end
 });
+
+export const getUsers = client.createRequest<{
+  response: { id: number; name: string }[];
+}>()({
+  endpoint: "/users",
+});
 ```
 
 Then use the hooks in your screens:
@@ -62,7 +71,7 @@ Then use the hooks in your screens:
 import { FlatList, Text } from "react-native";
 import { useFetch } from "@hyper-fetch/react";
 
-import { getUsers } from "./requests";
+import { getUsers } from "./client";
 
 export function UsersScreen() {
   const { data, loading, error } = useFetch(getUsers);
@@ -80,10 +89,24 @@ export function UsersScreen() {
 }
 ```
 
-:::info Calling a local server
+---
 
-`localhost` on a device or emulator is the device itself. The Android emulator reaches your computer on `10.0.2.2`, and a
-real device needs your computer's LAN address.
+## Runtime quirks
+
+- **Cache**: the [client](/docs/core/client) detects React Native and runs in `"client"` mode, so responses are cached
+  like in a browser. One person uses the app, so there is no other user's data to keep apart.
+- **Calling a local server**: `localhost` on a device or emulator is the device itself. The Android emulator reaches
+  your computer on `10.0.2.2`, and a real device needs your computer's LAN address.
+- **Persistent queues**: to keep offline requests across app restarts, see the
+  [React Native environment](/docs/react/environments/react-native) page.
+
+---
+
+:::secondary Summary
+
+- HyperFetch and its React hooks run in React Native and Expo with no native module.
+- An `AppManager` with `AppState` and `NetInfo` gives HyperFetch focus and network status.
+- The client detects React Native and caches responses like in a browser.
 
 :::
 
@@ -97,7 +120,6 @@ real device needs your computer's LAN address.
   description="Focus, network status and dispatcher queues that survive app restarts with MMKV."
   to="/docs/react/environments/react-native"
 />
-
 <LinkCard
   type="integrations"
   title="Firebase in React Native"
@@ -105,18 +127,4 @@ real device needs your computer's LAN address.
   to="/docs/integrations/adapter-firebase/react-native"
 />
 
-:::note When it's helpful
-
-- Mobile apps that should refetch when the user comes back to them.
-- Apps used on flaky connections, where requests should wait for the network.
-- Teams that share request definitions between a React web app and a React Native app.
-
-:::
-
-:::secondary Summary
-
-- HyperFetch and its React hooks run in React Native and Expo with no native module.
-- An `AppManager` with `AppState` and `NetInfo` gives HyperFetch focus and network status.
-- The React Native environment page adds persistent queues for offline-first apps.
-
-:::
+See the [offline guide](/docs/guides/core/advanced/offline) for how held requests resume.

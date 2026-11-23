@@ -7,366 +7,133 @@ sidebar_label: Overview
 
 # DB overview
 
-`@hyper-fetch/db` stores your server data as **collections** of typed rows, one row per record. The requests and socket
-listeners you already have fill them. Components run **live queries** against collections instead of calling
-endpoints, and a write to a row shows at once in every query that contains it.
+<Lead>
+
+**Keep each record once, and show it live in every view.** `@hyper-fetch/db` stores server data as typed collections
+that your requests and sockets fill. Components run live queries, and a write shows at once everywhere.
+
+</Lead>
 
 ```tsx title="posts.tsx"
 import { collection, createDb, eq } from "@hyper-fetch/db";
 import { useLiveQuery } from "@hyper-fetch/react";
 
-// A collection: complete rows of one schema, loaded by an existing request
-// highlight-start
-const Post = collection(PostSchema, { key: "id" })
-  .load(getTeamPosts, { where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } } })
-  .mutate({ update: { request: updatePost, map: (id, changes) => ({ params: { postId: id }, payload: changes }) } });
-// highlight-end
+// Rows of one schema, loaded by a request you already have
+const Post = collection(PostSchema, { key: "id" }).load(getTeamPosts, {
+  where: {
+    teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+  },
+});
 
 export const db = createDb({ post: Post });
 
-const TeamPosts = ({ teamId }: { teamId: number }) => {
-  // highlight-next-line
-  const { data } = useLiveQuery(db.post.where((post) => eq(post.teamId, teamId)));
-
-  return data?.map((post) => (
-    // Shows in this list, in every other query with this post, and reverts if the request fails
-    <p key={post.id} onClick={() => db.post.update(post.id, { title: "Renamed" })}>
-      {post.title}
-    </p>
-  ));
-};
+// One request, then live: every later change to these rows re-renders
+const { data } = useLiveQuery(db.post.where((post) => eq(post.teamId, 1)));
 ```
+
+<Flow caption="Writes go the other way: they show at once and revert if the request fails.">
+  <FlowStep title="Requests" icon="send">
+    Loaders and socket syncs
+  </FlowStep>
+  <FlowStep title="Collection" icon="database" active>
+    Typed rows, one per key
+  </FlowStep>
+  <FlowStep title="Live query" icon="layers">
+    Filter, sort, join
+  </FlowStep>
+  <FlowStep title="Your UI" icon="atom">
+    Re-renders on every change
+  </FlowStep>
+</Flow>
 
 ---
 
 ## When to use it
 
-| Your data                                                                         | Use                                            |
-| --------------------------------------------------------------------------------- | ---------------------------------------------- |
-| Each screen shows its own response, such as a settings page or a report          | [`useFetch`](/docs/react/hooks/use-fetch)  |
-| The same records show in several views, such as a list, a detail and a counter   | `@hyper-fetch/db`                              |
-| Records change from mutations, sockets and other users at the same time           | `@hyper-fetch/db`                              |
-| Writes must work offline and replay in order when the connection returns          | `@hyper-fetch/db`                              |
+| Your data                                                                       | Use                                       |
+| ------------------------------------------------------------------------------- | ----------------------------------------- |
+| Each screen shows its own response, such as a settings page or a report         | [`useFetch`](/docs/react/hooks/use-fetch) |
+| The same records show in several views, such as a list, a detail and a counter | `@hyper-fetch/db`                         |
+| Records change from mutations, sockets and other users at the same time         | `@hyper-fetch/db`                         |
+| Writes must work offline and replay in order when the connection returns        | `@hyper-fetch/db`                         |
 
-A request used by both `useFetch` and a collection keeps two copies of its data, one in the Cache and one in the
-collection, and they do not update each other. Pick one per request.
-
----
-
-## What you get
-
-<Tabs>
-<TabItem value="queries" label="Live queries">
-
-Queries filter, sort and shape rows. The db sends the conditions the loader can send to the backend and runs the rest
-on the returned rows. `explain()` shows the split.
-
-```ts
-import { and, eq, gt } from "@hyper-fetch/db";
-
-const popular = db.post
-  // highlight-next-line
-  .where((post) => and(eq(post.teamId, 1), gt(post.likes, 10)))
-  .orderBy((post) => post.createdAt, "desc")
-  .select((post) => ({ id: post.id, title: post.title }));
-
-popular.explain(); // the loader, what is sent, what runs locally, which syncs keep it live
-```
-
-</TabItem>
-<TabItem value="writes" label="Optimistic writes">
-
-A write shows at once as an optimistic layer. When the request fails, the db reverts exactly what the write changed.
-Like `send()`, a write never rejects.
-
-```ts
-// highlight-next-line
-const { success, error } = await db.post.update(1, { title: "Renamed" });
-
-// Several writes that belong together are kept or reverted as a whole
-await db.transaction((tx) => {
-  tx.post.update(1, { status: "published" });
-  tx.post.update(2, { status: "archived" });
-});
-```
-
-</TabItem>
-<TabItem value="syncs" label="Realtime syncs">
-
-Socket listeners keep loaded rows current. Insert, update and delete messages reach every query that holds the row,
-without a refetch.
-
-```ts
-const Post = collection(PostSchema, { key: "id" })
-  .load(getTeamPosts, { where: byTeam })
-  // highlight-start
-  .sync(onPostCreated, { type: "insert", where: byTeam })
-  .sync(onPostChanged, { type: "update", where: byTeam })
-  .sync(onPostDeleted, { type: "delete", where: byTeam });
-  // highlight-end
-```
-
-</TabItem>
-<TabItem value="related" label="Related data">
-
-Join related rows into query results. The joined rows load in one batched request.
-
-```ts
-db.post
-  .where((post) => eq(post.teamId, 1))
-  // highlight-next-line
-  .join("author", db.user, (post) => post.authorId); // each row gets `author: User | undefined`
-```
-
-</TabItem>
-<TabItem value="offline" label="Offline">
-
-With `offline`, writes go through a persisted outbox. One browser tab replays them in order when the connection
-returns, and each write's id can travel as an idempotency key.
-
-```ts
-const db = createDb(collections, {
-  // highlight-start
-  offline: { retryable: (response) => response.status !== 422 },
-  persistence: { storage: localStorage, scope: userId, version: 1 },
-  // highlight-end
-});
-```
-
-</TabItem>
-</Tabs>
+A request used by both `useFetch` and a collection keeps two copies of its data that do not update each other. Pick
+one per request.
 
 ---
 
-## How data flows
+## The building blocks
 
-```mermaid
-flowchart LR
-  Req["Requests"] -- loaders --> C[("Collections<br/>typed rows by key")]
-  Sock["Socket listeners"] -- syncs --> C
-  C --> Q["Live queries<br/>where · orderBy · join"]
-  Q --> UI["Components<br/>useLiveQuery"]
-  UI -- "insert · update · delete" --> W["Optimistic layer<br/>and outbox"]
-  W --> C
-  W -- "mutation requests" --> Req
-```
-
-The pages below go through each part in detail. The [quick start](/docs/db/quick-start.mdx) builds the example above
-step by step.
-
----
-## Collections
-
-A collection is a typed set of **complete rows**, defined by a [Standard Schema](https://standardschema.dev) such as a
-Zod, Valibot or ArkType schema, and a key. Every row has every field of the schema, so a query can use any of them.
-
-```ts
-import { collection, createDb, rowType } from "@hyper-fetch/db";
-
-const Post = collection(PostSchema, { key: "id", version: "updatedAt" });
-const Draft = collection(rowType<Draft>(), { key: "id" }); // no schema, writes are not validated
-
-const db = createDb({ post: Post, draft: Draft });
-```
-
-When a list returns summaries and a detail returns more fields, they are two collections, such as `postSummary` and
-`post`. `version` names a field that grows with every change on the server: a write never replaces fields with a newer
-version.
+<Tiles>
+  <Tile title="Collections" icon="database" to="/docs/guides/db/basics/thinking-in-collections">
+    Complete rows of one schema, identified by a key.
+  </Tile>
+  <Tile title="Loaders" icon="send" to="/docs/guides/db/basics/loaders">
+    Map query conditions to the request that returns rows.
+  </Tile>
+  <Tile title="Live queries" icon="layers" meta="useLiveQuery" to="/docs/guides/db/basics/live-queries">
+    Filter and sort rows. What the loader can't send runs locally.
+  </Tile>
+  <Tile title="Optimistic writes" icon="zap" to="/docs/guides/db/basics/optimistic-writes">
+    Show at once, revert only what failed. Never throw.
+  </Tile>
+  <Tile title="Realtime sync" icon="radio" to="/docs/guides/db/basics/realtime-sync">
+    Socket messages update every query that holds the row.
+  </Tile>
+  <Tile title="Errors and debugging" icon="wrench" to="/docs/guides/db/production/debugging">
+    `db.onError`, `explain()` and `inspect()`.
+  </Tile>
+</Tiles>
 
 ---
 
-## Loaders
+## Patterns
 
-A loader is a request plus the way to read complete rows from its response. A list loader declares the operators each
-field can send and whether it is paginated. A loader with `byKey` or `byKeys` reads rows by key.
-
-```ts
-const Post = collection(PostSchema, { key: "id" })
-  .load(getTeamPosts, {
-    rows: (response) => response.data.items,
-    where: {
-      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
-      likes: { gt: (likes) => ({ queryParams: { likes_gt: likes } }) },
-    },
-    orderBy: {
-      createdAt: (direction) => ({
-        queryParams: { sort: `createdAt:${direction}` },
-      }),
-    },
-  })
-  .load(getPostsByIds, { byKeys: (ids) => ({ queryParams: { ids } }) });
-```
-
-- The rows `rows` returns, or the response's items without it, must be exactly the schema's row. Otherwise the loader
-  returns a `RowMismatch` and `createDb` does not compile.
-- `fixed` declares conditions the endpoint applies on its own, such as `{ archived: false }`.
-- `serverOnly` names fields the backend compares differently from the client, so queries on them are never answered
-  from rows the db holds.
-- `.resource(sdk.posts, { item: "$postId" })` derives the list, the by-key loader and the mutations from REST
-  conventions of an SDK resource.
-
----
-
-## Queries
-
-```ts
-import { and, eq, gt } from "@hyper-fetch/db";
-
-const query = db.post
-  .where((post) => and(eq(post.teamId, 1), gt(post.likes, 10)))
-  .orderBy((post) => post.createdAt, "desc")
-  .select((post) => ({ id: post.id, title: post.title }));
-
-query.explain(); // the loader, what is sent, what runs locally and which syncs keep it live
-```
-
-- The db splits `where` at its top-level `and`: conditions the loader declares go to the backend, the rest run on the
-  returned rows.
-- A query that sets no loader's required filters does not compile. A paginated loader has to send every condition and
-  order of a query.
-- `findOne(key)` reads a row by key, and `.local()` reads only rows the db holds.
-- `op("search", post.title, text)` is a server-only operator, such as full-text search. The loader maps it like any
-  operator, as in `title: { search: (text: string) => ({ queryParams: { q: text } }) }`, and a query that uses one
-  must send it. Its subset never answers other queries, and a new row marks it stale instead of joining it.
-- For lists that grow page by page, see [`useLiveInfiniteQuery`](/docs/react/db/use-live-infinite-query).
-- `subscribe`, `getSnapshot` and `get` work without React. In React, use [`useLiveQuery`](/docs/react/db/use-live-query).
+<Tiles cols={3}>
+  <Tile title="Related data" icon="network" to="/docs/db/related-data">
+    Links, normalized records and joins.
+  </Tile>
+  <Tile title="Transactions" icon="boxes" to="/docs/db/transactions">
+    Keep or revert several writes together.
+  </Tile>
+  <Tile title="Offline-first" icon="offline" to="/docs/guides/db/patterns/offline-first">
+    Persisted rows and an outbox that replays.
+  </Tile>
+  <Tile title="Infinite scroll" icon="list" to="/docs/guides/db/basics/infinite-scroll">
+    Lists that grow page by page.
+  </Tile>
+  <Tile title="Search and server filters" icon="compass" to="/docs/guides/db/patterns/search-and-server-filters">
+    Conditions only the backend can answer.
+  </Tile>
+  <Tile title="From a REST SDK" icon="braces" to="/docs/guides/db/patterns/rest-resources">
+    Loaders and writes from one `.resource()` call.
+  </Tile>
+  <Tile title="Server rendering" icon="server" to="/docs/db/server-rendering">
+    A db per request, sent with the page.
+  </Tile>
+  <Tile title="Firestore" icon="plug" to="/docs/db/firestore">
+    A whole collection in one call.
+  </Tile>
+  <Tile title="Testing" icon="flask" to="/docs/guides/db/production/testing">
+    Mock loaders, writes and socket syncs.
+  </Tile>
+</Tiles>
 
 ---
 
-## Syncs and ingest
+## Next
 
-```ts
-const byTeam = { teamId: { eq: (teamId) => ({ params: { teamId } }) } };
-
-collection(PostSchema, { key: "id" })
-  .sync(onPostCreated, { type: "insert", where: byTeam })
-  .sync(onPostChanged, { type: "update", where: byTeam })
-  .sync(onPostDeleted, { type: "delete", where: byTeam })
-  .ingest(searchPosts, { rows: (response) => response.results });
-```
-
-`insert` messages carry complete rows, `update` messages the key and changed fields, `delete` messages the key. A loaded
-subset is fresh while its syncs deliver all three, and refetches after a reconnect unless the sync `resumes`.
-
----
-
-## Related data
-
-```ts
-const db = createDb({ post: Post, postSummary: PostSummary, user: User }, { links: [["post", "postSummary"]] });
-
-db.postSummary.where((post) => eq(post.teamId, 1)).join("author", db.user, (post) => post.authorId);
-```
-
-Links keep two shapes of the same record in step, `normalize` writes nested records into their own collections, and
-joins add the related row to each result. See [Related data](/docs/db/related-data). For Firestore,
-`firestoreCollection` declares a whole collection in one call, see [Firestore](/docs/db/firestore).
-
----
-
-## Writes
-
-```ts
-collection(PostSchema, { key: "id" }).mutate({
-  update: {
-    request: updatePost,
-    map: (key, changes) => ({ params: { postId: key }, payload: changes }),
-  },
-  delete: {
-    request: deletePost,
-    map: (key) => ({ params: { postId: key } }),
-    onSuccess: "keep",
-  },
-});
-
-const result = await db.post.update(1, { title: "Renamed" });
-```
-
-A write shows at once as an optimistic layer and reverts exactly what it changed when it fails. Writes to one row go
-out in order. A response that is not the row needs `onSuccess`: `"keep"`, `"refetch"` or `"sync"`. Like `send()`, a
-write never rejects.
-
-With `offline: true`, writes go through a persisted outbox that one tab replays in order. Each write's id is passed to
-`map`, so it can be sent as an idempotency key.
-
-Several writes that belong together go in one [transaction](/docs/db/transactions), kept or reverted as a whole. An
-insert of a key the db already holds, and an update that changes a row's key, resolve with an error and send nothing.
-
----
-
-## Errors
-
-Requests, writes and queries never throw. What fails is reported to `db.onError`:
-
-```ts
-db.onError(({ type, error, collection }) => report(type, error));
-```
-
-| `type`        | What failed                                                                    |
-| ------------- | ------------------------------------------------------------------------------ |
-| `mutation`    | A write the server rejected, or one dropped because a write it depends on was  |
-| `validation`  | A row or write the collection's schema rejected                                |
-| `load`        | A load whose mapping threw, such as `rows` reading a response it did not expect |
-| `sync`        | A sync event whose mapping threw. The next events still apply.                 |
-| `outbox`      | A stored write this db cannot replay, or an outbox of another format           |
-| `persistence` | Storage that failed or holds data this version cannot read                     |
-| `subscriber`  | A query listener that threw. The other listeners are still notified.           |
-
-A failed load keeps the rows the query showed and sets `error` on it, and the next refetch tries again.
-
----
-
-## Server rendering and devtools
-
-- On the server, create a db per request, load with `query.get()` and send `db.dehydrate()` with the page. See
-  [Server rendering](/docs/db/server-rendering).
-- Persisted and dehydrated values are stored as type-tagged JSON, so `Date`, `bigint`, `Map` and `Set` come back as
-  they were. Other types need a codec in the `codecs` option of `createDb`.
-- `db.inspect()` describes what the db holds, and the devtools plugin's `dbs` option shows it in the
-  [DB Inspector](/docs/hyper-flow/features/db) of HyperFlow.
-
----
-
-## Next steps
-
-<LinkCard
-  type="guides"
-  title="DB Guides"
-  description="Task-focused guides that build one app: loaders, live queries, optimistic writes, real-time sync, offline-first and more."
-  to="/docs/guides/db/basics/thinking-in-collections"
-/>
-
-<div className="row">
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Quick start"
-      description="From a request to a live query and an optimistic write in four steps."
-      to="/docs/db/quick-start"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Related data"
-      description="Links, normalized nested records and joins."
-      to="/docs/db/related-data"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="useLiveQuery"
-      description="Run live queries in React components."
-      to="/docs/react/db/use-live-query"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="promo"
-      title="DB Inspector in HyperFlow"
-      description="See collections, loaded subsets, live query plans and the outbox."
-      to="/docs/hyper-flow/features/db"
-    />
-  </div>
-</div>
+<Tiles>
+  <Tile title="Quick start" icon="rocket" meta="5 min" to="/docs/db/quick-start">
+    From a request to a live query and a write in four steps.
+  </Tile>
+  <Tile title="DB guides" icon="learn" to="/docs/guides/db/basics/thinking-in-collections">
+    Build one app step by step, from loaders to offline.
+  </Tile>
+  <Tile title="DB Inspector" icon="activity" to="/docs/hyper-flow/features/db">
+    See collections, query plans and the outbox in HyperFlow.
+  </Tile>
+  <Tile title="API reference" icon="book" meta="collection" to="/docs/api/db/Functions/collection">
+    Every option of `collection` and `createDb`.
+  </Tile>
+</Tiles>
