@@ -110,10 +110,14 @@ client.adapter.setHeaderMapper((headers, config) => {
 The payload mapper transforms the request body before it is sent. By default, it handles FormData and JSON. You can
 provide your own logic for custom serialization or encryption.
 
+It is called with the raw payload of the request and the value set with `setPayloadMapperConfig`. One adapter serves
+every request of the client, so the payload is typed as `unknown`. Requests with their own `request.setPayloadMapper`
+skip the adapter's mapper.
+
 ```ts
-client.adapter.setPayloadMapper((payload, config) => {
+client.adapter.setPayloadMapperConfig({ key: "secret" }).setPayloadMapper((payload, config) => {
   // Encrypt or transform payload
-  return encryptPayload(payload);
+  return encryptPayload(payload, config);
 });
 ```
 

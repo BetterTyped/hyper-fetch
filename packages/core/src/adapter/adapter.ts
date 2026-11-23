@@ -274,12 +274,19 @@ export class Adapter<
   };
 
   /**
-   * Set the request payload mapping function which gets triggered before request is send
+   * Set the payload mapping function which runs before every request is sent.
+   * It is called with the raw payload and the value set with `setPayloadMapperConfig`,
+   * and its return value is the body passed to the adapter.
+   * Requests with their own `request.setPayloadMapper` skip it.
+   * @example
+   * ```ts
+   * client.adapter.setPayloadMapper((payload, config) => encrypt(JSON.stringify(payload), config));
+   * ```
    */
   setPayloadMapper = <NewMapper extends AdapterPayloadMappingType>(payloadMapper: NewMapper) => {
-    this.unstable_payloadMapper = ((req: Parameters<NewMapper>[0]) =>
+    this.unstable_payloadMapper = ((payload: Parameters<NewMapper>[0]) =>
       payloadMapper(
-        req,
+        payload,
         this.unstable_payloadMapperConfig as Parameters<NewMapper>[1],
       )) as unknown as PayloadMapperType;
     return this as unknown as Adapter<
