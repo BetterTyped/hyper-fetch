@@ -2829,10 +2829,10 @@ html[data-nav-scrolled] .navbar__inner::before {
   @apply bg-zinc-800 !text-white;
 }
 
-/* Cards are articles too, so they drop the post separators */
+/* Cards are articles too: they keep their own frame instead of the post separators */
 article.blog-card,
 article.blog-card:last-of-type {
   margin: 0;
-  padding: 0;
-  border: 0;
+  padding: 0.5rem;
+  border-width: 1px;
 }
