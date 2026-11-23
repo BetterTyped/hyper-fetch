@@ -55,11 +55,12 @@ export const Integrations = () => {
         <div className="pt-2">
           <div className="text-left">
             <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-green-500 to-orange-500 dark:from-green-500 dark:to-green-200 pb-3">
-              Integrations & Add-ons
+              Integrations
             </div>
-            <Title>Make it your own</Title>
+            <Title>Connect HyperFetch to your stack</Title>
             <Description className="text-lg text-slate-400">
-              Unlock the full potential of your workflow, ensuring a cohesive and productive environment.
+              Packages that type your client from your backend, adapters for every API, and guides for the frameworks,
+              runtimes and apps you ship.
             </Description>
           </div>
         </div>
