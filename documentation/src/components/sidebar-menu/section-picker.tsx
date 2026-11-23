@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useId,
   useLayoutEffect,
@@ -57,6 +58,12 @@ const hasLightTile = (item: SidebarItem) =>
 const isOverviewItem = (item: SidebarItem) =>
   item.section.category.toLowerCase() === "docs" ||
   item.section.dir === "getting-started";
+
+/** The overview gets its own group, listed first, so it can be picked like any other entry */
+const OVERVIEW_GROUP: PickerGroup = {
+  title: "Getting started",
+  short: "Getting started",
+};
 
 /** The logo on its tile. `glow` adds a blurred tile in the brand color behind it. */
 export const IconTile = ({
@@ -265,7 +272,7 @@ export const SectionPicker = ({
   items,
   activeItem,
   noun,
-  groupOf,
+  groupOf: areaGroupOf,
   groupIndexOf,
   overview,
 }: SectionPickerProps) => {
@@ -289,14 +296,18 @@ export const SectionPicker = ({
   };
 
   const overviewItem = items.find(isOverviewItem);
-  // Kept in group order, so each group heading shows once
-  const entries = useMemo(
-    () =>
-      items
-        .filter((item) => item !== overviewItem)
-        .sort((a, b) => groupIndexOf(a) - groupIndexOf(b)),
-    [items, overviewItem, groupIndexOf],
+  const groupOf = useCallback(
+    (item: SidebarItem) =>
+      item === overviewItem ? OVERVIEW_GROUP : areaGroupOf(item),
+    [overviewItem, areaGroupOf],
   );
+  // Kept in group order, so each group heading shows once. The overview leads the list.
+  const entries = useMemo(() => {
+    const rest = items
+      .filter((item) => item !== overviewItem)
+      .sort((a, b) => groupIndexOf(a) - groupIndexOf(b));
+    return overviewItem ? [overviewItem, ...rest] : rest;
+  }, [items, overviewItem, groupIndexOf]);
   const groups = useMemo(
     () => [...new Set(entries.map((item) => groupOf(item).title))],
     [entries, groupOf],
@@ -615,7 +626,12 @@ export const SectionPicker = ({
                 <div className="mt-1 text-xs font-medium text-zinc-500">
                   {groupOf(preview).title}
                 </div>
-                {preview.section.isPackage ? (
+                {preview === overviewItem ? (
+                  <span className="mt-3 inline-flex w-fit items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-[11px] font-semibold text-zinc-300 ring-1 ring-inset ring-white/10">
+                    <OverviewIcon className="h-3 w-3" aria-hidden />
+                    Start here
+                  </span>
+                ) : preview.section.isPackage ? (
                   <span className="mt-3 inline-flex w-fit items-center gap-1 rounded-full bg-amber-400/10 px-2 py-0.5 text-[11px] font-semibold text-amber-300 ring-1 ring-inset ring-amber-400/20">
                     <Package className="h-3 w-3" aria-hidden />
                     Official package
@@ -723,7 +739,7 @@ export const SectionPicker = ({
           </span>
           <span className="truncate text-[11px] font-medium text-zinc-500">
             {isOverview
-              ? `${entries.length} ${noun.many}`
+              ? `${entries.length - 1} ${noun.many}`
               : shortOf(groupOf(activeItem).title)}
           </span>
         </span>

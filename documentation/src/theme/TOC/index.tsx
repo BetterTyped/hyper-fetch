@@ -64,9 +64,7 @@ export default function TOC({ className, ...props }: Props): React.ReactNode {
           </span>
         </a>
 
-        <h6 className="text-[16px] font-bold uppercase ml-[4px]">
-          On this page
-        </h6>
+        <h6>On this page</h6>
         <div
           className={clsx(
             styles.tableOfContents,

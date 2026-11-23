@@ -20,6 +20,9 @@ export const VersionTag = ({ to, label, className }: VersionTagProps) => (
     )}
   >
     <span className="size-1 rounded-full bg-[#fbc646] shadow-[0_0_8px_rgba(251,198,70,0.8)]" />
-    <span className="bt-gold-text">{label}</span>
+    {/* Sized on the span: the global `span` rule sets 17px and would fill the whole tag */}
+    <span className="bt-gold-text text-[10.5px] font-semibold leading-none">
+      {label}
+    </span>
   </Link>
 );
