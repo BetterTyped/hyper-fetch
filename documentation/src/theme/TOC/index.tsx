@@ -5,7 +5,7 @@ import type { Props } from "@theme/TOC";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
 import { modules } from "@site/src/modules";
 import { PackageDetails } from "@site/src/components";
-import { HypeStackCard } from "@site/src/components/hype-stack-card/hype-stack-card";
+import { SponsorRail } from "@site/src/components/sponsors/sponsor-rail";
 
 import styles from "./styles.module.css";
 
@@ -71,25 +71,7 @@ export default function TOC({ className, ...props }: Props): React.ReactNode {
           />
         </div>
 
-        <HypeStackCard />
-
-        <div className={styles.sponsorsSection}>
-          <a
-            href="https://github.com/sponsors/prc5"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.sponsorsImage}
-          >
-            {/* The image is a wide canvas with the logos in its middle third, so it is cropped to them and scaled up */}
-            <img
-              src="https://github.com/prc5/sponsors/blob/main/packages/all/sponsorkit/sponsors.png?raw=true"
-              alt="Our Sponsors"
-              width={1667}
-              height={646}
-              loading="lazy"
-            />
-          </a>
-        </div>
+        <SponsorRail />
       </div>
     </div>
   );

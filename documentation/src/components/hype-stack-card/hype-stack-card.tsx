@@ -4,12 +4,11 @@ import "./hype-stack-card.css";
 
 /*
  * The card that sends a reader on to Hype Stack, the full stack template made by the same people. It is always one
- * line: a small label, the headline and an orange arrow. Beside a docs page it sits in the right column, above the
- * sponsors. On every page without that column, and on a screen too narrow to show it, it sits in the corner of the
- * window.
+ * line: a small label, the headline and an orange arrow. It sits in the corner of the window on every page without
+ * the right column, and on a screen too narrow to show it. Where the column shows, its partners take over.
  */
 
-type Campaign = "docs-sidebar" | "docs-float";
+type Campaign = "docs-float";
 
 const link = (campaign: Campaign) =>
   `https://www.hype-stack.dev/?ref=hyper-fetch&utm_source=hyper-fetch&utm_medium=referral&utm_campaign=${campaign}`;
@@ -43,16 +42,7 @@ function Card({ campaign }: { campaign: Campaign }) {
   );
 }
 
-/** The card in the right column of a docs page, above the sponsors. */
-export function HypeStackCard() {
-  return (
-    <div className="hs-ad-rail">
-      <Card campaign="docs-sidebar" />
-    </div>
-  );
-}
-
-/** The same card pinned to the corner of the window, on pages without the right column. */
+/** The card pinned to the corner of the window, on pages without the right column. */
 export function HypeStackFloat() {
   return (
     <aside className="hs-ad-float" aria-label="From Hype Stack">

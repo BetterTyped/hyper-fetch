@@ -23,19 +23,13 @@
 
 .tableOfContents {
   overflow-y: auto;
-  /* What is left of the window after the sponsor button above, the Hype Stack card and the sponsors below. */
-  max-height: max(132px, calc(100vh - 420px - 368px));
+  /* What is left of the window after the buttons above and the partners and sponsors below. */
+  max-height: max(132px, calc(100vh - 420px - 300px));
 }
 
-/* A shrunk card, or one without its picture on a short window, gives the room back to the headings. */
-.tocContent:has(:global(.hs-ad-rail[data-small])) .tableOfContents {
-  max-height: max(132px, calc(100vh - 420px - 172px));
-}
-
-@media (max-height: 880px) {
-  .tocContent:not(:has(:global(.hs-ad-rail[data-small]))) .tableOfContents {
-    max-height: max(132px, calc(100vh - 420px - 248px));
-  }
+/* Paid partners with logo tiles make the partners block taller, so the headings get less room. */
+.tocContent:has(:global(.bt-sp-tiles)) .tableOfContents {
+  max-height: max(132px, calc(100vh - 420px - 400px));
 }
 
 .tableOfContents a {
@@ -48,16 +42,6 @@
 
 .tableOfContents :global(a:not(.table-of-contents__link--active)) {
   @apply !text-zinc-400;
-}
-
-/* Sponsors section */
-.sponsorsSection {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  padding-top: 16px;
-  border-top: 1px solid hsl(240 3.7% 20%);
 }
 
 /* Sponsor button — override `main a`, `main a > span`, `main a > div`, `main a > p` from custom.css */
@@ -142,37 +126,6 @@
 
 .sponsorButton span {
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12));
-}
-
-/* Sponsors image link — prevent yellow color leak */
-:global(main) .sponsorsImage,
-:global(main) .sponsorsImage:hover {
-  color: inherit !important;
-  text-decoration: none !important;
-}
-
-/* Shows the middle 758px of the 1667px canvas, where sponsorkit centres the logos, at the full sidebar width */
-.sponsorsImage {
-  position: relative;
-  display: block;
-  width: 100%;
-  aspect-ratio: 758 / 646;
-  overflow: hidden;
-  transition: opacity 0.2s ease;
-}
-
-.sponsorsImage:hover {
-  opacity: 0.85;
-}
-
-.sponsorsImage img {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 220%;
-  max-width: none;
-  height: auto;
-  transform: translateX(-50%);
 }
 
 /* Enable if you want to hide empty sidebar */
