@@ -1,7 +1,7 @@
 import { sleep } from "@hyper-fetch/testing";
 import type { CacheValueType } from "cache";
 import { Client } from "client";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 import { Plugin } from "plugin";
 
 import { createCache } from "../../utils";
@@ -19,7 +19,7 @@ describe("Cache [ Events ]", () => {
     error: null,
     status: 200,
     success: true,
-    extra: xhrExtra,
+    extra: httpExtra,
     retries: 0,
     requestTimestamp: Date.now(),
     responseTimestamp: Date.now(),
@@ -149,7 +149,7 @@ describe("Cache [ Events ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: xhrExtra,
+        extra: httpExtra,
         retries: 0,
         requestTimestamp: Date.now(),
         responseTimestamp: Date.now(),
@@ -170,7 +170,7 @@ describe("Cache [ Events ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: xhrExtra,
+        extra: httpExtra,
         retries: 0,
         requestTimestamp: Date.now(),
         responseTimestamp: Date.now(),

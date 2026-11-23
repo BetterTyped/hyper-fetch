@@ -9,7 +9,7 @@ import type {
   ExtractAdapterStatusType,
   ExtractAdapterExtraType,
 } from "@hyper-fetch/core";
-import { xhrExtra } from "@hyper-fetch/core";
+import { httpExtra } from "@hyper-fetch/core";
 
 export const createCacheData = <T extends RequestInstance>(
   request: T,
@@ -27,7 +27,7 @@ export const createCacheData = <T extends RequestInstance>(
     error: null,
     status: 200 as unknown as ExtractAdapterStatusType<ExtractAdapterType<T>>,
     success: true,
-    extra: xhrExtra as unknown as ExtractAdapterExtraType<ExtractAdapterType<T>>,
+    extra: httpExtra as unknown as ExtractAdapterExtraType<ExtractAdapterType<T>>,
     requestTimestamp: Date.now(),
     responseTimestamp: Date.now(),
   };

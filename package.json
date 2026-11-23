@@ -133,6 +133,7 @@
       "@swc/core": "^1.15.30"
     },
     "onlyBuiltDependencies": [
+      "electron-winstaller",
       "fs-xattr",
       "macos-alias"
     ],

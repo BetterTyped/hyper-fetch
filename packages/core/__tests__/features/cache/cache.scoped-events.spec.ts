@@ -1,5 +1,5 @@
 import { Client } from "client";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 import { scopeKey } from "request";
 
 const createResponse = (data: unknown) => ({
@@ -7,7 +7,7 @@ const createResponse = (data: unknown) => ({
   error: null,
   status: 200,
   success: true as const,
-  extra: xhrExtra,
+  extra: httpExtra,
   retries: 0,
   isCanceled: false,
   isOffline: false,

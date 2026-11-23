@@ -1,6 +1,6 @@
 import type { CacheAsyncStorageType, CacheStorageType, CacheValueType } from "cache";
 import type { HttpAdapterType } from "http-adapter";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 import type { ResponseDetailsType } from "managers";
 
 /**
@@ -109,7 +109,7 @@ export const createCacheResponse = <Data>(
   error: null,
   status: 200,
   success: true,
-  extra: xhrExtra,
+  extra: httpExtra,
   ...createResponseDetails(),
   ...overrides,
 });
@@ -125,7 +125,7 @@ export const createCacheErrorResponse = <Error>(
   error,
   status: 400,
   success: false,
-  extra: xhrExtra,
+  extra: httpExtra,
   ...createResponseDetails(),
   ...overrides,
 });
@@ -140,7 +140,7 @@ export const createCacheValue = <Data = unknown>(
   error: null,
   status: 200,
   success: true,
-  extra: xhrExtra,
+  extra: httpExtra,
   ...createResponseDetails(),
   cacheKey: "cache-key",
   scope: null,

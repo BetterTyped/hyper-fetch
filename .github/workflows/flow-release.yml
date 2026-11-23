@@ -52,8 +52,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Not ubuntu-latest: from Ubuntu 26.04 on, rpmbuild (4.20+) runs %install in a per-build subdirectory of
+          # BUILD, and electron-installer-redhat's spec still copies `usr/*` relative to BUILD, so MakerRpm fails with
+          # "cp: cannot stat 'usr/*'". 24.04 ships rpm 4.18. Move on once the installer's spec copies from %{_topdir}.
           - name: Linux
-            os: ubuntu-latest
+            os: ubuntu-24.04
           - name: Mac
             os: macos-latest
           - name: Windows
@@ -114,6 +117,13 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --filter "hyper-flow..."
+
+      # Squirrel zips the app with vendor/7z.exe, which electron-winstaller's install script copies from the 7z build
+      # for this CPU. pnpm runs that script only because the package is in `pnpm.onlyBuiltDependencies`.
+      - name: Check Squirrel's 7-Zip
+        if: runner.os == 'Windows'
+        working-directory: packages/hyper-flow
+        run: node -e "const p=require('path').join(require('path').dirname(require.resolve('electron-winstaller/package.json')),'vendor','7z.exe'); if(!require('fs').existsSync(p)){console.error('Missing '+p);process.exit(1)}"
 
       - name: Check DMG native modules
         if: runner.os == 'macOS'

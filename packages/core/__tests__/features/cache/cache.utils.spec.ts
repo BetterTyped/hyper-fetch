@@ -1,7 +1,7 @@
 import type { ResponseErrorType, ResponseSuccessType } from "adapter";
 import { getCacheData, getCacheByKey, getInvalidateByKey } from "cache";
 import type { HttpAdapterType } from "http-adapter";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 import type { ResponseDetailsType } from "managers";
 
 describe("Cache [ Utils ]", () => {
@@ -12,14 +12,14 @@ describe("Cache [ Utils ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: xhrExtra,
+        extra: httpExtra,
       } as unknown as Parameters<typeof getCacheData>[0];
       const response = {
         data,
         error: null,
         status: 200,
         success: true,
-        extra: xhrExtra,
+        extra: httpExtra,
       } as unknown as Parameters<typeof getCacheData>[1];
 
       expect(getCacheData(previousResponse, response).data).toBe(data);
@@ -29,14 +29,14 @@ describe("Cache [ Utils ]", () => {
         data: {},
         error: null,
         status: 200,
-        extra: xhrExtra,
+        extra: httpExtra,
       } as ResponseSuccessType<Record<string, string>, HttpAdapterType>;
       const errorResponse: ResponseErrorType<Record<string, string>, HttpAdapterType> & ResponseDetailsType = {
         data: null,
         error: {},
         status: 400,
         success: false,
-        extra: xhrExtra,
+        extra: httpExtra,
         retries: 0,
         requestTimestamp: Date.now(),
         responseTimestamp: Date.now(),
@@ -70,7 +70,7 @@ describe("Cache [ Utils ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: xhrExtra,
+        extra: httpExtra,
         retries: 0,
         requestTimestamp: Date.now(),
         responseTimestamp: Date.now(),
@@ -85,7 +85,7 @@ describe("Cache [ Utils ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: xhrExtra,
+        extra: httpExtra,
         retries: 0,
         requestTimestamp: Date.now(),
         responseTimestamp: Date.now(),
@@ -104,7 +104,7 @@ describe("Cache [ Utils ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: xhrExtra,
+        extra: httpExtra,
         retries: 0,
         requestTimestamp: expect.toBeNumber(),
         responseTimestamp: expect.toBeNumber(),
@@ -119,7 +119,7 @@ describe("Cache [ Utils ]", () => {
         error: {},
         status: 400,
         success: false,
-        extra: xhrExtra,
+        extra: httpExtra,
         retries: 0,
         requestTimestamp: expect.toBeNumber(),
         responseTimestamp: expect.toBeNumber(),

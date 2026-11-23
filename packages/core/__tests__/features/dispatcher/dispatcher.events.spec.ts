@@ -3,7 +3,7 @@ import { waitFor } from "@testing-library/dom";
 import type { AdapterInstance, ResponseType } from "adapter";
 import { getErrorMessage } from "adapter";
 import { Client } from "client";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 import type { ResponseDetailsType } from "managers";
 
 import { createDispatcher, createAdapter } from "../../utils";
@@ -223,7 +223,7 @@ describe("Dispatcher [ Events ]", () => {
         error: getErrorMessage("abort"),
         status: 0,
         success: false,
-        extra: xhrExtra,
+        extra: httpExtra,
         requestTimestamp: expect.toBeNumber(),
         responseTimestamp: expect.toBeNumber(),
       };

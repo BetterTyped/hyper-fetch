@@ -1,5 +1,5 @@
 import type { ExtendRequest, RequestSendType } from "@hyper-fetch/core";
-import { xhrExtra } from "@hyper-fetch/core";
+import { httpExtra } from "@hyper-fetch/core";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { act } from "@testing-library/react";
 
@@ -198,7 +198,7 @@ describe("useSubmit [ Base ]", () => {
       expect(res.data).toBeNull();
       expect(res.error).toBeInstanceOf(Error);
       expect(res.status).toBe(null);
-      expect(res.extra).toStrictEqual(xhrExtra);
+      expect(res.extra).toStrictEqual(httpExtra);
     });
     it("should allow to set data on mapped request", async () => {
       let data: unknown = null;
