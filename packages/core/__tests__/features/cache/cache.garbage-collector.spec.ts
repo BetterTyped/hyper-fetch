@@ -1,6 +1,6 @@
 import { waitFor } from "@testing-library/dom";
 import type { CacheValueType } from "cache";
-import { Client, Time, xhrExtra } from "index";
+import { Client, Time, httpExtra } from "index";
 
 import { createCache, createLazyCacheAdapter } from "../../utils";
 
@@ -14,7 +14,7 @@ describe("Cache [ Garbage Collector ]", () => {
     error: null,
     status: 200,
     success: true,
-    extra: xhrExtra,
+    extra: httpExtra,
     retries: 0,
     requestTimestamp: Date.now(),
     responseTimestamp: Date.now(),

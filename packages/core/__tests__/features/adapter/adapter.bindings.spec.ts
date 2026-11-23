@@ -3,7 +3,7 @@ import type { ResponseType, ResponseErrorType } from "adapter";
 import { getAdapterBindings, getErrorMessage } from "adapter";
 import { Client } from "client";
 import type { FetchAdapterOptionsType, HttpAdapterType } from "http-adapter";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 import { Plugin } from "plugin";
 import type { RequestInstance } from "request";
 
@@ -25,7 +25,7 @@ describe("Adapter [ Bindings ]", () => {
     error: null,
     success: true,
     status: 200,
-    extra: xhrExtra,
+    extra: httpExtra,
   };
   const errorResponse: Omit<
     ResponseType<unknown, unknown, HttpAdapterType>,
@@ -35,7 +35,7 @@ describe("Adapter [ Bindings ]", () => {
     error: data,
     success: false,
     status: 400,
-    extra: xhrExtra,
+    extra: httpExtra,
   };
   const requestConfig: FetchAdapterOptionsType = { timeout: 1000 };
 
@@ -153,7 +153,7 @@ describe("Adapter [ Bindings ]", () => {
         const spy = vi.fn();
         request.client.requestManager.addAbortController(request.abortKey, requestId);
         const controller = getAbortController();
-        const unmount = createAbortListener({ status: 0, extra: xhrExtra, onAbort: spy });
+        const unmount = createAbortListener({ status: 0, extra: httpExtra, onAbort: spy });
         expect(spy).toHaveBeenCalledTimes(0);
         expect(resolveSpy).toHaveBeenCalledTimes(0);
         controller?.abort();
@@ -175,7 +175,7 @@ describe("Adapter [ Bindings ]", () => {
         const spy = vi.fn();
         const resolveSpy = vi.fn();
         const controller = getAbortController();
-        const unmount = createAbortListener({ status: 0, extra: xhrExtra, onAbort: spy });
+        const unmount = createAbortListener({ status: 0, extra: httpExtra, onAbort: spy });
         expect(spy).toHaveBeenCalledTimes(0);
         expect(resolveSpy).toHaveBeenCalledTimes(0);
         unmount();
@@ -193,7 +193,7 @@ describe("Adapter [ Bindings ]", () => {
           internalErrorMapping: (error) => error,
         });
         client.requestManager.abortControllers.clear();
-        expect(() => createAbortListener({ status: 0, extra: xhrExtra, onAbort: () => null })).toThrow();
+        expect(() => createAbortListener({ status: 0, extra: httpExtra, onAbort: () => null })).toThrow();
       });
       it("should call onAbort when signal is aborted", async () => {
         request.client.requestManager.addAbortController(request.abortKey, requestId);
@@ -211,7 +211,7 @@ describe("Adapter [ Bindings ]", () => {
           internalErrorMapping: (error) => error,
         });
 
-        createAbortListener({ status: 0, extra: xhrExtra, onAbort: spy });
+        createAbortListener({ status: 0, extra: httpExtra, onAbort: spy });
 
         expect(spy).toHaveBeenCalledTimes(1);
       });
@@ -228,7 +228,7 @@ describe("Adapter [ Bindings ]", () => {
 
         const resolveSpy = vi.fn();
         const controller = getAbortController();
-        const unmount = createAbortListener({ status: 0, extra: xhrExtra }); // No onAbort provided
+        const unmount = createAbortListener({ status: 0, extra: httpExtra }); // No onAbort provided
 
         expect(resolveSpy).toHaveBeenCalledTimes(0);
         controller?.abort();
@@ -730,7 +730,7 @@ describe("Adapter [ Bindings ]", () => {
         const { responseTimestamp, requestTimestamp, ...response } = await onSuccess({
           data,
           status: 200,
-          extra: xhrExtra,
+          extra: httpExtra,
         });
         expect(response).toEqual(expect.objectContaining(successResponse));
         expect(requestTimestamp).toBeNumber();
@@ -744,7 +744,7 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        await onSuccess({ data, status: 200, extra: xhrExtra });
+        await onSuccess({ data, status: 200, extra: httpExtra });
         expect(onSuccessSpy).toHaveBeenCalledTimes(1);
         expect(onFinishedSpy).toHaveBeenCalledTimes(1);
         expect(onSuccessSpy).toHaveBeenCalledWith({ response: expect.objectContaining(successResponse), request });
@@ -763,7 +763,7 @@ describe("Adapter [ Bindings ]", () => {
           responseTimestamp: expect.toBeNumber(),
           requestTimestamp: expect.toBeNumber(),
         }));
-        const response = await onSuccess({ data, status: 200, extra: xhrExtra });
+        const response = await onSuccess({ data, status: 200, extra: httpExtra });
         client.unstable_onResponseCallbacks = [];
         expect(response).toEqual(expect.objectContaining(successResponse));
       });
@@ -780,7 +780,7 @@ describe("Adapter [ Bindings ]", () => {
           responseTimestamp: expect.toBeNumber(),
           requestTimestamp: expect.toBeNumber(),
         }));
-        const response = await onSuccess({ data, status: 200, extra: xhrExtra });
+        const response = await onSuccess({ data, status: 200, extra: httpExtra });
         client.unstable_onSuccessCallbacks = [];
         expect(response).toEqual(expect.objectContaining(successResponse));
       });
@@ -797,7 +797,7 @@ describe("Adapter [ Bindings ]", () => {
           error: null,
           success: true,
           status: 222,
-          extra: xhrExtra,
+          extra: httpExtra,
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         };
@@ -807,7 +807,7 @@ describe("Adapter [ Bindings ]", () => {
           responseTimestamp: expect.toBeNumber(),
         }));
         client.unstable_onSuccessCallbacks.push(() => newData);
-        const response = await onSuccess({ data, status: 200, extra: xhrExtra });
+        const response = await onSuccess({ data, status: 200, extra: httpExtra });
         client.unstable_onResponseCallbacks = [];
         client.unstable_onSuccessCallbacks = [];
         expect(response).toEqual(expect.objectContaining(newData));
@@ -827,7 +827,7 @@ describe("Adapter [ Bindings ]", () => {
         const { requestTimestamp, responseTimestamp, ...response } = await onError({
           error: data,
           status: 400,
-          extra: xhrExtra,
+          extra: httpExtra,
         });
         expect(response).toEqual(errorResponse);
         expect(requestTimestamp).toBeNumber();
@@ -841,7 +841,7 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        await onError({ error: data, status: 400, extra: xhrExtra });
+        await onError({ error: data, status: 400, extra: httpExtra });
         expect(onErrorSpy).toHaveBeenCalledTimes(1);
         expect(onFinishedSpy).toHaveBeenCalledTimes(1);
         expect(onErrorSpy).toHaveBeenCalledWith({ response: expect.objectContaining(errorResponse), request });
@@ -860,7 +860,7 @@ describe("Adapter [ Bindings ]", () => {
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         }));
-        const response = await onError({ error: data, status: 400, extra: xhrExtra });
+        const response = await onError({ error: data, status: 400, extra: httpExtra });
         client.unstable_onResponseCallbacks = [];
         expect(response).toEqual(expect.objectContaining(errorResponse));
       });
@@ -877,7 +877,7 @@ describe("Adapter [ Bindings ]", () => {
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         }));
-        const response = await onError({ error: data, status: 400, extra: xhrExtra });
+        const response = await onError({ error: data, status: 400, extra: httpExtra });
         client.unstable_onErrorCallbacks = [];
         expect(response).toEqual(expect.objectContaining(errorResponse));
       });
@@ -894,7 +894,7 @@ describe("Adapter [ Bindings ]", () => {
           error: 444,
           success: false,
           status: null,
-          extra: xhrExtra,
+          extra: httpExtra,
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         };
@@ -904,7 +904,7 @@ describe("Adapter [ Bindings ]", () => {
           requestTimestamp: expect.toBeNumber(),
         }));
         client.unstable_onErrorCallbacks.push(() => newData);
-        const response = await onError({ error: data, status: 400, extra: xhrExtra });
+        const response = await onError({ error: data, status: 400, extra: httpExtra });
         client.unstable_onErrorCallbacks = [];
         client.unstable_onResponseCallbacks = [];
         expect(response).toEqual(newData);
@@ -921,13 +921,13 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        const response = await onAbortError({ status: 0, extra: xhrExtra });
+        const response = await onAbortError({ status: 0, extra: httpExtra });
         expect(response).toEqual({
           data: null,
           error: getErrorMessage("abort"),
           status: 0,
           success: false,
-          extra: xhrExtra,
+          extra: httpExtra,
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         } satisfies ResponseErrorType<any, HttpAdapterType>);
@@ -940,13 +940,13 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        const response = await onTimeoutError({ status: 0, extra: xhrExtra });
+        const response = await onTimeoutError({ status: 0, extra: httpExtra });
         expect(response).toEqual({
           data: null,
           error: getErrorMessage("timeout"),
           status: 0,
           success: false,
-          extra: xhrExtra,
+          extra: httpExtra,
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         } satisfies ResponseErrorType<any, HttpAdapterType>);
@@ -959,13 +959,13 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        const response = await onUnexpectedError({ status: 0, extra: xhrExtra });
+        const response = await onUnexpectedError({ status: 0, extra: httpExtra });
         expect(response).toEqual({
           data: null,
           error: getErrorMessage(),
           status: 0,
           success: false,
-          extra: xhrExtra,
+          extra: httpExtra,
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         } satisfies ResponseErrorType<any, HttpAdapterType>);
@@ -983,7 +983,7 @@ describe("Adapter [ Bindings ]", () => {
           internalErrorMapping: (internalError) => ({ mapped: internalError }),
         });
 
-        const response = await bindings[method]({ status: 0, extra: xhrExtra });
+        const response = await bindings[method]({ status: 0, extra: httpExtra });
 
         expect(response.error).toEqual({ mapped: error });
       });

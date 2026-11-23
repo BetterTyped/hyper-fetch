@@ -2,7 +2,7 @@ import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 import type { ResponseSuccessType } from "adapter";
 import { Client } from "client";
 import type { HttpAdapterType } from "http-adapter";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 import type { ResponseDetailsType } from "managers";
 
 import { createCache } from "../../utils";
@@ -15,7 +15,7 @@ describe("Cache [ Base ]", () => {
     error: null,
     status: 200,
     success: true,
-    extra: xhrExtra,
+    extra: httpExtra,
     requestTimestamp: Date.now(),
     responseTimestamp: Date.now(),
   };
@@ -311,7 +311,7 @@ describe("Cache [ Base ]", () => {
         responseTimestamp: Date.now(),
         error: null,
         status: 200,
-        extra: xhrExtra,
+        extra: httpExtra,
         requestTimestamp: Date.now(),
         retries: 0,
         isCanceled: false,
@@ -406,7 +406,7 @@ describe("Cache [ Base ]", () => {
           responseTimestamp: Date.now(),
           error: null,
           status: 200,
-          extra: xhrExtra,
+          extra: httpExtra,
           requestTimestamp: Date.now(),
           retries: 0,
           isCanceled: false,

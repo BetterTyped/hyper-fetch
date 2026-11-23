@@ -1,5 +1,5 @@
 import type { RequestInstance } from "@hyper-fetch/core";
-import { Client, Time, xhrExtra } from "@hyper-fetch/core";
+import { Client, Time, httpExtra } from "@hyper-fetch/core";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { useFetch } from "hooks/use-fetch";
@@ -14,7 +14,7 @@ const createResponse = (data: User): any => ({
   error: null,
   status: 200,
   success: true,
-  extra: xhrExtra,
+  extra: httpExtra,
   requestTimestamp: Date.now(),
   responseTimestamp: Date.now(),
   retries: 0,

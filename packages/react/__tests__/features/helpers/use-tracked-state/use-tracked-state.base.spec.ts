@@ -1,4 +1,4 @@
-import { createClient, xhrExtra } from "@hyper-fetch/core";
+import { createClient, httpExtra } from "@hyper-fetch/core";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 import { act, waitFor } from "@testing-library/react";
 import { initialState } from "helpers";
@@ -66,7 +66,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             retries: 0,
             requestTimestamp: Date.now(),
             responseTimestamp: Date.now(),
@@ -93,7 +93,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             retries: 0,
             requestTimestamp: Date.now(),
             responseTimestamp: Date.now(),
@@ -129,7 +129,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             retries: 0,
             requestTimestamp: Date.now(),
             responseTimestamp: Date.now(),
@@ -166,7 +166,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             retries: 0,
             requestTimestamp: Date.now(),
             responseTimestamp: Date.now(),
@@ -202,7 +202,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             retries: 0,
             requestTimestamp: Date.now(),
             responseTimestamp: Date.now(),
@@ -241,7 +241,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             retries: 0,
             requestTimestamp: Date.now(),
             responseTimestamp: Date.now(),
@@ -298,7 +298,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             retries: 0,
             requestTimestamp: Date.now(),
             responseTimestamp: Date.now(),
@@ -316,7 +316,7 @@ describe("useTrackingState [ Events ]", () => {
           });
         });
 
-        expect(result.current[0]).toStrictEqual(expect.objectContaining({ ...initialState, extra: xhrExtra }));
+        expect(result.current[0]).toStrictEqual(expect.objectContaining({ ...initialState, extra: httpExtra }));
 
         await waitFor(() => {
           expect(result.current[0].data).toBe("new-data");
@@ -336,7 +336,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             retries: 0,
             requestTimestamp: Date.now(),
             responseTimestamp: Date.now(),
@@ -373,7 +373,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             retries: 0,
             requestTimestamp: Date.now(),
             responseTimestamp: Date.now(),
@@ -392,7 +392,7 @@ describe("useTrackingState [ Events ]", () => {
         });
 
         // Initial state should be maintained while processing
-        expect(result.current[0]).toStrictEqual(expect.objectContaining({ ...initialState, extra: xhrExtra }));
+        expect(result.current[0]).toStrictEqual(expect.objectContaining({ ...initialState, extra: httpExtra }));
 
         // Wait for the error to be processed
         await expect(async () => {
@@ -432,7 +432,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             retries: 0,
             requestTimestamp: Date.now(),
             responseTimestamp: Date.now(),
@@ -457,7 +457,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             retries: 0,
             requestTimestamp: Date.now(),
             responseTimestamp: Date.now(),
@@ -508,7 +508,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             retries: 0,
             requestTimestamp: Date.now(),
             responseTimestamp: Date.now(),
@@ -541,7 +541,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             retries: 0,
             requestTimestamp: Date.now(),
             responseTimestamp: Date.now(),

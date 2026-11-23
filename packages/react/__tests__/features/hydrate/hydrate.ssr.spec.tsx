@@ -1,5 +1,5 @@
 import type { ResponseType } from "@hyper-fetch/core";
-import { Client, Time, xhrExtra } from "@hyper-fetch/core";
+import { Client, Time, httpExtra } from "@hyper-fetch/core";
 import { act } from "@testing-library/react";
 import { useFetch } from "hooks/use-fetch";
 import { useSubmit } from "hooks/use-submit";
@@ -20,7 +20,7 @@ const createResponse = (data: User, responseTimestamp = Date.now()): ResponseTyp
   error: null,
   status: 200,
   success: true,
-  extra: xhrExtra,
+  extra: httpExtra,
   requestTimestamp: responseTimestamp,
   responseTimestamp,
 });

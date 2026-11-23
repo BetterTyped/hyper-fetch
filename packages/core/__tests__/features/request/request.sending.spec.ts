@@ -2,7 +2,7 @@ import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 import { waitFor } from "@testing-library/dom";
 import { getErrorMessage } from "adapter";
 import { Client } from "client";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -187,7 +187,7 @@ describe("Request [ Sending ]", () => {
         error: getErrorMessage("deleted"),
         status: null,
         success: false,
-        extra: xhrExtra,
+        extra: httpExtra,
       });
     });
     it("should call remove error", async () => {
@@ -221,14 +221,14 @@ describe("Request [ Sending ]", () => {
         error: getErrorMessage("abort"),
         status: 0,
         success: false,
-        extra: xhrExtra,
+        extra: httpExtra,
       });
       expect(res2).toStrictEqual({
         data: null,
         error: getErrorMessage("abort"),
         status: 0,
         success: false,
-        extra: xhrExtra,
+        extra: httpExtra,
       });
       expect(res3).toStrictEqual({
         data: mock,
@@ -261,14 +261,14 @@ describe("Request [ Sending ]", () => {
         error: getErrorMessage("abort"),
         status: 0,
         success: false,
-        extra: xhrExtra,
+        extra: httpExtra,
       });
       expect(res2).toStrictEqual({
         data: null,
         error: getErrorMessage("abort"),
         status: 0,
         success: false,
-        extra: xhrExtra,
+        extra: httpExtra,
       });
       expect(res3).toStrictEqual({
         data: mock,
@@ -322,7 +322,7 @@ describe("Request [ Sending ]", () => {
           error: null,
           status: 200,
           success: true,
-          extra: xhrExtra,
+          extra: httpExtra,
         });
         expect(fetchSpy).not.toHaveBeenCalled();
       });

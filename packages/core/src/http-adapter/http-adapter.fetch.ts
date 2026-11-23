@@ -3,11 +3,11 @@ import { HttpMethods, SAFE_HTTP_METHODS } from "constants/http.constants";
 import type { HttpMethodsType, HttpStatusType } from "types";
 
 import { Adapter } from "../adapter/adapter";
-import { defaultTimeout, xhrExtra } from "./http-adapter.constants";
+import { defaultTimeout, httpExtra } from "./http-adapter.constants";
 import type { HttpAdapterExtraType, FetchAdapterOptionsType, FetchResponseType } from "./http-adapter.types";
 import { parseErrorResponse, parseResponse, stringifyQueryParams } from "./http-adapter.utils";
 
-const defaultExtra = xhrExtra;
+const defaultExtra = httpExtra;
 
 /**
  * Size in bytes of a body that fetch sends as it is. Form data and streams get their size from the browser while they

@@ -1,7 +1,7 @@
 import type { ResponseType } from "adapter";
 import { Client } from "client";
 import type { HttpAdapterType } from "http-adapter";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 import { LoggerManager } from "managers";
 import type { RequestInstance } from "request";
 
@@ -18,7 +18,7 @@ const createResponse = (
   error: null,
   status: 200,
   success: true,
-  extra: xhrExtra,
+  extra: httpExtra,
   requestTimestamp: Date.now(),
   responseTimestamp: Date.now(),
   ...overrides,
@@ -544,7 +544,7 @@ describe("Client [ Interceptors Pipeline ]", () => {
         error: new Error("Interceptor failed"),
         status: 0,
         success: false,
-        extra: xhrExtra,
+        extra: httpExtra,
         requestTimestamp: 100,
         responseTimestamp: 200,
       });

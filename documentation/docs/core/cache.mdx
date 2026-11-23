@@ -250,9 +250,12 @@ console.log(data); // Note or undefined
 2. ### Writing to Cache
 
 Use the `set` method to store a response for a request. Pass the request instance to ensure correct configuration (cache
-key, scope, `staleTime` and `cacheTime`). `set` takes a full response together with its details:
+key, scope, `staleTime` and `cacheTime`). `set` takes a full response together with its details. `httpExtra` is the
+empty `extra` of the default `HttpAdapter`:
 
 ```tsx
+import { httpExtra } from "@hyper-fetch/core";
+
 const getNote = client.createRequest()({
   method: "GET",
   endpoint: "/notes/:noteId",
@@ -263,7 +266,7 @@ client.cache.set(getNote.setParams({ noteId: 1 }), {
   error: null,
   status: 200,
   success: true,
-  extra: xhrExtra,
+  extra: httpExtra,
   requestTimestamp: Date.now(),
   responseTimestamp: Date.now(),
   // Response details
@@ -299,7 +302,7 @@ client.cache.update(getNote.setParams({ noteId: 1 }), {
   error: null,
   status: 200,
   success: true,
-  extra: xhrExtra,
+  extra: httpExtra,
 });
 
 // Or with a callback

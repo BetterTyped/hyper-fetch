@@ -1,6 +1,6 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { Client } from "client";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 
 import { testCallbacksExecution } from "../../shared";
 import { interceptorCallback } from "../../utils";
@@ -70,7 +70,7 @@ describe("Client [ Interceptor ]", () => {
           error: null,
           status: 400,
           success: false,
-          extra: xhrExtra,
+          extra: httpExtra,
           responseTimestamp: Date.now(),
           requestTimestamp: Date.now(),
         },
@@ -91,7 +91,7 @@ describe("Client [ Interceptor ]", () => {
           error: null,
           status: 400,
           success: false,
-          extra: xhrExtra,
+          extra: httpExtra,
           responseTimestamp: Date.now(),
           requestTimestamp: Date.now(),
         },
@@ -112,7 +112,7 @@ describe("Client [ Interceptor ]", () => {
           error: null,
           status: 400,
           success: false,
-          extra: xhrExtra,
+          extra: httpExtra,
           requestTimestamp: Date.now(),
           responseTimestamp: Date.now(),
         },
@@ -133,7 +133,7 @@ describe("Client [ Interceptor ]", () => {
           error: null,
           status: 400,
           success: false,
-          extra: xhrExtra,
+          extra: httpExtra,
           requestTimestamp: Date.now(),
           responseTimestamp: Date.now(),
         },
@@ -154,7 +154,7 @@ describe("Client [ Interceptor ]", () => {
           error: null,
           status: 400,
           success: false,
-          extra: xhrExtra,
+          extra: httpExtra,
           requestTimestamp: Date.now(),
           responseTimestamp: Date.now(),
         },
@@ -175,7 +175,7 @@ describe("Client [ Interceptor ]", () => {
           error: null,
           status: 400,
           success: false,
-          extra: xhrExtra,
+          extra: httpExtra,
           requestTimestamp: Date.now(),
           responseTimestamp: Date.now(),
         },
