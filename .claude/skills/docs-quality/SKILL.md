@@ -57,7 +57,8 @@ must read the same way: same section order, same headings.
 ```
 
 - `icon` is a key of the `icons` map in overview.tsx. Add an icon there instead of importing lucide in MDX.
-- A `<Flow>` has 3-5 steps of a few words each: it is the one picture of the idea, not a full lifecycle.
+- A `<Flow>` has 3-5 steps of a few words each: it is the one picture of the idea, not a full lifecycle. Step
+  titles are one or two short words and step text is plain words: inline code breaks mid-token in a ~100px step.
 - Tiles replace Purpose and Summary admonitions and "Next steps" LinkCards on entry pages.
 - Style matches the cards maintainers like (integrations index, docs intro): `#1f1f21` tiles, a faint white ring,
   amber icons, an arrow that moves on hover. Keep new components in that language.

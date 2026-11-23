@@ -125,10 +125,8 @@ export const Tile = ({ title, to, icon, meta, children }: TileProps) => {
         </span>
       )}
       <span className="min-w-0 flex-1 pr-5">
-        <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-[15px] font-semibold tracking-[-0.01em] !text-zinc-50">{title}</span>
-          {meta && <span className="font-mono text-[12px] !text-zinc-500">{meta}</span>}
-        </span>
+        <span className="block text-[15px] font-semibold tracking-[-0.01em] !text-zinc-50">{title}</span>
+        {meta && <span className="mt-0.5 block truncate font-mono text-[12px] !text-zinc-500">{meta}</span>}
         {children && (
           <span className="mt-1 block text-[14px] leading-relaxed !text-zinc-400 [&_code]:!text-[12.5px] [&_p]:!my-0 [&_p]:!text-[14px] [&_p]:!leading-relaxed [&_p]:!text-inherit">
             {children}

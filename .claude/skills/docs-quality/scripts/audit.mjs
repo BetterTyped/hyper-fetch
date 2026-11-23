@@ -46,6 +46,8 @@ for (const page of pages.filter((p) => p.includes(filter))) {
     const wide = lines.filter((l) => l.length > max && !(live && l.startsWith("import "))).length;
     if (wide) issues.push(`${wide} ${lang}${live ? " live" : ""} line(s) over ${max - 1} columns`);
   }
+  const stepsWithCode = [...src.matchAll(/<FlowStep[^>]*>([\s\S]*?)<\/FlowStep>/g)].filter((m) => m[1].includes("`"));
+  if (stepsWithCode.length) issues.push(`inline code in ${stepsWithCode.length} FlowStep(s): it breaks mid-token`);
   const next = src.search(/^## Next( steps)?$/m);
   if (next !== -1 && /^:::(secondary|success)/m.test(src.slice(next))) issues.push("summary after Next steps");
   if (issues.length) {
