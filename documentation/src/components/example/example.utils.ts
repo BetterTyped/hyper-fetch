@@ -19,41 +19,11 @@ export const getStackblitzUrl = (path: string, file?: string) => {
   }`;
 };
 
-const STACKBLITZ_ORIGIN = "https://stackblitz.com";
-
 /**
- * Embedded StackBlitz runs the example in a WebContainer, which needs `crossOriginIsolated`. A cross-origin iframe only
- * gets it when all three hold, otherwise StackBlitz shows "Unable to run Embedded Project":
- *
- * 1. The docs page itself is cross-origin isolated (`Cross-Origin-Opener-Policy: same-origin` and
- *    `Cross-Origin-Embedder-Policy: credentialless`), which is up to the host serving the docs.
- * 2. The iframe delegates `cross-origin-isolated` to StackBlitz ({@link STACKBLITZ_IFRAME_ALLOW}).
- * 3. The embed URL has `corp=1`, so StackBlitz serves headers an isolated page accepts.
- *
- * `@stackblitz/sdk` does 2 and 3 with its `crossOriginIsolated` option. Only Chromium browsers support it.
+ * Name of the data file that holds the Sandpack setup of an example, written by the examples plugin at build time and
+ * imported from `@generated/hyper-fetch-examples/default/` when the preview starts.
  */
-export const canEmbedStackblitz = () => typeof window !== "undefined" && window.crossOriginIsolated === true;
-
-/** Permissions the embed iframe delegates to StackBlitz. */
-export const STACKBLITZ_IFRAME_ALLOW = [
-  `cross-origin-isolated ${STACKBLITZ_ORIGIN}`,
-  `clipboard-read ${STACKBLITZ_ORIGIN}`,
-  `clipboard-write ${STACKBLITZ_ORIGIN}`,
-].join("; ");
-
-export const getStackblitzEmbedUrl = (path: string, file?: string) => {
-  const params = new URLSearchParams({
-    embed: "1",
-    corp: "1",
-    theme: "dark",
-    view: "preview",
-    hideNavigation: "1",
-  });
-  if (file) params.set("file", file);
-  return `https://stackblitz.com/github/${EXAMPLES_REPOSITORY}/tree/${EXAMPLES_BRANCH}/${examplePath(
-    path,
-  )}?${params.toString()}`;
-};
+export const getSandboxFileName = (path: string) => `sandbox-${path.replace(/\//g, "-")}.json`;
 
 export const getCodesandboxUrl = (path: string, file?: string) => {
   const params = new URLSearchParams();
