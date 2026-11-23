@@ -55,86 +55,14 @@ collection, and they do not update each other. Pick one per request.
 
 ## What you get
 
-<Tabs>
-<TabItem value="queries" label="Live queries">
-
-Queries filter, sort and shape rows. The db sends the conditions the loader can send to the backend and runs the rest
-on the returned rows. `explain()` shows the split.
-
-```ts
-import { and, eq, gt } from "@hyper-fetch/db";
-
-const popular = db.post
-  // highlight-next-line
-  .where((post) => and(eq(post.teamId, 1), gt(post.likes, 10)))
-  .orderBy((post) => post.createdAt, "desc")
-  .select((post) => ({ id: post.id, title: post.title }));
-
-popular.explain(); // the loader, what is sent, what runs locally, which syncs keep it live
-```
-
-</TabItem>
-<TabItem value="writes" label="Optimistic writes">
-
-A write shows at once as an optimistic layer. When the request fails, the db reverts exactly what the write changed.
-Like `send()`, a write never rejects.
-
-```ts
-// highlight-next-line
-const { success, error } = await db.post.update(1, { title: "Renamed" });
-
-// Several writes that belong together are kept or reverted as a whole
-await db.transaction((tx) => {
-  tx.post.update(1, { status: "published" });
-  tx.post.update(2, { status: "archived" });
-});
-```
-
-</TabItem>
-<TabItem value="syncs" label="Realtime syncs">
-
-Socket listeners keep loaded rows current. Insert, update and delete messages reach every query that holds the row,
-without a refetch.
-
-```ts
-const Post = collection(PostSchema, { key: "id" })
-  .load(getTeamPosts, { where: byTeam })
-  // highlight-start
-  .sync(onPostCreated, { type: "insert", where: byTeam })
-  .sync(onPostChanged, { type: "update", where: byTeam })
-  .sync(onPostDeleted, { type: "delete", where: byTeam });
-  // highlight-end
-```
-
-</TabItem>
-<TabItem value="related" label="Related data">
-
-Join related rows into query results. The joined rows load in one batched request.
-
-```ts
-db.post
-  .where((post) => eq(post.teamId, 1))
-  // highlight-next-line
-  .join("author", db.user, (post) => post.authorId); // each row gets `author: User | undefined`
-```
-
-</TabItem>
-<TabItem value="offline" label="Offline">
-
-With `offline`, writes go through a persisted outbox. One browser tab replays them in order when the connection
-returns, and each write's id can travel as an idempotency key.
-
-```ts
-const db = createDb(collections, {
-  // highlight-start
-  offline: { retryable: (response) => response.status !== 422 },
-  persistence: { storage: localStorage, scope: userId, version: 1 },
-  // highlight-end
-});
-```
-
-</TabItem>
-</Tabs>
+- **[Live queries](#queries)** filter, sort and shape rows; the db sends what the loader can send and runs the rest
+  locally.
+- **[Optimistic writes](#writes)** show at once and revert exactly what they changed when the request fails.
+- **[Realtime syncs](#syncs-and-ingest)** apply socket messages to every query that holds the row, without a refetch.
+- **[Related data](/docs/db/related-data)**: links, normalized nested records and batched joins.
+- **[Transactions](/docs/db/transactions)** keep or revert several writes together.
+- **Offline writes** go through a persisted outbox and replay in order when the connection returns.
+- **[Server rendering](/docs/db/server-rendering)** with a db per request, dehydrated into the page.
 
 ---
 
@@ -151,10 +79,10 @@ flowchart LR
   W -- "mutation requests" --> Req
 ```
 
-The pages below go through each part in detail. The [quick start](/docs/db/quick-start.mdx) builds the example above
-step by step.
+The sections below cover each part. The [quick start](/docs/db/quick-start) builds the example above step by step.
 
 ---
+
 ## Collections
 
 A collection is a typed set of **complete rows**, defined by a [Standard Schema](https://standardschema.dev) such as a
@@ -286,8 +214,15 @@ A write shows at once as an optimistic layer and reverts exactly what it changed
 out in order. A response that is not the row needs `onSuccess`: `"keep"`, `"refetch"` or `"sync"`. Like `send()`, a
 write never rejects.
 
-With `offline: true`, writes go through a persisted outbox that one tab replays in order. Each write's id is passed to
+With `offline`, writes go through a persisted outbox that one tab replays in order. Each write's id is passed to
 `map`, so it can be sent as an idempotency key.
+
+```ts title="db.ts"
+const db = createDb(collections, {
+  offline: { retryable: (response) => response.status !== 422 },
+  persistence: { storage: localStorage, scope: userId, version: 1 },
+});
+```
 
 Several writes that belong together go in one [transaction](/docs/db/transactions), kept or reverted as a whole. An
 insert of a key the db already holds, and an update that changes a row's key, resolve with an error and send nothing.
@@ -328,6 +263,11 @@ A failed load keeps the rows the query showed and sets `error` on it, and the ne
 ---
 
 ## Next steps
+
+- Guides: [loaders](/docs/guides/db/basics/loaders), [live queries](/docs/guides/db/basics/live-queries),
+  [optimistic writes](/docs/guides/db/basics/optimistic-writes), [real-time sync](/docs/guides/db/basics/realtime-sync),
+  [offline-first](/docs/guides/db/patterns/offline-first), [common mistakes](/docs/guides/db/production/common-mistakes).
+- API reference: [`collection`](/docs/api/db/Functions/collection), [`createDb`](/docs/api/db/Functions/createDb).
 
 <LinkCard
   type="guides"

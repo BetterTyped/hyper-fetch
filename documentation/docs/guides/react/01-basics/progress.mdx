@@ -6,20 +6,18 @@ sidebar_label: Upload Progress
 
 # File Upload Progress Bar in React
 
-A file upload with a progress bar needs two things: a transport that reports how many bytes have left the browser, and
-a component that turns those numbers into a bar. This guide covers both. You'll see why a plain `fetch` call can't
-drive a file upload progress bar, which browser API can, and how HyperFetch hands you `progress`, `loaded`, `total`
-and `timeLeft` through `onSubmitUploadProgress` and `onSubmitDownloadProgress` on `useSubmit` (and `onUploadProgress`
-and `onDownloadProgress` on `useFetch`).
+A progress bar needs a transport that reports how many bytes have moved, and a component that turns those numbers into
+a bar. This guide explains why `fetch` cannot report upload progress, which adapter can, and how to build upload and
+download bars with the progress callbacks of [`useSubmit`](/docs/react/hooks/use-submit) and
+[`useFetch`](/docs/react/hooks/use-fetch).
 
 :::secondary What you'll learn
 
 1.  Why the **Fetch API** has no upload progress event, and what **XMLHttpRequest** does differently.
-2.  How to pick an adapter that reports **real upload progress**.
-3.  How to use the **`onSubmitUploadProgress`** and **`onSubmitDownloadProgress`** callbacks (`onUploadProgress` and
-    `onDownloadProgress` on `useFetch`).
-4.  What **progress data** is provided (percentage, time left, size left).
-5.  How to build a **file upload progress bar** component in React.
+2.  Which adapter reports **real upload progress**.
+3.  What the **progress event** contains: percent, bytes and time left.
+4.  How to build an **upload progress bar** with `onSubmitUploadProgress`.
+5.  How to show **download progress** and cancel a transfer.
 
 :::
 
@@ -72,12 +70,12 @@ What fills those numbers depends on the adapter:
   chunk against the `content-length` header. A compressed response (`content-encoding: gzip` and the like) has no known
   total, because `content-length` counts the compressed bytes. There `total` follows `loaded`, so show the `loaded`
   bytes instead of a percentage. Upload progress is a start event and a finish event, so the bar jumps from 0 to 100.
-- The [Axios adapter](../../../integrations/adapter-axios/overview.mdx) wires Axios's `onUploadProgress` into Hyper
+- The [Axios adapter](/docs/integrations/adapter-axios/overview) wires Axios's `onUploadProgress` into Hyper
   Fetch. In a browser Axios runs on XHR, so you get real upload progress while the file is in flight.
 
 For a file upload progress bar, switch the client to Axios. Your requests and hooks don't change:
 
-```ts
+```ts title="api/client.ts"
 import { Client } from "@hyper-fetch/core";
 import { AxiosAdapter } from "@hyper-fetch/axios";
 
@@ -103,7 +101,7 @@ a `Content-Type` header, so the browser writes the multipart boundary itself.
 Here is a small file input with a progress bar. It reads the progress event straight into state and renders the bar
 width from `progress`.
 
-```tsx
+```tsx title="components/avatar-upload.tsx"
 import { useState } from "react";
 import { useSubmit } from "@hyper-fetch/react";
 import { uploadAvatar } from "./api";
@@ -151,12 +149,12 @@ A few details that matter in a real form:
 
 - Reset the bar before each `submit`, or a second upload starts from 100%.
 - Check `timeLeft` for `null`. The estimate needs at least one progress event with a known total.
-- Pair the bar with `abort()` from the same hook if you want a cancel button. See
-  [request cancellation](../../core/02-advanced/cancellation.mdx).
+- Pair the bar with `abort()` from the same hook for a cancel button. See
+  [request cancellation](/docs/guides/core/advanced/cancellation).
 
 You can also pass the callback per call, which is handy outside React:
 
-```ts
+```ts title="Progress without React"
 await uploadAvatar.send({
   payload: formData,
   onUploadProgress: ({ progress }) => console.log(`${progress}% uploaded`),
@@ -165,106 +163,74 @@ await uploadAvatar.send({
 
 ---
 
-## Upload and download progress together
+## Download progress
 
-The same pattern covers downloads. This example uses two `useSubmit` hooks, one for an upload and one for a download,
-and renders a bar for each.
+Download progress works with every adapter, including the default one. Use `onSubmitDownloadProgress` for a download
+started by a click, or `onDownloadProgress` on `useFetch` for data loaded on mount.
 
-:::caution Upload progress with the default adapter
+```tsx title="components/report-download.tsx"
+// getReport = client.createRequest<{ response: Blob }>()({ endpoint: "/reports/latest" })
+export function ReportDownload() {
+  const [loaded, setLoaded] = useState({ progress: 0, bytes: 0 });
+  const { submit, submitting, abort, onSubmitDownloadProgress } = useSubmit(getReport);
 
-The default HTTP adapter uses `fetch`, which has no upload events. It reports `0%` when the request starts and `100%`
-once the response arrives, with the body size as the total for strings, `Blob`, `ArrayBuffer` (and typed arrays) and
-`URLSearchParams` payloads. A `FormData` or stream body has no known size up front, so it jumps from 0 to 100 too, but
-`loaded` and `total` are not byte counts. For a live upload percentage, use the
-[Axios adapter](../../../integrations/adapter-axios/overview.mdx), which reads the browser upload events. Download
-progress works with every adapter.
-
-:::
-
-{/* Here is a live example demonstrating both upload and download progress bars. */}
-
-```tsx
-function ProgressBars() {
-  const [upload, setUpload] = React.useState({ progress: 0, timeLeft: 0, sizeLeft: 0 });
-  const [download, setDownload] = React.useState({ progress: 0, timeLeft: 0, sizeLeft: 0 });
-
-  // Setup upload request
-  // highlight-start
-  const { submit: startUpload, submitting: isUploading, onSubmitUploadProgress } = useSubmit(postFile);
-  onSubmitUploadProgress((progressData) => {
-    setUpload(progressData);
-  });
-  // highlight-end
-
-  // Setup download request
-  // highlight-start
-  const { submit: startDownload, submitting: isDownloading, onSubmitDownloadProgress } = useSubmit(getFile);
-  onSubmitDownloadProgress((progressData) => {
-    setDownload(progressData);
-  });
-  // highlight-end
+  onSubmitDownloadProgress(({ progress, loaded: bytes }) => setLoaded({ progress, bytes }));
 
   return (
-    <div className="p-4 border rounded-md space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold">File Upload</h3>
-        <p className="text-sm text-gray-600">
-          Progress: {upload.progress}% | Time Left: {(upload.timeLeft / 1000).toFixed(1)}s
-        </p>
-        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-          <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${upload.progress}%` }}></div>
-        </div>
-        <button
-          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
-          onClick={() => startUpload()}
-          disabled={isUploading}
-        >
-          {isUploading ? "Uploading..." : "Start Upload"}
-        </button>
-      </div>
-      <div>
-        <h3 className="text-lg font-semibold">File Download</h3>
-        <p className="text-sm text-gray-600">
-          Progress: {download.progress}% | Time Left: {(download.timeLeft / 1000).toFixed(1)}s
-        </p>
-        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-          <div className="bg-green-600 h-2.5 rounded-full" style={{ width: `${download.progress}%` }}></div>
-        </div>
-        <button
-          className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400"
-          onClick={() => startDownload()}
-          disabled={isDownloading}
-        >
-          {isDownloading ? "Downloading..." : "Start Download"}
-        </button>
-      </div>
+    <div className="space-y-2">
+      <button onClick={() => submit()} disabled={submitting}>
+        Download report
+      </button>
+      {submitting && <button onClick={abort}>Cancel</button>}
+      <progress value={loaded.progress} max={100} />
+      <p className="text-sm">{Math.round(loaded.bytes / 1024)} KB</p>
     </div>
   );
 }
 ```
 
-### How it works
+:::caution Upload progress with the default adapter
 
-1.  We set up two `useSubmit` hooks, one for uploading (`postFile`) and one for downloading (`getFile`).
-2.  We get the `onSubmitUploadProgress` and `onSubmitDownloadProgress` callback setters from their respective hooks.
-3.  We call them with our state setters (`setUpload` and `setDownload`). HyperFetch calls them repeatedly during the
-    request with the latest progress information.
-4.  The state drives the width of the progress bar `div`s and the text next to them.
-5.  Clicking the buttons triggers the respective `submit` functions (`startUpload`, `startDownload`).
+The default HTTP adapter uses `fetch`, which has no upload events. It reports `0%` when the request starts and `100%`
+once the response arrives. For `FormData` and stream bodies, `loaded` and `total` are not byte counts. For a live upload
+percentage, use the [Axios adapter](/docs/integrations/adapter-axios/overview).
 
-With `useFetch` the callbacks are named `onUploadProgress` and `onDownloadProgress`, and they work the same way. See the
-[useFetch reference](../../../react/04-hooks/use-fetch.mdx) and the
-[useSubmit reference](../../../react/04-hooks/use-submit.mdx).
+:::
+
+---
+
+## Which transport to use
+
+| You need                                         | Use                                               |
+| ------------------------------------------------ | ------------------------------------------------- |
+| Download progress                                | Any adapter, the default `fetch` one included     |
+| A live upload percentage in the browser          | The Axios adapter                                 |
+| Only "uploading" and "done" states               | The default adapter and `submitting`              |
+| Several uploads, one after another               | A [queue](/docs/guides/react/basics/queues) with `useQueue` progress |
 
 ---
 
 :::success Congratulations!
 
-You've learned how to build a file upload progress bar with HyperFetch.
+You can now show real transfer progress in React.
 
-- `fetch` can report **download** progress but has no **upload** progress event. XHR, and Axios on top of it, does.
-- Switching to the **Axios adapter** gives you real upload progress without changing your hooks.
-- **`onSubmitUploadProgress`** and **`onSubmitDownloadProgress`** (or `onUploadProgress` and `onDownloadProgress` on
-  `useFetch`) give you `progress`, `loaded`, `total` and `timeLeft`.
+- You know why `fetch` has **no upload progress** event, and that XHR and Axios do.
+- You can switch to the **Axios adapter** without changing requests or hooks.
+- You can build bars from **`progress`**, **`loaded`**, **`total`** and **`timeLeft`**.
+- You can show **download progress** and **cancel** a transfer.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="integrations"
+  title="Axios adapter"
+  description="Send HyperFetch requests through axios, with real upload progress."
+  to="/docs/integrations/adapter-axios/overview"
+/>
+
+- Runnable examples: [file upload](/examples/mutations/file-upload),
+  [upload progress](/examples/mutations/upload-progress), [download progress](/examples/data-fetching/download-progress).
+- Docs: [useSubmit callbacks](/docs/react/hooks/use-submit#callbacks), [useFetch progress](/docs/react/hooks/use-fetch#progress).
+- Guides: [queues](/docs/guides/react/basics/queues), [axios in React](/docs/guides/react/basics/axios-in-react).

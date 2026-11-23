@@ -7,49 +7,38 @@ sidebar_label: Firestore
 
 # Firestore in React with typed queries and caching
 
-Using firestore react code usually means calling `getDocs` or `onSnapshot` inside a `useEffect` and keeping the result
-in state. With HyperFetch, each Firestore operation is a request with a Firestore `method` instead, so `useFetch` and
-`useSubmit` handle the loading state, the cache and the types. This page covers every method, what each one returns,
+Each Firestore operation is a request with a Firestore `method`, so `useFetch` and `useSubmit` handle the loading state,
+the cache and the types instead of `getDocs` calls in a `useEffect`. This page covers every method, what it returns,
 and how to query and paginate collections.
-
----
 
 :::tip Purpose
 
-1.  **Read** documents and collections with `getDoc` and `getDocs`.
-2.  **Write** with `addDoc`, `setDoc`, `updateDoc` and `deleteDoc`, with the payload typed per request.
-3.  **Query** collections with constraints and page through them with cursors.
+1. **Read** documents and collections with `getDoc` and `getDocs`.
+2. **Write** with `addDoc`, `setDoc`, `updateDoc` and `deleteDoc`, with the payload typed per request.
+3. **Query** collections with typed constraints and page through them with cursors.
 
 :::
 
 ---
 
-## How Firestore stores data
-
-Firestore keeps documents in collections. A document is a set of fields with an id, and it can hold subcollections, so
-a path alternates between the two: `teas` (collection), `teas/sencha` (document), `teas/sencha/reviews` (collection).
-That is why the adapter decides between a document and a collection by counting path segments.
-
-Queries filter and sort one collection. Firestore runs a query only if an index supports it. Single-field indexes exist
-by default, and a query that combines a filter with a sort on another field usually needs a composite index. The error
-for a missing index arrives in `response.error` with a link to create it.
-
----
-
 ## Setup
 
-```tsx
-import { Client } from "@hyper-fetch/core";
+Pass a Firestore instance to `FirebaseAdapter`. With `url: ""` every endpoint is the full Firestore path, which
+alternates collection and document: `teas`, `teas/sencha`, `teas/sencha/reviews`.
+
+```ts title="api/firebase.ts"
+import { createClient } from "@hyper-fetch/core";
 import { FirebaseAdapter } from "@hyper-fetch/firebase";
+import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-export const client = new Client({ url: "" }).setAdapter(FirebaseAdapter(getFirestore(app)));
+const app = initializeApp({ projectId: "my-project" });
 
-type Tea = { name: string; type: "Green" | "Black" | "Oolong"; year: number };
-type TeaDoc = Tea & { __key: string }; // __key is the document id, added by the adapter
+export const client = createClient({ url: "" }).setAdapter(FirebaseAdapter(getFirestore(app)));
+
+export type Tea = { name: string; type: "Green" | "Black" | "Oolong"; year: number };
+export type TeaDoc = Tea & { __key: string }; // __key is the document id, added by the adapter
 ```
-
-The examples below use this client, so every endpoint is the full Firestore path.
 
 ---
 
@@ -64,90 +53,42 @@ The examples below use this client, so every endpoint is the full Firestore path
 | `updateDoc` | document   | the payload                             | `ref`                                   |
 | `deleteDoc` | document   | `null`                                  | `ref`                                   |
 
-`getDoc` is the default, so a request without `method` reads one document.
+`getDoc` is the default, so a request without `method` reads one document. An empty result resolves with
+`status: "emptyResource"`.
 
-### `getDocs`
+### Read
 
-```tsx
-const getTeas = client.createRequest<{ response: TeaDoc[] }>()({
-  endpoint: "teas",
-  method: "getDocs",
-});
+```ts title="api/teas.ts"
+export const getTeas = client.createRequest<{ response: TeaDoc[] }>()({ endpoint: "teas", method: "getDocs" });
 
-const { data, status } = await getTeas.send();
-// data: [{ __key: "abc", name: "Sencha", ... }], status: "emptyResource" when the collection is empty
+export const getTea = client.createRequest<{ response: TeaDoc | null }>()({ endpoint: "teas/:teaId" });
+
+const { data } = await getTea.setParams({ teaId: "sencha" }).send();
+// { __key: "sencha", name: "Sencha", ... }, or null with status "emptyResource"
 ```
 
-### `getDoc`
+### Write
 
-```tsx
-const getTea = client.createRequest<{ response: TeaDoc | null }>()({
-  endpoint: "teas/:teaId",
-  method: "getDoc",
-});
+`addDoc` creates a document with a generated id. `setDoc` creates or replaces a document at a known id, and merges into
+it with `options: { merge: true }`. `updateDoc` changes the given fields and fails with Firestore's `not-found` error
+when the document does not exist.
 
-const { data } = await getTea.setParams({ teaId: "abc" }).send();
-// data: { __key: "abc", name: "Sencha", ... } or null with status "emptyResource"
-```
-
-### `addDoc`
-
-Creates a document with a generated id in a collection.
-
-```tsx
-const addTea = client.createRequest<{ response: TeaDoc; payload: Tea }>()({
+```ts title="api/teas.ts"
+export const addTea = client.createRequest<{ response: TeaDoc; payload: Tea }>()({
   endpoint: "teas",
   method: "addDoc",
 });
 
-const { data } = await addTea.send({ payload: { name: "Sencha", type: "Green", year: 2024 } });
-// data.__key is the id of the new document
-```
-
-### `setDoc`
-
-Creates or replaces a document at a known id. With `options: { merge: true }` it merges the payload into the existing
-document instead.
-
-```tsx
-const saveTea = client.createRequest<{ response: Tea; payload: Tea }>()({
-  endpoint: "teas/:teaId",
-  method: "setDoc",
-});
-
-const mergeTea = client.createRequest<{ response: Partial<Tea>; payload: Partial<Tea> }>()({
+export const mergeTea = client.createRequest<{ response: Partial<Tea>; payload: Partial<Tea> }>()({
   endpoint: "teas/:teaId",
   method: "setDoc",
   options: { merge: true },
 });
 
-await saveTea.setParams({ teaId: "sencha" }).send({ payload: { name: "Sencha", type: "Green", year: 2024 } });
+export const deleteTea = client.createRequest<{ response: null }>()({ endpoint: "teas/:teaId", method: "deleteDoc" });
+
+const { data } = await addTea.send({ payload: { name: "Sencha", type: "Green", year: 2024 } }); // data.__key is the new id
 await mergeTea.setParams({ teaId: "sencha" }).send({ payload: { year: 2025 } });
-```
-
-### `updateDoc`
-
-Changes the given fields of an existing document. Updating a document that does not exist resolves with
-`status: "error"` and Firestore's `not-found` error.
-
-```tsx
-const updateTea = client.createRequest<{ response: Partial<Tea>; payload: Partial<Tea> }>()({
-  endpoint: "teas/:teaId",
-  method: "updateDoc",
-});
-
-const { error } = await updateTea.setParams({ teaId: "sencha" }).send({ payload: { year: 2025 } });
-```
-
-### `deleteDoc`
-
-```tsx
-const deleteTea = client.createRequest<{ response: null }>()({
-  endpoint: "teas/:teaId",
-  method: "deleteDoc",
-});
-
-await deleteTea.setParams({ teaId: "sencha" }).send();
 ```
 
 ---
@@ -157,57 +98,50 @@ await deleteTea.setParams({ teaId: "sencha" }).send();
 Pass `queryParams` a callback that builds the constraints. With the document type on the request, fields and values are
 checked.
 
-```tsx
+```ts title="api/teas.ts"
 import type { FirestoreQueryParams } from "@hyper-fetch/firebase";
 
-const getTeas = client.createRequest<{ response: TeaDoc[]; queryParams?: FirestoreQueryParams<Tea> }>()({
+export const listTeas = client.createRequest<{ response: TeaDoc[]; queryParams?: FirestoreQueryParams<Tea> }>()({
   endpoint: "teas",
   method: "getDocs",
 });
 
-const { data } = await getTeas.send({
+const { data } = await listTeas.send({
   queryParams: (c) => c.where("type", "==", "Green").where("year", ">=", 2020).orderBy("year", "desc").limit(20),
 });
 ```
 
-| Chain method                               | Firestore equivalent        | Typed by the document                                    |
-| ------------------------------------------ | --------------------------- | -------------------------------------------------------- |
-| `where(field, op, value)`                  | `where(field, op, value)`   | `field` exists; `value` matches it (an array for `"in"`) |
-| `orderBy(field, direction?)`               | `orderBy(field, direction)` | `field` exists                                           |
-| `limit(n)`                                 | `limit(n)`                  |                                                          |
-| `startAt`, `startAfter`, `endAt`, `endBefore` | the same cursors         | one value per `orderBy`, in order                        |
+| Chain method                                  | Typed by the document                                    |
+| --------------------------------------------- | -------------------------------------------------------- |
+| `where(field, op, value)`                     | `field` exists, `value` matches it (an array for `"in"`) |
+| `orderBy(field, direction?)`                  | `field` exists                                           |
+| `limit(n)`                                    | -                                                        |
+| `startAt`, `startAfter`, `endAt`, `endBefore` | one value per `orderBy`, in order                        |
 
-Nested fields use dots (`"origin.country"`). `__key` is the document id, not a field, so it cannot be filtered on.
-
-:::caution Firestore rules still apply
-
-Range filters on one field combined with `orderBy` on another need a composite index. Firestore reports a missing index
-in `response.error`, with a link that creates it.
-
-:::
+Nested fields use dots (`"origin.country"`). `__key` is the document id, not a field, so you cannot filter on it. A
+range filter combined with `orderBy` on another field needs a composite index, and Firestore reports a missing one in
+`response.error` with a link that creates it.
 
 ### Pagination
 
-Cursors take one value per `orderBy`, in the same order. To load the next page, start after the values of the last
-document you have.
+Cursors take one value per `orderBy`, in the same order. To load the next page, start after the last document you have.
+Each page has its own cache entry.
 
-```tsx
-const page1 = await getTeas.send({ queryParams: (c) => c.orderBy("year", "desc").orderBy("name").limit(20) });
+```ts title="api/teas.ts"
+const page1 = await listTeas.send({ queryParams: (c) => c.orderBy("year", "desc").orderBy("name").limit(20) });
 const last = page1.data?.at(-1);
 
-const page2 = await getTeas.send({
+const page2 = await listTeas.send({
   queryParams: (c) => c.orderBy("year", "desc").orderBy("name").startAfter(last!.year, last!.name).limit(20),
 });
 ```
 
-Each page has its own cache entry, because the constraints are part of the cache key.
-
 ### Constraints as data
 
-`queryParams` also takes the constraints array the callback resolves to, built with `$where`, `$orderBy`, `$limit` and
-the `$`-cursors. Use it to build a query step by step:
+`queryParams` also takes the array the callback resolves to, built with `$where`, `$orderBy`, `$limit` and the
+`$`-cursors. Use it to build a query step by step.
 
-```tsx
+```ts title="api/teas.ts"
 import { $orderBy, $where } from "@hyper-fetch/firebase";
 import type { FirestoreConstraint } from "@hyper-fetch/firebase";
 
@@ -215,45 +149,85 @@ const constraints: FirestoreConstraint[] = [];
 if (onlyGreen) constraints.push($where("type", "==", "Green"));
 constraints.push($orderBy("year", "desc"));
 
-getTeas.setQueryParams(constraints);
+const greenTeas = listTeas.setQueryParams(constraints);
 ```
 
 ---
 
-## Firestore in React components
+## Firestore in your app
 
-```tsx
+In React, `useFetch` reads and `useSubmit` writes. Each filter combination is cached and deduplicated on its own.
+
+```tsx title="TeaList.tsx"
 import { useFetch, useSubmit } from "@hyper-fetch/react";
 
-function TeaList() {
-  const { data, loading } = useFetch(getTeas.setQueryParams((c) => c.where("type", "==", "Green")));
+import { addTea, listTeas } from "./api/teas";
+
+export const TeaList = () => {
+  const { data, loading } = useFetch(listTeas.setQueryParams((c) => c.where("type", "==", "Green")));
   const { submit, submitting } = useSubmit(addTea);
 
-  // data is TeaDoc[], and adding a tea is
-  // submit({ payload: { name: "Sencha", type: "Green", year: 2024 } })
-}
+  if (loading) return <p>Loading...</p>;
+
+  return (
+    <div>
+      {data?.map((tea) => <p key={tea.__key}>{tea.name}</p>)}
+      <button disabled={submitting} onClick={() => submit({ payload: { name: "Sencha", type: "Green", year: 2024 } })}>
+        Add tea
+      </button>
+    </div>
+  );
+};
 ```
 
-For updates as they happen, use a listener instead, see [realtime listening](./realtime-queries.mdx).
+For updates as they happen, use a listener instead, see
+[realtime listening](/docs/integrations/adapter-firebase/realtime-queries).
 
 ---
 
-:::note When it's helpful
+## Web and admin differences
 
-- Lists with filters that change on screen: each filter combination is cached and deduplicated on its own.
-- Forms that create or edit documents: the payload is typed, and errors such as permission denied arrive in
-  `response.error`.
-- Paginated feeds: cursors from the last document keep pages stable while you keep the query in one array.
+Firestore requests work the same in [`@hyper-fetch/firebase-admin`](/docs/integrations/adapter-firebase-admin/firestore),
+except:
 
-:::
+| Topic           | `@hyper-fetch/firebase` (web)   | `@hyper-fetch/firebase-admin` (server) |
+| --------------- | ------------------------------- | -------------------------------------- |
+| `setDoc` `data` | the payload                     | the Admin SDK `WriteResult`            |
+| Security rules  | enforced for the signed-in user | bypassed                               |
 
 ---
 
 :::secondary Summary
 
-1.  `getDocs` and `getDoc` read; `addDoc`, `setDoc`, `updateDoc` and `deleteDoc` write.
-2.  Documents and list items come with `__key`, their document id.
-3.  `setDoc` replaces unless the request has `options: { merge: true }`.
-4.  Queries are a `queryParams` callback checked against the document; cursors take one value per `orderBy`.
+- `getDocs` and `getDoc` read; `addDoc`, `setDoc`, `updateDoc` and `deleteDoc` write.
+- Documents and list items come with `__key`, their document id.
+- `setDoc` replaces unless the request has `options: { merge: true }`.
+- Queries are a `queryParams` callback checked against the document; cursors take one value per `orderBy`.
 
 :::
+
+## Next steps
+
+Runnable example: [Firebase](/examples/integrations/firebase), a Firestore guestbook with typed reads, writes and
+constraints.
+
+<LinkCard
+  type="docs"
+  title="Realtime listening"
+  description="Keep Firestore queries live with onSnapshot listeners."
+  to="/docs/integrations/adapter-firebase/realtime-queries"
+/>
+
+<LinkCard
+  type="docs"
+  title="DB with Firestore"
+  description="Firestore collections that several views read and keep live."
+  to="/docs/db/firestore"
+/>
+
+<LinkCard
+  type="api"
+  title="FirestoreQueryParams API reference"
+  description="The query params type that checks fields and values."
+  to="/docs/api/adapter-firebase/Types/FirestoreQueryParams"
+/>

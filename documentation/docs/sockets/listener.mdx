@@ -1,354 +1,210 @@
 ---
 sidebar_position: 4
 title: Listener
-description: "The Listener defines a typed subscription to a socket topic. Receive WebSocket or Server-Sent Events messages with typed data and clean unsubscribing."
+description: "A Listener is a typed subscription to a socket topic. Receive WebSocket, SSE or RPC messages with typed data, topic params, throttling and clean unsubscribing."
 sidebar_label: Listener
 ---
 
-[Read the API Reference »](/docs/api/sockets/Classes/Listener.mdx)
+# Listener
 
-The `Listener` class is a key component of HyperFetch's real-time communication capabilities. It provides a **powerful,
-type-safe way to define, configure, and manage event listeners** for data coming from a server through sockets. By
-encapsulating all the details needed to listen for an event—such as the topic and data structure—`Listener` ensures
-consistency, predictability, and flexibility in how your application handles real-time updates.
+A **`Listener`** describes one topic you receive from the server and the type of its messages. Like a
+[Request](/docs/core/request), it is a template: define it once next to the [socket](/docs/sockets/socket), then derive
+concrete listeners with params, a payload or a delivery strategy.
 
-With a strict and predictable data structure, `Listener` makes it easy to build features that react to live events with
-confidence. Its design, especially when paired with TypeScript, helps you create robust, maintainable, and interactive
-applications by ensuring that the data you receive from the server matches the types you expect.
+```ts title="listeners.ts"
+import { socket } from "./socket";
 
----
+type ChatMessage = { id: string; author: string; text: string };
+
+export const onChatMessage = socket.createListener<ChatMessage>()({ topic: "chat" });
+
+const unlisten = onChatMessage.listen(({ data, extra }) => {
+  console.log(data.author, data.text); // data: ChatMessage, extra: the adapter's details, such as the MessageEvent
+});
+
+unlisten(); // stop listening
+```
+
+`createListener` is called twice: the first call takes the message type, the second the options, so the topic stays a
+literal type.
 
 :::tip Purpose
 
-1.  To create **consistent and reusable event listener templates**.
-2.  To **standardize the data schema** for incoming real-time events.
-3.  To provide a **consistent API** for listening to events, regardless of the underlying adapter.
-4.  To **hold instructions** on how to connect to specific event topics.
-5.  To ensure that incoming event data is **strongly-typed** and structured, making it safe and easy to work with.
+1. **Typed messages**: `data` has the type you declared, for every adapter.
+2. **Reusable templates**: params, payload and delivery derive new listeners without changing the original.
+3. **Throttling built in**: fast topics deliver the latest message or batches instead of every message.
+4. **Clean unsubscribing**: `listen()` returns the function that stops it.
 
 :::
 
 ---
 
-## Initialization
+## Stop listening
 
-A `Listener` should be initialized from a `Socket` instance using the `createListener` method. This approach ensures
-that the listener shares a common communication manager with the rest of your application, promoting a unified
-architecture for handling real-time data.
+`listen()` returns a function that removes this subscription. Call it when you no longer need the messages, for
+example when a screen closes. To handle only the next message, call it inside the callback.
 
-```tsx
-import { socket } from "./socket";
-
-export const onChatMessage = socket.createListener<ChatMessageType>()({
-  topic: "chat-message",
-});
-
-export const onUserStatusChange = socket.createListener<UserStatusType>()({
-  topic: "status",
+```ts title="once.ts"
+const unlisten = onChatMessage.listen(({ data }) => {
+  console.log("First message:", data.text);
+  unlisten();
 });
 ```
+
+In React, [`useListener`](/docs/react/sockets/use-listener) subscribes on mount and unsubscribes on unmount.
 
 ---
 
-## Usage
+## Address one resource with topic params
 
-### Listening for Events
+Put params in the topic with a colon, such as `:roomId`. `setParams` fills them in and returns a new listener. Each
+param combination is its own topic: topics match exactly, without prefixes or wildcards.
 
-To begin receiving events, use the `listen` method and provide a callback function. This function will be executed each
-time a new event is received on the specified topic. The data passed to the callback will be automatically typed based
-on the generic you provided during initialization.
+```ts title="rooms.ts"
+export const onRoomMessage = socket.createListener<ChatMessage>()({ topic: "rooms/:roomId" });
 
-```tsx
-onChatMessage.listen((message) => {
-  // `message` is automatically typed as { data: ChatMessageType, extra: ... }
-  console.log(message);
-});
+onRoomMessage.setParams({ roomId: "general" }).listen(({ data }) => console.log(data.text)); // topic "rooms/general"
+onRoomMessage.setParams({ roomId: "random" }).listen(({ data }) => console.log(data.text)); // topic "rooms/random"
 ```
 
-### Stopping a Listener
-
-The `listen` method returns a function that, when called, will remove that specific listener. This is the standard way
-to clean up and stop listening for events, for example, when a component unmounts.
-
-```tsx
-// The listen method returns a function to remove the listener
-const removeListener = onChatMessage.listen((message) => console.log(message));
-
-// ...sometime later...
-
-// Call the returned function to stop listening
-removeListener();
-```
-
-You can also interact with the underlying adapter to remove listeners, which can be useful for more advanced scenarios,
-such as removing all listeners for a given event topic.
-
-```tsx
-const callback = ({ data }) => console.log(data);
-const unmountListener = onChatMessage.listen(callback);
-
-// ...
-
-// Remove a specific listener
-socket.adapter.removeListener({ topic: onChatMessage.topic, callback });
-```
-
-### Listen Only Once
-
-If you only need to handle the next event that comes in, you can simply call the `removeListener` function from within
-your callback.
-
-```tsx
-const removeEvent = onChatMessage.listen((message) => {
-  console.log(message);
-  removeEvent(); // Stop listening after the first event
-});
-```
+Param names come from the topic string, so a missing or misspelled param is a type error.
 
 ---
 
-## Features
+## Throttle or batch fast topics
 
-Here are some of the features of the `Listener` class.
+Prices, cursors and logs can arrive hundreds of times per second. The `delivery` option decides how messages reach
+callbacks, inside the listener, so `listen()`, `useListener` and the SDK all follow it. Without `delivery`, every message
+is delivered right away with no overhead.
 
----
-
-### Dynamic Topics
-
-Listeners support dynamic topics with parameters, similar to requests. This allows you to create reusable listener
-templates for resources that require an identifier, such as a specific chat room or user.
-
-Define the parameter in the `topic` string with a colon prefix (e.g., `:id`).
-
-```ts
-export const onNoteChange = socket.createListener<NoteData>()({
-  topic: "notes/:noteId",
-});
-```
-
-Then, use the `setParams` method to provide a value for the parameter before you start listening. Each listener with a
-different parameter will be treated as a separate event stream.
-
-```ts
-// Listen to events for note with ID 1
-onNoteChange.setParams({ noteId: 1 }).listen(/* ... */);
-
-// Listen to events for note with ID 2
-onNoteChange.setParams({ noteId: 2 }).listen(/* ... */);
-```
-
----
-
-### Subscription Payload
-
-Some servers need data to start a subscription, for example the input of a tRPC subscription, the variables of a
-GraphQL subscription or an oRPC event iterator procedure. Pass its type as the second generic and set it with `setPayload`. Params build the topic, the payload is sent
-to the server when the subscription starts.
-
-```ts
-type RoomInput = { roomId: string };
-
-export const onMessage = socket.createListener<ChatMessage, RoomInput>()({
-  topic: "chat/onMessage",
-});
-
-onMessage.setPayload({ roomId: "1" }).listen(({ data }) => {
-  console.log(data.text);
-});
-
-// Or pass it for one subscription only - the listener itself stays unchanged
-onMessage.listen(({ data }) => console.log(data.text), { payload: { roomId: "2" } });
-```
-
-Listeners of the same topic with different payloads are separate subscriptions. Each one receives only its own messages,
-while listeners with an equal payload share one subscription on the server.
-
-- A required payload must be set before listening. `listen` without it is a TypeScript error.
-- An optional payload (`{ cursor?: number } | undefined`) can be skipped.
-- `useListener` from `@hyper-fetch/react` subscribes again when the payload changes.
-- The payload is used by adapters that start server-side subscriptions, such as the tRPC, oRPC and GraphQL socket
-  adapters. The built-in WebSocket and SSE adapters route messages by topic and do not send it.
-- A typed document in the listener options - like the `document` of the
-  [GraphQL adapter](/docs/integrations/adapter-graphql/subscriptions.mdx), from graphql-codegen or gql.tada - fills in
-  the response and the payload that the generics leave out.
-
----
-
-### Subscription Lifecycle
-
-`listen` takes `onStart` and `onEnd` callbacks. They matter for adapters where the server starts and ends each
-subscription, such as the tRPC and oRPC socket adapters.
-
-```ts
-onJobProgress.listen(({ data }) => render(data), {
-  payload: { jobId: "1" },
-  onStart: ({ topic }) => console.log("Server accepted", topic),
-  onEnd: ({ error }) => {
-    if (error) console.error("Subscription failed", error);
-    else console.log("Job finished");
-  },
-});
-```
-
-- `onStart` runs when the server confirmed the subscription, and again when a reconnect restarted it. With adapters that
-  route messages by topic, like the WebSocket and SSE adapters, it runs right after `listen()`.
-- `onEnd` runs once, when the server ended the subscription. `error` is `null` when it finished normally.
-- Before `onEnd`, messages still waiting in a [delivery strategy](#delivery-strategies) are delivered and the listener
-  unsubscribes. A reconnect does not restart it - call `listen()` again for a new subscription.
-- Unsubscribing yourself does not call `onEnd`.
-
-To observe every subscription of a socket, use `socket.events.onListenerStart` and `socket.events.onListenerEnd`.
-
----
-
-### Query Params
-
-Some adapters let a listener say what it asks for, such as filters, ordering or limits, through query params. Set them
-in `createListener` or with `setQueryParams`, which returns a clone. A callback is turned into data by the adapter as
-soon as it is set, so the listener never holds a function.
-
-```ts
-// Firebase: listen only to green teas, newest first
-const onGreenTeas = socket
-  .createListener<Tea[]>()({ topic: "teas" })
-  .setQueryParams((c) => c.where("type", "==", "Green").orderBy("year", "desc"));
-```
-
-Query params describe what to receive, while the [subscription payload](#subscription-payload) is data the server needs
-to start a subscription. They are also separate from the socket's own `queryParams`, which belong to the connection (for
-example a token in the WebSocket URL). The WebSocket and SSE adapters do not use listener query params, so
-`setQueryParams` does not compile for them.
-
----
-
-### Delivery Strategies {#delivery-strategies}
-
-High-frequency streams (prices, trades, logs) can call your callbacks hundreds of times per second. The `delivery`
-option controls how messages reach `listen` callbacks, right inside the listener, so `listen()`, `useListener` and the
-SDK all benefit without changes. Omit it for immediate delivery of every message - that is the default and has zero
-overhead.
-
-```ts
-// Sampling - deliver the first message immediately, then at most one (the newest) per 16ms.
-// Best for state-like data where only the latest value matters.
+```ts title="market.ts"
+// The first message at once, then at most one, the newest, per 16 ms
 export const onPrice = socket.createListener<Price>()({
   topic: "prices",
   delivery: { strategy: "latest", interval: 16 },
 });
-onPrice.listen(({ data }) => {}); // data: Price
 
-// Batching - deliver everything collected during 100ms as one array. Nothing is dropped.
-// Best for event-like data where every message must be processed.
+// Every message, as an array per 100 ms window
 export const onTrade = socket.createListener<Trade>()({
   topic: "trades",
   delivery: { strategy: "batch", interval: 100, maxSize: 500 },
 });
-onTrade.listen(({ data }) => {}); // data: Trade[]
 
-// Custom - full control over buffering and timing.
-export const onTick = socket.createListener<Tick>()({
-  topic: "ticks",
-  delivery: createDeliveryStrategy<Tick, Summary>(({ deliver }) => ({
-    push: ({ data, extra }) => {
-      /* accumulate, then deliver({ data: summary, extra }) */
-    },
-    dispose: () => {
-      /* clear timers */
-    },
-  })),
-});
-onTick.listen(({ data }) => {}); // data: Summary
+onTrade.listen(({ data }) => console.log(data.length)); // data: Trade[]
 ```
 
-|                 | `latest`                               | `batch`               | custom             |
-| --------------- | -------------------------------------- | --------------------- | ------------------ |
-| Callback `data` | `Response`                             | `Response[]`          | your `Output` type |
-| Drops messages  | Yes, intermediate ones                 | Never                 | up to you          |
-| Options         | `interval`, `leading` (default `true`) | `interval`, `maxSize` | -                  |
+|                 | `latest`                                 | `batch`                                     | custom (`createDeliveryStrategy`) |
+| --------------- | ---------------------------------------- | ------------------------------------------- | --------------------------------- |
+| Callback `data` | `Response`                               | `Response[]`                                | your output type                  |
+| Drops messages  | Yes, the ones in between                 | Never                                       | Up to you                         |
+| Options         | `interval`, `leading` (default `true`)   | `interval`, `maxSize` (default `Infinity`)  | -                                 |
 
-Semantics shared by all strategies:
+- Every `listen()` gets its own buffers and timers. Unsubscribing clears them and drops pending messages.
+- `extra` is the `extra` of the last message in the delivery.
+- `setDelivery` returns a clone with another strategy. Pass `undefined` to deliver every message again.
+- `socket.events.onListenerEvent` still receives every raw message, for logging and devtools.
 
-- `extra` is the `extra` of the last message that went into the delivery.
-- Unsubscribing disposes the strategy: timers are cleared and pending messages are dropped, so nothing fires after
-  `unlisten()`.
-- Every `listen()` call gets its own buffers and timers.
-- `delivery` is kept by `setParams`, `setOptions` and `clone`. Use `setDelivery` to change it (returns a clone); pass
-  `undefined` to restore immediate delivery.
-- `socket.events.onListenerEvent` still receives every raw message - useful for devtools and logging.
-
-:::info Full guide
-
-Timelines, how to choose a strategy, and complete custom strategy examples live in the
-[Throttling & Batching guide](/docs/guides/sockets/throttling).
-
-:::
+The [throttling and batching guide](/docs/guides/sockets/throttling) has timelines and custom strategies.
 
 ---
 
-### Global Event Subscriptions
+## Start a server-side subscription with a payload
 
-You can use `socket.events.onListenerEventByTopic` to subscribe to all events for a given listener, regardless of
-dynamic parameters. This is useful for centralizing logic that needs to react to any event of a certain type.
+Some servers need data to start a subscription, such as the input of a tRPC subscription, the variables of a GraphQL
+subscription or the input of an oRPC event iterator. This is the subscription payload: pass its type as the second
+generic and set it with `setPayload`, or for one subscription in `listen`.
 
-```ts
-export const onNoteChange = socket.createListener<NoteData>()({
-  topic: "notes/:noteId",
-});
+```ts title="chat.ts"
+export const onMessage = socket.createListener<ChatMessage, { roomId: string }>()({ topic: "chat.onMessage" });
 
-socket.events.onListenerEventByTopic(onNoteChange, ({ data }) => {
-  console.log("A note changed:", data);
-});
+onMessage.setPayload({ roomId: "1" }).listen(({ data }) => console.log(data.text));
+onMessage.listen(({ data }) => console.log(data.text), { payload: { roomId: "2" } });
+```
 
-onNoteChange.setParams({ noteId: 1 }).listen(({ data }) => {
-  /* ... */
+- A required payload must be set before listening. `listen` without it is a type error.
+- Listeners of one topic with different payloads are separate subscriptions. Listeners with an equal payload share one.
+- The tRPC, oRPC and GraphQL socket adapters send the payload. The WebSocket and SSE adapters route by topic and ignore
+  it.
+- A typed document in the listener options, such as the `document` of the
+  [GraphQL adapter](/docs/integrations/adapter-graphql/subscriptions), types the response and payload without generics.
+
+---
+
+## Follow the subscription lifecycle
+
+`listen` takes `onStart` and `onEnd`. They matter for adapters where the server starts and ends each subscription, such
+as tRPC and oRPC.
+
+```ts title="job-progress.ts"
+onJobProgress.listen(({ data }) => console.log(data.percent), {
+  payload: { jobId: "1" },
+  onStart: ({ topic }) => console.log("Server accepted", topic),
+  onEnd: ({ error }) => console.log(error ? "Failed" : "Finished"),
 });
-onNoteChange.setParams({ noteId: 2 }).listen(({ data }) => {
-  /* ... */
+```
+
+- `onStart` runs when the server confirmed the subscription, and again after a reconnect restarted it. With the
+  WebSocket and SSE adapters, it runs right after `listen()`.
+- `onEnd` runs once, when the server ended the subscription. `error` is `null` when it finished normally. Pending
+  delivered messages are flushed first, then the listener unsubscribes.
+- Unsubscribing yourself does not call `onEnd`.
+
+---
+
+## Filter with listener query params
+
+Adapters that support it, such as the [Firebase adapter](/docs/integrations/adapter-firebase/realtime-queries), let a
+listener ask for filters, order or limits with `setQueryParams`. A callback is turned into data as soon as it is set.
+
+```ts title="teas.ts"
+const onGreenTeas = firebaseSocket
+  .createListener<Tea[]>()({ topic: "teas" })
+  .setQueryParams((c) => c.where("type", "==", "Green").orderBy("year", "desc"));
+```
+
+These are separate from the socket's own `queryParams`, which belong to the connection URL. The WebSocket and SSE
+adapters have no listener query params, so `setQueryParams` does not compile for them.
+
+---
+
+## Keep the HTTP cache in sync
+
+A realtime update can write straight into the cache of a [request](/docs/core/request), so every component that shows
+it updates without a refetch.
+
+```ts title="notes.ts"
+const getNote = client.createRequest<{ response: Note }>()({ endpoint: "/notes/:noteId" });
+const onNoteChange = socket.createListener<Note>()({ topic: "notes" });
+
+onNoteChange.listen(({ data }) => {
+  client.cache.update(getNote.setParams({ noteId: data.id }), { data });
 });
+```
+
+To observe every message of a socket, use `socket.events.onListenerEvent` and filter on `topic`.
+`socket.events.onListenerEventByTopic(listener, callback)` matches the listener's exact topic string, so pass a listener
+with its params set, not a template like `"notes/:noteId"`.
+
+---
+
+## Setters return clones
+
+`setParams`, `setPayload`, `setOptions`, `setQueryParams` and `setDelivery` return a new listener and leave the
+original unchanged. Use the returned value.
+
+```ts title="clones.ts"
+// error-next-line
+onRoomMessage.setParams({ roomId: "general" }); // the result is discarded
+onRoomMessage.listen(callback); // listens on the literal topic "rooms/:roomId"
+
+onRoomMessage.setParams({ roomId: "general" }).listen(callback); // OK
 ```
 
 ---
 
-### Integration with HyperFetch
+## Options and methods
 
-A powerful use case for global event subscriptions is to connect sockets directly to HyperFetch's caching layer.
-When you receive a real-time update, you can use it to instantly update the relevant cached data from a `Request`. This
-keeps your application's state synchronized without needing to re-fetch data from the server.
-
-Here's an example of updating a cached note when an update event is received via a socket.
-
-```ts
-// 1. Your core client and request setup
-const client = new Client({ url: "http://localhost:3000" });
-const getNote = client.createRequest()({
-  endpoint: "/notes/:noteId",
-});
-
-// 2. Your realtime listener
-export const onNoteChange = socket.createListener<NoteData>()({
-  topic: "notes/:noteId",
-});
-
-// 3. Subscribe to all note change events globally
-socket.events.onListenerEventByTopic(onNoteChange, ({ data }) => {
-  const { noteId } = data;
-
-  // 4. Create a request instance that matches the cache entry
-  const noteRequest = getNote.setParams({ noteId });
-
-  // 5. Update the cache with the new data from the socket event
-  client.cache.update(noteRequest, (prevData) => {
-    return { ...prevData, data };
-  });
-});
-```
-
----
-
-## Methods
-
-The `Listener` class offers a suite of methods to configure and interact with a listener instance. You can find a
-comprehensive list of these methods and their detailed descriptions in the API reference.
+(@import sockets ListenerOptionsType type=returns)
 
 <ShowMore>
 
@@ -356,189 +212,79 @@ comprehensive list of these methods and their detailed descriptions in the API r
 
 </ShowMore>
 
-<LinkCard
-  type="api"
-  title="Detailed Listener API Methods"
-  description="Explore all available methods, their parameters, and return values for the Listener class."
-  to="/docs/api/sockets/Classes/Listener#methods"
-/>
-
-It is crucial to understand how methods on a `Listener` instance operate to ensure predictable behavior in your
-application.
-
-:::danger Methods Return Clones
-
-Methods on a `Listener` instance (e.g., `setParams`, `setOptions`, `setDelivery`) do not modify the original listener
-instance in place. Instead, they return a **new, cloned instance** of the listener with the specified modifications
-applied. The original listener instance remains unchanged.
-
-**Always use the returned new instance for subsequent operations.** This immutable approach ensures isolation between
-different listener configurations and prevents unintended side effects.
-
-:::
-
-```tsx
-// ❌ WRONG
-const listener = onChatMessage;
-
-// This returns a *new* listener instance, but it's not being assigned or used.
-// The original `listener` variable remains unchanged.
-listener.setOptions({ ... });
-
-// This will listen without the options you intended to apply.
-listener.listen();
-```
-
-```tsx
-// ✅ CORRECT
-const listener = onChatMessage;
-
-// Assign the new, cloned listener with options to a new variable
-const listenerWithOptions = listener.setOptions({ ... });
-
-// Use the correctly configured listener
-listenerWithOptions.listen();
-
-// ✅ Also correct (method chaining)
-onChatMessage
-  .setOptions({ ... })
-  .listen();
-```
-
----
-
-## Configuration
-
-You can provide additional configuration options when creating a listener to customize its behavior. These options are
-passed in the object to `createListener`.
-
-```ts
-// 1. Initialize the socket
-const socket = createSocketClient({
-  url: "ws://localhost:3000",
-});
-
-// 2. Create the listener template
-const listener = socket.createListener<{ message: string }>()({
-  topic: "chat-message",
-});
-```
-
-(@import sockets ListenerOptionsType type=returns)
-
 ---
 
 ## TypeScript
 
-The `Listener` class is designed with TypeScript at its core to provide a superior developer experience and robust type
-safety for real-time events.
+A listener carries the **response type** (what arrives on the wire) and the **delivered type** (what callbacks
+receive). They differ only when a delivery strategy changes the shape, and both are inferred.
 
-### Response Type
-
-When you create a listener, you should provide the type of the data you expect to receive in the event as a generic.
-This ensures that the `data` passed to your `listen` callbacks is fully typed, enabling autocompletion and preventing
-common errors.
-
-```ts
-// Define the type for your event data
-type ChatMessageType = {
-  id: string;
-  author: string;
-  message: string;
-  timestamp: number;
-};
-
-// Provide it as a generic to createListener
-const onChatMessage = socket.createListener<ChatMessageType>()({
-  topic: "chat-message",
-});
-
-onChatMessage.listen(({ data }) => {
-  // `data` is now strongly-typed as ChatMessageType
-  console.log(data.message);
-  console.log(data.author);
-  // error-next-line
-  console.log(data.nonExistentProperty); // TypeScript Error
-});
-```
-
-This simple yet powerful feature eliminates guesswork and ensures that your application correctly handles the data
-structures sent by the server.
-
-### Payload Type
-
-The second generic of `createListener` is the subscription payload. TypeScript requires it before `listen` runs and
-types `setPayload` with it.
-
-```ts
-const onMessage = socket.createListener<ChatMessage, { roomId: string }>()({ topic: "chat/onMessage" });
-
-// error-next-line
-onMessage.listen(() => {}); // TypeScript Error - the payload is required
-
-onMessage.setPayload({ roomId: "1" }).listen(() => {}); // OK
-onMessage.listen(() => {}, { payload: { roomId: "1" } }); // OK
-
-type Payload = ExtractListenerPayloadType<typeof onMessage>; // { roomId: string }
-```
-
-In a socket SDK schema the payload is a field of `ListenerModel`:
-
-```ts
-type ChatSchema = {
-  chat: {
-    onMessage: {
-      $listener: ListenerModel<{ response: ChatMessage; payload: { roomId: string }; topic: "chat/onMessage" }>;
-    };
-  };
-};
-```
-
-### Delivered Type
-
-A listener carries two types: the **response type** (what arrives on the wire) and the **delivered type** (what your
-`listen` callbacks receive). They are the same unless a [delivery strategy](#delivery-strategies) changes the shape -
-`batch` delivers `Response[]`, a custom strategy delivers its declared output. The delivered type is inferred from the
-`delivery` option, so you never write it by hand.
-
-```ts
-const onTrade = socket.createListener<Trade>()({
-  topic: "trades",
-  delivery: { strategy: "batch", interval: 100 },
-});
+```ts title="types.ts"
+import type {
+  ExtractListenerDeliveredType,
+  ExtractListenerPayloadType,
+  ExtractListenerResponseType,
+} from "@hyper-fetch/sockets";
 
 type Wire = ExtractListenerResponseType<typeof onTrade>; // Trade
 type Delivered = ExtractListenerDeliveredType<typeof onTrade>; // Trade[]
-
-onTrade.listen(({ data }) => {
-  // data: Trade[]
-});
+type Payload = ExtractListenerPayloadType<typeof onMessage>; // { roomId: string }
 ```
 
-Reusable abstractions keep working: a batched listener still satisfies `ListenerInstance<{ response: Trade }>`. When you
-need to constrain on what callbacks receive, use the `delivered` field, e.g. `ListenerInstance<{ delivered: Trade[] }>`.
+Type `createListener<ChatMessage>()`, not `createListener<{ response: ChatMessage }>()`: the generic is the message
+itself. For reusable helpers, constrain with `ListenerInstance<{ response: Trade }>`, or
+`ListenerInstance<{ delivered: Trade[] }>` to constrain what callbacks receive.
 
 ---
 
-## See More
+:::secondary Summary
 
-<LinkCard
-  type="docs"
-  title="Socket"
-  description="Learn more about the Socket class and its configuration options."
-  to="/docs/sockets/socket"
-/>
+- Define a listener once per topic with `createListener<Response>()({ topic })`.
+- Fill topic params with `setParams` and the subscription payload with `setPayload`, and use the returned clone.
+- Add `delivery` to fast topics instead of throttling in components.
+- Always call the function `listen()` returns, or use `useListener`.
 
-<LinkCard
-  type="docs"
-  title="Emitter"
-  description="Learn more about the Emitter class and its configuration options."
-  to="/docs/sockets/emitter"
-/>
+:::
 
-<LinkCard
-  type="docs"
-  title="Socket SDK"
-  description="Use listeners via a type-safe, proxy-based SDK with centralized configuration."
-  to="/docs/sockets/sdk"
-/>
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="guides"
+      title="Listening to events"
+      description="Listeners in practice: params, cleanup and connection state."
+      to="/docs/guides/sockets/listening"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="useListener"
+      description="The latest message and connection state in a React component."
+      to="/docs/react/sockets/use-listener"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Emitter"
+      description="Send typed messages to a topic."
+      to="/docs/sockets/emitter"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="api"
+      title="Listener API reference"
+      description="Every method and type of the Listener class."
+      to="/docs/api/sockets/Classes/Listener"
+    />
+  </div>
+</div>
+
+Runnable examples: [live notifications](/examples/realtime/notifications) over Server-Sent Events,
+[cache kept current by events](/examples/realtime/live-cache-updates), and
+[tRPC subscriptions](/examples/integrations/trpc-subscriptions) with a subscription payload.

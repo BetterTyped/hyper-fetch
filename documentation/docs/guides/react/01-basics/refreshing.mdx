@@ -1,94 +1,147 @@
 ---
 title: Auto-Refreshing Data
-description: "Poll an API and auto-refresh data in React with the refresh and refreshTime options of the HyperFetch useFetch hook, using the Time enum for readable intervals."
+description: "Poll an API and auto-refresh data in React with the refresh and refreshTime options of useFetch, pause it in background tabs and refresh on demand."
 sidebar_label: Refreshing
 ---
 
 # Auto-Refreshing Data
 
-In many applications, especially those displaying real-time or frequently changing data like dashboards, stock tickers,
-or live scores, it's essential to keep the information up-to-date without requiring the user to manually refresh the
-page. HyperFetch provides a simple and efficient way to achieve this with the `refresh` options in the `useFetch` hook.
+Dashboards, scores and job statuses go stale while they are on screen. This guide keeps them fresh with polling in
+[`useFetch`](/docs/react/hooks/use-fetch), pauses it in background tabs, and refreshes on demand from a button or
+another component.
 
 :::secondary What you'll learn
 
-1.  How to **automatically refresh** data at a set interval.
-2.  How to use the **`refresh`** and **`refreshTime`** options in `useFetch`.
-3.  How to create a **live-updating component** to display fresh data.
-4.  How to use **`Time`** enum for clear and readable time definitions.
+1.  How to **poll** a request with `refresh` and `refreshTime`.
+2.  How to **pause polling** in background tabs with `refetchBlurred`.
+3.  How to show **when the data was updated** with `responseTimestamp`.
+4.  How to **refresh on demand** with `refetch()` and cache invalidation.
 
 :::
 
-## Polling with `refresh`
+---
 
-You can turn any `useFetch` hook into a polling mechanism by setting the `refresh` option to `true` and providing a
-`refreshTime` in milliseconds.
+## Poll with refresh
 
-{/* Let's build an example that fetches a list of "live" activities and refreshes them every 5 seconds. */}
-{/* We'll also display a "Last Updated" timestamp to show the refresh in action. */}
+Set `refresh: true` and an interval in `refreshTime`, default `Time.HOUR`. The [`Time`](/docs/api/core/Enums/Time)
+enum from `@hyper-fetch/core` keeps intervals readable. `responseTimestamp` is the `Date` of the last response, so the
+UI can show its age without extra state.
 
-```tsx
-import { Time } from "@hyper-fetch/core"
+```tsx title="components/live-activity.tsx"
+import { Time } from "@hyper-fetch/core";
+import { useFetch } from "@hyper-fetch/react";
+import { getActivities } from "../api/activities";
 
-function LiveActivityFeed() {
-  const [lastUpdated, setLastUpdated] = React.useState(new Date());
-
+export function LiveActivity() {
   // highlight-start
-  const { data: activities, loading, onSuccess } = useFetch(getActivities, {
+  const { data: activities, loading, responseTimestamp } = useFetch(getActivities, {
     refresh: true,
     refreshTime: Time.SEC * 5,
-  });
-
-  onSuccess(() => {
-    setLastUpdated(new Date());
   });
   // highlight-end
 
   return (
     <div className="border rounded-md">
-      <div className="p-4 border-b flex justify-between items-center">
-        <h2 className="text-xl font-bold">Live Activity</h2>
-        <p className="text-sm text-gray-500">Last Updated: {lastUpdated.toLocaleTimeString()}</p>
+      <div className="p-4 border-b flex justify-between">
+        <h2 className="text-xl font-bold">Live activity</h2>
+        <p className="text-sm text-gray-500">Updated {responseTimestamp?.toLocaleTimeString() ?? "-"}</p>
       </div>
-      {loading && !activities ? (
-        <p className="p-4">Loading feed...</p>
-      ) : (
-        <ul className="divide-y divide-gray-200">
-          {activities?.map((activity) => (
-            <li key={activity.id} className="p-4">
-              {activity.name}
-            </li>
-          ))}
-        </ul>
-      )}
+      {loading && !activities && <p className="p-4">Loading feed...</p>}
+      <ul className="divide-y">
+        {activities?.map((activity) => (
+          <li key={activity.id} className="p-4">
+            {activity.name}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 ```
 
-### How It Works
+- A tick is skipped when the same request is already running or queued, so slow responses never stack up.
+- Every component with the same request shares the response, even when only one of them polls.
+- Changing `refreshTime`, `disabled` or the request restarts the countdown.
 
-1.  **`refresh: true`**: This option enables the auto-refreshing feature for the hook.
-2.  **`refreshTime: Time.SEC * 5`**: This sets the polling interval. We specify that the data should be
-    re-fetched every 5000 milliseconds (5 seconds). Using the `Time` enum from `@hyper-fetch/core` makes the
-    time definition more readable than just `5000`.
-3.  **`onSuccess` callback**: We use the `onSuccess` registrar returned by `useFetch` to update a `lastUpdated` state
-    variable every time a successful refresh occurs. This allows us to give visual feedback to the user that the data is
-    fresh.
-4.  The component will now automatically call the `getActivities` request every 5 seconds, keeping the UI in sync with
-    the latest data from the server.
+---
 
-This simple setup is all you need to add powerful real-time capabilities to your application.
+## Pause polling in background tabs
+
+Polling continues while the window is blurred, default `refetchBlurred: true`. Turn it off to save requests and battery,
+and add `refetchOnFocus` so the data is fresh the moment the user comes back.
+
+```tsx title="Poll only while the tab is visible"
+const { data } = useFetch(getStats, {
+  refresh: true,
+  refreshTime: Time.SEC * 10,
+  refetchBlurred: false,
+  refetchOnFocus: true,
+});
+```
+
+The [window focus and blur guide](/docs/guides/react/basics/window-focus-blur) covers focus and reconnect refetching.
+
+---
+
+## Refresh on demand
+
+`refetch()` sends the request at once and restarts the polling countdown, so a scheduled tick never fires right after a
+manual refresh. It bypasses deduplication, so the response is at least as new as the click.
+
+```tsx title="Refresh button"
+const { data, refetch, loading } = useFetch(getActivities, { refresh: true, refreshTime: Time.MIN });
+
+return (
+  <button onClick={refetch} disabled={loading}>
+    Refresh now
+  </button>
+);
+```
+
+To refresh from somewhere else, such as after a mutation or a socket event, invalidate the cache. Every mounted
+`useFetch` with that request sends again.
+
+```ts title="Refresh from outside the component"
+client.cache.invalidate(getActivities);
+```
+
+---
+
+## Polling or realtime
+
+| Situation                                                      | Use                                                        |
+| -------------------------------------------------------------- | ---------------------------------------------------------- |
+| Data changes every few seconds to minutes, a delay is fine     | `refresh` with `refreshTime`                               |
+| Data must appear the moment it changes                         | [A socket listener](/docs/guides/react/sockets/listening)  |
+| Data changes after the user's own action                       | Invalidate after the [mutation](/docs/guides/react/basics/submitting) |
+| Data only needs to be fresh when the user looks at it          | `refetchOnFocus` without polling                           |
+
+Short intervals multiply with users: 1,000 open tabs polling every second is 1,000 requests per second. Pick the longest
+interval the screen can live with, and pause it in the background.
 
 ---
 
 :::success Congratulations!
 
-You've learned how to keep your application's data fresh with auto-refreshing!
+You can now keep data fresh while it is on screen.
 
-- You can enable **automatic polling** for any `useFetch` hook.
-- You know how to configure the **refresh interval** using `refreshTime`.
-- You can provide **visual feedback** to users to show when data was last updated.
-- You can use the helpful **`Time`** enum for readable time values.
+- You can **poll** a request with `refresh` and `refreshTime`.
+- You can **pause polling** in background tabs with `refetchBlurred: false`.
+- You can show **when data was updated** with `responseTimestamp`.
+- You can **refresh on demand** with `refetch()` or `client.cache.invalidate`.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="useFetch polling"
+  description="The refresh options and how they interact with focus and reconnect."
+  to="/docs/react/hooks/use-fetch#polling-and-refetch-on-focus"
+/>
+
+- Guides: [window focus and blur](/docs/guides/react/basics/window-focus-blur),
+  [cache revalidation](/docs/guides/core/advanced/cache-revalidation).
+- Runnable examples: [polling](/examples/data-fetching/polling), [dashboard](/examples/apps/dashboard),
+  [provider defaults](/examples/getting-started/provider-defaults).

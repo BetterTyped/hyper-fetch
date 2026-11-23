@@ -7,241 +7,200 @@ sidebar_label: Overview
 
 # tRPC client with React hooks and caching
 
-[Read the API Reference »](/docs/api/adapter-trpc/Functions/TrpcAdapter.mdx)
-
-`@hyper-fetch/trpc` is a tRPC client for HyperFetch. You keep your tRPC server and router as they are, and the frontend
-calls procedures through the same `createRequest`, `send()` and React hooks you use for REST and GraphQL. Types come
-from your `AppRouter`, and every call gets caching, deduplication, retries and offline queues.
+`@hyper-fetch/trpc` calls the procedures of a tRPC router as HyperFetch requests, typed from your `AppRouter`. Your
+server stays as it is. Use it instead of tRPC's TanStack Query client when you want one client for tRPC, REST, GraphQL
+and sockets, with caching, deduplication, retries, offline queues and the React hooks.
 
 :::tip Purpose
 
-1. **Call tRPC procedures** with the same request API you use for REST and GraphQL.
-2. **Infer types from your router** through the regular `createSdk`.
+1. **Call tRPC procedures** with the request API you use for REST and GraphQL.
+2. **Infer types from your router** through the regular [`createSdk`](/docs/core/sdk).
 3. **Cache every input separately**, without writing query keys by hand.
-4. **Support transformers** such as `superjson`.
-5. **Listen to subscriptions** over WebSocket or Server-Sent Events with the
-   [socket adapters](/docs/integrations/adapter-trpc/subscriptions.mdx).
+4. **Listen to subscriptions** over WebSocket or Server-Sent Events, see
+   [subscriptions](/docs/integrations/adapter-trpc/subscriptions).
 
 :::
 
 ---
 
-## What is tRPC
+## Install
 
-tRPC is a way to call server functions from a TypeScript client without writing an API schema. The server defines a
-router of procedures, and the client imports only the router's type. When you rename a procedure or change its input,
-the client stops compiling. There is no code generation step and no OpenAPI file to keep in sync.
+`@trpc/server` (v11) is an optional peer dependency, only needed for the `TrpcSchema` type. The project that imports
+your `AppRouter` type usually has it already.
 
-There are three kinds of procedures:
-
-| Procedure      | What it does                    | How it goes over the wire                     |
-| -------------- | ------------------------------- | --------------------------------------------- |
-| `query`        | Reads data                      | `GET` with the input in the `input` param     |
-| `mutation`     | Changes data                    | `POST` with the input as a JSON body          |
-| `subscription` | Streams events to the client    | WebSocket or Server-Sent Events               |
-
-tRPC fits best when the frontend and backend are both TypeScript and live in one repo, so the client can import the
-router type. If other teams or languages call your API, a REST or GraphQL schema is usually the better contract.
-
----
-
-## tRPC and React Query
-
-The official React integration of tRPC is built on TanStack Query, so "trpc react query" is how most people meet it.
-TanStack Query owns the cache and you work with query keys and query options generated from the router.
-
-This adapter is a different client for the same server. HyperFetch owns the cache, the queue and the hooks, and the
-request object is the key. You pass `api.user.byId.$query.setPayload({ id: 1 })` to `useFetch` and the input becomes
-part of the cache key, so there is nothing to write by hand. Pick it when you want one client for tRPC, REST, GraphQL
-and sockets, or when you need offline queues and request cancellation that work the same for every backend.
-
----
-
-## tRPC with Next.js
-
-With the Next.js App Router, the tRPC router is usually mounted through tRPC's fetch adapter in a route handler, for
-example `app/api/trpc/[trpc]/route.ts`. The server side does not change for HyperFetch. Point the client at the path
-where the handler lives:
-
-```ts
-import { createClient, createSdk } from "@hyper-fetch/core";
-import { TrpcAdapter } from "@hyper-fetch/trpc";
-import type { TrpcSchema } from "@hyper-fetch/trpc";
-
-import type { AppRouter } from "@/server/router";
-
-export const client = createClient({ url: "/api/trpc" }).setAdapter(TrpcAdapter());
-
-export const api = createSdk<typeof client, TrpcSchema<AppRouter>>(client, { camelCaseToKebabCase: false });
-```
-
-A relative URL works in the browser. Code that runs on the server, such as a route handler or a server component that
-calls another service, needs the absolute URL, for example from an environment variable.
-
----
-
-## Installation
-
-Install the adapter next to the core package. `@trpc/server` is only needed for the `TrpcSchema` type, and your project
-that imports the `AppRouter` type usually has it already.
-
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/trpc
 ```
 
 ---
 
-## Getting Started
+## Setup
 
-Point the client at the URL where your tRPC handler is mounted, and describe the router with `TrpcSchema`.
+1. Point the client at the URL where your tRPC handler is mounted. With the Next.js App Router that is usually the route
+   handler at `app/api/trpc/[trpc]/route.ts`, so `url: "/api/trpc"`. Server code needs an absolute URL.
 
-```ts
-import { createClient, createSdk } from "@hyper-fetch/core";
+```ts title="api/client.ts"
+import { createClient } from "@hyper-fetch/core";
 import { TrpcAdapter } from "@hyper-fetch/trpc";
+
+export const client = createClient({ url: "http://localhost:3000/trpc" }).setAdapter(TrpcAdapter());
+```
+
+2. Describe the router with `TrpcSchema` and create the SDK. `camelCaseToKebabCase: false` keeps procedure names as
+   written in the router (`byId`, not `by-id`).
+
+```ts title="api/sdk.ts"
+import { createSdk } from "@hyper-fetch/core";
 import type { TrpcSchema } from "@hyper-fetch/trpc";
 
-import type { AppRouter } from "./server";
+import type { AppRouter } from "../server/router";
+import { client } from "./client";
 
-const client = createClient({ url: "http://localhost:3000/trpc" }).setAdapter(TrpcAdapter());
-
-const api = createSdk<typeof client, TrpcSchema<AppRouter>>(client, { camelCaseToKebabCase: false });
-
-const { data, error } = await api.user.byId.$query.setPayload({ id: 1 }).send();
+export const api = createSdk<typeof client, TrpcSchema<AppRouter>>(client, { camelCaseToKebabCase: false });
 ```
 
-`camelCaseToKebabCase: false` keeps procedure names as they are written in the router (`byId`, not `by-id`).
+3. Call queries under `$query` and mutations under `$mutation`. The procedure input is the payload.
 
----
+```tsx title="User.tsx"
+import { useFetch, useSubmit } from "@hyper-fetch/react";
 
-## Queries
+import { api } from "./api/sdk";
 
-Queries are available under `$query`. The procedure input is the request payload.
+export const User = ({ id }: { id: number }) => {
+  const { data, loading } = useFetch(api.user.byId.$query.setPayload({ id }));
+  const { submit, submitting } = useSubmit(api.user.create.$mutation);
 
-```tsx
-import { useFetch } from "@hyper-fetch/react";
+  if (loading) return <p>Loading...</p>;
 
-const { data, loading } = useFetch(api.user.byId.$query.setPayload({ id: 1 }));
-```
-
-They are sent as `GET {url}/user.byId?input={"id":1}`, with the input URL-encoded. Like `GET` requests in the
-`HttpAdapter`, identical queries running at the same time are deduplicated by default.
-
----
-
-## Mutations
-
-Mutations are available under `$mutation` and are sent as `POST {url}/user.create` with a JSON body.
-
-```tsx
-import { useSubmit } from "@hyper-fetch/react";
-
-const { submit } = useSubmit(api.user.create.$mutation);
-
-await submit({ payload: { name: "John" } });
+  return (
+    <button disabled={submitting} onClick={() => submit({ payload: { name: "John" } })}>
+      Invite a friend of {data?.name}
+    </button>
+  );
+};
 ```
 
 ---
 
-## Requests without the SDK
+## How it maps
 
-The SDK is optional. `QUERY` and `MUTATION` are the methods of this adapter, and the endpoint is the procedure path.
+| tRPC                                     | HyperFetch                                                                               |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Handler URL (`/trpc`, `/api/trpc`)       | client `url`                                                                             |
+| Procedure path (`user.byId`)             | `endpoint` `user.byId`, or `api.user.byId` in the SDK                                    |
+| `query` procedure                        | method `QUERY` (default, `$query`), sent as `GET {url}/user.byId?input=...`              |
+| `mutation` procedure                     | method `MUTATION` (`$mutation`), sent as `POST {url}/user.create` with a JSON body       |
+| `subscription` procedure                 | a listener with `TrpcWebsocketAdapter` or `TrpcSseAdapter`, see [subscriptions](/docs/integrations/adapter-trpc/subscriptions) |
+| Input                                    | `payload`, passed through the `transformer`                                              |
+| Output                                   | `data`                                                                                   |
+| `TRPCError`                              | `error` (`message`, `code`, `data.code`, `data.httpStatus`) with the HTTP `status`       |
+| Response headers                         | `extra.headers`                                                                          |
 
-```ts
-const getUser = client.createRequest<{ response: User; payload: { id: number } }>()({
+The adapter adds the input to the cache and query keys, so `{ id: 1 }` and `{ id: 2 }` are cached, deduplicated and
+queued separately. Queries are deduplicated by default, mutations are not. The abort key has no input, so
+`request.abort()` stops every running call of the procedure. The paths `user.byId` and `/user/byId` share the cache.
+
+Without the SDK, create the request yourself:
+
+```ts title="api/users.ts"
+type User = { id: number; name: string };
+
+export const getUser = client.createRequest<{ response: User; payload: { id: number } }>()({
   endpoint: "user.byId",
   method: "QUERY",
 });
-
-const createUser = client.createRequest<{ response: User; payload: { name: string } }>()({
-  endpoint: "user.create",
-  method: "MUTATION",
-});
 ```
-
-`QUERY` is the default method. The paths `user.byId` and `/user/byId` point to the same procedure and share the cache.
 
 ---
 
-## Cache keys
+## Adapter options
 
-The adapter adds the input to the cache and query keys, so `{ id: 1 }` and `{ id: 2 }` are cached, deduplicated and
-queued separately. The abort key does not contain the input, so `request.abort()` stops every running call of the
-procedure.
+`TrpcAdapter` takes a `transformer`, the same one the server passes to `initTRPC.create()`. It handles the input, the
+output and the errors. Any object with `serialize` and `deserialize` works; for separate transformers per direction pass
+`{ serialize: input.serialize, deserialize: output.deserialize }`.
 
-A `cancelable` request replaces the running call with the same query key, which means the same input. To cancel the
-previous call when the input changes, for example in a search field, share the query key between the inputs.
+```ts title="api/client.ts"
+import superjson from "superjson";
 
-```ts
-const search = api.user.search.$query.setCancelable(true).setDeduplicate(false).setQueryKey("user-search");
+export const client = createClient({ url: "http://localhost:3000/trpc" }).setAdapter(
+  TrpcAdapter({ transformer: superjson }),
+);
+```
+
+Request `options` are passed to `fetch` (except `method`, `headers`, `body` and `signal`), plus `timeout` in
+milliseconds, default `5000`.
+
+```ts title="api/users.ts"
+export const getMe = client.createRequest<{ response: User }>()({
+  endpoint: "user.me",
+  options: { credentials: "include", timeout: 10000 },
+});
 ```
 
 ---
 
 ## Errors
 
-Failed procedures resolve with the error sent by the server and the HTTP status of the response.
+Failed procedures resolve with the error the server sent and the HTTP status. With `TrpcSchema` the error type follows
+the router, including a custom `errorFormatter`. For requests created by hand, use `TrpcErrorType`.
 
-```ts
-const { error, status, extra } = await api.user.byId.$query.setPayload({ id: 999 }).send();
+```ts title="user.ts"
+const { error, status } = await api.user.byId.$query.setPayload({ id: 999 }).send();
 
-status; // 404
-error?.message; // "User not found"
-error?.code; // -32004
-error?.data.code; // "NOT_FOUND"
-error?.data.httpStatus; // 404
-extra?.headers; // response headers
+// `error` also includes the client's global error (`Error` by default), so check for the tRPC shape first
+if (error && "data" in error) {
+  console.log(status, error.message, error.data.code); // 404, "User not found", "NOT_FOUND"
+}
 ```
 
-With `TrpcSchema` the error type follows the router, including a custom `errorFormatter`. For requests created by hand,
-use the exported `TrpcErrorType`.
-
-A response that did not come from a procedure, such as an HTML error page from a proxy, resolves with an `UnexpectedError`
-and the status of that response.
+A response that did not come from a procedure, such as an HTML page from a proxy, resolves with an `UnexpectedError`.
 
 ---
 
-## Transformers
-
-Pass the same transformer that the server uses in `initTRPC.create()`. It handles the input, the output and the errors.
-
-```ts
-import superjson from "superjson";
-
-const client = createClient({ url: "http://localhost:3000/trpc" }).setAdapter(
-  TrpcAdapter({ transformer: superjson }),
-);
-
-const { data } = await api.event.byDate.$query.setPayload({ date: new Date() }).send();
-
-data?.createdAt; // Date
-```
-
-Any object with `serialize` and `deserialize` methods works. When the server uses separate transformers for each
-direction, pass `{ serialize: input.serialize, deserialize: output.deserialize }`.
-
----
-
-## Options
-
-Request options are passed to `fetch`, with an additional `timeout` in milliseconds (5 seconds by default).
-
-```ts
-const getUser = client.createRequest<{ response: User }>()({
-  endpoint: "user.me",
-  options: { credentials: "include", timeout: 10000 },
-});
-```
-
-Query params are appended to the URL. The `input` and `batch` keys are reserved for the tRPC format and are skipped.
-
----
-
-## Limitations
+## Limits
 
 - Request batching is not supported.
-- Subscriptions are not requests, so they are left out of `TrpcSchema`. Listen to them with a `Socket` and the
-  [tRPC socket adapters](/docs/integrations/adapter-trpc/subscriptions.mdx).
-- A `null` payload removes the payload, so the procedure receives no input. Procedures that need a `null` input
-  should take an object instead, for example `{ value: null }`.
+- Subscriptions are left out of `TrpcSchema`. Use the [socket adapters](/docs/integrations/adapter-trpc/subscriptions).
+- A `null` payload removes the payload, so the procedure receives no input. Wrap it: `{ value: null }`.
 - The SDK can't reach a procedure named like a request property, such as `send` or `method`. Use `createRequest` with
-  the procedure path for those.
+  the procedure path.
+- A `cancelable` request only replaces a running call with the same input. To cancel on every keystroke of a search,
+  share one query key: `api.user.search.$query.setCancelable(true).setDeduplicate(false).setQueryKey("user-search")`.
+- Query params are appended to the URL. The `input` and `batch` keys are reserved by the tRPC format and skipped.
+
+---
+
+:::secondary Summary
+
+- `TrpcAdapter()` calls procedures over tRPC's HTTP format, and `TrpcSchema` types them through `createSdk`.
+- Queries go as `GET` under `$query`, mutations as `POST` under `$mutation`. The input is the payload.
+- Pass the server's `transformer`, such as `superjson`, to keep rich types.
+- Errors keep the tRPC shape and resolve with the HTTP status.
+
+:::
+
+## Next steps
+
+Runnable examples: [tRPC](/examples/integrations/trpc), a router on Hono with a typed React client, and
+[tRPC subscriptions](/examples/integrations/trpc-subscriptions).
+
+<LinkCard
+  type="docs"
+  title="Subscriptions"
+  description="Listen to tRPC subscriptions over WebSocket or SSE."
+  to="/docs/integrations/adapter-trpc/subscriptions"
+/>
+
+<LinkCard
+  type="docs"
+  title="SDK"
+  description="How createSdk builds typed requests from a schema."
+  to="/docs/core/sdk"
+/>
+
+<LinkCard
+  type="api"
+  title="TrpcAdapter API reference"
+  description="The adapter factory and its option, error and extra types."
+  to="/docs/api/adapter-trpc/Functions/TrpcAdapter"
+/>

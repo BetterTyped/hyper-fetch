@@ -7,12 +7,11 @@ description:
 sidebar_label: Transactions
 ---
 
-# Multi-record Writes with Transactions
+# Multi-record writes with transactions
 
-Publishing a post in Teamboard changes two things: the post's status becomes `published`, and the team gets a
-notification. Users should see both at once, and if the server says no, both should disappear. Two separate writes
-cannot promise that. `db.transaction` groups writes to any rows and collections into **one optimistic change**, which is
-kept or reverted as a whole.
+Publishing a post in Teamboard sets its status to `published` and notifies the team, and if the server says no, both
+changes should disappear. `db.transaction` groups writes to any rows and collections into **one optimistic change**,
+kept or reverted as a whole. This guide builds that Publish button.
 
 :::secondary What you'll learn
 
@@ -28,7 +27,7 @@ kept or reverted as a whole.
 
 ## The problem with separate writes
 
-```ts
+```ts title="src/publish.ts"
 const publishPost = async (post: PostSummary) => {
   await db.post.update(post.id, { status: "published" });
   // error-next-line
@@ -70,7 +69,7 @@ export const db = createDb(
 
 Then group the writes:
 
-```ts
+```ts title="src/publish.ts"
 export const publishPost = (post: PostSummary) =>
   db.transaction("publish", (tx) => {
     tx.post.update(post.id, { status: "published" });
@@ -115,7 +114,7 @@ Publishing might also set `publishedAt` on the server. With `onSuccess: "refetch
 changed rows reload before the optimistic layer is dropped, so the screen goes straight from your values to the
 server's:
 
-```ts
+```ts title="src/db.ts"
 transactions: {
   publish: {
     mutationFn: ({ id, mutations }) => publish.setPayload({ idempotencyKey: id, mutations }),
@@ -135,7 +134,7 @@ sent.
 `db.transaction` returns a `Transaction`: a promise of `{ success, data, error }` with an `id`. Like `send()`, it never
 rejects, so the pending and error states fit in a few lines:
 
-```tsx
+```tsx title="src/publish-button.tsx"
 const PublishButton = ({ post }: { post: PostSummary }) => {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -170,7 +169,7 @@ toast or logging.
 Most REST APIs have no batch endpoint. Leave the name out, and the writes go through each collection's own `mutate`, one
 after another, in the order you made them:
 
-```ts
+```ts title="src/publish.ts"
 await db.transaction((tx) => {
   tx.post.update(post.id, { status: "published" }); // PATCH /posts/p1
   tx.notification.insert(notification); // then POST /notifications
@@ -209,18 +208,18 @@ flowchart LR
   `tx.notification.insert` without an `id` does not compile. Generate it on the client, for example with
   `crypto.randomUUID()`.
 - **Validation comes first.** Every write is checked against its collection's schema before anything shows. One invalid
-  write rejects the whole transaction, and nothing appears on screen.
-- **Offline, they replay as a unit.** With [`offline`](./offline-first.mdx), the outbox stores a named transaction by
-  its **name** and its writes, never the function, so it can be replayed after a restart. An unnamed transaction replays
-  its writes in order, and a rejected one drops the rest.
+  write fails the whole transaction, and nothing appears on screen.
+- **Offline, they replay as a unit.** With [`offline`](/docs/guides/db/patterns/offline-first), the outbox stores a
+  named transaction by its **name** and its writes, never the function, so it can be replayed after a restart. An
+  unnamed transaction replays its writes in order, and a rejected one drops the rest.
 - **Renaming is a migration.** A transaction left in an outbox under a name the db no longer declares cannot be
   replayed, and is reported to `db.onError` with `type: "outbox"`. Keep old names until outboxes have drained.
 
-The [Transactions reference](../../../db/transactions.mdx) lists the same behavior in short form.
+The [transactions reference](/docs/db/transactions) lists the same behavior in short form.
 
 ---
 
-:::success Transactions mastered!
+:::success Congratulations!
 
 Publishing in Teamboard is all or nothing.
 
@@ -238,7 +237,17 @@ Publishing in Teamboard is all or nothing.
 
 <LinkCard
   type="guides"
-  title="Search and Server-side Filters"
+  title="Search and server-side filters"
   description="Full-text search, server-only operators and fields the backend compares differently."
   to="/docs/guides/db/patterns/search-and-server-filters"
 />
+
+<LinkCard
+  type="docs"
+  title="Transactions reference"
+  description="Named and unnamed transactions and their rules in short form."
+  to="/docs/db/transactions"
+/>
+
+- API reference: [`Transaction`](/docs/api/db/Types/Transaction), [`TransactionConfig`](/docs/api/db/Types/TransactionConfig),
+  [`TransactionWrite`](/docs/api/db/Types/TransactionWrite).

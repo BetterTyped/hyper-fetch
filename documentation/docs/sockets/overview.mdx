@@ -1,13 +1,13 @@
 ---
 sidebar_position: 1
 title: Sockets Overview
-description: "HyperFetch Sockets gives you typed listeners and emitters over WebSockets, Server-Sent Events, GraphQL subscriptions, tRPC, oRPC and Firebase, with reconnects, auth and message batching built in."
+description: "Typed listeners and emitters over WebSocket, SSE, GraphQL, tRPC, oRPC and Firebase, with reconnects, auth and message batching built in."
 sidebar_label: Overview
 ---
 
 # Sockets overview
 
-`@hyper-fetch/sockets` handles realtime data the way [core](/docs/core/overview.mdx) handles requests. You open one
+`@hyper-fetch/sockets` handles realtime data the way [core](/docs/core/overview) handles requests. You open one
 **socket** per server, then define each topic once as a typed **listener** (to receive) or **emitter** (to send). The
 socket reconnects with backoff, refreshes credentials on every attempt and reports its state as events.
 
@@ -49,7 +49,7 @@ sendToRoom.emit({ payload: { text: "hi" } });
 // Property 'params' is missing: `:roomId` comes from the topic
 
 // highlight-next-line
-sendToRoom.emit({ params: { roomId: 1 }, payload: { text: "hi" } }); // ✅
+sendToRoom.emit({ params: { roomId: 1 }, payload: { text: "hi" } }); // OK
 ```
 
 </TabItem>
@@ -115,8 +115,8 @@ const events = createSocketClient({
 | WebSocket                     | `WebsocketAdapter` (default)                              |
 | Server-Sent Events            | `ServerSentEventsAdapter` (receive only)                  |
 | GraphQL subscriptions         | `GraphqlWsAdapter` from `@hyper-fetch/graphql`            |
-| tRPC subscriptions            | `TrpcWebsocketAdapter`, `TrpcSseAdapter`                  |
-| oRPC event iterators          | `OrpcWebsocketAdapter`, `OrpcStreamAdapter`               |
+| tRPC subscriptions            | `TrpcWebsocketAdapter`, `TrpcSseAdapter` from `@hyper-fetch/trpc` |
+| oRPC event iterators          | `OrpcWebsocketAdapter`, `OrpcStreamAdapter` from `@hyper-fetch/orpc` |
 | Firestore and Realtime DB     | `FirebaseSocketsAdapter` from `@hyper-fetch/firebase`     |
 
 </TabItem>
@@ -170,11 +170,11 @@ flowchart LR
 
 | Building block                       | What it owns                                                                   |
 | ------------------------------------ | ------------------------------------------------------------------------------ |
-| [Socket](/docs/sockets/socket.mdx)   | The connection, reconnect policy, `onConnect` and lifecycle events             |
-| [Listener](/docs/sockets/listener.mdx) | One topic you receive, its data type and its delivery strategy               |
-| [Emitter](/docs/sockets/emitter.mdx) | One topic you send to, its payload type and payload mapper                     |
-| [Adapter](/docs/sockets/adapter.mdx) | The transport and its wire format, adjustable with `decode` and `encode`       |
-| [Socket SDK](/docs/sockets/sdk.mdx)  | Every topic of a server in one typed tree, built from a schema                 |
+| [Socket](/docs/sockets/socket)   | The connection, reconnect policy, `onConnect` and lifecycle events             |
+| [Listener](/docs/sockets/listener) | One topic you receive, its data type and its delivery strategy               |
+| [Emitter](/docs/sockets/emitter) | One topic you send to, its payload type and payload mapper                     |
+| [Adapter](/docs/sockets/adapter) | The transport and its wire format, adjustable with `decode` and `encode`       |
+| [Socket SDK](/docs/sockets/sdk)  | Every topic of a server in one typed tree, built from a schema                 |
 
 :::note Before you build on it
 
@@ -183,6 +183,17 @@ flowchart LR
 - **Server-Sent Events only receive.** Calling `emit()` on an SSE socket throws.
 
 :::
+
+---
+
+## Where to start
+
+- **New to sockets:** follow the [quick start](/docs/sockets/quick-start), then the [setup guide](/docs/guides/sockets/setup).
+- **Runnable apps:** a [WebSocket chat](/examples/realtime/websocket-chat), a
+  [Server-Sent Events feed](/examples/realtime/server-sent-events), [live notifications](/examples/realtime/notifications)
+  and [cache kept current by events](/examples/realtime/live-cache-updates).
+- **Picking a transport:** [SSE vs WebSocket](/docs/guides/sockets/sse-vs-websocket) and
+  [HTTP vs WebSocket](/docs/guides/sockets/http-vs-websocket).
 
 ---
 
@@ -199,6 +210,14 @@ flowchart LR
   </div>
   <div className="col col--6">
     <LinkCard
+      type="guides"
+      title="WebSockets in React"
+      description="useListener and useEmitter in components, with connection state and cleanup."
+      to="/docs/guides/sockets/websockets-in-react"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
       type="docs"
       title="Socket"
       description="Connection options, auth, reconnects and lifecycle events."
@@ -207,18 +226,10 @@ flowchart LR
   </div>
   <div className="col col--6">
     <LinkCard
-      type="docs"
-      title="useListener"
-      description="Realtime data in React components."
-      to="/docs/react/sockets/use-listener"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="promo"
-      title="Inspect sockets in HyperFlow"
-      description="Connection state, every message in and out, and errors."
-      to="/docs/hyper-flow/features/sockets"
+      type="api"
+      title="Sockets API reference"
+      description="Every class, function and type of @hyper-fetch/sockets."
+      to="/docs/api/sockets/Classes/Socket"
     />
   </div>
 </div>

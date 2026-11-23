@@ -23,11 +23,11 @@ message and receive it again through a listener, so you see both directions work
 ## 1. Install
 
 ```npm2yarn2pnpm
-npm install @hyper-fetch/sockets
+npm install @hyper-fetch/core @hyper-fetch/sockets
 ```
 
-Browsers, Node.js 22+, Bun and Deno have a global `WebSocket`. On older Node.js versions, install `ws` and pass it
-with `adapterOptions: { WebSocket }`.
+`@hyper-fetch/core` is a peer dependency. Browsers, Node.js 22+, Bun and Deno have a global `WebSocket`. On older
+Node.js versions, install `ws` and pass it with `adapterOptions: { WebSocket }`.
 
 ---
 
@@ -101,7 +101,7 @@ listener receives messages from other users the same way.
 
 Put params in the topic string to address rooms, users or documents. They are typed, and required when you send.
 
-```ts
+```ts title="rooms.ts"
 const onRoomMessage = socket.createListener<ChatMessage>()({ topic: "rooms/:roomId" });
 const sendRoomMessage = socket.createEmitter<ChatMessage>()({ topic: "rooms/:roomId" });
 
@@ -111,22 +111,33 @@ sendRoomMessage.emit({ params: { roomId: "general" }, payload: { author: "Ann", 
 
 ---
 
+## What just happened
+
+- The [Socket](/docs/sockets/socket) opened one connection and will reconnect it with backoff when it drops.
+- The [Listener](/docs/sockets/listener) typed `data` and filtered messages by topic.
+- The [Emitter](/docs/sockets/emitter) checked the payload and params at compile time and sent them as one JSON frame.
+
+---
+
 ## Next steps
+
+See the same echo server in a React chat in the runnable [WebSocket chat](/examples/realtime/websocket-chat) example,
+or a receive-only feed in the [Server-Sent Events](/examples/realtime/server-sent-events) example.
 
 <div className="row">
   <div className="col col--6">
     <LinkCard
-      type="docs"
-      title="Authentication"
+      type="guides"
+      title="Socket authentication"
       description="Send a fresh token on every connection attempt with onConnect."
-      to="/docs/sockets/socket"
+      to="/docs/guides/sockets/authentication"
     />
   </div>
   <div className="col col--6">
     <LinkCard
       type="docs"
-      title="Server-Sent Events"
-      description="Switch the adapter and keep your listeners."
+      title="Adapters"
+      description="Switch to Server-Sent Events or map your server's message format."
       to="/docs/sockets/adapter"
     />
   </div>

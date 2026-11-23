@@ -1,78 +1,124 @@
 ---
 title: React Provider for global hook defaults
-description: "Wrap your React app in the HyperFetch Provider to set global defaults for useFetch and useSubmit, so every hook shares one config without repeating it."
-sidebar_label: ConfigProvider
+description: "Wrap your React app in the HyperFetch Provider to set global defaults for useFetch, useSubmit and other hooks, so every hook shares one config."
+sidebar_label: Provider
 ---
 
-# React Config Provider
+# React Provider
 
-In HyperFetch, you can set default configurations for hooks using the `<Provider />` component. This allows you
-to create a consistent behavior for data fetching and submission across your entire application, avoiding repetitive
-setup in individual components.
+The `Provider` from `@hyper-fetch/react` sets default options for the hooks below it, such as `refetchOnFocus` for every
+`useFetch`. It is optional: hooks work without it. This guide sets app-wide defaults, changes them at runtime and shows
+which settings belong on the request instead.
 
 :::secondary What you'll learn
 
-1.  How to use the **`<Provider />`** to set **global configurations** for HyperFetch hooks.
-2.  What are the **configurable options** for `useFetch` and `useSubmit`.
-3.  How to **structure your application** to use the provider effectively.
+1.  How to set **default hook options** with `<Provider config>`.
+2.  Which **config keys** exist and how hook options override them.
+3.  How to **change the config at runtime** with `useProvider`.
+4.  Which defaults belong on the **request or client** instead.
 
 :::
 
-## Setup
+---
 
-The `<Provider />` acts as a context wrapper. You should place it at the root of your component tree, for example
-in your main `App.tsx` or `index.tsx` file. It takes a `config` prop where you can specify default settings for all
-HyperFetch hooks.
+## Set defaults for every hook
 
-Here's how you can wrap your application with it:
+Wrap the app once, near the root. Each key of `config` holds the defaults of one hook.
 
-```tsx
-import React from "react";
-import ReactDOM from "react-dom/client";
+```tsx title="main.tsx"
+import { createRoot } from "react-dom/client";
 import { Provider } from "@hyper-fetch/react";
+import { App } from "./app";
 
-// 1. Define your custom configuration
-const customConfig = {
-  useFetchConfig: {
-    // Default options for all useFetch instances
-    refetchOnFocus: true,
-    bounce: true,
-    bounceTime: 200,
-  },
-  useSubmitConfig: {
-    // Default options for all useSubmit instances
-    bounce: true,
-    bounceTime: 300,
-  },
-};
-
-function App() {
-  // Your application components go here
-  return <div>...</div>;
-}
-
-// 2. Wrap your app with the Provider
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <Provider config={customConfig}>
-      <App />
-    </Provider>
-  </React.StrictMode>,
+createRoot(document.getElementById("root")!).render(
+  <Provider
+    config={{
+      useFetchConfig: { refetchOnFocus: true, refetchOnReconnect: true },
+      useInfiniteFetchConfig: { refetchOnFocus: true },
+      useQueueConfig: { keepFinishedRequests: true },
+    }}
+  >
+    <App />
+  </Provider>,
 );
 ```
 
-The `config` prop gives you granular control over the default behavior of `useFetch`, `useSubmit`, and other hooks,
-ensuring that your application maintains a consistent user experience with minimal boilerplate.
+| Key                      | Defaults for                                   |
+| ------------------------ | ---------------------------------------------- |
+| `useFetchConfig`         | [`useFetch`](/docs/react/hooks/use-fetch)      |
+| `useInfiniteFetchConfig` | [`useInfiniteFetch`](/docs/react/hooks/use-infinite-fetch) |
+| `useSubmitConfig`        | [`useSubmit`](/docs/react/hooks/use-submit)    |
+| `useCacheConfig`         | [`useCache`](/docs/react/hooks/use-cache)      |
+| `useQueueConfig`         | [`useQueue`](/docs/react/hooks/use-queue)      |
+| `useListener`            | [`useListener`](/docs/react/sockets/use-listener) |
+| `useEmitter`             | [`useEmitter`](/docs/react/sockets/use-emitter) |
+
+Options passed to a hook override the Provider, which overrides the built-in defaults. `select` and `pagination`
+describe one component or request, so they cannot be set here.
+
+---
+
+## Change the config at runtime
+
+`useProvider()` returns the current `config` and `setConfig`. `setConfig` replaces the whole config, so spread the
+current one to change a single option.
+
+```tsx title="components/data-saver-toggle.tsx"
+import { useProvider } from "@hyper-fetch/react";
+
+export function DataSaverToggle() {
+  const { config, setConfig } = useProvider();
+
+  const enableDataSaver = () =>
+    setConfig({ ...config, useFetchConfig: { ...config.useFetchConfig, refetchOnFocus: false, refresh: false } });
+
+  return <button onClick={enableDataSaver}>Data saver</button>;
+}
+```
+
+Passing a new `config` prop also updates the Provider. An inline object with equal values does not, so there is no need
+to memoize it.
+
+---
+
+## Hook defaults or request defaults
+
+The Provider only covers how hooks behave in components. Caching, retries and timeouts are properties of a request, so
+they are set on the request or for every request on the client.
+
+| Setting                                                     | Where                                                                  |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Refetch on focus, polling, `revalidate`, `bounce`, suspense | `Provider` config                                                      |
+| `staleTime`, `cacheTime`, `retry`, `deduplicate`            | The request, or [`setRequestDefaults`](/docs/guides/core/basics/global-defaults) |
+| Timeouts and other adapter options                          | [`setAdapterDefaults`](/docs/guides/core/basics/global-defaults)       |
+| Headers and auth                                            | [Client interceptors](/docs/guides/core/basics/authentication)         |
+
+A nested `Provider` replaces the outer config for its subtree instead of merging with it, so repeat the options you want
+to keep.
 
 ---
 
 :::success Congratulations!
 
-You've learned how to use the `<Provider />` to manage global settings for HyperFetch hooks in React!
+You can now set hook defaults in one place.
 
-- You can set **default options** for `useFetch` and `useSubmit` across your app.
-- You can **centralize configuration** to keep your components cleaner.
-- You are able to **create a consistent behavior** for data fetching throughout your application.
+- You can set **defaults per hook** with `<Provider config>`.
+- You know that **hook options win** over the Provider.
+- You can **change the config at runtime** with `useProvider`.
+- You know which settings belong on the **request or client**.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="React overview"
+  description="The hooks, the Provider and how they share the client's cache."
+  to="/docs/react/overview#global-defaults"
+/>
+
+- Guides: [global request defaults](/docs/guides/core/basics/global-defaults),
+  [window focus and blur](/docs/guides/react/basics/window-focus-blur).
+- Runnable examples: [provider defaults](/examples/getting-started/provider-defaults).
+- API: [`Provider`](/docs/api/react/Components/Provider), [`useProvider`](/docs/api/react/Hooks/useProvider).

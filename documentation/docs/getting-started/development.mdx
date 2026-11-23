@@ -7,61 +7,84 @@ sidebar_label: Development
 
 # Development
 
-To help you get started with HyperFetch, we've outlined a few best practices for structuring your project. These are
-suggestions, feel free to adapt them to your workflow.
+A suggested layout for the API layer, and three ways to see what your requests are doing while you work. Adapt both to
+your project.
 
 ---
 
-## 1. Project Structure
+## Structure the API layer
 
-1. **Organize by Feature:** Start by creating an `/api` directory to house your **client** and related **requests**.
+Keep the client and every request in one `api` folder, with one file per entity. Components, loaders and tests then
+import the same request definitions.
 
-2. **Entity-Based Directories:** For each entity in your system (e.g., users, todos, categories, products, groups),
-   create a separate directory within `/api` to store the corresponding requests.
-
-3. **Maximize Reusability:** By leveraging classes and an object-oriented approach, you can easily access and reuse
-   requests throughout your application. This structure also allows your tests to utilize existing configurations
-   without duplication.
-
-**Example Structure:**
-
-```
+```text title="Project structure"
 src
-│
 ├── api
 │   ├── client.ts
 │   ├── users
 │   │   └── users.api.ts
-│   ├── products
-│   │   └── products.api.ts
-│   └── ...
-├── ...
+│   └── products
+│       └── products.api.ts
 └── ...
 ```
 
+```ts title="src/api/users/users.api.ts"
+import { client } from "../client";
+
+export type User = { id: number; name: string };
+
+export const getUsers = client.createRequest<{ response: User[] }>()({ endpoint: "/users" });
+export const getUser = client.createRequest<{ response: User }>()({ endpoint: "/users/:userId" });
+```
+
+- **One client per backend**, created once in `client.ts` and exported.
+- **Requests at module level**, never inside components or handlers. Derive variants with `setParams` and the other
+  setters, or pass values to `send()`.
+- **Large APIs**: describe them as one [SDK](/docs/core/sdk) schema, or generate it with the [CLI](/docs/cli/overview).
+
 ---
 
-## 2. Debugging
+## Debug with HyperFlow
 
-Preferred to debug is by using [HyperFlow](/docs/hyper-flow) - dedicated devtools for HyperFetch. It allows you to see
-all the requests, responses, and errors in one place - manage cache and see detailed statistics.
+[HyperFlow](/docs/hyper-flow) is the desktop devtools app for HyperFetch. It lists every request with its status and
+timing, and shows the cache, the queues and their events in one place.
 
 <Screenshot
   src="/img/hyper-flow/network.webp"
   alt="The HyperFlow Network page listing the requests of a connected app with their status, cache state and response time."
 />
 
-<LinkCard type="docs" title="HyperFlow" description="Dedicated devtools for HyperFetch" to="/docs/hyper-flow" />
+<LinkCard type="docs" title="HyperFlow" description="Connect your app to the devtools." to="/docs/hyper-flow" />
 
-### Alternatively you can debug apps in one of two ways:
+---
 
-1. **Use the built-in logger**
+## Debug with the logger
 
-Use the client `setDebug(true)` method for this. It will start logging actions in the console. To adjust what type of
-logs will be shown, use `setLogLevel(3)` to get debug logs displayed in the console. Those will show you the exact data
-and information flow in the library while working on your application.
+Turn on the built-in logger with `setDebug(true)`. It prints `"warning"` and `"error"` logs by default. Change the level
+with `setLogLevel`, which takes `"debug"`, `"info"`, `"warning"` or `"error"`.
 
-2. **Create your own logger**
+```ts title="src/api/client.ts"
+import { createClient } from "@hyper-fetch/core";
 
-You can create your own dev tools based on events sent from the [requestManager](/core/managers.mdx#requestmanager).
-There is no limitation, and you can receive all necessary data to create everything you may need.
+export const client = createClient({ url: "https://api.example.com" })
+  .setDebug(process.env.NODE_ENV === "development")
+  .setLogLevel("debug");
+```
+
+---
+
+## Build your own tooling
+
+Every step of a request emits an event on the client's [managers](/docs/core/managers), and
+[plugins](/docs/core/plugin) can observe the cache and the dispatchers too. Use them for custom logging, metrics or your
+own devtools.
+
+```ts title="src/api/logging.ts"
+import { client } from "./client";
+
+client.requestManager.events.onResponse(({ request, response }) => {
+  console.log(request.method, request.endpoint, response.status);
+});
+```
+
+See the [plugins example](/examples/request-control/plugins) for a logging and a metrics plugin.

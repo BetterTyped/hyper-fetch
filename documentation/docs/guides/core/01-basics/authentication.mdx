@@ -7,200 +7,173 @@ sidebar_label: Authentication
 
 # Authentication
 
-Handling authentication is a critical part of any application that communicates with a secure API. HyperFetch provides
-a powerful and flexible way to manage authentication flows, including attaching tokens to requests and automatically
-refreshing them when they expire.
+Most APIs need credentials on each request: a bearer token, a session cookie or an API key. HyperFetch adds them in one
+place, the client's `onAuth` interceptor, and refreshes expired tokens in `onError`. This guide covers bearer tokens,
+token refresh, cookies and API keys.
 
 :::secondary What you'll learn
 
-1. How to automatically add **authentication details** (like tokens) to your requests.
-2. How to implement a seamless **token refresh mechanism**.
-3. How to prevent common issues like **infinite refresh loops**.
+1. How to attach a **bearer token** to every request with `onAuth`.
+2. How to skip auth for **public endpoints**.
+3. How to **refresh an expired token** on `401` without loops or parallel refreshes.
+4. How to send **cookies** and **API keys**.
 
 :::
 
 ---
 
-## Authenticating Requests
+## Attach a bearer token
 
-To automatically attach authentication details like a Bearer token to your requests, you can use the `onAuth` method on
-your `client` instance. This method registers a callback that will be executed for any request that has the `auth: true`
-option set.
+`client.onAuth` runs before every request with `auth: true`, which is the default. Return the request with the headers
+it needs.
 
-### 1. Configure the `onAuth` Callback
-
-In your client configuration, use the `onAuth` method to define how to retrieve and attach your authentication token. In
-this example, we'll get the token from `localStorage`.
-
-```typescript
+```ts title="src/api/client.ts"
 import { createClient } from "@hyper-fetch/core";
 
-const TOKEN_STORAGE_KEY = "auth_token";
+export const client = createClient({ url: "https://api.example.com" }).onAuth((request) => {
+  const token = localStorage.getItem("token");
+  if (!token) return request;
 
-export const client = createClient({
-  url: "https://api.example.com",
-}).onAuth((request) => {
-  const authToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-
-  // If the token exists, add it to the request headers
-  if (authToken) {
-    return request.setHeaders({
-      ...request.headers,
-      Authorization: `Bearer ${authToken}`,
-    });
-  }
-
-  return request;
+  return request.setHeaders({ ...request.headers, Authorization: `Bearer ${token}` });
 });
 ```
 
-### 2. Mark Requests as Authenticated
-
-For the `onAuth` callback to run, you must set the `auth` option to `true` when creating a request. This tells the
-client that the request requires authentication.
-
-```ts
-const getUsers = client.createRequest()({
-  endpoint: "/users",
-  method: "GET",
-  auth: true, // This request will now go through the onAuth callback
-});
-
-// When you send this request, it will automatically have the Authorization header.
-getUsers.send();
-```
+`setHeaders` replaces the headers, so spread `request.headers` to keep the ones set on the request. The token is read on
+each request, so a new token after login is picked up without recreating anything.
 
 ---
 
-## Refreshing Tokens
+## Skip auth for public endpoints
 
-Access tokens are often short-lived for security reasons. When a token expires, the API will typically return a
-`401 Unauthorized` error. We can gracefully handle this by using the `onError` client interceptor to refresh the token
-and retry the original request.
+Mark endpoints that need no credentials with `auth: false`, such as login or health checks. `onAuth` does not run for
+them.
 
-To avoid getting stuck in an infinite loop of refresh attempts, we'll use the `request.used` property to ensure we only
-try to refresh the token once per request.
+```ts title="src/api/auth.ts"
+export const login = client.createRequest<{
+  response: { token: string; refreshToken: string };
+  payload: { email: string; password: string };
+}>()({ endpoint: "/auth/login", method: "POST", auth: false });
+```
 
-### Example
+`setAuth(false)` does the same on an existing request.
 
-Here's how you can set up an `onError` interceptor to handle token refreshing:
+---
 
-```ts
-import { createClient } from "@hyper-fetch/core";
+## Refresh the token on 401
 
-const TOKEN_STORAGE_KEY = "auth_token";
-const REFRESH_TOKEN_STORAGE_KEY = "refresh_token";
+Access tokens expire. When the API answers `401`, refresh the token in an `onError` interceptor and send the original
+request again. Two details keep it safe:
 
-export const client = createClient({
-  url: "https://api.example.com",
-})
-  .onAuth((request) => {
-    // ... same onAuth logic as before
-    const authToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (authToken) {
-      return request.setHeaders({
-        ...request.headers,
-        Authorization: `Bearer ${authToken}`,
-      });
-    }
-    return request;
-  })
-  .onError(async (response, request) => {
-    // highlight-next-line
-    const status = response.status;
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
+- **`request.used`** marks the resent request, so a second `401` returns the error instead of refreshing again.
+- **One shared refresh**: when several requests fail at once, they all wait for the same refresh call.
 
-    // If the error is 401, we have a refresh token, and we haven't tried refreshing yet
-    if (status === 401 && refreshToken && !request.used) {
-      // Create a request to your refresh token endpoint
-      const refreshTokenRequest = client.createRequest<{ response: { token: string; refreshToken: string } }>()({
-        endpoint: "/auth/refresh",
-        method: "POST",
-      });
+```ts title="src/api/client.ts"
+const refreshSession = client.createRequest<{
+  response: { token: string; refreshToken: string };
+  payload: { refreshToken: string };
+}>()({ endpoint: "/auth/refresh", method: "POST", auth: false });
 
-      // Send the refresh token to get a new pair of tokens
-      // highlight-next-line
-      const { data, error } = await refreshTokenRequest.setPayload({ refreshToken }).send();
+let refreshing: Promise<boolean> | null = null;
 
-      if (data) {
-        // Save the new tokens
-        localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-        localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, data.refreshToken);
+const refreshTokens = async () => {
+  const refreshToken = localStorage.getItem("refreshToken");
+  if (!refreshToken) return false;
 
-        // Retry the original request.
-        // highlight-next-line
-        // setUsed(true) marks the request to prevent infinite loops.
-        return request.setUsed(true).send();
-      }
-    }
+  const { data } = await refreshSession.send({ payload: { refreshToken } });
+  if (!data) return false;
 
-    // If it's not a 401 or refreshing fails, return the original error response
-    return response;
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("refreshToken", data.refreshToken);
+  return true;
+};
+
+client.onError(async (response, request) => {
+  if (response.status !== 401 || request.used) return response;
+
+  // Requests that fail at the same time share one refresh
+  refreshing ??= refreshTokens().finally(() => {
+    refreshing = null;
   });
-```
 
-In the example above:
+  if (!(await refreshing)) return response;
 
-1.  We check if the response status is `401`, if a `refreshToken` is available, and if `request.used` is `false`.
-2.  We create and send a new request to our `/auth/refresh` endpoint.
-3.  If we successfully get new tokens, we store them in `localStorage`.
-4.  We then retry the original request using `request.send()`. Crucially, we call `request.setUsed(true)` first to
-    prevent this logic from running again if the retry also fails.
-5.  If any of these conditions are not met, we simply pass through the original error response.
-
----
-
-## Cookie-Based Authentication
-
-If your API uses cookies for authentication (e.g., `httpOnly` session cookies), HyperFetch handles them automatically
-out of the box. The underlying browser `fetch` API or libraries like `axios` manage cookies seamlessly.
-
-When your server responds with a `Set-Cookie` header, the browser securely stores the cookie and automatically includes
-it in all subsequent requests to the same domain. You don't need any extra configuration in HyperFetch for this to
-work.
-
----
-
-## API Key Authentication
-
-For services that authenticate via an API key in headers or query parameters, you can use the `onAuth` callback just
-like with bearer tokens:
-
-```ts
-export const client = createClient({
-  url: "https://api.example.com",
-}).onAuth((request) => {
-  return request.setHeaders({
-    ...request.headers,
-    "X-API-Key": process.env.API_KEY,
-  });
-});
-
-// Mark the request as requiring authentication
-const getWeather = client.createRequest()({
-  endpoint: "/weather",
-  auth: true,
+  // onAuth runs again and adds the new token
+  return request.setUsed(true).send();
 });
 ```
 
-:::note When is it helpful?
+When the refresh fails, the original `401` response is returned. Handle it where you send the request, for example by
+redirecting to the login page.
 
-- **Bearer tokens**: Attach JWT or OAuth2 access tokens to every authenticated request.
-- **Token refresh**: Automatically retry on 401 by refreshing the token in `onError`.
-- **API keys**: Add static or environment-based API keys to request headers.
-- **Cookie auth**: Works out of the box with no configuration needed.
-- **Multi-tenant auth**: Switch tokens based on the request's endpoint or custom properties.
+---
 
-:::
+## Send cookies
+
+Session cookies need no interceptor. `fetch` sends them to the same origin by default. For an API on another origin,
+set `credentials: "include"` for every request with `setAdapterDefaults`:
+
+```ts title="src/api/client.ts"
+client.adapter.setAdapterDefaults(() => ({ credentials: "include" }));
+```
+
+The server must answer with `Access-Control-Allow-Credentials: true` and a specific `Access-Control-Allow-Origin`, not
+`*`. For a single request, pass it in `options: { credentials: "include" }`.
+
+---
+
+## Send an API key
+
+An API key goes in a header the same way as a token. On a server, read it from the environment:
+
+```ts title="server/weather-client.ts"
+export const weatherClient = createClient({ url: "https://api.weather.example.com" }).onAuth((request) =>
+  request.setHeaders({ ...request.headers, "X-Api-Key": process.env.WEATHER_API_KEY ?? "" }),
+);
+```
+
+Never ship a secret key in browser code. Call the API from your server instead.
+
+---
+
+## Log out
+
+Call `client.clear()` on logout. It aborts running requests and empties the queues and the cache, including persisted
+storage, so the next user sees none of the previous user's data. Remove the stored tokens yourself.
+
+| Approach          | Where                                    | Use it for                                    |
+| ----------------- | ---------------------------------------- | --------------------------------------------- |
+| `onAuth`          | Client, runs when `auth` is `true`       | Bearer tokens, API keys, signed requests      |
+| `onError` + `used`| Client, runs on failed responses         | Refreshing tokens on `401`                    |
+| `credentials`     | Adapter defaults or request `options`    | Cookies on another origin                     |
+| `auth: false`     | Request                                  | Login, refresh, public endpoints              |
 
 ---
 
 :::success Congratulations!
 
-You've learned how to build a reliable authentication flow with HyperFetch!
+You've learned how to authenticate requests.
 
-- You can use the **`.onAuth()`** client method to attach tokens to requests marked with **`auth: true`**.
-- You can use the **`.onError()`** client method to intercept failed requests and handle token refreshing.
-- You can prevent infinite refresh loops by using the **`.setUsed(true)`** method before retrying a request.
+- You can attach credentials to every request with **`onAuth`** and skip it with **`auth: false`**.
+- You can **refresh tokens** on `401` with `onError`, `setUsed(true)` and one shared refresh.
+- You can send **cookies** across origins with `credentials: "include"`.
+- You can clear all user data on logout with **`client.clear()`**.
 
 :::
+
+Runnable example: [Authentication](/examples/request-control/authentication), with login, token refresh and logout.
+
+<LinkCard
+  type="guides"
+  title="Intercepting"
+  description="More interceptor patterns and their order."
+  to="/docs/guides/core/advanced/intercepting"
+/>
+
+<LinkCard type="docs" title="Client" description="onAuth, interceptors and clear()." to="/docs/core/client" />
+
+<LinkCard
+  type="api"
+  title="Client API reference"
+  description="Every method of the Client class with its signature."
+  to="/docs/api/core/Classes/Client"
+/>

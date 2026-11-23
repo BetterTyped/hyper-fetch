@@ -7,412 +7,255 @@ sidebar_label: Overview
 
 # GraphQL and React with a typed GraphQL client
 
-[Read the API Reference »](/docs/api/adapter-graphql/Functions/GraphqlAdapter.mdx)
-
-Using graphql and react together comes down to one choice: which client sends the operations and keeps the results.
-`@hyper-fetch/graphql` is that client for HyperFetch. Queries and mutations go over HTTP with the `GraphqlAdapter`,
-subscriptions go over WebSocket with the `GraphqlWsAdapter`, and React components read them through the same
-`useFetch`, `useSubmit` and `useListener` hooks you use for REST.
+`@hyper-fetch/graphql` connects HyperFetch to a GraphQL server. `GraphqlAdapter` sends queries and mutations over HTTP,
+`GraphqlWsAdapter` listens to subscriptions over WebSocket, and React components read both with the same `useFetch`,
+`useSubmit` and `useListener` hooks you use for REST.
 
 :::tip Purpose
 
-1. **Send GraphQL operations** from the browser or the server with one request API.
-2. **Type every operation** with generics or with typed documents from GraphQL Code Generator or gql.tada.
-3. **Cache, deduplicate and retry** queries with the HyperFetch request options.
-4. **Support queries, mutations and subscriptions** with a consistent API.
-   [Subscriptions](/docs/integrations/adapter-graphql/subscriptions.mdx) use the `graphql-transport-ws` protocol.
+1. **One request API** for GraphQL operations in the browser and on the server.
+2. **Typed operations** from generics or from typed documents of GraphQL Code Generator and gql.tada.
+3. **Cache, deduplicate and retry** queries with the usual [request](/docs/core/request) options.
+4. **Subscriptions** over `graphql-transport-ws` with typed [listeners](/docs/sockets/listener).
 
 :::
 
 ---
 
-## What a GraphQL client does in React
+## Install
 
-A GraphQL server answers one endpoint. The client sends a document (the query text), its variables and the operation
-name, and gets back `data` and maybe `errors`. You can do that with `fetch` in ten lines. What you can't do in ten lines
-is everything around it:
+`graphql` is a peer dependency, and so is `@hyper-fetch/sockets`, which subscriptions need. `graphql-tag` gives you the
+`gql` tag.
 
-- Keep the result so a second component reading the same query does not send it again.
-- Merge two identical queries that start at the same time into one request.
-- Track loading and error state for each component.
-- Turn the `errors` list of a `200` response into an error you can handle.
-- Open a WebSocket for subscriptions and reconnect when it drops.
-
-That is the job of a GraphQL client. Apollo Client, urql and Relay all do it, and so does this package.
-
----
-
-## An Apollo Client alternative
-
-Apollo Client is the best known GraphQL client for React. It keeps a normalized cache: each object is stored once under
-its `__typename` and `id`, so a mutation that returns an updated user refreshes every query that shows that user. If
-your app depends on that, for example a large UI where many queries overlap on the same entities, Apollo is built for
-it and you should stay there.
-
-HyperFetch caches per request instead. Each operation and its variables get their own cache entry, and after a mutation
-you invalidate or update the entries you know changed. That is less automatic, and it is also easier to predict.
-
-| Need                                  | Apollo Client                    | `@hyper-fetch/graphql`                                     |
-| ------------------------------------- | -------------------------------- | ---------------------------------------------------------- |
-| Cache model                           | Normalized by `__typename` and `id` | Per operation and variables                             |
-| React hooks                           | `useQuery`, `useMutation`, `useSubscription` | `useFetch`, `useSubmit`, `useListener`         |
-| Subscriptions                         | Yes                              | Yes, `graphql-transport-ws`                                |
-| Persisted queries                     | Yes                              | Yes, `persistedQueries: true`                              |
-| Offline request queue                 | Not built in                     | Yes, `offline`                                             |
-| REST, Firebase and sockets in one client | GraphQL client                | Yes, swap the adapter                                      |
-
-Pick HyperFetch when GraphQL is one of several backends in your app, or when you want offline queues and request
-cancellation without extra links.
-
----
-
-## Installation
-
-To get started, you need to install the `@hyper-fetch/graphql` package. You will also need `graphql` and `graphql-tag`
-as recommended companion packages.
-
-```bash
-npm install @hyper-fetch/graphql graphql graphql-tag
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/graphql graphql graphql-tag
 ```
 
 ---
 
-## Getting Started
+## Setup
 
-Create a client with the `GraphqlAdapter`, write the query with `gql`, and send it. The same code runs in the browser and
-in Node.js.
+1. Set the adapter on your client. `GraphqlAdapter` is a factory, call it once per client.
 
-```tsx
-import { Client } from "@hyper-fetch/core";
-import { GraphqlAdapter } from "@hyper-fetch/graphql";
+```ts title="client.ts"
+import { createClient } from "@hyper-fetch/core";
+import { GraphqlAdapter, GraphqlErrorType } from "@hyper-fetch/graphql";
+
+export const client = createClient<{ error: GraphqlErrorType }>({
+  url: "http://localhost:4000/graphql",
+}).setAdapter(GraphqlAdapter());
+```
+
+2. Create a request. The document is the `endpoint`, the variables are the `payload`.
+
+```ts title="api/users.ts"
 import gql from "graphql-tag";
 
-// 1. Create a client
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
+import { client } from "./client";
 
-// 2. Define an interface for your data
-interface User {
-  user: {
-    username: string;
-    firstName: string;
-  };
-}
+type User = { id: string; name: string };
 
-// 3. Create a request
-const getUser = client.createRequest<{ response: User }>()({
+export const getUser = client.createRequest<{ response: { user: User | null }; payload: { id: string } }>()({
   endpoint: gql`
-    query GetUser {
-      user {
-        username
-        firstName
+    query GetUser($id: ID!) {
+      user(id: $id) {
+        id
+        name
       }
     }
   `,
 });
-
-// 4. Send the request and get the response
-const { data, error } = await getUser.send();
 ```
 
----
+3. Send it, or read it in a component with [`useFetch`](/docs/react/hooks/use-fetch).
 
-## GraphQL in React components
-
-Pass the request to `useFetch` for queries and `useSubmit` for mutations. Two components that use `getUser` with the same
-variables share one cache entry, and with `deduplicate: true` on the request they also share one network call.
-
-```tsx
+```tsx title="Profile.tsx"
 import { useFetch } from "@hyper-fetch/react";
 
-export const Profile = () => {
-  const { data, loading, error } = useFetch(getUser);
+import { getUser } from "./api/users";
+
+export const Profile = ({ id }: { id: string }) => {
+  const { data, loading, error } = useFetch(getUser.setPayload({ id }));
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Could not load the user</p>;
 
-  return <h1>{data?.user.firstName}</h1>;
+  return <h1>{data?.user?.name}</h1>;
 };
 ```
 
-For subscriptions, see [GraphQL subscriptions in React](./subscriptions.mdx).
+With [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) or [gql.tada](https://gql-tada.0no.co/), pass the
+typed document as the `endpoint` and drop the generics. The request reads its `response` and `payload` from the document,
+and generics you still declare win over it.
 
----
-
-## Queries
-
-To perform a query, create a request with the `gql` tag and your GraphQL query string.
-
-```ts
-import { Client } from "@hyper-fetch/core";
-import { GraphqlAdapter } from "@hyper-fetch/graphql";
-import gql from "graphql-tag";
-
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
-
-const getUsers = client.createRequest<{ response: any[] }>()({
-  endpoint: gql`
-    query GetUsers {
-      users {
-        id
-        name
-      }
-    }
-  `,
-});
-```
-
----
-
-## Mutations
-
-Mutations work just like queries. Define your mutation string and use it in a request.
-
-```ts
-import { Client } from "@hyper-fetch/core";
-import { GraphqlAdapter } from "@hyper-fetch/graphql";
-import gql from "graphql-tag";
-
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
-
-const addUser = client.createRequest<{ response: any }>()({
-  endpoint: gql`
-    mutation AddUser($name: String!) {
-      addUser(name: $name) {
-        id
-        name
-      }
-    }
-  `,
-});
-```
-
----
-
-## Variables
-
-You can pass variables to your queries and mutations using the `payload` option in the `send` method.
-
-```ts
-const { data, error } = await addUser.send({
-  payload: { name: "John Doe" },
-});
-```
-
-This will pass the `name` variable to the `AddUser` mutation.
-
----
-
-## Typed documents
-
-With [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) or [gql.tada](https://gql-tada.0no.co/), every
-document carries its result and variables types. Pass it as the `endpoint` and the request takes its `response` and
-`payload` from the document - no generics to write, and nothing that can drift from the query.
-
-```ts
+```ts title="api/users.ts"
 import { GetUserDocument } from "./gql/graphql"; // generated
 
-const getUser = client.createRequest()({ endpoint: GetUserDocument });
-
-const { data } = await getUser.send({ payload: { id: "1" } }); // payload and data are typed by the document
-```
-
-- A document without variables needs no `payload`.
-- Generics you declare win over the document: `createRequest<{ response: UserView }>()` keeps the variables from the
-  document and uses your response type.
-- An untyped `DocumentNode` or string keeps the `undefined` response and payload, so declare them with generics.
-
-With the `document` option the `endpoint` is a URL path, so read the types with `GraphqlDocumentTypes`:
-
-```ts
-import { GraphqlDocumentTypes } from "@hyper-fetch/graphql";
-
-const getUser = client.createRequest<GraphqlDocumentTypes<typeof GetUserDocument>>()({
-  endpoint: "/User",
-  document: GetUserDocument,
-});
+export const getUser = client.createRequest()({ endpoint: GetUserDocument });
 ```
 
 ---
 
-## What is sent
+## How it maps
 
-Each operation is sent in the [GraphQL over HTTP](https://graphql.github.io/graphql-over-http/) format.
+| GraphQL                                  | HyperFetch                                                                                    |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------- |
+| GraphQL endpoint URL                     | client `url`. With the `document` option, `endpoint` becomes a path appended to it            |
+| Document (`query`, `mutation`)           | request `endpoint`: a `gql` `DocumentNode`, a typed document or a string                      |
+| `operationName`                          | read from the document, sent with it and used in the cache key                                |
+| `variables`                              | `payload`, set with `send({ payload })` or `setPayload`                                       |
+| Transport                                | `POST` with a JSON body by default, `GraphqlMethod.GET` puts everything in the query string    |
+| `data`                                   | `data`                                                                                        |
+| `errors`                                 | `error`, always a list. Network, abort and timeout failures are a list of one `Error`          |
+| `extensions`, response headers           | `extra.extensions`, `extra.headers`, and `extra.errors` when the server sent any               |
+| Subscription                             | a `Listener` of a `Socket` with `GraphqlWsAdapter`, see [subscriptions](/docs/integrations/adapter-graphql/subscriptions) |
 
-- The body (or the query string for `GET`) holds `query`, `variables` and `operationName` - the name of the first
-  operation in the document. Anonymous operations are sent without it.
-- The `Accept` header asks for `application/graphql-response+json` with `application/json` as the fallback, so servers
-  that follow the spec answer invalid requests with a 4xx status. An `Accept` header you set wins.
-- The cache and query keys contain the operation name, a fingerprint of the document and the variables. Two documents
-  with one operation name but other fields have their own cache entries and are never deduplicated into one request.
-
----
-
-## Persisted queries
-
-With automatic persisted queries, the request sends the SHA-256 hash of the query instead of the full text. Servers that
-support them, like Apollo Server, run the query they stored under the hash. Requests get smaller, and hashed `GET`
-requests have short urls, so a CDN can cache them.
-
-```ts
-const getUser = client.createRequest()({
-  endpoint: GetUserDocument,
-  method: GraphqlMethod.GET, // optional - lets a CDN cache the response
-  options: { persistedQueries: true },
-});
-
-// Or for every request of the client
-const adapter = GraphqlAdapter().setAdapterDefaults(() => ({ persistedQueries: true }));
-```
-
-- The first request sends only the hash, in `extensions.persistedQuery`.
-- When the server answers `PersistedQueryNotFound`, the request is sent again with the query, so the server stores it.
-  The response of that request is the one you get.
-- When the server answers `PersistedQueryNotSupported`, the request is sent again with the query, and the adapter sends
-  full queries from then on.
-- Without Web Crypto (`crypto.subtle`, missing on insecure origins) the full query is sent.
-- One `timeout` covers the hashed request and the one that registers the query.
+Each operation is sent in the [GraphQL over HTTP](https://graphql.github.io/graphql-over-http/) format, with
+`Accept: application/graphql-response+json, application/json;q=0.9` unless you set your own `Accept` header. The adapter
+also replaces the client's cache, query and abort key mappers. Cache and query keys hold the operation name, a
+fingerprint of the document and the variables, so every operation and set of variables is its own cache entry. Set
+custom key mappers after `setAdapter`, or the adapter overwrites them.
 
 ---
 
-## Errors
+## Adapter options
 
-GraphQL reports most errors in the `errors` list of a `200` response. The adapter turns them into a failed response, with
-the list as `error`. Network, abort and timeout failures are also a list, with a single `Error` and status `0`.
+Request `options` take the `fetch` `RequestInit` fields except `method`, `headers`, `body` and `signal`, plus:
 
-Type the error with `GraphqlErrorType` on the client:
+| Option             | Default  | Description                                                                          |
+| ------------------ | -------- | ------------------------------------------------------------------------------------ |
+| `timeout`          | `5000`   | Milliseconds until the request fails with a timeout error                            |
+| `errorPolicy`      | `"none"` | What a response with both `data` and `errors` resolves to, see [partial data](#partial-data) |
+| `persistedQueries` | `false`  | Send the SHA-256 hash of the query first, see [persisted queries](#persisted-queries) |
 
-```ts
-import { Client } from "@hyper-fetch/core";
-import { GraphqlAdapter, GraphqlErrorType } from "@hyper-fetch/graphql";
+Set them per request in `options`, or for every request with the adapter defaults. Request `options` win.
 
-const client = new Client<GraphqlErrorType>({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
-
-const { error, status } = await getUser.send({ payload: { id: "1" } });
-
-if (error && status === 0) {
-  // network, abort or timeout error
-} else if (error) {
-  error.forEach((graphqlError) => console.log(graphqlError.message));
-}
-```
-
-### Partial data
-
-A response can hold both `data` and `errors`, when only some fields failed. The `errorPolicy` option decides what it
-resolves to:
-
-- `"none"` (default) - the request fails, `data` is `null` and `error` holds the errors.
-- `"all"` - the request succeeds with the partial `data`, and the errors are in `extra.errors`. A response without
-  `data`, or with a 4xx/5xx status, still fails.
-
-```ts
-const getDashboard = client.createRequest<{ response: Dashboard }>()({
-  endpoint: GetDashboardDocument,
-  options: { errorPolicy: "all" },
-});
-
-const { data, extra } = await getDashboard.send();
-
-if (extra?.errors) {
-  // show the data, and mark the fields listed in extra.errors[].path as unavailable
-}
-```
-
-`errorPolicy` is an adapter option, like `timeout`, so a request sets it in `options`. To set it for every request, use
-the adapter defaults. The request `options` still win over them:
-
-```ts
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(
-  GraphqlAdapter().setAdapterDefaults(() => ({ errorPolicy: "all" })),
+```ts title="client.ts"
+export const client = createClient({ url: "http://localhost:4000/graphql" }).setAdapter(
+  GraphqlAdapter().setAdapterDefaults(() => ({ timeout: 10000, errorPolicy: "all" })),
 );
 ```
 
-The server errors are in `extra.errors` with both policies, whenever the response has any.
+Requests of a `GraphqlAdapter` client also accept a `document` option, described in
+[URL path per operation](#url-path-per-operation).
+
+### Partial data
+
+A response can hold both `data` and `errors` when only some fields failed. `errorPolicy` decides what it resolves to:
+
+- `"none"` (default): the request fails, `data` is `null` and `error` holds the errors.
+- `"all"`: the request succeeds with the partial `data`, and the errors are in `extra.errors`. A response without `data`,
+  or with a 4xx/5xx status, still fails.
+
+```ts title="api/dashboard.ts"
+const getDashboard = client.createRequest()({ endpoint: GetDashboardDocument, options: { errorPolicy: "all" } });
+
+const { data, extra } = await getDashboard.send();
+// extra.errors lists the fields that failed, data holds the rest
+```
+
+### Persisted queries
+
+With `persistedQueries: true` the request sends the SHA-256 hash of the query in `extensions.persistedQuery` instead of
+the text. Combined with `GraphqlMethod.GET`, the URLs stay short, so a CDN can cache them.
+
+- When the server answers `PersistedQueryNotFound`, the request is sent again with the query, so the server stores it.
+- When it answers `PersistedQueryNotSupported`, the request is sent again with the query, and this adapter sends full
+  queries from then on.
+- Without Web Crypto (`crypto.subtle`, missing on insecure origins) the full query is sent. One `timeout` covers both
+  attempts.
 
 ---
 
 ## URL path per operation
 
-By default, `endpoint` holds the GraphQL document and every operation goes to `client.url`. When gateways, WAF/CDN
-rules, APM or access logs group the traffic by URL, pass the document separately with the `document` option. The
-`endpoint` then becomes a URL path appended to `client.url`, the same way as in the `HttpAdapter`.
+By default every operation goes to `client.url`. When gateways, WAF or CDN rules, APM or access logs group traffic by
+URL, pass the document with the `document` option. The `endpoint` then becomes a URL path, with params, like in the HTTP
+adapter.
 
-```ts
-const getUser = client.createRequest<{ response: User; payload: { id: number } }>()({
-  endpoint: "/User", // URL path, supports params like "/tenant/:tenantId/User"
-  document: gql`
-    query User($id: ID!) {
-      user(id: $id) {
-        username
-      }
-    }
-  `, // string | DocumentNode, sent as `query`
+```ts title="api/users.ts"
+import { GraphqlDocumentTypes } from "@hyper-fetch/graphql";
+
+const getUser = client.createRequest<GraphqlDocumentTypes<typeof GetUserDocument>>()({
+  endpoint: "/tenant/:tenantId/GetUser",
+  document: GetUserDocument,
 });
 
-await getUser.send({ payload: { id: 1 } });
-// POST {client.url}/User
-// body: { query, variables: { id: 1 } }
+await getUser.setParams({ tenantId: 7 }).setQueryParams({ source: "app" }).send({ payload: { id: "1" } });
+// POST {client.url}/tenant/7/GetUser?source=app with body { query, operationName, variables }
 ```
 
-- Without `document` nothing changes: `endpoint` is the document and the URL is `client.url`.
-- The cache, query and abort keys contain the operation name from `document` and the path from `endpoint`, so the same
-  operation sent to two paths is not shared in the cache.
-- Devtools display the operation name from `document`.
-- Variables are typed with the `payload` generic, the same as without the `document` option.
+- `GraphqlDocumentTypes` reads the response and variables types from a typed document passed this way.
+- The path is part of the cache key, so the same operation on two paths has two cache entries.
+- Query params are appended to the URL with or without `document`. With `GET`, `query`, `operationName`, `variables` and
+  `extensions` win over a query param with the same key.
 
 ---
 
-## Query params
+## Limits and differences
 
-Query params are appended to the URL, with or without the `document` option. This lets access logs and APM filter
-requests without parsing the body.
+Compared with the HTTP adapter:
 
-```ts
-await getUser.setQueryParams({ source: "app", build: "1.2.3" }).send({ payload: { id: 1 } });
-// POST {client.url}/User?source=app&build=1.2.3
-// body: { query, variables: { id: 1 } }
-```
+- `error` is always a list, even for network failures, so type the client with `GraphqlErrorType`.
+- A `200` response with `errors` is a failure unless `errorPolicy` is `"all"`.
+- Deduplication is off by default. Set `deduplicate: true` on the request to share in-flight calls.
+- Keep mutations on `POST`. `GraphqlMethod.GET` is for queries that browsers or CDNs should cache.
+- A string literal document with `$id: ID!` in `endpoint` is read as a URL param by TypeScript. Use `gql` or `document`.
 
-For the `GET` method they are merged with `query`, `operationName` and `variables` in the query string. If a key
-collides, `query`, `operationName` and `variables` take precedence.
+Compared with Apollo Client:
 
-They go through the query params mapper of the adapter, so you can change the format with the mapper config or replace
-the mapper. It can return a query string or an object.
+| Need                                     | Apollo Client                               | `@hyper-fetch/graphql`                      |
+| ---------------------------------------- | ------------------------------------------- | ------------------------------------------- |
+| Cache model                              | Normalized by `__typename` and `id`         | Per operation and variables                 |
+| React hooks                              | `useQuery`, `useMutation`, `useSubscription` | `useFetch`, `useSubmit`, `useListener`     |
+| Refetch after a write                    | `refetchQueries`                            | `cache.invalidate(matchGqlOperation(...))`  |
+| Offline request queue                    | Not built in                                | `offline`                                   |
+| REST, Firebase and sockets in one client | No                                          | Swap the adapter                            |
 
-```ts
-import { stringifyDefaultOptions } from "@hyper-fetch/core";
-
-// The config replaces the defaults, so spread them to keep the encoding
-const adapter = GraphqlAdapter().setQueryParamsMapperConfig({ ...stringifyDefaultOptions, arrayFormat: "comma" });
-```
+If many queries overlap on the same entities and you rely on a normalized cache to update them all, Apollo is built for
+that. HyperFetch fits when GraphQL is one of several backends, or when you want predictable per-request caching.
 
 ---
 
-## Next Steps
+:::secondary Summary
 
-Now that you have a basic understanding of the GraphQL adapter, you can explore more advanced topics:
+- `GraphqlAdapter()` sends documents as requests: the document is the `endpoint`, the variables the `payload`.
+- Typed documents type `data` and `payload` without generics.
+- `error` is a list of GraphQL errors. `errorPolicy: "all"` keeps partial data.
+- `GraphqlWsAdapter()` covers subscriptions on a `Socket`.
+
+:::
+
+## Next steps
+
+Runnable examples: [GraphQL](/examples/integrations/graphql) and
+[GraphQL mutations](/examples/integrations/graphql-mutations). Writing documents by hand? See
+[graphql-tag](/docs/integrations/adapter-graphql/graphql-tag).
 
 <LinkCard
   type="docs"
   title="Queries"
-  description="Learn more about fetching data with GraphQL queries."
+  description="Send typed queries with variables, cache them and read them in React."
   to="/docs/integrations/adapter-graphql/queries"
 />
+
 <LinkCard
   type="docs"
   title="Mutations"
-  description="Discover how to modify data with GraphQL mutations."
+  description="Send mutations and refetch the queries they changed."
   to="/docs/integrations/adapter-graphql/mutations"
 />
+
 <LinkCard
   type="docs"
   title="Subscriptions"
   description="Listen to GraphQL subscriptions over WebSocket with typed listeners."
   to="/docs/integrations/adapter-graphql/subscriptions"
 />
+
 <LinkCard
-  type="docs"
-  title="GraphQL Tag"
-  description="Understand how to use the gql tag for your GraphQL operations."
-  to="/docs/integrations/adapter-graphql/graphql-tag"
+  type="api"
+  title="GraphqlAdapter API reference"
+  description="The adapter factory and its option, error and extra types."
+  to="/docs/api/adapter-graphql/Functions/GraphqlAdapter"
 />

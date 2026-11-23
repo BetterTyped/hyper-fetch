@@ -67,7 +67,7 @@ Open **Actions** in the queue's toolbar. Each action runs in your app.
 | **Clear**                           | Every request is removed from the queue                                                |
 | **Set loading** / **Restore loading** | Hooks that use this key show their loading state, without sending anything, until you restore it |
 
-While a queue is stopped, its requests show as **Paused** on the [Network](/docs/hyper-flow/features/network.mdx) page.
+While a queue is stopped, its requests show as **Paused** on the [Network](/docs/hyper-flow/features/network) page.
 
 :::tip Test slow and offline paths
 
@@ -76,4 +76,27 @@ an "unsaved changes" warning for as long as you need. Start the queue to let the
 
 :::
 
-Read [Dispatcher](/docs/core/dispatcher.mdx) for how queues, deduplication and cancelation work in the client.
+Read [Dispatcher](/docs/core/dispatcher) for how queues, deduplication and cancelation work in the client.
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="guides"
+      title="Queueing"
+      description="Send requests one at a time with queued."
+      to="/docs/guides/core/advanced/queueing"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="guides"
+      title="Offline"
+      description="Keep requests in the queue until the connection returns."
+      to="/docs/guides/core/advanced/offline"
+    />
+  </div>
+</div>

@@ -1,13 +1,23 @@
 ---
 sidebar_position: 6
 title: DB Transactions
+description: "Group writes to several rows and collections with db.transaction: one optimistic change, sent as one request or in order, kept or reverted together."
 sidebar_label: Transactions
 ---
 
 # Transactions
 
-> `db.transaction` groups writes to several rows and collections into one optimistic change, which is kept or
-> reverted as a whole.
+`db.transaction` groups writes to several rows and collections into one optimistic change, which is kept or reverted
+as a whole. Use it when a set of [writes](/docs/db/overview#writes) only makes sense together, such as publishing a post
+and creating its notification.
+
+:::tip Purpose
+
+1. **One request**: a named transaction sends every write in one request.
+2. **All or nothing**: the writes show at once and revert together on failure.
+3. **Offline**: named transactions replay from the outbox after a restart.
+
+:::
 
 ---
 
@@ -15,7 +25,7 @@ sidebar_label: Transactions
 
 Declare the request that sends a group of writes in `createDb`, and give it a name:
 
-```ts
+```ts title="db.ts"
 const db = createDb(collections, {
   transactions: {
     publish: {
@@ -31,8 +41,8 @@ const result = await db.transaction("publish", (tx) => {
 ```
 
 - `mutations` lists each write as `{ collection, op, key, values }`. The transaction id is an idempotency key.
-- Every write shows at once. On success the changes are kept; with `onSuccess: "refetch"` the lists holding them
-  reload first. On failure every write reverts.
+- Every write shows at once. On success the changes are kept (default `onSuccess: "keep"`); with
+  `onSuccess: "refetch"` in the transaction's config, the lists holding them reload. On failure every write reverts.
 - The name, not the function, goes to the outbox, so an offline transaction replays after a restart. Names are typed.
 - Named transactions can write any collection, including ones that declare no `mutate`.
 
@@ -40,7 +50,7 @@ const result = await db.transaction("publish", (tx) => {
 
 ## Through each collection
 
-```ts
+```ts title="Unnamed transaction"
 await db.transaction((tx) => {
   tx.post.update(1, { title: "One" });
   tx.comment.insert(comment);
@@ -59,6 +69,8 @@ await db.transaction((tx) => {
   shows.
 - Like every write, `db.transaction` resolves with `{ success, data, error }` and never rejects.
 
+---
+
 :::secondary Summary
 
 - `db.transaction(name, callback)` sends the writes as one request through a `mutationFn` declared in `createDb`.
@@ -66,3 +78,22 @@ await db.transaction((tx) => {
 - Either way they show at once and are kept or reverted together.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Transactions"
+  description="Multi-record writes kept or reverted together, step by step."
+  to="/docs/guides/db/patterns/transactions"
+/>
+
+<LinkCard
+  type="guides"
+  title="Offline-first"
+  description="Persist rows and replay writes and transactions from the outbox."
+  to="/docs/guides/db/patterns/offline-first"
+/>
+
+- API reference: [`createTransaction`](/docs/api/db/Functions/createTransaction),
+  [`TransactionConfig`](/docs/api/db/Types/TransactionConfig).

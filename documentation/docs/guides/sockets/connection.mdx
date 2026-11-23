@@ -1,306 +1,146 @@
 ---
 sidebar_position: 6
 title: Socket Connection Guide
-description: "Manage WebSocket connections in HyperFetch: autoConnect, manual connect and disconnect, reconnect, the onConnect interceptor, connection status and retries."
+description: "Manage WebSocket connections in HyperFetch: autoConnect, manual connect and disconnect, reconnect, destroy, connection state, retries and offline handling."
 sidebar_label: Connection
 ---
 
 # Connection
 
-This guide shows how to manage socket connections using HyperFetch. You'll learn how to
-control connection states, handle automatic and manual connections, and configure retry policies to build robust
-real-time applications.
+A socket connects on its own, reconnects after a loss and follows the network. This guide covers the parts you control:
+when the connection opens and closes, how to read and show its state, how retries behave, and how to plug in network
+events outside the browser.
 
 :::secondary What you'll learn
 
-1.  How to enable or disable **automatic connections**.
-2.  How to **manually connect and disconnect** from the socket.
-3.  How to implement **manual reconnection logic**.
-4.  How to **prepare every connection attempt** with the `onConnect` interceptor.
-5.  How to monitor the **connection status** using callbacks.
-6.  How to configure **connection retries** and handle reconnection failures.
+1.  How to **connect on demand** instead of on creation.
+2.  The difference between **`disconnect`**, **`reconnect`** and **`destroy`**.
+3.  How to **observe connection state** with cleanup.
+4.  How **retries, offline and focus** handling work.
+5.  How to provide network events in **React Native and Node.js**.
 
 :::
 
 ---
 
-## Autoconnect
+## Connect on demand
 
-By default, HyperFetch attempts to connect to the socket server as soon as the `Socket` instance is created. This
-behavior is controlled by the `autoConnect` option, which is set to `true` by default.
+The WebSocket adapter connects as soon as the socket is created, default `autoConnect: true`, change it with
+`adapterOptions`. Turn it off when the connection needs a logged-in user, or to avoid connecting during server rendering.
 
-You can disable autoconnect by setting `autoConnect: false` in the adapter options. This is useful when you want to
-delay the connection until a user performs a specific action, such as logging in or navigating to a certain page.
+```ts title="src/api/socket.ts"
+import { createSocketClient } from "@hyper-fetch/sockets";
 
-```ts
-import { Socket } from "@hyper-fetch/sockets";
-
-const socket = new Socket({
-  url: "ws://localhost:8080",
+export const socket = createSocketClient({
+  url: "wss://api.example.com/ws",
   adapterOptions: { autoConnect: false },
 });
+
+// After login
+await socket.connect();
 ```
 
-When `autoConnect` is disabled, you'll need to manually initiate the connection.
+`connect()` resolves once the connection is open and does nothing when it already is. `autoConnect` only decides the
+first connection: once connected, the socket recovers from losses the same way in both modes.
 
 ---
 
-## Manual Connect
+## Disconnect, reconnect and destroy
 
-When `autoConnect` is disabled, you can manually establish a connection using the `socket.connect()` method. This gives
-you precise control over when the connection is initiated.
+| Method          | Effect                                                                                     | Typical use                    |
+| --------------- | ------------------------------------------------------------------------------------------ | ------------------------------ |
+| `disconnect()`  | Closes the connection. It stays closed until `connect()` or `reconnect()`                  | Pausing a feature              |
+| `reconnect()`   | Replaces the connection with a fresh one, also after `disconnect()` or failed attempts     | New query params, account switch |
+| `destroy()`     | Closes and stops following the network and focus, so nothing reconnects it                | Logout, leaving a tenant       |
 
-```tsx
-function Component() {
-  const [socket] = React.useState(() => {
-    return new Socket({
-      url: "ws://localhost:8080",
-      adapterOptions: { autoConnect: false },
-    });
-  });
+```ts title="src/session.ts"
+export async function switchAccount() {
+  await socket.reconnect(); // onConnect reads the new user's token
+}
 
-  return (
-    <div>
-      <button onClick={() => socket.connect()}>Connect</button>
-    </div>
-  );
+export async function logout() {
+  await socket.destroy();
 }
 ```
 
-The `connect` method is asynchronous and returns a promise that resolves once the connection is established. Calling it
-on an already connected socket keeps the current connection - use `reconnect()` to establish a fresh one.
+A manual `reconnect()` is never refused by the `reconnect` attempt limit. Listeners stay registered across reconnects
+and receive messages from the new connection.
 
 ---
 
-## Disconnect
+## Observe connection state
 
-You can manually close a socket connection using the `socket.disconnect()` method. This is useful for logging out a
-user, leaving a specific feature area, or performing cleanup.
+`socket.on*` methods register permanent callbacks and return the socket, so chain them at setup. Code that starts and
+stops, such as a screen or a component, uses `socket.events.*`, which return an unsubscribe function.
 
-```tsx
-function Component() {
-  const [socket] = React.useState(() => {
-    return new Socket({
-      url: "ws://localhost:8080",
-    });
-  });
-
-  return (
-    <div>
-      <button onClick={() => socket.disconnect()}>Disconnect</button>
-    </div>
-  );
-}
+```ts title="src/api/socket.ts"
+socket
+  .onConnected(() => console.log("open"))
+  .onDisconnected(() => console.log("closed"))
+  .onReconnect(() => console.log("reconnecting"))
+  .onReconnectFailed(() => console.log("gave up"))
+  .onError(({ error }) => console.error(error));
 ```
 
-Like `connect`, the `disconnect` method is asynchronous and returns a promise that resolves once the connection is fully
-closed.
+```ts title="src/status-indicator.ts"
+const offConnected = socket.events.onConnected(() => setStatus("online"));
+const offDisconnected = socket.events.onDisconnected(() => setStatus("offline"));
 
----
-
-## Reconnect
-
-HyperFetch provides a `socket.reconnect()` method to manually trigger a reconnection attempt. This can be useful in
-scenarios where you want to give users a way to re-establish a connection without a full page reload, such as when a
-connection is lost due to a temporary network issue.
-
-```tsx
-function Component() {
-  const [socket] = React.useState(() => {
-    return new Socket({
-      url: "ws://localhost:8080",
-    });
-  });
-
-  return (
-    <div>
-      <button onClick={() => socket.reconnect()}>Reconnect</button>
-    </div>
-  );
-}
+// When the indicator is removed
+offConnected();
+offDisconnected();
 ```
 
-`reconnect()` replaces the connection with a new one right away. A reconnection by hand is a fresh start: it is never
-refused by the `reconnect` attempt limit, also after the automatic attempts ran out.
+The current state is on the adapter: `socket.adapter.connected`, `socket.adapter.connecting` and
+`socket.adapter.reconnectionAttempts`. In React, [`useListener`](/docs/react/sockets/use-listener) and
+[`useEmitter`](/docs/react/sockets/use-emitter) return `connected` and `connecting` and clean up for you.
 
 ---
 
-## Preparing the Connection
+## How retries work
 
-Every connection attempt - the initial one, automatic reconnects and manual reconnects - goes through the `onConnect`
-interceptor. It receives the connection details (`url`, `queryParams`, `adapterOptions`) and the reconnection `attempt`
-number, and must return the details to use. It can be async, which makes it the right place to resolve anything that
-changes over time: auth tokens, the selected workspace, feature flags.
+A lost connection comes back on its own with exponential backoff and jitter, starting at `reconnectTime` (default
+`1000` ms) and capped at `maxReconnectTime` (default `30000` ms).
 
-```ts
-import { Socket } from "@hyper-fetch/sockets";
+- A normal closure (`1000`) from the server stays closed. Every other loss is retried, and closes you started never
+  are.
+- The attempt counter resets once a connection stays up for `minUptime`, so a server that accepts and drops at once
+  still reaches the `reconnect` limit.
+- An attempt that is not ready within `connectionTimeout` counts as failed.
 
-const socket = new Socket({
-  url: "ws://localhost:8080",
-}).onConnect(async ({ connection, attempt }) => {
-  const token = await auth.getValidAccessToken({ forceRefresh: attempt > 0 });
-  return { ...connection, queryParams: { token } };
+```ts title="src/api/socket.ts"
+export const socket = createSocketClient({
+  url: "wss://api.example.com/ws",
+  reconnect: 10, // attempts per outage, default Infinity
+  maxReconnectTime: 15_000,
 });
 ```
 
-Register the interceptor right after creating the socket - callbacks chained on the constructor apply to the automatic
-first connection as well. If the interceptor throws, the attempt fails and the error is passed to the `onError`
-callbacks.
+The [errors and reconnection guide](/docs/guides/sockets/websocket-reconnection-and-errors) covers close codes,
+`shouldReconnect`, `reconnectDelay` and heartbeats.
 
 ---
 
-## Connection Status
+## Offline and focus
 
-To monitor the socket's connection status, you can use the `onConnected` and `onDisconnected` callbacks. These allow you
-to react to changes in the connection state and update your UI accordingly.
+Every socket follows the network and the app focus with its own app manager (`socket.appManager`):
 
-- `onConnected`: Triggered when the socket successfully connects.
-- `onDisconnected`: Triggered when the socket connection is closed, either manually or due to a network issue.
-
-Here's how you can use these callbacks to track the connection status:
-
-```tsx
-function Component() {
-  const [isConnected, setConnected] = React.useState(false);
-
-  const [socket] = React.useState(() => {
-    const instance = new Socket({
-      url: "ws://localhost:8080",
-    });
-
-    instance.onConnected(() => {
-      setConnected(true);
-      console.log("Socket connected");
-    });
-
-    instance.onDisconnected(() => {
-      setConnected(false);
-      console.log("Socket disconnected");
-    });
-
-    return instance;
-  });
-
-  return (
-    <div>
-      <p>Status: {isConnected ? "Connected" : "Disconnected"}</p>
-    </div>
-  );
-}
-```
-
-For React applications, consider using the `useSocketState` hook from `@hyper-fetch/react` for a more declarative way to
-handle connection states.
-
----
-
-## Retries
-
-When a connection is lost, the socket gets it back on its own. Every adapter - WebSocket, SSE, tRPC, oRPC - shares the
-same reconnection rules:
-
-- **Backoff with jitter.** The first retry comes after `reconnectTime` to twice that, and the window doubles with every
-  attempt up to `maxReconnectTime`. Each client picks a random moment in the window, so the clients of a restarted
-  server don't all come back at once.
-- **Stable connections reset the counter.** The attempt counter resets only once a connection stays up for `minUptime`.
-  A connection that drops right after opening - for example a server that accepts and then closes over an expired
-  token - keeps backing off and counts towards `reconnect`.
-- **Every loss is retried** unless `shouldReconnect` says otherwise - except a normal closure (1000) of the server,
-  which means it finished on purpose. That one stays closed until `connect()`, `reconnect()` or the network coming
-  back. Closing the socket yourself is never retried.
-- **One timeout to be connected.** `connectionTimeout` limits how long an attempt may take until the connection can
-  carry messages, including protocol handshakes. A timed out attempt is a failed attempt and the next one follows the
-  backoff.
-
-| Option              | Default    | Description                                                                         |
-| ------------------- | ---------- | ----------------------------------------------------------------------------------- |
-| `reconnect`         | `Infinity` | How many reconnection attempts run before the socket gives up                       |
-| `reconnectTime`     | `1000`     | Minimum delay in ms before an attempt                                               |
-| `maxReconnectTime`  | `30000`    | Maximum delay in ms before an attempt                                               |
-| `minUptime`         | `5000`     | How long in ms a connection stays up before the attempt counter resets              |
-| `connectionTimeout` | `5000`     | How long in ms one attempt may take until the connection is ready                   |
-| `reconnectDelay`    | jitter     | `({ attempt, elapsed, reason }) => number \| null` - replaces the backoff           |
-| `shouldReconnect`   | 1000 stays | `({ code, reason, error }) => boolean` - decides which lost connections are retried |
-
-### Customizing Retry Logic
-
-Change the limits with the options above, or take over the timing with `reconnectDelay`. It receives the attempt number
-of the outage (from 0), the time since the outage began and why the connection was lost. Return the delay in
-milliseconds, or `null` to stop reconnecting.
-
-```ts
-import { Socket, defaultShouldReconnect } from "@hyper-fetch/sockets";
-
-const socket = new Socket({
-  url: "ws://localhost:8080",
-  // Retry quickly a few times, then every 10 seconds, and give up after 5 minutes
-  reconnectDelay: ({ attempt, elapsed }) => {
-    if (elapsed > 5 * 60_000) return null;
-    return attempt < 3 ? 500 : 10_000;
-  },
-  // A rejected token won't get better by retrying - and a normal closure (1000) stays closed, like by default
-  shouldReconnect: (loss) => defaultShouldReconnect(loss) && loss.code !== 4401,
-});
-```
-
-### Handling Reconnection Events
-
-You can also hook into the reconnection lifecycle with `onReconnect` and `onReconnectFailed` callbacks:
-
-- `onReconnect`: Triggered at the start of each reconnection attempt.
-- `onReconnectFailed`: Triggered when all reconnection attempts have failed.
-
-```tsx
-function Component() {
-  const [socket] = React.useState(() => {
-    const instance = new Socket({
-      url: "ws://localhost:8080",
-      reconnect: 3,
-      reconnectTime: 2000,
-    });
-
-    instance.onReconnect(() => {
-      console.log("Reconnection attempt started");
-    });
-
-    instance.onReconnectFailed(() => {
-      console.error("All reconnection attempts failed.");
-    });
-
-    return instance;
-  });
-
-  return <div>Check the console for reconnection events.</div>;
-}
-```
-
----
-
-## Offline handling
-
-Every socket tracks the network and the focus of the app with its own `AppManager` (`socket.appManager`). In the browser
-it listens to the window `online` / `offline` events and to the page visibility:
-
-- **Going offline** closes the connection right away - a connection on a network that is gone can hang for minutes
-  before the transport notices. No attempts run while offline, and none are counted.
+- **Going offline** closes the connection at once. No attempts run or count while offline.
 - **Coming back online** connects at once, without waiting for the backoff.
-- **Getting the focus back** skips the rest of a pending reconnection delay, so a user returning to the tab doesn't
-  wait. Attempts still run in the background.
+- **Regaining focus** skips the rest of a pending reconnect delay.
 
-This applies to every socket that should be connected - from the first connection, automatic with `autoConnect` or by
-hand with `connect()`, until `disconnect()`. `autoConnect` only decides the first connection.
+This applies until `disconnect()`. A socket you disconnected on purpose stays closed when the network returns.
 
-In environments without these browser events, like React Native or Node.js, pass your own app manager with the
-`appManager` option. Return a cleanup function from `onlineEvent` so that `socket.appManager.unmount()` can remove the
-listener.
+In the browser the app manager reads `online`, `offline` and visibility events. In React Native or Node.js, pass your
+own with the `appManager` option, and return a cleanup function from `onlineEvent`:
 
-```ts
+```ts title="src/api/socket.ts"
+import NetInfo from "@react-native-community/netinfo";
 import { AppManager } from "@hyper-fetch/core";
-import { Socket } from "@hyper-fetch/sockets";
-// import NetInfo from "@react-native-community/netinfo";
+import { createSocketClient } from "@hyper-fetch/sockets";
 
-const socket = new Socket({
-  url: "ws://localhost:8080",
+export const socket = createSocketClient({
+  url: "wss://api.example.com/ws",
   appManager: () =>
     new AppManager({
       initiallyOnline: async () => Boolean((await NetInfo.fetch()).isConnected),
@@ -309,17 +149,37 @@ const socket = new Socket({
 });
 ```
 
+Node.js 22 and newer have a global `WebSocket`. On older versions, pass one from `ws` with
+`adapterOptions: { WebSocket }`, as the [Node.js client guide](/docs/guides/sockets/nodejs-websocket-client) shows.
+
 ---
 
 :::success Congratulations!
 
-You now know how to manage socket connections in HyperFetch.
+You can now control the socket connection.
 
-- You can control **automatic and manual connections**.
-- You can **disconnect and reconnect** from the server on demand.
-- You can **prepare every connection attempt** with the `onConnect` interceptor.
-- You can monitor the **connection lifecycle** with callbacks.
-- You can create robust **retry strategies** for network resilience.
-- You can **react to the network state** and plug in your own `AppManager`.
+- You can **connect on demand** with `autoConnect: false` and `connect()`.
+- You can choose between **`disconnect`**, **`reconnect`** and **`destroy`**.
+- You can **observe the connection** with chained callbacks or `socket.events` with cleanup.
+- You know how **retries, offline and focus** handling work, and how to plug in your own app manager.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Errors and reconnection"
+  description="Close codes, heartbeats, shouldReconnect and reconnectDelay."
+  to="/docs/guides/sockets/websocket-reconnection-and-errors"
+/>
+
+<LinkCard
+  type="docs"
+  title="Socket"
+  description="Every socket option, method and event."
+  to="/docs/sockets/socket"
+/>
+
+- Guides: [authentication](/docs/guides/sockets/authentication), [query params](/docs/guides/sockets/query-params).
+- Runnable examples: [WebSocket chat](/examples/realtime/websocket-chat).

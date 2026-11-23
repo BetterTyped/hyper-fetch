@@ -5,21 +5,18 @@ description: How to add query params to a fetch request with URLSearchParams, ho
 sidebar_label: Query Params
 ---
 
-# Query Parameters in Requests
+# Query parameters in requests
 
-Query params are the `?key=value` pairs at the end of a URL: `/search?query=hooks&page=2`. APIs use them to filter,
-sort and paginate. They look simple, but arrays, dates, empty values and encoding are where requests quietly break.
-This guide shows how to build query params for `fetch` by hand, then how HyperFetch types them and turns them into a
-query string for you.
+Query params are the `?key=value` pairs at the end of a URL, such as `/search?query=hooks&page=2`. APIs use them to
+filter, sort and paginate. This guide shows how to build them for `fetch` by hand, then how HyperFetch types them and
+turns them into a query string for you.
 
 :::secondary What you'll learn
 
-1.  How to add **fetch query params** with `URLSearchParams`.
-2.  How to add and type-safe **query parameters**, including optional ones.
-3.  How to handle **array values** in query parameters.
-4.  How to set query parameters with the **`.send()`** method.
-5.  How to **customize the serialization** of query parameters for arrays, dates, and objects.
-6.  What are the **precedence rules** when setting parameters in multiple ways.
+1. How to add **fetch query params** with `URLSearchParams`.
+2. How to **type** query params, including optional ones and arrays.
+3. How to set them with **`setQueryParams`** or pass them to **`send()`**.
+4. How to change the **serialization** of arrays, dates and objects.
 
 :::
 
@@ -30,7 +27,7 @@ query string for you.
 `fetch` has no `params` option. You build the query string yourself, and
 [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) does the encoding:
 
-```ts
+```ts title="search.ts"
 const url = new URL("https://api.example.com/search");
 url.searchParams.set("query", "react hooks"); // spaces and & are encoded for you
 url.searchParams.set("page", String(2));
@@ -41,235 +38,134 @@ const response = await fetch(url);
 
 Three things trip people up:
 
-- **Everything is a string.** Numbers and booleans need `String()`, and `undefined` becomes the literal text
-  `"undefined"` if you don't skip it.
-- **Arrays have no standard format.** Backends expect different shapes, and you have to pick one:
+- **Everything is a string.** Numbers and booleans need `String()`, and `undefined` becomes the text `"undefined"` unless
+  you skip it.
+- **Arrays have no standard format.** Backends expect different shapes, see the [table below](#change-the-serialization).
+- **Dates and objects** need an agreed format, such as ISO dates or JSON.
 
-| Format          | Query string            | HyperFetch `arrayFormat` |
-| --------------- | ----------------------- | ------------------------- |
-| Repeated key    | `?tags=a&tags=b`        | `"none"`                  |
-| Brackets        | `?tags[]=a&tags[]=b`    | `"bracket"` (default)     |
-| Indexed         | `?tags[0]=a&tags[1]=b`  | `"index"`                 |
-| Comma-separated | `?tags=a,b`             | `"comma"`                 |
-| Custom separator | `?tags=a\|b`           | `"separator"`             |
-
-- **Dates and objects** need an agreed format, like ISO dates or JSON.
-
-Axios has a `params` option that does the stringifying for you, but the shape is still untyped. In HyperFetch query
-params are part of the request type, so the compiler checks them, and the adapter turns them into a query string.
+In HyperFetch query params are part of the request type, so the compiler checks them, and the adapter serializes them.
 
 ---
 
-## Defining Query Params
+## Type the query params
 
-To get started, you need to define the shape of your query parameters in the `createRequest` method. By specifying the
-`queryParams` type, you enable type-checking and autocompletion, which helps prevent common errors.
+Declare the shape with the `queryParams` generic. The key decides whether they are required at `send()`:
 
-### Basic Query Parameters
+| Generic                  | At `send()`                       |
+| ------------------------ | --------------------------------- |
+| `queryParams: Q`         | Required                          |
+| `queryParams?: Q`        | Optional                          |
+| no `queryParams` key     | None accepted                     |
 
-Once typed, use `setQueryParams` to add them to your request. HyperFetch automatically appends them to the URL.
-
-```ts
-// 1. Define the query parameters type
-const searchRequest = client.createRequest<{ queryParams: { query: string; page: number } }>()({
-  endpoint: "/search",
-});
-
-// 2. Set the parameters
-const request = searchRequest.setQueryParams({ query: "hyper-fetch", page: 1 });
-
-// Query params are stored separately until the request is sent
-console.log("Endpoint:", request.endpoint); // "/search"
-console.log("Query Params:", request.queryParams); // { query: "hyper-fetch", page: 1 }
+```ts title="src/api/articles.ts"
+export const getArticles = client.createRequest<{
+  response: Article[];
+  queryParams?: { search?: string; page?: number; tags?: string[] };
+}>()({ endpoint: "/articles" });
 ```
 
-### Optional Query Parameters
-
-Real-world APIs often have optional parameters. You can define them using the `?` syntax in the `queryParams` type. This
-allows you to omit them if they are not needed.
-
-```ts
-// `page` is now optional
-const searchRequest = client.createRequest<{ queryParams: { query: string; page?: number } }>()({
-  endpoint: "/search",
-});
-
-// We can set only the required `query` parameter
-const request = searchRequest.setQueryParams({ query: "hyper-fetch" });
-
-console.log("Query Params:", request.queryParams); // { query: "hyper-fetch" }
-
-// Or we can set both
-const requestWithPage = searchRequest.setQueryParams({ query: "hyper-fetch", page: 2 });
-
-console.log("Query Params with page:", requestWithPage.queryParams); // { query: "hyper-fetch", page: 2 }
-```
-
-### Array Query Parameters
-
-HyperFetch supports arrays in query parameters, which is common for multi-select filters. By default they use the
-bracket format (`?tags[]=a&tags[]=b`). You can switch to another format, shown in
-[customizing the format](#customizing-query-param-format) below.
-
-```ts
-const searchByTags = client.createRequest<{ queryParams: { tags: string[] } }>()({
-  endpoint: "/articles",
-});
-
-const request = searchByTags.setQueryParams({ tags: ["typescript", "react", "hyper-fetch"] });
-
-// The final URL will have `?tags[]=typescript&tags[]=react&tags[]=hyper-fetch`
-console.log("Query Params:", request.queryParams); // { tags: ["typescript", "react", "hyper-fetch"] }
-```
-
-### Setting with `send`
-
-Just like URL parameters, query parameters can be passed to `send`. This is ideal for dynamic queries built from user
-input.
-
-```ts
-const searchRequest = client.createRequest<{ queryParams: { query: string; page?: number } }>()({
-  endpoint: "/search",
-});
-
-// Query parameters are passed inside `send`
-const response = searchRequest.send({
-  queryParams: { query: "new search" },
-});
-```
+Mark single keys optional with `?` as usual. Arrays are typed like any other value.
 
 ---
 
-## Customizing Query Param Format
+## Set them with setQueryParams or send()
 
-By default, HyperFetch stringifies query parameters using standard conventions. However, some APIs may require a
-different format. You can easily customize this behavior using `setQueryParamsMapperConfig` on the client's adapter instance.
+`setQueryParams` returns a new request with the values stored. They are kept apart from the endpoint and serialized when
+the request is sent.
 
-This configuration is applied globally to all requests made with that client.
+```ts title="src/app.ts"
+const request = getArticles.setQueryParams({ search: "hooks", tags: ["react", "typescript"] });
 
-The config is merged with `stringifyDefaultOptions`, so you only need to pass the options you want to change - encoding
-and `null`/empty-string skipping stay enabled unless you turn them off explicitly.
+console.log(request.endpoint); // "/articles"
+console.log(request.queryParams); // { search: "hooks", tags: ["react", "typescript"] }
 
-Here are some of the available options:
-
-- `arrayFormat`: Controls how arrays are formatted (e.g., `bracket`, `comma`, `index`).
-- `skipNull`: If `true`, parameters with `null` values are excluded.
-- `skipEmptyString`: If `true`, parameters with empty string values are excluded.
-- `dateParser`: A function to serialize `Date` objects (also applied to `Date` items inside arrays).
-- `objectParser`: A function to serialize `object` values (also applied to object items inside arrays).
-
-### Custom Array Format
-
-For example, if your backend expects comma-separated array values (`?tags=one,two`), you can set the `arrayFormat` to
-`comma`.
-
-```ts
-// 1. Set the array format on the adapter
-client.adapter.setQueryParamsMapperConfig({ arrayFormat: "comma" });
-
-const searchByTags = client.createRequest<{ queryParams: { tags: string[] } }>()({
-  endpoint: "/articles",
-});
-
-// 2. The query params will be stringified using the new format
-const request = searchByTags.setQueryParams({ tags: ["typescript", "react"] });
-
-// The final URL will have `?tags=typescript,react`
+await request.send();
+// GET /articles?search=hooks&tags[]=react&tags[]=typescript
 ```
 
-### Custom Data Serialization
+Pass them to `send()` when they come from user input at call time:
 
-You can also provide custom serialization functions for dates and objects.
+```ts title="src/app.ts"
+const { data } = await getArticles.send({ queryParams: { search: "hooks", page: 2 } });
+```
 
-#### Custom `Date` serialization
+As with [params](/docs/guides/core/basics/parameters#params-set-twice), a request that already has query params set no
+longer accepts them in `send()`.
 
-If your API requires dates to be sent as `YYYY-MM-DD`, you can provide a custom `dateParser`.
+---
 
-```ts
-import { format } from "date-fns";
+## Default serialization
 
-// 1. Provide a custom date parser
+The fetch adapter writes query params with these defaults:
+
+- **Arrays** use brackets: `?tags[]=a&tags[]=b`.
+- **Dates** use `toISOString()`. **Objects** use `JSON.stringify`.
+- **`null`, `undefined` and `""`** values are skipped.
+- **Keys and values** are URL-encoded.
+- A **string** value is used as the query string as it is, with `?` added when missing.
+
+Query params are part of the default `cacheKey` and `queryKey`, serialized with `JSON.stringify`. `{ a, b }` and
+`{ b, a }` are two cache entries, so build query objects in a fixed order.
+
+---
+
+## Change the serialization
+
+`client.adapter.setQueryParamsMapperConfig` changes the format for every request of the client. The config is merged
+with the defaults, so pass only what you change.
+
+| Format           | Query string            | `arrayFormat`          |
+| ---------------- | ----------------------- | ---------------------- |
+| Brackets         | `?tags[]=a&tags[]=b`    | `"bracket"` (default)  |
+| Repeated key     | `?tags=a&tags=b`        | `"none"`               |
+| Indexed          | `?tags[0]=a&tags[1]=b`  | `"index"`              |
+| Comma-separated  | `?tags=a,b`             | `"comma"`              |
+| Custom separator | `?tags=a\|b`            | `"separator"`          |
+
+```ts title="src/api/client.ts"
 client.adapter.setQueryParamsMapperConfig({
-  dateParser: (date) => format(date, "yyyy-MM-dd"),
-});
-
-const getArticles = client.createRequest<{ queryParams: { date: Date } }>()({
-  endpoint: "/articles",
-});
-
-// 2. Dates will now be serialized using the custom parser
-const request = getArticles.setQueryParams({ date: new Date() });
-
-// The final URL will have `?date=2023-10-27` (for example)
-```
-
-#### Custom `object` serialization
-
-By default, objects are serialized using `JSON.stringify`. You can override this with `objectParser` if you need custom
-logic, such as converting an object to a stringified tuple.
-
-```ts
-// 1. Provide a custom object parser
-client.adapter.setQueryParamsMapperConfig({
-  objectParser: (obj) => `[${obj.value},${obj.id}]`,
-});
-
-const getArticles = client.createRequest<{ queryParams: { filter: { id: number; value: string } } }>()({
-  endpoint: "/articles",
-});
-
-// 2. Objects will be serialized using the custom parser
-const request = getArticles.setQueryParams({ filter: { id: 1, value: "hyper-fetch" } });
-
-// The final URL will have `?filter=[hyper-fetch,1]`
-```
-
----
-
-## Parameter Precedence
-
-It's important to understand what happens when you set parameters in multiple places. HyperFetch does not allow you to
-pass parameters that are already defined in the request.
-
-If you ignore Typescript - parameters passed directly to `send` will always override those set with `setParams` or
-`setQueryParams`.
-
-```ts
-const request = client
-  .createRequest<{ queryParams: { page: number } }>()({ endpoint: "/users/:userId" })
-  .setParams({ userId: 1 })
-  .setQueryParams({ page: 1 });
-
-console.log("Initial params:", request.params); // { userId: 1 }
-console.log("Initial query params:", request.queryParams); // { page: 1 }
-
-// Parameters given to `send` will override previously set ones.
-request.send({
-  // Typescript will not allow you to pass a parameter that is already defined in the request
-  // error-next-line
-  params: { userId: 2 },
-  // Typescript will not allow you to pass a query parameter that is already defined in the request
-  // error-next-line
-  queryParams: { page: 2 },
+  arrayFormat: "comma",
+  // Dates as YYYY-MM-DD instead of ISO strings, also inside arrays
+  dateParser: (value) => (value as Date).toISOString().slice(0, 10),
+  // Objects as "field:direction" instead of JSON
+  objectParser: (value) => {
+    const { field, direction } = value as { field: string; direction: string };
+    return `${field}:${direction}`;
+  },
 });
 ```
 
----
-
-For URL path params like `/users/:userId`, see [parameters](./parameters.mdx). For typing query params in depth, see
-[query params types](../../typescript/query-params.mdx), and for a full paginated list built on them, see
-[pagination in React](../../react/01-basics/pagination.mdx).
+Other options: `arraySeparator` (default `"|"`) for the `"separator"` format, `skipNull` and `skipEmptyString` (both
+`true`) to keep empty values, and `encode` (default `true`). For a format these options cannot express, replace the
+whole function with `client.adapter.setQueryParamsMapper`.
 
 ---
 
 :::success Congratulations!
 
-You've now mastered handling query parameters with HyperFetch!
+You've learned how to work with query params.
 
-- You can add **Query Parameters** using `createRequest` generics, supporting optional (`?`) and array (`[]`) types, and
-  setting them with `.setQueryParams({ ... })`.
-- You can set query parameters dynamically within the **`.send()`** method.
-- You can **customize query stringification** for arrays, dates, and objects.
-- You know that parameters from the `.send()` method always override those set with `.set...()` methods.
+- You can **type** query params as required, optional or absent with the `queryParams` generic.
+- You can set them with **`setQueryParams`** or pass them to **`send()`**.
+- You can change how **arrays, dates and objects** are serialized for the whole client.
 
 :::
+
+Runnable examples: [Filters in the URL](/examples/data-fetching/url-filters),
+[Data table](/examples/data-fetching/data-table) and [Pagination](/examples/data-fetching/pagination).
+
+<LinkCard
+  type="guides"
+  title="Query params types"
+  description="Required, optional and array query params in TypeScript."
+  to="/docs/guides/typescript/query-params"
+/>
+
+<LinkCard
+  type="guides"
+  title="Pagination in React"
+  description="A paginated list built on typed query params."
+  to="/docs/guides/react/basics/pagination"
+/>
+
+<LinkCard type="docs" title="Request" description="Params, query params and payload in one place." to="/docs/core/request" />

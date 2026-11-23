@@ -5,53 +5,53 @@ description: "Task-focused HyperFetch guides with full code for client setup, au
 sidebar_label: Overview
 ---
 
-# Guides Overview
+# Guides overview
 
-> Welcome to the **HyperFetch Guides**! This section is your go-to resource for mastering HyperFetch through
-> practical, problem-focused tutorials. Whether you're setting up your first request or building complex, real-time
-> features, our guides provide step-by-step instructions and real-world examples to help you succeed.
+Guides solve one task each, such as adding authentication or keeping requests while offline, with complete code you can
+copy. Use them when you know what you want to build. The [concept pages](/docs/core/overview) describe each building
+block, and the [examples](/examples/getting-started/basic) are runnable apps.
 
 :::secondary What you'll learn
 
-- How to set up and configure HyperFetch for your project
-- Core concepts like creating requests, handling authentication, and managing state
-- Advanced techniques including caching, offline support, and real-time communication with sockets
-- Best practices for integrating HyperFetch with React
-- Collections, live queries, real-time sync and offline-first apps with HyperFetch DB
-- Effective testing strategies for your HyperFetch applications
+1. How to **set up** a client and send typed requests.
+2. How to handle **authentication, errors, retries and caching** with the core package.
+3. How to fetch and submit data with **React hooks** and **sockets**.
+4. How to **type** responses, payloads and errors, and how to **test** requests with mocks.
 
 :::
 
 ---
 
-## Guides
+## Where to start
 
-Our guides are designed to be problem-focused, offering detailed explanations and complete code examples. They provide
-step-by-step instructions for implementing various features, from basic setup to advanced use cases. We aim to provide
-comprehensive guides for each core package, covering everything you need to build robust applications.
+| Section                                                     | Covers                                                                   |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------ |
+| [Core basics](/docs/guides/core/basics/setup)               | Client setup, fetching, params, query params, payload, headers, auth     |
+| [Core advanced](/docs/guides/core/advanced/cache-revalidation) | Cache revalidation, cancellation, deduplication, queues, offline, adapters |
+| [TypeScript](/docs/guides/typescript/response-type)         | Typing responses, payloads, params, query params and errors              |
+| [React](/docs/guides/react/basics/fetching)                 | `useFetch`, `useSubmit`, pagination, optimistic updates, queues          |
+| [Sockets](/docs/guides/sockets/setup)                       | Connecting, listening, emitting and reconnecting                         |
+| [Testing](/docs/guides/testing)                             | Mocking requests and isolating tests                                     |
+
+New to HyperFetch? Start with [client setup](/docs/guides/core/basics/setup), then [fetching](/docs/guides/core/basics/fetching).
 
 ---
 
 ## Integrations
 
-Our integration guides are located alongside their respective documentation. This approach ensures that all the
-information you need, from setup to advanced usage, is available in one convenient place. This helps you quickly
-understand the nuances of each integration and get started with minimal friction.
+Guides for adapters and server frameworks, such as GraphQL, Firebase, Axios or Hono, live next to their integration
+docs.
 
 <LinkCard
-  type="promo"
+  type="integrations"
   title="Integrations"
-  description="Find guides for each integration package."
+  description="Setup and usage guides for each integration package."
   href="/docs/integrations/getting-started"
 />
 
----
-
-:::tip Pro Tip
-
-If you're new, start with the **Getting Started** guide. For specific problems or advanced features, feel free to jump
-directly to the relevant section.
-
-Explore the guides to level up your HyperFetch skills and build reliable applications.
-
-:::
+<LinkCard
+  type="docs"
+  title="Examples"
+  description="Runnable apps for every common task, from fetching to offline queues."
+  href="/examples/getting-started/basic"
+/>

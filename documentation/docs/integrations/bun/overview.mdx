@@ -7,37 +7,42 @@ sidebar_label: Overview
 
 # Bun
 
-HyperFetch runs on Bun with nothing extra. Its default adapter calls Bun's native `fetch`, so `createClient`,
-`createRequest` and `send()` work the same way they do in Node.js and in the browser.
-
----
+HyperFetch runs on Bun with its native `fetch`, so `createClient`, `createRequest` and `send()` work as they do in
+Node.js and the browser. Use it in Bun scripts, servers and tests, and pair it with Elysia or Hono for a typed SDK
+without codegen.
 
 :::tip Purpose
 
-1.  **Nothing extra to install**: `bun add @hyper-fetch/core` and you are done.
-2.  **Fast scripts and servers**: Typed requests with retries and caching in Bun scripts, jobs and servers.
-3.  **End-to-end types with Bun backends**: Elysia and Hono on Bun give you a typed SDK without codegen.
+1. **Nothing extra to install**: `bun add @hyper-fetch/core` and you are done.
+2. **End-to-end types with Bun backends**: Elysia and Hono give you a typed SDK straight from your routes.
+3. **Tests off the network**: `setMock()` answers requests inside `bun test`.
 
 :::
 
 ---
 
-## Getting started
+## Install
 
 ```bash
 bun add @hyper-fetch/core
 ```
 
-```ts title="index.ts"
+---
+
+## Send a request
+
+```ts title="requests.ts"
 import { createClient } from "@hyper-fetch/core";
 
 const client = createClient({ url: "https://api.example.com" });
 
-const getUsers = client.createRequest<{
-  response: { id: number; name: string }[];
-}>()({
+export const getUsers = client.createRequest<{ response: { id: number; name: string }[] }>()({
   endpoint: "/users",
 });
+```
+
+```ts title="index.ts"
+import { getUsers } from "./requests";
 
 const { data, error } = await getUsers.send();
 console.log(error ?? data);
@@ -49,9 +54,9 @@ bun run index.ts
 
 ---
 
-## Bun backends
+## Use it in a server
 
-If your backend runs on Bun, you can skip OpenAPI and read the types straight from your routes:
+If your backend runs on Bun, read the request types straight from its routes instead of writing them:
 
 <LinkCard
   type="integrations"
@@ -59,7 +64,6 @@ If your backend runs on Bun, you can skip OpenAPI and read the types straight fr
   description="A typed SDK for your Elysia app, with responses, errors and inputs read from your routes."
   to="/docs/integrations/elysia/overview"
 />
-
 <LinkCard
   type="integrations"
   title="Hono"
@@ -67,11 +71,14 @@ If your backend runs on Bun, you can skip OpenAPI and read the types straight fr
   to="/docs/integrations/hono/overview"
 />
 
+When a Bun server calls other APIs with a user's credentials, one client is still safe: outside the browser the
+[client](/docs/core/client) caches nothing unless the request has a scope. Cache per user with `setScope(userId)`.
+
 ---
 
-## Testing with bun test
+## Runtime quirks
 
-Mock a request with `setMock()`, so `bun test` never reaches the network:
+- **Testing with `bun test`**: mock a request with `setMock()`, so the test never reaches the network:
 
 ```ts title="users.test.ts"
 import { expect, test } from "bun:test";
@@ -82,18 +89,23 @@ test("lists users", async () => {
   getUsers.setMock(() => ({ data: [{ id: 1, name: "Ada" }], status: 200 }));
 
   const { data } = await getUsers.send();
-
   expect(data).toEqual([{ id: 1, name: "Ada" }]);
 });
 ```
 
-:::note When it's helpful
+---
 
-- Bun scripts and servers that call other APIs and need retries and typed responses.
-- Full-stack apps with an Elysia or Hono backend on Bun.
-- Fast test suites with `bun test` and mocked requests.
+## Next steps
 
-:::
+<LinkCard
+  type="integrations"
+  title="Example: HyperFetch on the server"
+  description="A script that sends typed requests in parallel and retries failures, with code that runs on Bun too."
+  to="/examples/integrations/server-runtimes"
+/>
+
+See [Mocking](/docs/core/mocking) for delays, errors and progress in mocks, and the
+[Elysia example](/examples/integrations/elysia) for a full-stack app.
 
 :::secondary Summary
 

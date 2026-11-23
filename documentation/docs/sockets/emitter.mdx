@@ -1,112 +1,122 @@
 ---
 sidebar_position: 5
 title: Emitter
-description: "The Emitter defines a typed socket event once, with its topic and payload, and sends it through the Socket. Use it for outgoing WebSocket messages."
+description: "An Emitter is a typed sender for one socket topic. Define the topic and payload type once, then emit messages with checked params and payloads."
 sidebar_label: Emitter
 ---
 
-[Read the API Reference »](/docs/api/sockets/Classes/Emitter.mdx)
+# Emitter
 
-The `Emitter` class is a core component of HyperFetch's real-time communication layer, built on top of WebSockets. It
-provides a **structured, type-safe way to define, configure, and send events to a server**. By encapsulating all the
-details for an event—such as its topic and data payload—`Emitter` ensures consistency and predictability in your
-real-time data interactions.
+An **`Emitter`** describes one topic you send to the server and the type of its payload. Define it once next to the
+[socket](/docs/sockets/socket), then call `emit()` wherever you send that message. TypeScript checks the payload and the
+topic params before anything goes out.
 
----
+```ts title="emitters.ts"
+import { socket } from "./socket";
+
+export const sendChatMessage = socket.createEmitter<{ text: string }>()({ topic: "chat" });
+
+sendChatMessage.emit({ payload: { text: "Hello" } });
+```
+
+`createEmitter` is called twice: the first call takes the payload type, the second the options, so the topic stays a
+literal type. The WebSocket adapter sends the message as JSON `{ "topic": "chat", "data": { "text": "Hello" } }`.
 
 :::tip Purpose
 
-- Define **reusable event templates** to create standardized event structures.
-- Enforce a **consistent data schema** for all events.
-- Reliably **send events** to your WebSocket server.
+1. **Typed payloads**: `emit` accepts only the payload type you declared.
+2. **Typed topic params**: `:roomId` in the topic becomes a required `params` field.
+3. **Reusable templates**: `setPayload`, `setParams` and `setPayloadMapper` derive new emitters.
 
 :::
 
 ---
 
-## Initialization
+## Send a payload
 
-Emitter should be initialized from the `Socket` instance with `createEmitter` method. This passes a shared reference to
-the place that manages communication in the application.
+Pass the payload to `emit`, or set it first with `setPayload` and call `emit()` without arguments. A payload passed to
+`emit` wins over one set before. Messages are sent in call order.
 
-```tsx title="Example of Emitter initialization"
-import { socket } from "./socket";
+```ts title="send.ts"
+sendChatMessage.emit({ payload: { text: "Hello" } });
 
-export const sendChatMessage = socket.createEmitter<MessageType>()({
-  topic: "new-message", // topic of the event
-});
-
-export const sendUserStatus = socket.createEmitter<UserStatusType>()({
-  topic: "user-status", // topic of the event
-});
+const greeting = sendChatMessage.setPayload({ text: "Hello" });
+greeting.emit();
 ```
 
 ---
 
-## Emitting Events
+## Address one resource with topic params
 
-You can trigger an event with the `emit` method, which sends data to the server.
+Params in the topic, such as `:roomId`, are required until you set them, either in `emit` or with `setParams`.
 
-### Sending Data
+```ts title="rooms.ts"
+export const sendRoomMessage = socket.createEmitter<{ text: string }>()({ topic: "rooms/:roomId" });
 
-Use the `setPayload` method to assign data to be sent to the server.
+sendRoomMessage.emit({ params: { roomId: "general" }, payload: { text: "Hi room" } });
+sendRoomMessage.setParams({ roomId: "general" }).setPayload({ text: "Hi room" }).emit();
 
-```tsx
-sendChatMessage.setPayload({ message: "message" });
+// error-next-line
+sendRoomMessage.emit({ payload: { text: "Hi room" } }); // params are missing
 ```
-
-### Emitting
-
-Use the `emit` method to start the event emitting.
-
-```tsx
-sendChatMessage.emit({ payload: { message: "message" } });
-
-// or
-
-sendChatMessage.setPayload({ message: "message" }).emit();
-```
-
-<LinkCard
-  type="guides"
-  title="Emitting Events"
-  description="Learn the basics of emitting events to your server."
-  to="/docs/guides/sockets/emitting"
-/>
 
 ---
 
-## Methods
+## Emit only while connected
 
-Using methods on a emitter is different from other classes in HyperFetch. This is to ensure isolation between different
-uses, which allows you to avoid overwriting previously-prepared emitters and to dynamically generate keys for queues or
-the cache.
+`emit()` sends right away and returns nothing. There is no acknowledgement and no queue: when the socket is not
+connected, the message is dropped and the error is reported through `socket.events.onEmitterError` and `onError`.
 
-:::danger
+```ts title="send-when-connected.ts"
+socket.events.onEmitterError(({ error, emitter }) => {
+  console.warn(`Not sent to ${emitter.topic}:`, error.message);
+});
 
-Using any method on emitter returns its clone! `We do not return a reference!`
-
-:::
-
-```tsx
-// ❌ WRONG
-
-const emitter = sendMessageEmitter;
-
-emitter.setPayload({ message: "some message" }); // Returns CLONED emitter with assigned data
-
-emitter.emit(); // Type error - the original emitter has no payload
+if (socket.adapter.connected) {
+  sendChatMessage.emit({ payload: { text: "Hello" } });
+}
 ```
 
-```tsx
-// ✅ Good
+- In React, [`useEmitter`](/docs/react/sockets/use-emitter) returns `connected`, so you can disable the send button.
+- When the server answers, model the answer as its own [listener](/docs/sockets/listener) topic with a correlation id.
+- The Server-Sent Events adapter only receives. `emit()` on an SSE socket throws.
 
-const emitter = sendMessageEmitter;
+---
 
-const emitterWithData = emitter.setPayload({ message: "some message" }); // Returns CLONED emitter with assigned data
+## Transform the payload before sending
 
-emitterWithData.emit(); // Success
+`setPayloadMapper` runs right before the message goes out and can be async. It is kept on every clone.
+
+```ts title="stamped.ts"
+export const sendStamped = sendChatMessage.setPayloadMapper((payload) => ({ ...payload, sentAt: Date.now() }));
 ```
+
+To change every emitted message of a socket, such as adding a client id, use `socket.onSend` on the
+[Socket](/docs/sockets/socket#intercept-messages).
+
+---
+
+## Setters return clones
+
+`setPayload`, `setParams`, `setOptions` and `setPayloadMapper` return a new emitter and leave the original unchanged.
+Use the returned value.
+
+```ts title="clones.ts"
+// error-next-line
+sendChatMessage.setPayload({ text: "Hello" }); // the result is discarded
+// error-next-line
+sendChatMessage.emit(); // type error: the payload is not set
+
+sendChatMessage.setPayload({ text: "Hello" }).emit(); // OK
+```
+
+---
+
+## Options and methods
+
+`options` holds adapter-specific emit options. The WebSocket and SSE adapters have none.
+
+(@import sockets EmitterOptionsType type=returns)
 
 <ShowMore>
 
@@ -114,85 +124,54 @@ emitterWithData.emit(); // Success
 
 </ShowMore>
 
-<LinkCard
-  type="api"
-  title="Detailed Emitter API Methods"
-  description="Explore all available methods, their parameters, and return values for the Emitter class."
-  to="/docs/api/sockets/Classes/Emitter#methods"
-/>
+---
+
+:::secondary Summary
+
+- Define an emitter once per topic with `createEmitter<Payload>()({ topic })`.
+- `emit({ payload, params })` sends at once, without acknowledgement, and drops the message when disconnected.
+- Use the clone that `setPayload`, `setParams` and `setPayloadMapper` return.
+
+:::
 
 ---
 
-## Parameters
+## Next steps
 
-Configuration options for the emitter. The `options` field accepts adapter-specific options that depend on the adapter
-being used.
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="guides"
+      title="Emitting events"
+      description="Emitters in practice: forms, connection state and replies."
+      to="/docs/guides/sockets/emitting"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="useEmitter"
+      description="Emit from React components with the connection state."
+      to="/docs/react/sockets/use-emitter"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Socket SDK"
+      description="Every listener and emitter of a server in one typed tree."
+      to="/docs/sockets/sdk"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="api"
+      title="Emitter API reference"
+      description="Every method and type of the Emitter class."
+      to="/docs/api/sockets/Classes/Emitter"
+    />
+  </div>
+</div>
 
-```tsx
-const emitter = socket.createEmitter<MessageType>()({
-  topic: "chat-message",
-});
-```
-
-(@import sockets EmitterOptionsType type=returns)
-
----
-
-## TypeScript
-
-When creating an emitter with `socket.createEmitter`, you can specify a generic type to ensure type safety.
-**`PayloadType`** is the expected type of the data payload sent with the event.
-
-```tsx
-import { socket } from "./socket";
-
-const sendChatMessage = socket.createEmitter<{ message: string; author: string }>()({
-  topic: "chat-message",
-});
-
-sendChatMessage.emit({
-  payload: { message: "Hello!", author: "Me" },
-});
-```
-
----
-
-## Payload Mapper
-
-You can use `setPayloadMapper` to transform the payload before it is sent. This is useful when you need to serialize or
-reshape data before transmission.
-
-```tsx
-const emitter = socket
-  .createEmitter<{ message: string }>()({
-    topic: "chat-message",
-  })
-  .setPayloadMapper((payload) => {
-    return { ...payload, timestamp: Date.now() };
-  });
-```
-
----
-
-## See More
-
-<LinkCard
-  type="docs"
-  title="Socket"
-  description="Learn more about the Socket class and its configuration options."
-  to="/docs/sockets/socket"
-/>
-
-<LinkCard
-  type="docs"
-  title="Listener"
-  description="Learn more about the Listener class and its configuration options."
-  to="/docs/sockets/listener"
-/>
-
-<LinkCard
-  type="docs"
-  title="Socket SDK"
-  description="Use emitters via a type-safe, proxy-based SDK with centralized configuration."
-  to="/docs/sockets/sdk"
-/>
+The runnable [WebSocket chat](/examples/realtime/websocket-chat) example sends messages with `useEmitter` and disables
+sending while the socket reconnects.

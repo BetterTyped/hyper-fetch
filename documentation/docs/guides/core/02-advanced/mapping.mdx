@@ -6,79 +6,59 @@ sidebar_label: Mapping
 
 # Mapping
 
-In HyperFetch, you can intercept and modify both outgoing requests and incoming responses. This powerful feature, known
-as mapping, allows you to transform data, add or modify headers, and even hydrate data into class models, all without
-affecting the core cached data. Mappers can be synchronous or asynchronous, giving you the flexibility to perform
-complex data manipulations, such as fetching additional data to enrich a response.
+[Data mapping](/docs/guides/core/basics/data-mapping) covers reshaping a response and sending `FormData`. This guide goes
+further: async mappers that enrich a response, class models, what happens when a mapper throws, and where each mapper
+runs in the request's life.
 
 :::secondary What you'll learn
 
-1.  How to **map responses** to transform incoming data.
-2.  How to use **asynchronous mappers** to enrich responses with additional data.
-3.  How to **hydrate response data** into class models for better data handling.
-4.  How to **map requests** to modify outgoing data, such as converting it to `FormData`.
-5.  How to dynamically **add headers** to a request within a mapper.
+1. How to write **async mappers** that enrich a response.
+2. How to **hydrate class models** from the response.
+3. What happens when a **mapper throws**.
+4. The **order** in which interceptors and mappers run.
 
 :::
 
 ---
 
-## Response Mapping
+## Enrich a response with an async mapper
 
-You can set the mapping of data returned from the request. This data will not be modified in the cache; it will only be
-modified within the given request. This means that the mapping will be included locally and not globally in the cache.
+Mappers can return a promise. Here the mapper turns a date string into a `Date` and adds the user's teams from a second
+request. `send()` resolves after the mapper finishes.
 
-By making two requests to the same place with two different mappers, we can still use everything the library
-offers—deduplication, cache, etc. The mapper does not affect other requests, only the one to which it is attached.
-Thanks to this, we do not have to change the cache keys for each mapped request.
+```ts title="src/api/users.ts"
+type UserModel = { id: number; name: string; createdAt: string };
 
-:::info
-
-Mappers can be asynchronous. This way we can build up bigger responses.
-
-:::
-
-Here's an example of using a response mapper to enrich the user data with a list of products and transform a date string
-into a `Date` object.
-
-```typescript
-// Let's assume we have this request to fetch products
-const getProducts = client.createRequest<ProductModel[]>()({
-  method: "GET",
-  endpoint: "/products",
+const getTeams = client.createRequest<{ response: { id: number; name: string }[] }>()({
+  endpoint: "/users/:userId/teams",
 });
 
 export const getUser = client
-  .createRequest<{ response: UserModel }>()({
-    method: "GET",
-    endpoint: "/users/:userId",
-  })
+  .createRequest<{ response: UserModel }>()({ endpoint: "/users/:userId" })
   .setResponseMapper(async (response) => {
-    if (response.data) {
-      // Fetch additional data
-      const productsResponse = await getProducts.send();
-      const products = productsResponse.data || [];
+    if (!response.data) return response;
 
-      return {
-        ...response,
-        data: {
-          ...response.data,
-          products, // Add custom data to response
-          createdAt: new Date(response.data.createdAt), // Always transforms ISO string to Date!
-        },
-      };
-    }
-    return response;
+    const { data: teams } = await getTeams.send({ params: { userId: response.data.id } });
+
+    return {
+      ...response,
+      data: { ...response.data, createdAt: new Date(response.data.createdAt), teams: teams ?? [] },
+    };
   });
 ```
 
-### Model Hydration
+The mapper runs on every delivery of the response, including reads from the cache by hooks. Keep extra requests cheap,
+or let the second request's own cache absorb repeated calls.
 
-We can hydrate class models, which can parse our data. For example, the `User` class can parse dates from an ISO string
-into a `Date` object, generate nicknames or full names, etc. This is a powerful way to work with structured data.
+---
 
-```typescript
-class User {
+## Hydrate class models
+
+Return an instance instead of a plain object to give the data methods and computed fields. The cache keeps the raw
+object, so it stays serializable for persistence and hydration.
+
+```ts title="src/models/user.ts"
+export class User {
   id: number;
   name: string;
   createdAt: Date;
@@ -89,80 +69,70 @@ class User {
     this.createdAt = new Date(data.createdAt);
   }
 
-  get profile() {
-    return `${this.name} (since ${this.createdAt.getFullYear()})`;
+  get memberSince() {
+    return this.createdAt.getFullYear();
   }
 }
 
-export const getUser = client
-  .createRequest<{ response: UserModel }>()({
-    method: "GET",
-    endpoint: "/users/:userId",
-  })
+export const getUserModel = client
+  .createRequest<{ response: UserModel }>()({ endpoint: "/users/:userId" })
   .setResponseMapper((response) => {
-    // Note that we are returning an instance of User, not the plain object.
-    // The type in createRequest should be `UserModel`, which is the raw data from the server.
-    // The use of the mapper and `User` class will provide the hydrated model to the application.
-    if (response.data) {
-      return { ...response, data: new User(response.data) };
-    }
-    return response;
+    if (!response.data) return response;
+    return { ...response, data: new User(response.data) };
   });
 ```
 
-### Failing Mappers
-
-When a response mapper throws or its promise rejects, the request ends with a failed response. `send()` still resolves,
-`success` is `false`, `data` is `null` and `error` holds the value thrown by the mapper. The failure is reported through
-the client logger, hooks call their error callbacks, and an optimistic update rolls back with the `error` reason.
-
-```typescript
-const getUser = client
-  .createRequest<{ response: UserModel }>()({
-    method: "GET",
-    endpoint: "/users/:userId",
-  })
-  .setResponseMapper(async (response) => {
-    if (!isUserModel(response.data)) {
-      throw new Error("Invalid user");
-    }
-    return response;
-  });
-
-const { success, error } = await getUser.send({ params: { userId: 1 } });
-// success: false, error: Error("Invalid user")
-```
+Each delivery creates a new instance, so compare models by `id`, not by reference.
 
 ---
 
-## Request Mapping
+## When a mapper throws
 
-You can also map requests to make changes to a request before executing it. This allows us to validate the sent data and
-change its format or state, for example, to send it as `FormData`.
+A response mapper that throws, or whose promise rejects, turns the response into a failure. `send()` still resolves with
+`success: false`, `data: null` and the thrown value in `error`. The client logger reports it, hooks call their error
+callbacks and an [optimistic update](/docs/guides/react/basics/optimistic-approach) rolls back.
 
-:::info
+```ts title="src/api/users.ts"
+const getCheckedUser = client
+  .createRequest<{ response: UserModel }>()({ endpoint: "/users/:userId" })
+  .setResponseMapper((response) => {
+    if (response.data && typeof response.data.name !== "string") throw new Error("Invalid user");
+    return response;
+  });
 
-Request mappers can also be asynchronous, allowing for complex pre-request logic.
+const { success, error } = await getCheckedUser.send({ params: { userId: 1 } });
+// success: false, error: Error("Invalid user")
+```
 
-:::
+A request mapper or payload mapper that throws stops the request before it is sent, and `error` holds the thrown value.
+[Validation](/docs/guides/core/advanced/validation) builds on this.
 
-In this example, we convert the request payload into `FormData` and add a custom header before sending the request.
+---
 
-```typescript
-export const postUser = client
-  .createRequest<{ response: UserModel; payload: UserData }>()({
-    method: "POST",
-    endpoint: "/users/:userId",
-  })
-  .setRequestMapper((request) => {
-    const formData = new FormData();
+## The order of mappers
 
-    Object.entries(request.payload).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
+Each `send()` goes through these steps. Client-wide steps come first, the request's own mappers after them.
 
-    // Add custom headers and map data for every request
-    return request.setHeaders({ ...request.headers, "X-Better-Typed": "My custom header" }).setPayload(formData);
+| Step | Runs                                     | Scope         |
+| ---- | ---------------------------------------- | ------------- |
+| 1    | `client.onRequest` interceptors          | Every request |
+| 2    | `client.onAuth` interceptors, when `auth` is on | Every request |
+| 3    | `setRequestMapper`                       | This request  |
+| 4    | `setPayloadMapper`, or the adapter's payload mapper | This request |
+| 5    | The adapter sends the request            |               |
+| 6    | `client.onResponse`, then `onSuccess` or `onError` | Every request |
+| 7    | The response is written to the cache, unmapped |          |
+| 8    | `setResponseMapper`                      | This request  |
+
+So a request mapper sees the auth headers, and a response mapper sees what the response interceptors returned.
+
+```ts title="src/api/files.ts"
+// Request mappers can also be async, for example to sign the final request
+export const uploadFile = client
+  .createRequest<{ response: { url: string }; payload: Blob }>()({ endpoint: "/files", method: "PUT" })
+  .setRequestMapper(async (request) => {
+    const signature = await sign(request.endpoint);
+    return request.setHeaders({ ...request.headers, "X-Signature": signature });
   });
 ```
 
@@ -170,13 +140,25 @@ export const postUser = client
 
 :::success Congratulations!
 
-You've mastered request and response mapping in HyperFetch!
+You've learned the advanced side of mapping.
 
-- You can **transform incoming data** using `.setResponseMapper()` without affecting the cache.
-- You can **enrich responses** by making additional requests within an asynchronous mapper.
-- You can **hydrate data** into class models for more robust data structures.
-- You can **modify outgoing requests** using `.setRequestMapper()` to format data or add headers.
-- You understand that mappers provide a **local, per-request transformation**, ensuring data consistency across your
-  application.
+- You can write **async mappers** that enrich responses.
+- You can **hydrate class models** while the cache keeps raw data.
+- You know that a **throwing mapper** gives an error response instead of a rejected promise.
+- You know the **order** of interceptors and mappers.
 
 :::
+
+Runnable examples: [Response mapping](/examples/request-control/response-mapping) and
+[Payload validation](/examples/request-control/payload-validation).
+
+<LinkCard type="guides" title="Validation" description="Validate data with Zod inside mappers." to="/docs/guides/core/advanced/validation" />
+
+<LinkCard type="guides" title="Intercepting" description="Client-wide request and response interceptors." to="/docs/guides/core/advanced/intercepting" />
+
+<LinkCard
+  type="api"
+  title="Request API reference"
+  description="setResponseMapper, setRequestMapper and setPayloadMapper."
+  to="/docs/api/core/Classes/Request"
+/>

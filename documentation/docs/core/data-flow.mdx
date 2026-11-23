@@ -5,76 +5,88 @@ description: "How a request moves through HyperFetch, from the dispatcher queue 
 sidebar_label: Data Flow
 ---
 
-We try to provide the deepest possible knowledge about the architecture of our library; feel free to write any adapters,
-plugins, or additions. The flow of a request through the HyperFetch system is presented below. The steps from the
-moment of adding a request to the dispatcher to passing data to the component are included.
+This page follows one `send()` through the client: from the request, through the dispatcher and the adapter, to the
+cache and the components that read it. Read it before writing an adapter, a plugin or your own framework bindings.
 
 ```mermaid
-flowchart TD;
-    subgraph Request_Lifecycle
-      Request_Start
-      Upload
-      Response_Start
-      Download
-      Response
+flowchart TD
+    Client{Client} -- createRequest --> Request(Request)
+    Request -- "send()" --> Dispatcher((Dispatcher))
+    Dispatcher <-. online state .-> AppManager(AppManager)
+    Dispatcher -- "queue by queryKey" --> Interceptors["onRequest · onAuth · request mapper"]
+    Interceptors --> Adapter{{Adapter}}
+    Adapter --> Lifecycle
+    subgraph Lifecycle [Request lifecycle]
+      direction LR
+      Start[Request start] --> Upload[Upload] --> ResponseStart[Response start] --> Download[Download] --> Response[Response]
     end
-
-    App_Manager(App Manager);
-    Request_Manager(Request Manager);
-    Request(Request);
-    Dispatcher((Dispatcher))
-    Adapter{{Http Adapter}}
-    Client{Client}
-
-    Client -- create request --> Request
-    Request -- "use of send() method" --> Dispatcher
-    Dispatcher <-. Check online status .-> App_Manager
-    Dispatcher -- pick request from queue and send to adapter --> Adapter
-    Adapter --> Request_Lifecycle
-    Request_Start --> Upload[[Upload]]
-    Upload --> Response_Start[[Response Start]]
-    Response_Start --> Download[[Download]]
-    Download --> Response[[Response]]
-    Response -- Save Data --> Cache[(Cache)]
-    Cache -- Emit Data --> Component{Component}
-
-    Request_Start -. Emit Event .-> Request_Manager
-    Upload -. Emit Event .-> Request_Manager
-    Response_Start -. Emit Event .-> Request_Manager
-    Download -. Emit Event .-> Request_Manager
-    Response -. Emit Event .-> Request_Manager
-
-    Request_Manager -. Events .-> Component
-    App_Manager -. Events .-> Component
+    Response --> ResponseInterceptors["onResponse · onSuccess / onError"]
+    ResponseInterceptors -- "success, by cacheKey" --> Cache[(Cache)]
+    Cache -- data events --> Component{Component}
+    Lifecycle -. events .-> RequestManager(RequestManager)
+    RequestManager -. events .-> Component
+    AppManager -. focus, online .-> Component
 ```
 
 ---
 
-## Cache
+## The steps
 
-The cache saves data under `cacheKey` values, which allows us to easily use it.
+1. **Create.** `client.createRequest()` builds an immutable request. Its `cacheKey`, `queryKey` and `abortKey` are
+   derived from the method, endpoint and query params.
+2. **Dispatch.** `send()` adds it to the queue of its `queryKey` in `fetchDispatcher` (GET, QUERY) or
+   `submitDispatcher`. The [dispatcher](/docs/core/dispatcher) deduplicates, cancels or queues it, and holds it while
+   the [AppManager](/docs/core/managers#appmanager) reports the app offline.
+3. **Intercept.** `onRequest`, `onAuth` (when `auth` is on) and the request mapper change the request.
+4. **Send.** The [adapter](/docs/core/adapter) sends it and reports start, upload, download and the response. Each step
+   is an event on the [RequestManager](/docs/core/managers#requestmanager).
+5. **Respond.** `onResponse`, then `onSuccess` or `onError` change the response. A failed attempt may be retried.
+6. **Store.** A successful response is written to the [cache](/docs/core/cache) under `cacheKey`. The cache emits it
+   to every reader of that key, and `send()` resolves.
+
+`exec()` skips steps 2 and 6: it runs the interceptors and the adapter only.
+
+---
+
+## How the cache holds responses
+
+Each `cacheKey` is one entry. Requests with the same method, filled endpoint and query params share it.
 
 ```mermaid
 graph TD
-  C[(Cache Storage)]
-  C -->|"GET_/users?page=1"| D[Cache Key #1]
-  C -->|"GET_/users/1"| E[Cache Key #2]
-  C -->|"GET_/users"| F[Cache Key #3]
-  C -->|unique key| G[Cache Key ...]
+  C[(Cache)]
+  C -->|"GET_/users_"| A[All users]
+  C -->|"GET_/users_{#quot;page#quot;:2}"| B[Users, page 2]
+  C -->|"GET_/users/1_"| D[User 1]
 ```
 
-#### Response event flow
-
-The diagram below shows how mutation is propagated in our system.
+When an entry changes, by a response, `cache.update`, `invalidate` or an optimistic update, the cache emits an event for
+that key. Every mounted reader of the key, such as `useFetch`, re-renders or refetches.
 
 ```mermaid
-graph TD
-    A(new Data #3)
-    C[(Cache Storage)]
-    B[Cache Listeners]
-    C -.-> D[Data#1]
-    C -.-> D2[Data#2]
-    A -->|data mutation| C
-    C -->|mutation| E[Data#3]
-    E -->|emit new data| B
+graph LR
+    N[New response or update] -->|set| C[(Cache entry)]
+    C -->|emit| L1[useFetch in component A]
+    C -->|emit| L2[useCache in component B]
+    C -->|emit| L3[Plugins]
 ```
+
+---
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Request lifecycle"
+  description="Every lifecycle callback of a request, in React."
+  to="/docs/guides/react/basics/request-lifecycle"
+/>
+
+<LinkCard type="docs" title="Plugin" description="Hook into every step of this flow." to="/docs/core/plugin" />
+
+<LinkCard
+  type="guides"
+  title="Custom adapter"
+  description="Write the adapter step for your own transport."
+  to="/docs/guides/core/advanced/custom-adapter"
+/>

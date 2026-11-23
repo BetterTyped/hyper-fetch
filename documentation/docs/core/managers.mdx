@@ -5,65 +5,45 @@ description: "HyperFetch managers handle app-wide state: the AppManager tracks o
 sidebar_label: Managers
 ---
 
-**Managers** are core subsystems in HyperFetch that handle essential app-wide concerns, like network status, request
-lifecycle, and logging. They provide powerful, centralized APIs for managing state, events, and behaviors across your
-application, making advanced features like offline support, cancellation, and debugging easy to implement and maintain
-in other environments like React, Node.js, etc.
+Managers hold the app-wide state of a client. The **AppManager** tracks focus and online state, the **RequestManager**
+emits request lifecycle events and aborts requests, and the **LoggerManager** creates the loggers every module uses.
+Each client has one of each: `client.appManager`, `client.requestManager` and `client.loggerManager`.
 
-The library contains several managers, each supporting a specific subsystem or feature. Understanding these managers
-helps you unlock advanced capabilities and build robust, maintainable applications.
+:::tip Purpose
+
+1. **Know the environment**: online, offline, focused or blurred.
+2. **Observe every request**: start, progress, retry, response, abort and removal events.
+3. **Log** what the client does, filtered by level and module.
+
+:::
+
+```ts
+// Every listener returns an unsubscribe function
+const unsubscribe = client.requestManager.events.onResponse(({ request, response }) => {
+  console.log(request.endpoint, response.status);
+});
+
+unsubscribe();
+```
 
 ---
 
 ## AppManager
 
-[Read the API Reference »](/api/core/Classes/AppManager.mdx)
+[Read the API Reference »](/docs/api/core/Classes/AppManager)
 
-The **AppManager** detects and manages your application's online/offline state, tracks window focus and blur events, and
-allows integration with custom event sources (such as React Native or Electron). It provides unmount callbacks for easy
-cleanup, making it simple to handle app-wide lifecycle events in any environment.
-
-:::tip Purpose
-
-1. Track **online/offline** status of the app
-2. Detect **window focus** and **blur** events
-3. **Allow custom event** sources for different environments
-
-:::
-
-```tsx title="Listening to App Events"
-// highlight-start
-const unmountFocusListener = client.appManager.events.onFocus(() => {
-  console.log("App is focused!");
-});
-const unmountOfflineListener = client.appManager.events.onOffline(() => {
-  console.log("App is offline!");
-});
-// highlight-end
-
-// ... later, to clean up:
-unmountFocusListener();
-unmountOfflineListener();
-```
-
-:::info
-
-HyperFetch event listeners always return unmounting callbacks for easier cleanup handling.
-
-:::
-
-#### Customizing Events
-
-If you're using a non-browser environment (like React Native), you can set custom event handlers:
+The AppManager tracks whether the app is focused and online. The [dispatcher](/docs/core/dispatcher) holds offline
+requests until it reports the connection is back, and React hooks use it to refetch on focus or reconnect.
 
 ```ts
-client.appManager.setFocusEvents({
-  onFocus: myCustomFocusHandler,
-  onBlur: myCustomBlurHandler,
-});
+client.appManager.isOnline; // boolean
+client.appManager.isFocused; // boolean
+
+const unsubscribe = client.appManager.events.onOffline(() => showBanner("You are offline"));
 ```
 
-### Events
+The events are `onFocus`, `onBlur`, `onOnline` and `onOffline`. `setOnline(boolean)` and `setFocused(boolean)` change the
+state by hand, which helps in tests.
 
 <ShowMore>
 
@@ -71,129 +51,54 @@ client.appManager.setFocusEvents({
 
 </ShowMore>
 
+### Connect a non-browser environment
+
+In the browser the AppManager listens to `window` events. In React Native, Electron or Node.js, pass your own sources
+with `focusEvent` and `onlineEvent`. Each receives a setter and can return a cleanup function.
+
+```ts title="api/client.ts"
+import { AppManager, createClient } from "@hyper-fetch/core";
+import NetInfo from "@react-native-community/netinfo";
+import { AppState } from "react-native";
+
+export const client = createClient({
+  url: "https://api.example.com",
+  appManager: () =>
+    new AppManager({
+      focusEvent: (setFocused) => {
+        const subscription = AppState.addEventListener("change", (state) => setFocused(state === "active"));
+        return () => subscription.remove();
+      },
+      onlineEvent: (setOnline) => NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
+    }),
+});
+```
+
+| Option             | Default                | Description                                   |
+| ------------------ | ---------------------- | --------------------------------------------- |
+| `initiallyFocused` | `true`                 | Focus state before the first event            |
+| `initiallyOnline`  | `navigator.onLine`     | Online state before the first event           |
+| `focusEvent`       | `window` focus and blur, `visibilitychange` | Subscribes to focus changes |
+| `onlineEvent`      | `window` online events | Subscribes to network changes                 |
+
 ---
 
 ## RequestManager
 
-[Read the API Reference »](/api/core/Classes/RequestManager.mdx)
+[Read the API Reference »](/docs/api/core/Classes/RequestManager)
 
-The **RequestManager** manages cancellation tokens for requests, emits events throughout the request lifecycle
-(including start, upload, download, retry, response, and abort), and supports aborting requests by requestId or custom
-abortKey. It enables granular progress tracking and advanced cancellation scenarios for robust request handling.
+The RequestManager emits an event for every step of every request and keeps the abort controllers. Most events come in
+three forms: for all requests, by key (`...ByQueue`, `...ByCache` or `...ByKey`) and by `requestId` (`...ById`).
 
-:::tip Purpose
+```ts title="Progress and retries"
+client.requestManager.events.onDownloadProgressById(requestId, ({ progress, timeLeft }) => {
+  console.log(`${progress}%, ${timeLeft} ms left`);
+});
 
-1. Manage cancellation tokens for requests
-2. Emit events for request lifecycle (start, upload, download, retry, response, abort)
-3. Support aborting by requestId or abortKey
-
-:::
-
-#### Bulk Abort
-
-The `abortAll()` method aborts every in-flight request tracked by the `RequestManager`. This is useful for cleanup
-on unmount, page navigation, or test teardown.
-
-```ts
-// Abort all tracked requests at once
-// highlight-next-line
-client.requestManager.abortAll();
+client.requestManager.events.onRetry(({ request, retry, delay, response }) => {
+  console.log(`${request.endpoint} failed with ${response.status}, retry ${retry} in ${delay} ms`);
+});
 ```
-
-```tsx title="Tracking Upload/Download Progress"
-// highlight-start
-const unmountUploadListener = client.requestManager.events.onUploadProgressById(requestId, (progress) => {
-  console.log("Upload progress:", progress);
-});
-const unmountDownloadListener = client.requestManager.events.onDownloadProgressById(requestId, (progress) => {
-  console.log("Download progress:", progress);
-});
-// highlight-end
-
-// ... later, to clean up:
-unmountUploadListener();
-unmountDownloadListener();
-```
-
-```tsx title="Watching scheduled retries"
-// Every failed attempt which schedules a retry - also onRetryById(requestId) and onRetryByQueue(queryKey)
-// highlight-start
-const unmountRetryListener = client.requestManager.events.onRetry(({ request, retry, delay, response }) => {
-  console.log(`${request.endpoint} failed with ${response.status}, retry ${retry} of ${request.retry} in ${delay} ms`);
-});
-// highlight-end
-```
-
-:::info
-
-You can abort requests by their `requestId` or by a custom `abortKey` to cancel groups of requests at once.
-
-:::
-
-### AbortKey
-
-Every request added to the dispatcher creates an abort controller, stored in a Map under its abort key (usually the
-`requestId`). This lets you abort single requests or groups of requests easily.
-
-```tsx
-const getUser = client.createRequest()({
-  method: "GET",
-  endpoint: "/users/:userId",
-});
-
-// highlight-start
-const abortKey = getUser.abortKey; // "/users/:userId"
-const abortKeyWithParams = getUser.setParams({ userId: 1 }).abortKey; // "/users/1"
-const abortKeyWithQueryParams = getUser.setQueryParams({ page: 1 }).abortKey; // "/users/:userId"
-// highlight-end
-```
-
-#### Custom abortKey
-
-You can also set a custom abort key:
-
-```tsx
-import { client } from "./api";
-
-const getUser = client.createRequest()({
-  method: "GET",
-  endpoint: "/users/:userId",
-  abortKey: "CUSTOM_ABORT_KEY",
-});
-
-// highlight-start
-console.log(getUser.abortKey); // "CUSTOM_ABORT_KEY"
-// highlight-end
-```
-
-#### Generic abortKey
-
-You can also set a generic abort key:
-
-```tsx
-import { client } from "./api";
-
-// highlight-start
-client.setQueryKeyMapper((request) => {
-  if (request.requestOptions.endpoint === "/users/:userId") {
-    return `CUSTOM_ABORT_KEY_${request.params?.userId || "unknown"}`;
-  }
-});
-// highlight-end
-
-const getUser = client.createRequest()({
-  method: "GET",
-  endpoint: "/users/:userId",
-});
-
-// highlight-start
-console.log(getUser.setParams({ userId: 1 }).queryKey); // "CUSTOM_QUERY_KEY_1"
-// highlight-end
-```
-
----
-
-### Events
 
 <ShowMore>
 
@@ -201,91 +106,68 @@ console.log(getUser.setParams({ userId: 1 }).queryKey); // "CUSTOM_QUERY_KEY_1"
 
 </ShowMore>
 
-```ts title=Example
-client.requestManager.events.onResponse((response, details) => {
-  // Handle response
-});
+### Abort requests
+
+`request.abort()` aborts every request with the same [`abortKey`](/docs/core/request#keys).
+`client.requestManager.abortAll()` aborts everything in flight, for example on logout or in test teardown. Aborted
+requests resolve with an abort error, they do not reject.
+
+```ts
+getUser.abort();
+client.requestManager.abortByRequestId(getUser.abortKey, requestId);
 ```
 
 ---
 
 ## LoggerManager
 
-[Read the API Reference »](/api/core/Classes/LoggerManager.mdx)
+[Read the API Reference »](/docs/api/core/Classes/LoggerManager)
 
-The **LoggerManager** centralizes logging for all subsystems, enables creation of custom loggers for different modules
-or features, and ensures consistent logging by inheriting parent configuration. It offers flexible log levels and output
-formatting to keep logs organized and actionable.
+The LoggerManager prints what the client and its modules do. Nothing is printed until you call `setDebug(true)`. The
+level is `"warning"` by default, change it with `setLogLevel`.
 
-:::tip Purpose
+```ts title="api/client.ts"
+client.setDebug(true).setLogLevel("debug"); // "debug" | "info" | "warning" | "error"
 
-1. Centralize logging for all subsystems
-2. Enable creation of custom loggers for modules/features
-3. Inherit parent configuration for consistent logging
-
-:::
-
-:::caution Debug mode required
-
-`client.setDebug(true)` must be called for any log output to appear. Without it, the `LoggerManager` silently discards
-all messages regardless of log level.
-
-```ts
-const client = createClient({ url: "http://localhost:3000" }).setDebug(true);
-```
-
-:::
-
-```ts title="Custom Logger Example"
-// highlight-start
-const logger = client.loggerManager.init("My Module");
-logger.error("Something went wrong!"); // Output: [My Module] Something went wrong!
-// highlight-end
-```
-
-#### Filtering Logs by Module
-
-Use `setModules` to restrict log output to specific module names. When set, only loggers whose names match the provided
-list will produce output. Pass `undefined` to remove the filter and show all modules.
-
-```ts
-// Only show logs from "Cache" and "Dispatcher" modules
-// highlight-next-line
+// Only logs of these modules
 client.loggerManager.setModules(["Cache", "Dispatcher"]);
+```
 
-// Show all modules again
-client.loggerManager.setModules(undefined);
+Send the logs somewhere else with `setLogger`, which takes a function returning a new `LoggerManager`:
+
+```ts
+import { LoggerManager } from "@hyper-fetch/core";
+
+client.setLogger(() => new LoggerManager({ logger: ({ level, module, title }) => sendToMonitoring(level, module, title) }));
 ```
 
 ---
 
-:::info Best Practices
+:::secondary Summary
 
-- Always clean up event listeners using the returned unmount callbacks to avoid memory leaks.
-- Use custom abort keys for advanced cancellation scenarios (e.g., aborting all requests for a specific feature).
-- Leverage custom loggers to keep logs organized and actionable.
+- `client.appManager` knows focus and online state. Pass `focusEvent` and `onlineEvent` outside the browser.
+- `client.requestManager.events` reports every request step. Listeners return an unsubscribe function.
+- `client.setDebug(true)` turns on the logger, `setLogLevel` and `setModules` filter it.
 
 :::
 
----
+## Next steps
 
-## See Also
+Runnable examples: [Refetch on focus](/examples/data-fetching/refetch-on-focus),
+[Download progress](/examples/data-fetching/download-progress) and [Cancellation](/examples/request-control/cancellation).
 
-<LinkCard
-  type="docs"
-  title="Client"
-  description="The central hub for configuration and manager access."
-  to="/docs/core/client"
-/>
-<LinkCard
-  type="docs"
-  title="Request"
-  description="Learn how requests interact with managers."
-  to="/docs/core/request"
-/>
 <LinkCard
   type="guides"
-  title="Advanced Cancellation"
-  description="Guide to advanced request cancellation techniques."
+  title="Cancellation"
+  description="Abort requests one by one, by key or all at once."
   to="/docs/guides/core/advanced/cancellation"
+/>
+
+<LinkCard type="docs" title="Plugin" description="Observe the cache and dispatchers too." to="/docs/core/plugin" />
+
+<LinkCard
+  type="api"
+  title="RequestManager API reference"
+  description="Every method and event of the RequestManager."
+  to="/docs/api/core/Classes/RequestManager"
 />

@@ -6,159 +6,130 @@ sidebar_label: Prefetching
 
 # Prefetching
 
-**Prefetching** is a powerful technique for improving user experience by loading data before it's explicitly needed.
-When data is prefetched, it's available in the cache, so when the user navigates to a new view, the content can be
-displayed instantly without a loading spinner. With HyperFetch, prefetching is incredibly simple to implement.
+Prefetching loads data before the user asks for it, so the next view renders from the cache without a spinner. In
+HyperFetch a prefetch is a plain `send()`: every successful response is written to the cache, where the next view reads
+it.
 
 :::secondary What you'll learn
 
-1.  What **prefetching** is and why it's beneficial for user experience.
-2.  How to implement **basic prefetching** for static data.
-3.  How to prefetch data for **dynamic routes** based on user interactions.
-4.  How prefetching leverages the **cache** to provide instant data access.
+1. How a **prefetch fills the cache** and how the next view reads it.
+2. How to prefetch **on start** and **on hover** for dynamic routes.
+3. How to **skip a prefetch** when the cached data is still fresh.
+4. How to prefetch **on the server** and hand the data to the browser.
 
 :::
 
 ---
 
-## The Concept
+## A prefetch is a send
 
-The core idea behind prefetching is to anticipate a user's next move and fetch the necessary data in advance. For
-example, if a user is likely to click on a user's profile from a list, you can start fetching that profile's data as
-soon as the list is displayed, or even when the user hovers over the list item.
+`send()` goes through the [dispatcher](/docs/core/dispatcher) and writes a successful response to the
+[cache](/docs/core/cache) under the request's `cacheKey`. Reading the same request later finds it there.
 
-HyperFetch's design makes this trivial. By simply executing a request with `.send()`, you trigger the entire
-data-fetching lifecycle, including:
+```ts title="src/prefetch.ts"
+// Fill the cache, no one waits for the result
+getUsers.send();
 
-1.  Sending the request to the server.
-2.  Receiving the response.
-3.  **Storing the response in the cache.**
+// Later, in the next view
+const cached = getUsers.read(); // the response, no network call
+// The cached response when present, else the network
+const { data } = await getUsers.send({ cachePolicy: "cache-first" });
+```
 
-Later, when a component or part of your application logic needs this data, it reads it from the cache: `useFetch` from
-`@hyper-fetch/react` renders the cached data right away and skips the network while it is fresh, and in core you read it
-with `request.read()` or `send({ cachePolicy: "cache-first" })`. A plain `send()` always goes to the network, its
-default `cachePolicy` is `"network-only"`.
+A plain `send()` is network-only: it writes to the cache but never reads it. Read prefetched data with `read()`, a
+`cachePolicy`, or [`useFetch`](/docs/react/hooks/use-fetch), which renders cached data at once and fetches only when it is
+missing or stale.
 
 ---
 
-## Basic Prefetching
+## Prefetch on hover
 
-The most straightforward use case for prefetching is loading data that a user is very likely to need soon. For example,
-you might prefetch a list of items for a dashboard page as soon as the user logs in.
+For dynamic routes, start the request when the user shows intent, such as hovering a link. Each set of params has its
+own `cacheKey`, so every user is cached separately.
 
-Let's say we have a request to fetch a list of users.
+```ts title="src/users-list.ts"
+const prefetchUser = (userId: number) => {
+  getUser.send({ params: { userId } });
+};
 
-```ts
-const getUsers = client.createRequest<{ response: { id: number; name: string }[] }>()({
-  method: "GET",
-  endpoint: "/users",
-});
-
-// highlight-next-line
-// We use a mock to show you the result of the request.
-getUsers.setMock(() => ({
-  data: [
-    { id: 1, name: "John" },
-    { id: 2, name: "Jane" },
-  ],
-  status: 200,
-}));
+link.addEventListener("pointerenter", () => prefetchUser(Number(link.dataset.userId)));
 ```
 
-To prefetch this data, you just need to call `.send()` on the request instance at an appropriate time in your
-application's lifecycle—for example, when a related component mounts or when the app initializes.
-
-```typescript
-getUsers.send({
-  onResponse: ({ response }) => {
-    // highlight-next-line
-    // The data is now in the cache, ready for instant access.
-    console.log("Prefetched data:", response.data);
-  },
-});
-```
-
-> After executing, the data is stored in the cache. Reading it later with `getUsers.read()`,
-> `getUsers.send({ cachePolicy: "cache-first" })` or `useFetch(getUsers)` returns it instantly.
+Hovering twice while the first request is in flight does not send a second one: GET requests are
+[deduplicated](/docs/guides/core/advanced/deduplication) by default. When the user clicks, the view finds the response in
+the cache or joins the request still in flight.
 
 ---
 
-## Dynamic Prefetching
+## Skip fresh data
 
-A more advanced and common scenario is prefetching data that depends on user interaction, like hovering over a link.
-This is where prefetching truly shines, as it can make UI transitions feel seamless.
+A prefetch on every hover refetches data that is already fresh. Read the cache entry first and compare its age with its
+`staleTime`, which `invalidate` sets to `0`:
 
-Consider a request that fetches details for a specific user by their ID.
+```ts title="src/prefetch.ts"
+import type { RequestInstance } from "@hyper-fetch/core";
 
-```ts
-const getUser = client.createRequest<{ response: { id: number; name: string } }>()({
-  method: "GET",
-  endpoint: "/users/:userId",
-});
+const prefetchIfStale = (request: RequestInstance) => {
+  const cached = client.cache.get(request.cacheKey);
+  const isFresh = !!cached && Date.now() - cached.responseTimestamp < cached.staleTime;
 
-// highlight-next-line
-// We use a mock to show you the result of the request.
-getUser.setMock(({ request }) => ({
-  data: { id: Number(request.params?.userId), name: `User ${request.params?.userId}` },
-  status: 200,
-}));
+  if (!isFresh) request.send();
+};
+
+prefetchIfStale(getUser.setParams({ userId: 1 }));
 ```
 
-You can trigger a prefetch when the user hovers over a UI element associated with a particular user. This way, if they
-decide to click, the data will likely already be loaded.
-
-Here's how you might implement a prefetching function for a user's details:
-
-```typescript
-function prefetchUser(userId) {
-  // We set the required parameter and send the request.
-  // The response will be cached against the request key, which includes the user ID.
-  getUser.setParams({ userId }).send({
-    onResponse: ({ response }) => {
-      console.log(`Prefetched user ${userId}:`, response.data);
-    },
-  });
-}
-
-// Simulate hovering over two different users
-prefetchUser(1);
-prefetchUser(2);
-```
-
-> In a real application, you would call `prefetchUser` inside a `onMouseEnter` or `onPointerEnter` event handler. Each
-> time it's called with a new `userId`, HyperFetch will cache the response separately for that user.
+Prefetched data is removed after `cacheTime` (5 minutes by default) like any other entry. Prefetch what the user is
+likely to open soon, not whole collections.
 
 ---
 
-## Prefetching and the Cache
+## Prefetch on the server
 
-Prefetching is effective because of HyperFetch's built-in caching layer. When you call `.send()`, the request's
-response is automatically cached. The cache key is generated based on the request's endpoint, method, parameters, and
-other properties, ensuring that each unique request has its own cache entry.
+On the server, send the request, pack the response with `dehydrate` and write it into the browser's cache with
+`client.hydrate`. The page then renders without a client-side request.
 
-When you later need the same data, read it through the cache:
-
-```ts
-// Returns the cached response, or goes to the network when there is no entry
-const { data } = await getUser.setParams({ userId: 1 }).send({ cachePolicy: "cache-first" });
-
-// Returns the cached response immediately and refreshes it in the background
-const { data: latest } = await getUser.setParams({ userId: 1 }).send({ cachePolicy: "revalidate" });
+```ts title="server.ts"
+// Scope the request: on the server only scoped requests are cached
+const request = getUser.setParams({ userId: 1 }).setScope(session.id);
+const response = await request.send();
+const state = [request.dehydrate({ response })];
+// Serialize `state` into the page, then in the browser: client.hydrate(state)
 ```
 
-With a cached entry, `"cache-first"` returns it immediately and **no network request is made**. Neither policy checks
-`staleTime`, so a stale entry is returned too. In React, `useFetch` reads the same cache entry on mount and fetches only
-when the data is missing or stale. This is what creates the "instant" experience for the user.
+In React, the [`Hydrate`](/docs/react/hydrate) component does the browser part. Router loaders work the same way: they
+send the request so the route component reads from the cache.
+
+| When                 | How                                           |
+| -------------------- | --------------------------------------------- |
+| App start, login     | `send()` the data of the likely first screens |
+| Hover, focus, viewport | `send()` with the params of the target      |
+| Next page of a list  | `send()` the next page while the current one shows |
+| Server rendering     | `send()`, `dehydrate()` and `hydrate()`       |
 
 ---
 
 :::success Congratulations!
 
-You've learned how to use prefetching in HyperFetch to build faster and more responsive applications.
+You've learned how to prefetch data.
 
-- You understand that **prefetching** is about loading data in advance to improve perceived performance.
-- You can implement **basic prefetching** for static data by simply calling `.send()`.
-- You know how to implement **dynamic prefetching** for data that depends on user interactions.
-- You understand how prefetching and **caching** work together to provide instant data access.
+- You can **prefetch** with `send()`, which fills the cache.
+- You can prefetch **on hover** without duplicates, thanks to deduplication.
+- You can **skip fresh data** by checking the cache entry's age against its `staleTime`.
+- You can prefetch **on the server** and hydrate the browser cache.
 
 :::
+
+Runnable examples: [Prefetching](/examples/data-fetching/prefetching), [Pagination](/examples/data-fetching/pagination),
+[React Router](/examples/frameworks/react-router) and [TanStack Router](/examples/frameworks/tanstack-router).
+
+<LinkCard type="docs" title="Cache" description="How responses are stored and read." to="/docs/core/cache" />
+
+<LinkCard type="guides" title="Cache revalidation" description="Keep prefetched data fresh after mutations." to="/docs/guides/core/advanced/cache-revalidation" />
+
+<LinkCard
+  type="api"
+  title="Request API reference"
+  description="send, read and dehydrate."
+  to="/docs/api/core/Classes/Request"
+/>

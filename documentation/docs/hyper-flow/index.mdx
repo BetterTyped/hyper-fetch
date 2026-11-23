@@ -8,7 +8,7 @@ sidebar_label: Overview
 # HyperFlow
 
 HyperFlow is a desktop app for macOS, Windows and Linux that shows what the data layer of your HyperFetch app is doing,
-while it runs. Add the [devtools plugin](/docs/integrations/plugin-devtools/index.mdx) to your client, and HyperFlow
+while it runs. Add the [devtools plugin](/docs/integrations/plugin-devtools) to your client, and HyperFlow
 lists every request with its payload, response and timing, the cache with its fresh and stale entries, the queues,
 socket traffic and `@hyper-fetch/db` collections.
 
@@ -84,7 +84,7 @@ HyperFlow is in alpha. Expect rough edges, and tell us what you miss on
 
 ## Get started in three steps
 
-1. **[Download HyperFlow](/docs/hyper-flow/download.mdx)** for your system and open it.
+1. **[Download HyperFlow](/docs/hyper-flow/download)** for your system and open it.
 2. **Add the plugin** to your client:
 
    ```ts title="api/client.ts"
@@ -99,7 +99,7 @@ HyperFlow is in alpha. Expect rough edges, and tell us what you miss on
 
 3. **Run your app.** It shows up on the HyperFlow home screen as soon as the plugin connects.
 
-[Connect your app](/docs/hyper-flow/connecting.mdx) covers installation, development-only setup, Node.js backends,
+[Connect your app](/docs/hyper-flow/connecting) covers installation, development-only setup, Node.js backends,
 sockets and dbs.
 
 ---
@@ -137,12 +137,12 @@ The trade-off is one more app to start while you develop.
 
 ---
 
-## Where to go next
+## Next steps
 
 <div className="row">
   <div className="col col--6">
     <LinkCard
-      type="promo"
+      type="download"
       title="Download HyperFlow"
       description="Builds for macOS, Windows and Linux."
       to="/docs/hyper-flow/download"
@@ -151,9 +151,28 @@ The trade-off is one more app to start while you develop.
   <div className="col col--6">
     <LinkCard
       type="docs"
+      title="Connect your app"
+      description="Development-only setup, Node.js backends, sockets and dbs."
+      to="/docs/hyper-flow/connecting"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
       title="Tour the interface"
-      description="What every part of the window does, in one annotated screenshot."
+      description="What every part of the window does, in annotated screenshots."
       to="/docs/hyper-flow/interface"
     />
   </div>
+  <div className="col col--6">
+    <LinkCard
+      type="api"
+      title="DevtoolsPlugin API reference"
+      description="Every option of the devtools plugin."
+      to="/docs/api/plugin-devtools/Functions/DevtoolsPlugin"
+    />
+  </div>
 </div>
+
+Try it on the runnable [Devtools example](/examples/integrations/devtools): a small app with buttons that send a cached
+list, a mutation, a failed request and a slow one you can cancel.

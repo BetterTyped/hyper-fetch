@@ -7,12 +7,10 @@ sidebar_label: WebSockets in Next.js
 
 # WebSockets in Next.js
 
-A next js websocket setup has two halves, and Next.js only owns one of them. The client half, a component that opens the
-connection and renders messages, is an ordinary Client Component. The server half, the process that accepts the
-connection and keeps it open, usually lives outside Next.js, because Next.js has no API for WebSocket upgrades.
-
-This page explains where the server can run, then builds the client: a socket module that is safe under server rendering,
-a client component that listens and sends, and a server component that hands it the initial data.
+A WebSocket setup in Next.js has two halves, and Next.js owns only one. The client half is an ordinary Client Component;
+the server half, the process that accepts and keeps the connection, usually runs outside Next.js, because Next.js has no
+API for WebSocket upgrades. This guide explains where the server can run, then builds a client that is safe under
+server rendering.
 
 :::secondary What you'll learn
 
@@ -45,7 +43,7 @@ So you pick one of these:
 
 Whichever you pick, the browser connects to a `wss://` URL, and the code below does not change. In every case, plan for
 the connection to drop: deploys, function time limits and network changes all close it. The
-[reconnection guide](./websocket-reconnection-and-errors.mdx) covers what the client should do then.
+[reconnection guide](/docs/guides/sockets/websocket-reconnection-and-errors) covers what the client should do then.
 
 ---
 
@@ -58,15 +56,15 @@ replaced with an empty string
 ([Next.js: Server and Client Components](https://nextjs.org/docs/app/getting-started/server-and-client-components)).
 
 **Server rendering.** Client Components are still rendered to HTML on the server for the first load. A module-level
-`new Socket()` runs there too, and Node.js 22 and later have a global `WebSocket`, so it would open a connection from your
+`createSocketClient()` runs there too, and Node.js 22 and later have a global `WebSocket`, so it would open a connection from your
 Next.js server. Turn the automatic connection off when there is no `window`:
 
 ```ts title="lib/socket.ts"
-import { Socket } from "@hyper-fetch/sockets";
+import { createSocketClient } from "@hyper-fetch/sockets";
 
 export type ChatMessage = { id: string; user: string; text: string };
 
-export const socket = new Socket({
+export const socket = createSocketClient({
   url: process.env.NEXT_PUBLIC_SOCKET_URL ?? "ws://localhost:4000",
   // highlight-next-line
   adapterOptions: { autoConnect: typeof window !== "undefined" },
@@ -82,7 +80,7 @@ export const sendChatMessage = socket.createEmitter<Omit<ChatMessage, "id">>()({
 ```
 
 On the server the socket is created but stays disconnected. In the browser the module is evaluated again, `window`
-exists, and it connects. The same caution is in the [adapter reference](../../sockets/adapter.mdx).
+exists, and it connects. The same caution is in the [adapter reference](/docs/sockets/adapter).
 
 ---
 
@@ -161,7 +159,7 @@ export default async function ChatPage() {
 }
 ```
 
-If the history comes through a HyperFetch request instead of `fetch`, [Hydrate](../../react/06-hydrate.mdx) passes the
+If the history comes through a HyperFetch request instead of `fetch`, [Hydrate](/docs/react/hydrate) passes the
 server response into the client cache so the browser does not request it again.
 
 ---
@@ -179,7 +177,8 @@ socket.onConnect(async ({ connection }) => {
 });
 ```
 
-The [authentication guide](./authentication.mdx) covers subprotocols and adapter options as well.
+Chain `onConnect` in the module that creates the socket, so it applies to the first connection. The
+[authentication guide](/docs/guides/sockets/authentication) covers subprotocols and adapter options as well.
 
 ---
 
@@ -215,9 +214,9 @@ export async function GET() {
 The client keeps the same listener API, only the adapter changes:
 
 ```ts title="lib/events.ts"
-import { ServerSentEventsAdapter, Socket } from "@hyper-fetch/sockets";
+import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
 
-export const events = new Socket({
+export const events = createSocketClient({
   url: "/api/events",
   adapter: ServerSentEventsAdapter(),
   adapterOptions: { autoConnect: typeof window !== "undefined" },
@@ -227,16 +226,38 @@ export const onTick = events.createListener<{ at: number }>()({ topic: "tick" })
 ```
 
 On serverless hosting the stream still ends when the function reaches its time limit. `EventSource` reconnects on its
-own, and the adapter follows it. [SSE vs WebSocket](./sse-vs-websocket.mdx) compares the two in detail.
+own, and the adapter follows it. [SSE vs WebSocket](/docs/guides/sockets/sse-vs-websocket) compares the two in detail.
 
-:::secondary Summary
+---
 
-- Next.js route handlers answer HTTP requests and cannot upgrade them to WebSockets. Run the socket server separately,
-  in a custom server, through a managed service, or with `upgradeWebSocket()` on Vercel.
-- Create the HyperFetch `Socket` at module level with `autoConnect: typeof window !== "undefined"` and a
-  `NEXT_PUBLIC_` URL.
-- Use `useListener` and `useEmitter` in a `"use client"` component, and load history in a Server Component.
-- Resolve tokens per attempt with `onConnect`.
-- For receive-only data, an SSE route handler plus `ServerSentEventsAdapter` may be all you need.
+:::success Congratulations!
+
+You can now add realtime features to a Next.js app.
+
+- You know why **route handlers cannot upgrade** to WebSockets, and where the socket server can run instead.
+- You can create the socket with **`autoConnect: typeof window !== "undefined"`** and a `NEXT_PUBLIC_` URL.
+- You can use **`useListener`** and **`useEmitter`** in a `"use client"` component, with history from a Server Component.
+- You can choose an **SSE route handler** for receive-only data.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Next.js data fetching"
+  description="Server Components, client hooks and hydration for HTTP data."
+  to="/docs/guides/react/basics/nextjs-data-fetching"
+/>
+
+<LinkCard
+  type="guides"
+  title="SSE vs WebSocket"
+  description="When a one-way stream is enough and when you need a socket."
+  to="/docs/guides/sockets/sse-vs-websocket"
+/>
+
+- Guides: [WebSockets in React](/docs/guides/sockets/websockets-in-react), [authentication](/docs/guides/sockets/authentication).
+- Runnable examples: [Next.js App Router](/examples/frameworks/nextjs-app-router),
+  [WebSocket chat](/examples/realtime/websocket-chat), [server-sent events](/examples/realtime/server-sent-events),
+  [AI chat](/examples/realtime/ai-chat).

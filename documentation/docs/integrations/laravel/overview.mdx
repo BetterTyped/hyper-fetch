@@ -8,98 +8,98 @@ sidebar_label: Overview
 # Laravel
 
 Scramble reads your Laravel routes, form requests and API resources and builds an OpenAPI document without
-annotations. The HyperFetch CLI reads that document and writes a typed TypeScript SDK, so your frontend calls every route
-with your validation rules and resources as types.
-
----
+annotations. The [HyperFetch CLI](/docs/cli/overview) turns that document into a typed TypeScript SDK, so the frontend
+calls every route with your validation rules and resources as types.
 
 :::tip Purpose
 
-1.  **No annotations**: Scramble infers the document from the code you already have.
-2.  **Validation rules as types**: Form request rules become the payload type of each request.
-3.  **One command to resync**: Change a route, regenerate, and the compiler shows every call to fix.
+1. **No annotations**: Scramble infers the document from the code you already have.
+2. **Validation rules as types**: form request rules become the payload type of each request.
+3. **One command to resync**: change a route, regenerate, and the compiler shows every call to fix.
 
 :::
 
 ---
 
-## How it fits together
+## Install
 
-| Step | Where    | What happens                                                             |
-| ---- | -------- | ------------------------------------------------------------------------ |
-| 1    | Laravel  | Scramble serves `/docs/api.json` built from your routes                  |
-| 2    | Terminal | `@hyper-fetch/cli generate` reads it and writes `src/api/laravel.sdk.ts` |
-| 3    | Frontend | `createSdk(client)` gives you typed requests for every route             |
+On the server, install Scramble. In the frontend, install HyperFetch and the CLI:
+
+```bash title="server"
+composer require dedoc/scramble
+```
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core
+npm install -D @hyper-fetch/cli
+```
 
 ---
 
 ## 1. Serve the OpenAPI document
 
-Install Scramble:
+Scramble documents the routes under `api/` with no configuration:
 
-```bash
-composer require dedoc/scramble
-```
-
-It documents the routes under `api/` with no configuration:
-
-```php title="routes/api.php"
+```php title="server/routes/api.php"
 Route::get('/users/{user}', fn (User $user) => new UserResource($user));
 ```
 
-The document is on `http://localhost:8000/docs/api.json`. To write it to a file, run `php artisan scramble:export`.
-
-:::info The `/api` prefix
-
-Scramble lists the paths without the `api/` prefix and puts it in the server URL instead. Give the HyperFetch client
-the same base URL, ending with `/api`.
-
-:::
+The document is on `http://localhost:8000/docs/api.json`, next to the UI on `/docs/api`.
 
 ---
 
 ## 2. Generate the SDK
 
-Run the CLI in your frontend project:
+Run the CLI in the frontend project while the server is running:
 
-```bash
-npx @hyper-fetch/cli@latest generate --template openapi --url http://localhost:8000/docs/api.json --fileName laravel.sdk.ts
+```bash title="frontend"
+npx hyper-fetch generate --template openapi --fileName laravel.sdk.ts --overwrite \
+  --url http://localhost:8000/docs/api.json
 ```
 
-It writes `laravel.sdk.ts` to `src/api`. On the first run it also creates `api.json` with that location. Every path becomes a key
-and every method a `$`-prefixed key on it, so `GET /users/{user}` is `sdk.users.$user.$get`.
+It writes `src/api/laravel.sdk.ts`. The folder comes from `api.json`, which the first run creates. Every path becomes
+nested keys and every method a `$` key, so `GET /users/{user}` is `sdk.users.$user.$get`.
 
 ---
 
 ## 3. Call your API
 
-```ts
+```ts title="frontend/src/api/client.ts"
 import { createClient } from "@hyper-fetch/core";
 
-import { createSdk } from "./api/laravel.sdk";
+import { createSdk } from "./laravel.sdk";
 
+// Scramble leaves the api/ prefix out of the paths, so it goes into the base URL
 export const client = createClient({ url: "http://localhost:8000/api" });
 export const sdk = createSdk(client);
-
-// code-editor-split
-
-import { sdk } from "./client";
-
-// Typed from UserResource
-const { data, error } = await sdk.users.$user.$get
-  .setParams({ user: 42 })
-  .send();
 ```
 
-The same requests work with `useFetch` and `useSubmit` from `@hyper-fetch/react`, with caching, retries and deduplication included.
+```ts title="frontend/src/users.ts"
+import { sdk } from "./api/client";
+
+// data is typed from UserResource
+const { data, error } = await sdk.users.$user.$get.setParams({ user: 42 }).send();
+```
+
+Every entry is a regular [Request](/docs/core/request), so it also works with `useFetch` and `useSubmit` from
+[`@hyper-fetch/react`](/docs/react/overview).
+
+---
+
+## Framework quirks
+
+- **The `/api` prefix**: Scramble lists paths without the `api/` prefix and puts it in the server URL of the document.
+  Give the HyperFetch client the same base URL, ending with `/api`.
+- **No running server**: `php artisan scramble:export` writes the document to a file. Pass that path to `--url`. A
+  local path is resolved from the frontend project.
 
 ---
 
 ## Keep the SDK in sync
 
-Install the CLI in the frontend project and add a script, so regenerating is one command locally and in CI:
+Add a script so regenerating is one command locally and in CI. `-o` overwrites the old file without asking:
 
-```json title="package.json"
+```json title="frontend/package.json"
 {
   "scripts": {
     "api:generate": "hyper-fetch generate -t openapi -u http://localhost:8000/docs/api.json -f laravel.sdk.ts -o"
@@ -107,16 +107,9 @@ Install the CLI in the frontend project and add a script, so regenerating is one
 }
 ```
 
-`-o` overwrites the old file without asking. To generate without a running server, export the document with `php artisan scramble:export` and pass the file
-to `--url` instead.
+---
 
-:::note When it's helpful
-
-- Your backend is Laravel and your frontend is a TypeScript app.
-- You want changes to form requests and resources to show up as TypeScript errors.
-- You want caching, retries and React hooks on top of the generated client.
-
-:::
+## Next steps
 
 <LinkCard
   type="docs"
@@ -124,11 +117,20 @@ to `--url` instead.
   description="Everything the generated SDK can do, from React hooks to regenerating it in CI."
   to="/docs/cli/openapi-typescript-client"
 />
+<LinkCard
+  type="integrations"
+  title="Example: OpenAPI codegen"
+  description="A runnable React app that generates its SDK from the Petstore OpenAPI spec."
+  to="/examples/integrations/openapi-codegen"
+/>
+
+See every flag of the CLI on the [generate command](/docs/cli/commands/generate) page, and per-endpoint defaults on the
+[SDK](/docs/core/sdk) page.
 
 :::secondary Summary
 
-- Scramble builds an OpenAPI document from your Laravel routes.
-- `@hyper-fetch/cli generate` turns it into a typed SDK.
-- `createSdk(client)` gives you typed requests for `send()`, `useFetch` and `useSubmit`.
+- Scramble builds an OpenAPI document from your Laravel routes, form requests and resources.
+- `hyper-fetch generate` turns it into a typed SDK.
+- The client's base URL ends with `/api`, the prefix Scramble moves out of the paths.
 
 :::

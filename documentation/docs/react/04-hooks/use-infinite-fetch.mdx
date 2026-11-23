@@ -7,24 +7,25 @@ sidebar_label: useInfiniteFetch
 
 # useInfiniteFetch
 
-The `useInfiniteFetch` hook loads a list page by page. You say which fields of the request do the paging, and the hook
-works out the page values, the end of the list and when to start over.
+`useInfiniteFetch` loads a list page by page for "load more" buttons and infinite scroll. You say which fields of the
+request do the paging, and the hook works out the page values, the end of the list and when to start over. For page
+buttons that show one page at a time, use [`useFetch`](/docs/react/hooks/use-fetch#keep-previous-data) instead.
 
-Every page is a normal request under its normal cache key. Deduplication, invalidation, persistence, optimistic updates
-and [`Hydrate`](/react/06-hydrate.mdx) work per page, and nothing extra is stored in the cache.
+Every page is a normal request under its own cache key, so deduplication, invalidation, persistence, optimistic updates
+and [`Hydrate`](/docs/react/hydrate) work per page.
 
 :::tip Purpose
 
-1. **Infinite lists** with page numbers, offsets or cursors
-2. **Typed pagination**: every key is checked against the request and its response
-3. **Automatic restart** when a filter, sort or URL param changes
-4. **Agnostic loading**: call `fetchNextPage` from a button, an observer, `onEndReached` or a virtualizer
+1. **Infinite lists** with page numbers, offsets or cursors.
+2. **Typed pagination**: every key is checked against the request and its response.
+3. **Automatic restart** when a filter, sort or URL param changes.
+4. **Any trigger**: call `fetchNextPage` from a button, an observer, `onEndReached` or a virtualizer.
 
 :::
 
 ---
 
-## Quick Start
+## Usage
 
 ```tsx
 import { useInfiniteFetch } from "@hyper-fetch/react";
@@ -58,6 +59,66 @@ function Feed({ topic }: { topic: string }) {
 ```
 
 Changing `topic` starts a new list. There are no keys to repeat and no pages to flatten.
+
+---
+
+## Options
+
+| Option               | Default      | Description                                                                                                |
+| -------------------- | ------------ | ---------------------------------------------------------------------------------------------------------- |
+| `pagination`         | required     | Which fields page through the request                                                                      |
+| `uniqueBy`           |              | Drops repeated items, by a field name or `({ item }) => identity`                                          |
+| `maxPages`           |              | Keeps only this many pages loaded. Dropped pages can be fetched again                                      |
+| `select`             |              | `({ items, pages }) => result`, transforms what `items` returns. An error it throws is returned in `error` |
+| `suspense`           | `false`      | Suspends until the first page arrives. Later pages never suspend                                           |
+| `throwOnError`       | `false`      | Throws to the closest Error Boundary, or decides per error with a function                                 |
+| `dependencies`       | `[]`         | Refetches the loaded pages when these values change                                                        |
+| `disabled`           | `false`      | Disables fetching                                                                                          |
+| `dependencyTracking` | `true`       | Rerenders only for the values the component reads                                                          |
+| `revalidate`         | `false`      | Refetches restored pages on mount even when they are fresh                                                 |
+| `keepPreviousData`   | `"auto"`     | What is shown while a new list loads                                                                       |
+| `refresh`            | `false`      | Refetches the loaded pages on an interval                                                                  |
+| `refreshTime`        | `Time.HOUR`  | Refresh interval                                                                                           |
+| `refetchBlurred`     | `true`       | Keeps refreshing while the tab is not focused                                                              |
+| `refetchOnBlur`      | `false`      | Refetches when the user leaves the tab                                                                     |
+| `refetchOnFocus`     | `false`      | Refetches when the user enters the tab                                                                     |
+| `refetchOnReconnect` | `false`      | Refetches when the network is restored                                                                     |
+| `structuralSharing`  | `true`       | Keeps references of unchanged data between updates                                                         |
+| `bounce`             | `false`      | Bounces starting a new list                                                                                |
+| `bounceType`         | `"debounce"` | `"debounce"` or `"throttle"`                                                                               |
+| `bounceTime`         | `400`        | How long new lists are bounced                                                                             |
+| `bounceTimeout`      | `400`        | Throttle only: handling of the last bounce event                                                           |
+
+Defaults for every hook can be set with `useInfiniteFetchConfig` on the
+[`Provider`](/docs/react/overview#global-defaults). `pagination` describes a single request, so it is always passed
+to the hook. Unlike `useFetch`, `revalidate` defaults to `false`: pages restored from the cache are refetched only once
+they are stale.
+
+---
+
+## Returns
+
+| Value                                               | Description                                                                                                                             |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `items`                                             | Items of all the loaded pages, or the result of `select`                                                                                |
+| `pages`                                             | Response data of the loaded pages                                                                                                       |
+| `pageParams`                                        | Paging values of the loaded pages                                                                                                       |
+| `total`                                             | Size of the whole list, when `total` is declared                                                                                        |
+| `hasNextPage` / `hasPreviousPage`                   | Another page can be fetched in that direction                                                                                           |
+| `loading`                                           | The first page is loading and there is nothing to show yet                                                                              |
+| `isFetching`                                        | Any page of this list is being fetched                                                                                                  |
+| `isRefetching`                                      | The loaded pages are being fetched again                                                                                                |
+| `isFetchingNextPage` / `isFetchingPreviousPage`     | A page is loading in that direction                                                                                                     |
+| `isFetchNextPageError` / `isFetchPreviousPageError` | The last fetch of the list failed while loading a page in that direction. Any later successful fetch, a refetch included, clears them   |
+| `isPreviousData`                                    | The list on screen belongs to the previous request                                                                                      |
+| `error`, `status`, `extra`, `success`               | Result of the last fetch. When `select` throws, `error` holds its error, `success` is `false` and `items` keeps the last selected value |
+| `fetchNextPage` / `fetchPreviousPage`               | Fetch a page. Calls made while it loads share one request                                                                               |
+| `refetch`                                           | Fetches the loaded pages again                                                                                                          |
+| `reset`                                             | Drops to the starting page and fetches it again                                                                                         |
+| `abort`                                             | Cancels every page being fetched by this list                                                                                           |
+| `onSuccess` / `onError` / `onFinished`              | Called for every page with `{ response, request, param }`                                                                               |
+| `onReset`                                           | Called when the list starts over                                                                                                        |
+| `bounce`                                            | State of the bounce used for new lists                                                                                                  |
 
 ---
 
@@ -198,68 +259,10 @@ A cache change on a loaded page, such as an optimistic update, updates that page
 
 ---
 
-## Options
-
-| Option               | Default      | Description                                                                                                |
-| -------------------- | ------------ | ---------------------------------------------------------------------------------------------------------- |
-| `pagination`         | required     | Which fields page through the request                                                                      |
-| `uniqueBy`           |              | Drops repeated items, by a field name or `({ item }) => identity`                                          |
-| `maxPages`           |              | Keeps only this many pages loaded. Dropped pages can be fetched again                                      |
-| `select`             |              | `({ items, pages }) => result`, transforms what `items` returns. An error it throws is returned in `error` |
-| `suspense`           | `false`      | Suspends until the first page arrives. Later pages never suspend                                           |
-| `throwOnError`       | `false`      | Throws to the closest Error Boundary, or decides per error with a function                                 |
-| `dependencies`       | `[]`         | Refetches the loaded pages when these values change                                                        |
-| `disabled`           | `false`      | Disables fetching                                                                                          |
-| `dependencyTracking` | `true`       | Rerenders only for the values the component reads                                                          |
-| `revalidate`         | `false`      | Refetches restored pages on mount even when they are fresh                                                 |
-| `keepPreviousData`   | `"auto"`     | What is shown while a new list loads                                                                       |
-| `refresh`            | `false`      | Refetches the loaded pages on an interval                                                                  |
-| `refreshTime`        | `Time.HOUR`  | Refresh interval                                                                                           |
-| `refetchBlurred`     | `true`       | Keeps refreshing while the tab is not focused                                                              |
-| `refetchOnBlur`      | `false`      | Refetches when the user leaves the tab                                                                     |
-| `refetchOnFocus`     | `false`      | Refetches when the user enters the tab                                                                     |
-| `refetchOnReconnect` | `false`      | Refetches when the network is restored                                                                     |
-| `structuralSharing`  | `true`       | Keeps references of unchanged data between updates                                                         |
-| `bounce`             | `false`      | Bounces starting a new list                                                                                |
-| `bounceType`         | `"debounce"` | `"debounce"` or `"throttle"`                                                                               |
-| `bounceTime`         | `400`        | How long new lists are bounced                                                                             |
-| `bounceTimeout`      | `400`        | Throttle only: handling of the last bounce event                                                           |
-
-Defaults for every hook can be set with `useInfiniteFetchConfig` on the [`Provider`](/react/overview.mdx). `pagination`
-describes a single request, so it is always passed to the hook.
-
----
-
-## Returns
-
-| Value                                               | Description                                                                                                                             |
-| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `items`                                             | Items of all the loaded pages, or the result of `select`                                                                                |
-| `pages`                                             | Response data of the loaded pages                                                                                                       |
-| `pageParams`                                        | Paging values of the loaded pages                                                                                                       |
-| `total`                                             | Size of the whole list, when `total` is declared                                                                                        |
-| `hasNextPage` / `hasPreviousPage`                   | Another page can be fetched in that direction                                                                                           |
-| `loading`                                           | The first page is loading and there is nothing to show yet                                                                              |
-| `isFetching`                                        | Any page of this list is being fetched                                                                                                  |
-| `isRefetching`                                      | The loaded pages are being fetched again                                                                                                |
-| `isFetchingNextPage` / `isFetchingPreviousPage`     | A page is loading in that direction                                                                                                     |
-| `isFetchNextPageError` / `isFetchPreviousPageError` | The last fetch of the list failed while loading a page in that direction. Any later successful fetch, a refetch included, clears them   |
-| `isPreviousData`                                    | The list on screen belongs to the previous request                                                                                      |
-| `error`, `status`, `extra`, `success`               | Result of the last fetch. When `select` throws, `error` holds its error, `success` is `false` and `items` keeps the last selected value |
-| `fetchNextPage` / `fetchPreviousPage`               | Fetch a page. Calls made while it loads share one request                                                                               |
-| `refetch`                                           | Fetches the loaded pages again                                                                                                          |
-| `reset`                                             | Drops to the starting page and fetches it again                                                                                         |
-| `abort`                                             | Cancels every page being fetched by this list                                                                                           |
-| `onSuccess` / `onError` / `onFinished`              | Called for every page with `{ response, request, param }`                                                                               |
-| `onReset`                                           | Called when the list starts over                                                                                                        |
-| `bounce`                                            | State of the bounce used for new lists                                                                                                  |
-
----
-
 ## Server rendering
 
-`fetchInfinite` fetches the first pages one after another, without touching the cache. Pass the result to
-[`Hydrate`](/react/06-hydrate.mdx):
+`fetchInfinite` from `@hyper-fetch/core` fetches the first pages one after another, without touching the cache. Pass the
+result to [`Hydrate`](/docs/react/hydrate):
 
 ```tsx
 import { fetchInfinite } from "@hyper-fetch/core";
@@ -275,3 +278,43 @@ const { dehydrated } = await fetchInfinite(getFeed.setQueryParams({ topic }), {
 ```
 
 Both pages render on the server, and the browser does not request them again while they are fresh.
+
+---
+
+:::secondary Summary
+
+1. `pagination` names the paging fields of the request; the hook computes page values and the end of the list.
+2. Changing the request starts a new list; `keepPreviousData` decides what stays on screen meanwhile.
+3. `refetch()` reloads every loaded page and swaps the list when they arrive.
+4. `fetchInfinite` and `Hydrate` render the first pages on the server.
+
+:::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Infinite scroll"
+  description="Build a load-more list and infinite scroll with useInfiniteFetch."
+  to="/docs/guides/react/basics/infinite-scroll"
+/>
+
+<LinkCard
+  type="guides"
+  title="Pagination"
+  description="Choose between page buttons with useFetch and infinite lists."
+  to="/docs/guides/react/basics/pagination"
+/>
+
+<LinkCard
+  type="api"
+  title="useInfiniteFetch API reference"
+  description="Generated types for the hook, its options and its return value."
+  to="/docs/api/react/Hooks/useInfiniteFetch"
+/>
+
+- Runnable examples: [load more](/examples/data-fetching/load-more), [infinite scroll](/examples/data-fetching/infinite-scroll),
+  [infinite list with max pages](/examples/data-fetching/infinite-max-pages),
+  [chat history](/examples/data-fetching/chat-history), [shop](/examples/apps/shop).
+- Types: [`UseInfiniteFetchOptionsType`](/docs/api/react/Types/UseInfiniteFetchOptionsType),
+  [`UseInfiniteFetchReturnType`](/docs/api/react/Types/UseInfiniteFetchReturnType).

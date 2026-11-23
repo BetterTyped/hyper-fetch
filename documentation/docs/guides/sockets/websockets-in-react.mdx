@@ -7,12 +7,9 @@ sidebar_label: WebSockets in React
 
 # WebSockets in React
 
-Using react and websockets together looks like a five-line job: open a connection in `useEffect`, push incoming
-messages into state, close it on cleanup. That version works in a demo. It breaks the first time the network drops, the
-component mounts twice, or a second component needs the same stream.
-
-This page starts with the plain browser `WebSocket` in a React component, walks through what goes wrong with it, and then
-shows the same feature built with HyperFetch sockets and the `useListener` / `useEmitter` hooks.
+A WebSocket in `useEffect` works in a demo and breaks the first time the network drops, the component mounts twice or a
+second component needs the same stream. This guide starts with the plain browser `WebSocket`, names what goes wrong,
+then moves the connection out of the component and reads it with the `useListener` and `useEmitter` hooks.
 
 :::secondary What you'll learn
 
@@ -78,13 +75,13 @@ A `WebSocket` instance is single use. When the connection closes, because the se
 load balancer cut an idle connection, the instance is finished. The component above keeps rendering old messages and
 silently stops receiving new ones. Adding reconnects means a `close` handler, a timer, a retry limit, a way to tell a
 deliberate close from a lost one, and code to put the new instance back into the ref. The
-[error and reconnection guide](./websocket-reconnection-and-errors.mdx) covers that logic in detail.
+[error and reconnection guide](/docs/guides/sockets/websocket-reconnection-and-errors) covers that logic in detail.
 
 ### 2. Sending too early throws
 
 `send()` on a socket that is still in the `CONNECTING` state throws an `InvalidStateError`
 ([MDN: WebSocket.send()](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/send)). A user who clicks the button
-during the handshake gets an uncaught exception. After a disconnect, the message is simply lost, and nothing in the
+during the handshake gets an uncaught exception. After a disconnect, the message is lost, and nothing in the
 component tells the user.
 
 ### 3. StrictMode mounts it twice
@@ -111,14 +108,15 @@ each branch are whatever you claim they are.
 The fix for all four is the same: the connection is application state, not component state. Create it once at module
 level, and let components subscribe to the parts they need.
 
-With HyperFetch, the connection is a `Socket`. Messages are described once with typed listeners and emitters:
+With HyperFetch, the connection is a [socket](/docs/sockets/socket). Messages are described once with typed listeners
+and emitters:
 
 ```ts title="src/socket.ts"
-import { Socket } from "@hyper-fetch/sockets";
+import { createSocketClient } from "@hyper-fetch/sockets";
 
 type ChatMessage = { user: string; message: string };
 
-export const socket = new Socket({ url: "wss://example.com/chat" });
+export const socket = createSocketClient({ url: "wss://example.com/chat" });
 
 export const onChatMessage = socket.createListener<ChatMessage>()({
   topic: "chat-message",
@@ -129,14 +127,14 @@ export const sendChatMessage = socket.createEmitter<ChatMessage>()({
 });
 ```
 
-By default the [WebSocket adapter](../../sockets/adapter.mdx) expects JSON frames shaped `{ topic, data }` and sends
+By default the [WebSocket adapter](/docs/sockets/adapter) expects JSON frames shaped `{ topic, data }` and sends
 `{ topic, data: payload }`. If your server uses another format, such as `{ type, payload }`, map it with the `decode` and
 `encode` adapter options instead of changing the server.
 
 This socket already reconnects. When the connection is lost it opens a new one after a backoff delay with jitter, from
 `reconnectTime` (1 second by default) up to `maxReconnectTime` (30 seconds), for up to `reconnect` attempts (unlimited by
 default). A server close with code `1000` is treated as intentional and is not retried. The
-[connection guide](./connection.mdx#retries) lists every option.
+[connection guide](/docs/guides/sockets/connection#how-retries-work) explains the rules.
 
 ---
 
@@ -198,23 +196,23 @@ Here is how each problem from the plain version is handled:
 
 If you only need the latest message, skip local state and read `data` from the hook:
 
-```tsx
+```tsx title="Latest value only"
 const { data } = useListener(onPriceUpdate);
 
 return <p>Price: {data?.price ?? "waiting"}</p>;
 ```
 
 `useListener` also returns `status` (`idle`, `starting`, `listening`, `ended`, `failed`) and callbacks such as `onError`,
-`onReconnecting` and `onReconnectingFailed`. The [React listening guide](../react/02-sockets/listening.mdx) and the
-[React emitting guide](../react/02-sockets/emitting.mdx) go through them one by one. For streams that push hundreds of
-messages per second, add a `delivery` strategy so the hook renders once per frame instead of once per message; see
-[throttling and batching in React](../react/02-sockets/throttling.mdx).
+`onReconnecting` and `onReconnectingFailed`. The [React listening guide](/docs/guides/react/sockets/listening) and the
+[React emitting guide](/docs/guides/react/sockets/emitting) go through them one by one. For streams that push hundreds
+of messages per second, add a `delivery` strategy so the hook renders once per frame instead of once per message; see
+[throttling and batching in React](/docs/guides/react/sockets/throttling).
 
 :::caution Server rendering
 
 Node.js 22 and later ship a global `WebSocket`, so a socket created at module level also connects when that module runs
 on the server. In frameworks that render on the server, turn the automatic connection off there:
-`adapterOptions: { autoConnect: typeof window !== "undefined" }`. The [Next.js page](./nextjs-websockets.mdx) shows the
+`adapterOptions: { autoConnect: typeof window !== "undefined" }`. The [Next.js page](/docs/guides/sockets/nextjs-websockets) shows the
 full setup.
 
 :::
@@ -230,9 +228,8 @@ HyperFetch version all carry over unchanged. `@hyper-fetch/sockets` uses the glo
 
 The one difference is network detection. In the browser the socket listens to the window `online` and `offline` events
 to skip attempts while offline and reconnect when the network returns. React Native has no such events, so pass an
-`AppManager` backed by NetInfo through the `appManager` option. The [connection guide](./connection.mdx#offline-handling)
-has the snippet, and [React Native environment](../../react/03-environments/react-native.mdx) covers the rest of the
-setup.
+`AppManager` backed by NetInfo through the `appManager` option. The [connection guide](/docs/guides/sockets/connection#offline-and-focus)
+has the snippet, and [React Native environment](/docs/react/environments/react-native) covers the rest of the setup.
 
 ---
 
@@ -247,12 +244,37 @@ You do not always need a library. The `useEffect` version is fine when:
 Once you need reconnects, more than one subscriber, or several message types, the connection belongs outside the
 component, and that is the part HyperFetch takes over.
 
-:::secondary Summary
+---
 
-- A WebSocket in `useEffect` works, but it does not reconnect, throws on early sends, opens twice under StrictMode and
-  leaves messages untyped.
-- Keep one `Socket` at module level and describe messages with typed **listeners** and **emitters**.
-- `useListener` and `useEmitter` subscribe components to that socket and expose `connected` and `connecting`.
-- React Native uses the same code, with a NetInfo-based `AppManager` for offline detection.
+:::success Congratulations!
+
+You can now use WebSockets in React without hand-written effects.
+
+- You know why a WebSocket in `useEffect` **does not reconnect**, throws on **early sends**, opens twice under
+  **StrictMode** and leaves messages **untyped**.
+- You can keep one **socket at module level** with typed listeners and emitters.
+- You can subscribe components with **`useListener`** and **`useEmitter`**.
+- You can run the same code in **React Native** with a NetInfo-based app manager.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Listening in React"
+  description="Collect messages, update the HTTP cache and show connection state."
+  to="/docs/guides/react/sockets/listening"
+/>
+
+<LinkCard
+  type="docs"
+  title="useListener"
+  description="Options, returned values and callbacks of the hook."
+  to="/docs/react/sockets/use-listener"
+/>
+
+- Guides: [emitting in React](/docs/guides/react/sockets/emitting), [WebSockets in Next.js](/docs/guides/sockets/nextjs-websockets),
+  [errors and reconnection](/docs/guides/sockets/websocket-reconnection-and-errors).
+- Runnable examples: [WebSocket chat](/examples/realtime/websocket-chat),
+  [live cache updates](/examples/realtime/live-cache-updates), [notifications](/examples/realtime/notifications).

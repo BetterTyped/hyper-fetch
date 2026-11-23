@@ -31,7 +31,7 @@ HyperFlow received since the app connected.
 - **Network Overview** shows the adapter, the total and successful requests, the data received and sent, the average
   response and payload sizes, and the success rate.
 - **Recent Requests** lists the last 8 requests with their status, endpoint, cache state, time and response time.
-  **View All Requests** opens the [Network](/docs/hyper-flow/features/network.mdx) page.
+  **View All Requests** opens the [Network](/docs/hyper-flow/features/network) page.
 - **Top traffic by Endpoint** ranks the 10 endpoints that received the most requests, with their share of all traffic.
 - **Error Summary** lists the 5 endpoints and status codes that failed most often.
 
@@ -53,7 +53,7 @@ HyperFlow received since the app connected.
 :::tip Find a slow endpoint
 
 Sort out a slow screen in two steps: check **Slowest Endpoints** for the endpoint the screen calls, then open it on the
-[Network](/docs/hyper-flow/features/network.mdx) page and compare the timings of single requests.
+[Network](/docs/hyper-flow/features/network) page and compare the timings of single requests.
 
 :::
 
@@ -72,4 +72,27 @@ Sort out a slow screen in two steps: check **Slowest Endpoints** for the endpoin
   usually mean many param or query param combinations.
 - **Not Cached Requests** lists requests sent with the cache turned off.
 
-For a list of every entry with its freshness and observers, open the [Cache](/docs/hyper-flow/features/cache.mdx) page.
+For a list of every entry with its freshness and observers, open the [Cache](/docs/hyper-flow/features/cache) page.
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Network"
+      description="Open a slow or failed request and compare its timings."
+      to="/docs/hyper-flow/features/network"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Cache page"
+      description="Every cache entry with its freshness and observers."
+      to="/docs/hyper-flow/features/cache"
+    />
+  </div>
+</div>

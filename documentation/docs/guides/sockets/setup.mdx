@@ -1,104 +1,144 @@
 ---
 sidebar_position: 1
 title: Socket Setup Guide
-description: "Set up WebSockets in HyperFetch: create a Socket instance with your server URL, add a listener for incoming events and an emitter that sends data to the server."
+description: "Set up realtime in HyperFetch: create a socket with your server URL, a typed listener for incoming events and an emitter that sends data to the server."
 sidebar_label: Setup
 ---
 
 # Setup
 
-Welcome to the HyperFetch Sockets setup guide! This guide will walk you through the essential first steps to get up and
-running with real-time communication in your application. We'll cover how to initialize the socket, create listeners for
-incoming events, and set up emitters to send data to your server.
+This guide sets up realtime communication with `@hyper-fetch/sockets`: one socket for the server connection, a typed
+listener for incoming messages and an emitter for outgoing ones. It ends with the socket SDK, for apps with many topics.
 
 :::secondary What you'll learn
 
-1.  How to initialize the **`Socket`** instance.
-2.  How to create a **`Listener`** to receive events.
-3.  How to create an **`Emitter`** to send events.
+1.  How to create a **socket** for a WebSocket or Server-Sent Events server.
+2.  How to define a typed **listener** and an **emitter**.
+3.  How the default **message format** looks on the wire.
+4.  When to switch to the **socket SDK**.
 
 :::
 
 ---
 
-## Initialize Socket
+## Install and create the socket
 
-The first step is to initialize the **[Socket](/sockets/socket.mdx)**. It manages the basic configuration for the
-connection to the server and all the sub-systems. We start by determining the `url` of our server.
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core @hyper-fetch/sockets
+```
 
-```tsx title="src/socket.ts"
-import { Socket } from "@hyper-fetch/sockets";
+A [socket](/docs/sockets/socket) owns one connection. Create it once, at module level, and import it wherever you need
+it. The WebSocket adapter is the default, and it connects as soon as the socket is created.
 
-export const socket = new Socket({ url: "ws://localhost:3000" });
+```ts title="src/api/socket.ts"
+import { createSocketClient } from "@hyper-fetch/sockets";
+
+export const socket = createSocketClient({ url: "wss://api.example.com/ws" });
+```
+
+For a server that only pushes data over HTTP, pass the Server-Sent Events adapter. Listeners work the same; emitting on it
+throws, because SSE is one-way.
+
+```ts title="src/api/events.ts"
+import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+
+export const events = createSocketClient({ url: "https://api.example.com/events", adapter: ServerSentEventsAdapter() });
 ```
 
 ---
 
-## Create Listener
+## Define listeners and emitters
 
-Then, having already prepared the connection setup for the server, we use the socket method to create
-**[Listeners](/sockets/listener.mdx)** and assign types to them.
+A [listener](/docs/sockets/listener) describes one topic you receive and the type of its messages. An
+[emitter](/docs/sockets/emitter) describes one topic you send and the type of its payload. Define them once, next to
+the socket. `createListener` and `createEmitter` are called twice: the first call takes the type, the second the
+options.
 
-```tsx title="src/listeners.ts"
+```ts title="src/api/chat.ts"
 import { socket } from "./socket";
 
-type ChatMessageType = {
-  message: string;
-};
+type ChatMessage = { id: string; author: string; text: string };
 
-export const onChatMessage = socket.createListener<ChatMessageType>()({
-  topic: "chat-message", // topic of the event
-});
+export const onChatMessage = socket.createListener<ChatMessage>()({ topic: "chat/:roomId" });
+export const sendChatMessage = socket.createEmitter<{ text: string }>()({ topic: "chat/:roomId" });
 ```
+
+Use them anywhere in the app:
+
+```ts title="src/chat.ts"
+const unlisten = onChatMessage.setParams({ roomId: "general" }).listen(({ data }) => {
+  console.log(`${data.author}: ${data.text}`);
+});
+
+sendChatMessage.emit({ params: { roomId: "general" }, payload: { text: "Hello" } });
+
+unlisten(); // stop listening when the screen closes
+```
+
+The built-in adapters read and write JSON frames shaped `{ topic, data }`. When your server uses another shape, map it
+with `decode` and `encode` in `adapterOptions`, as the [adapter docs](/docs/sockets/adapter) show.
 
 ---
 
-## Create Emitter
+## Many topics: the socket SDK
 
-Lastly, we need a way to send events to the server. We can create an **[Emitter](/sockets/emitter.mdx)** and assign
-types to it.
+With dozens of topics, describe them once in a schema type and let [`createSocketSdk`](/docs/sockets/sdk) build the
+listeners and emitters from the property path.
 
-```tsx title="src/emitters.ts"
-import { socket } from "./socket";
+```ts title="src/api/sdk.ts"
+import { createSocketSdk } from "@hyper-fetch/sockets";
+import type { EmitterModel, ListenerModel } from "@hyper-fetch/sockets";
 
-type ChatMessageType = {
-  message: string;
+type ChatSchema = {
+  chat: {
+    messages: {
+      $listener: ListenerModel<{ response: ChatMessage; topic: "chat/messages" }>;
+      $emitter: EmitterModel<{ payload: { text: string }; topic: "chat/messages" }>;
+    };
+  };
 };
 
-export const sendChatMessage = socket.createEmitter<ChatMessageType>()({
-  topic: "chat-message", // topic of the event
-});
+export const sdk = createSocketSdk<typeof socket, ChatSchema>(socket);
+
+sdk.chat.messages.$listener.listen(({ data }) => console.log(data.text));
 ```
+
+| Setup                          | Good for                                                       |
+| ------------------------------ | -------------------------------------------------------------- |
+| `createListener` / `createEmitter` | A handful of topics, or topics defined next to the feature  |
+| `createSocketSdk`              | Many topics, one typed tree, central config with `$configure`  |
 
 ---
 
 :::success Congratulations!
 
-You've successfully set up the foundation for real-time communication with HyperFetch Sockets!
+You have the foundation for realtime communication.
 
-- You can initialize a `Socket` with a server URL.
-- You can create a `Listener` to handle incoming messages.
-- You can create an `Emitter` to send messages to the server.
+- You can create a **socket** for WebSocket or Server-Sent Events.
+- You can define typed **listeners** and **emitters** next to it.
+- You know the default **`{ topic, data }`** message format.
+- You know when the **socket SDK** pays off.
 
 :::
 
----
+## Next steps
 
-## Next: Socket SDK
+<LinkCard
+  type="guides"
+  title="Connection"
+  description="Connection state, reconnects and lifecycle events."
+  to="/docs/guides/sockets/connection"
+/>
 
-For larger applications, consider using the [Socket SDK](/docs/sockets/sdk) instead of creating listeners and emitters
-individually. It provides a tRPC-like, proxy-based interface where you define your schema once and access listeners and
-emitters via dot-notation:
+<LinkCard
+  type="docs"
+  title="Sockets quick start"
+  description="Build a first realtime feature end to end."
+  to="/docs/sockets/quick-start"
+/>
 
-```typescript
-import { createSocketSdk } from "@hyper-fetch/sockets";
-
-const sdk = createSocketSdk<typeof socket, MyChatSchema>(socket);
-
-// Access listeners and emitters directly
-sdk.chat.messages.$listener.listen(({ data }) => console.log(data));
-sdk.chat.messages.$emitter.emit({ payload: { text: "Hello!" } });
-```
-
-The Socket SDK also supports centralized configuration with `$configure`, topic group matching, and plain-object
-shorthand — see the [Socket SDK docs](/docs/sockets/sdk) for details.
+- Guides: [listening](/docs/guides/sockets/listening), [emitting](/docs/guides/sockets/emitting),
+  [authentication](/docs/guides/sockets/authentication), [WebSockets in React](/docs/guides/sockets/websockets-in-react).
+- Runnable examples: [WebSocket chat](/examples/realtime/websocket-chat),
+  [server-sent events](/examples/realtime/server-sent-events).
+- API: [`createSocketClient`](/docs/api/sockets/Functions/createSocketClient).

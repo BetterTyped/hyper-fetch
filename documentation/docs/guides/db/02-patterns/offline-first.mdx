@@ -7,13 +7,11 @@ description:
 sidebar_label: Offline-First
 ---
 
-# Offline-First Apps with the Outbox
+# Offline-first apps with the outbox
 
-A Teamboard user opens the app on a train. The feed should show the posts they saw yesterday, and the post they write in
-a tunnel should appear at once, survive a closed tab, and reach the server once the train is back in coverage. Only
-once, even if the connection drops mid-request. With `@hyper-fetch/db`, that takes two options: **`persistence`** keeps
-rows and pending writes in storage, and **`offline`** sends every write through an **outbox** that one tab replays in
-order.
+An offline-first app shows yesterday's rows on start, and a post written in a tunnel appears at once, survives a closed
+tab and reaches the server exactly once. In `@hyper-fetch/db` that takes two options: **`persistence`** keeps rows and
+pending writes in storage, and **`offline`** sends every write through an **outbox** that one tab replays in order.
 
 :::secondary What you'll learn
 
@@ -30,8 +28,8 @@ order.
 ## Request queue or outbox?
 
 HyperFetch core can already hold requests while the device is offline: a request with `offline: true` waits in the
-dispatcher queue, and the [Offline guide](../../core/02-advanced/offline.mdx) covers it. That queue holds **requests**.
-The db's outbox holds **writes to rows**, and that changes what survives a restart:
+dispatcher queue (see the [offline guide](/docs/guides/core/advanced/offline)). That queue holds **requests**. The db's
+outbox holds **writes to rows**, and that changes what survives a restart:
 
 |                              | Core request queue                        | DB outbox                                          |
 | ---------------------------- | ----------------------------------------- | -------------------------------------------------- |
@@ -78,14 +76,11 @@ export const createAppDb = (userId: string) =>
   );
 ```
 
-- **`persistence`** stores each collection's server rows and loaded subsets, plus the outbox, in `storage`. Any object
-  with `getItem`, `setItem` and `removeItem` works, synchronous like `localStorage` or asynchronous like an IndexedDB or
-  AsyncStorage wrapper.
-- **`scope`** keeps one user's data apart from another's. Use the user or tenant id, so a shared device never restores
-  someone else's posts.
-- **`version`** is the version of your persisted rows. Bump it when a schema changes and rows of the old version are
-  cleared on start, because the server still has them. The outbox is never cleared with them: it holds the only copy of
-  unsent writes.
+- **`persistence`** stores each collection's server rows and loaded subsets, plus the outbox, in `storage`: any object
+  with `getItem`, `setItem` and `removeItem`, synchronous like `localStorage` or asynchronous like an IndexedDB wrapper.
+- **`scope`** keeps one user's data apart from another's. Use the user or tenant id.
+- **`version`** is the version of your persisted rows. Bump it when a schema changes, and rows of the old version are
+  cleared on start. The outbox is never cleared with them: it holds the only copy of unsent writes.
 - **`offline: true`** sends every write through the outbox, online or not, so there is one path for every write.
 
 :::caution Always send the id
@@ -103,7 +98,7 @@ key, a tab closed mid-request can create the same post twice. Send the id, and l
 On start, the db restores persisted rows and the outbox. Queries stay `loading` until the restore is done, then show
 what it found:
 
-```tsx
+```tsx title="src/feed.tsx"
 const Feed = ({ teamId }: { teamId: string }) => {
   const { data, stale } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
 
@@ -122,14 +117,14 @@ const Feed = ({ teamId }: { teamId: string }) => {
   closed for days. They refetch as soon as the network allows.
 - Offline edits are rebuilt from the outbox as optimistic layers, so the post written in the tunnel is still on screen
   after a reload.
-- A query whose restore found no rows waits for the network for `networkTimeout` (5 seconds by default) before it shows
-  an empty result, so a first visit offline does not flash "No posts".
+- A query whose restore found no rows waits for the network before it shows an empty result, so a first visit offline
+  does not flash "No posts": default five seconds, change it with `persistence.networkTimeout`.
 - `await db.ready` resolves once rows and the outbox are restored, for code that must run after that.
 
 Persisted values are stored as type-tagged JSON, so `Date`, `bigint`, `Map` and `Set` come back as they were. Values of
 your own classes need a codec:
 
-```ts
+```ts title="src/db.ts"
 const money: DbCodec = {
   name: "Money", // stored with each value: never rename it
   test: (value) => value instanceof Money,
@@ -146,7 +141,7 @@ createDb(collections, { codecs: [money], persistence: { storage: localStorage, s
 
 Writes look the same online and offline. Rows created offline need a key generated on the client:
 
-```ts
+```ts title="src/new-post.ts"
 const postId = crypto.randomUUID();
 
 const post = db.post.insert({ ...draft, id: postId });
@@ -160,12 +155,11 @@ db.comment.insert(
 
 - The outbox replays writes **in the order they were made, across the whole db**, one at a time. The comment never
   reaches the server before its post.
-- An insert that leaves the key to the server resolves with an error while the device is offline. Generate keys such as
-  UUIDs on the client for anything that can be created offline.
+- An insert that leaves the key to the server resolves with an error while the device is offline.
 - `dependsOn` takes the writes this one is built on, as the returned `Transaction` objects or their ids. When one of
   them is rejected, this write is dropped too. Writes to the **same row** depend on each other without it.
 
-Here is the life of one write:
+The life of one write:
 
 ```mermaid
 stateDiagram-v2
@@ -188,13 +182,11 @@ apply a comment to a post the server does not have yet.
 
 ## Rejected writes
 
-By default, a response with no status, a `5xx`, `408` or `429` is temporary and retried with backoff (1 second, doubling
-up to 30 seconds). Every other failure is permanent: the write is dropped, its row reverts, and later writes on the same
-row or naming it in `dependsOn` are dropped with it.
+By default, a response with no status, a `5xx`, `408` or `429` is temporary and retried with backoff: one second,
+doubling up to 30 seconds. Every other failure is permanent: the write is dropped, its row reverts, and later writes on
+the same row or naming it in `dependsOn` are dropped with it. Change both rules with `offline` options:
 
-Change both rules with `offline` options:
-
-```ts
+```ts title="src/db.ts"
 import { isTemporaryFailure } from "@hyper-fetch/db";
 
 createDb(collections, {
@@ -209,7 +201,7 @@ createDb(collections, {
 
 Tell the user when a change did not make it. Every dropped write reaches `db.onError`:
 
-```ts
+```ts title="src/db.ts"
 db.onError(({ type, error, transaction }) => {
   if (type === "mutation" && transaction) {
     toast(`Your change to ${transaction.collection} could not be saved`);
@@ -227,7 +219,8 @@ and rely on `db.onError` for the rest.
 
 `db.inspect()` describes the outbox, and `db.onChange` fires when it changes. Together they make a sync badge:
 
-```tsx
+```tsx title="src/sync-status.tsx"
+import { useSyncExternalStore } from "react";
 import { useAppManager } from "@hyper-fetch/react";
 
 const usePendingWrites = () =>
@@ -265,7 +258,7 @@ it, so every tab keeps or reverts its optimistic layers the same way.
 
 ## Signing out
 
-```ts
+```ts title="src/auth.ts"
 const signOut = async () => {
   await db.clear(); // rows, loaded subsets and the outbox of this scope, in every tab
   db.destroy(); // stops syncs, timers and the tab channel
@@ -275,7 +268,7 @@ const signOut = async () => {
 
 `db.clear()` drops pending writes too, and resolves their `Transaction`s with an error. Requests still in flight belong
 to the previous user: their responses are never written. Since the scope is fixed when the db is created, create a new
-db for the next user, for example in a [`DbProvider`](../../../react/07-db/db-provider.mdx) keyed by the user id.
+db for the next user, for example in a [`DbProvider`](/docs/react/db/db-provider) keyed by the user id.
 
 :::note When to use the outbox
 
@@ -284,14 +277,14 @@ db for the next user, for example in a [`DbProvider`](../../../react/07-db/db-pr
 - Writes **depend on each other**, like a post and its comments, and must reach the server in order.
 
 Skip `offline` for data where a late write is wrong, such as a seat reservation, and keep those as plain requests that
-fail while offline. [Firestore collections](../../../db/firestore.mdx) skip the outbox on their own, because Firestore
-queues offline writes itself.
+fail while offline. [Firestore collections](/docs/db/firestore) skip the outbox on their own, because Firestore queues
+offline writes itself.
 
 :::
 
 ---
 
-:::success You're offline-ready!
+:::success Congratulations!
 
 Teamboard keeps working in a tunnel.
 
@@ -309,7 +302,18 @@ Teamboard keeps working in a tunnel.
 
 <LinkCard
   type="guides"
-  title="Multi-record Writes with Transactions"
+  title="Multi-record writes with transactions"
   description="Publish a post and notify the team in one optimistic change, kept or reverted as a whole."
   to="/docs/guides/db/patterns/transactions"
 />
+
+<LinkCard
+  type="docs"
+  title="DB overview: writes"
+  description="Optimistic writes, the outbox and persistence options in short form."
+  to="/docs/db/overview#writes"
+/>
+
+- API reference: [`DbOfflineOptions`](/docs/api/db/Types/DbOfflineOptions),
+  [`DbPersistenceOptions`](/docs/api/db/Types/DbPersistenceOptions), [`DbCodec`](/docs/api/db/Types/DbCodec),
+  [`isTemporaryFailure`](/docs/api/db/Functions/isTemporaryFailure).

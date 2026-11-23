@@ -5,65 +5,67 @@ description: "Pick the HyperFetch quick start for your stack: plain TypeScript, 
 sidebar_label: Quick Start
 ---
 
-# HyperFetch Quick Start
+# HyperFetch quick start
 
-Welcome to HyperFetch! Our library is designed to be modular, so you can choose the packages that best suit your
-project's needs. We offer several Quick Start guides to help you get up and running as smoothly as possible.
+Each package has its own quick start. Pick the one for your stack. All of them start from the same client and request,
+so you can add the others later without rewriting anything.
+
+```ts title="api.ts"
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({ url: "https://api.example.com" });
+
+export const getUsers = client.createRequest<{ response: { id: number; name: string }[] }>()({
+  endpoint: "/users",
+});
+```
 
 ---
 
-## Quick Starts
+## Core
 
-Each guide is tailored to a specific package, providing you with focused instructions and examples to get you started.
-
----
-
-### Core
-
-HyperFetch's core is framework-agnostic, giving you the power to handle data fetching in any JavaScript environment.
-This guide will walk you through the fundamentals of setting up the client and making your first requests.
+Plain TypeScript in the browser, Node.js, Bun or Deno: create a client, define typed requests and send them.
 
 <LinkCard
-  title="Core Quick Start"
-  description="Learn the fundamentals of the framework-agnostic core."
-  href="/docs/core/quick-start"
+  title="Core quick start"
+  description="Client, typed requests and send() without a framework."
+  to="/docs/core/quick-start"
 />
 
 ---
 
-### Sockets
+## React
 
-Learn how to integrate real-time communication in your application using HyperFetch Sockets. This guide covers setting
-up listeners and emitters for seamless, bi-directional data flow with your server.
+Hooks on top of the same requests: `useFetch` for reading, `useSubmit` for writing, with loading and error state.
 
 <LinkCard
-  title="Sockets Quick Start"
-  description="Integrate real-time communication with Sockets."
-  href="/docs/sockets/quick-start"
+  title="React quick start"
+  description="Fetch and submit data in components with useFetch and useSubmit."
+  to="/docs/react/quick-start"
 />
 
 ---
 
-### React
+## Sockets
 
-Use HyperFetch in your React applications. This guide will show you how to use our powerful
-hooks to manage server state with ease, simplifying data fetching, submission, and state management.
+Realtime listeners and emitters over WebSocket or server-sent events, typed like HTTP requests.
 
 <LinkCard
-  title="React Quick Start"
-  description="Leverage powerful hooks for data fetching in React."
-  href="/docs/react/quick-start"
+  title="Sockets quick start"
+  description="Listen to and emit realtime events with typed topics."
+  to="/docs/sockets/quick-start"
 />
 
 ---
 
-## More guides
+## Runnable examples
 
-For more guides, check out the guides page. You will find there guides for each package.
+Prefer to start from code? Open [Basic data fetching](/examples/getting-started/basic) for React or
+[Vanilla TypeScript](/examples/getting-started/vanilla) for core alone. Both run in StackBlitz and CodeSandbox.
 
 <LinkCard
   type="guides"
   title="Guides"
-  description="More guides for each package."
-  href="/docs/guides/getting-started"
+  description="Task-by-task guides for every package."
+  to="/docs/guides/getting-started"
 />

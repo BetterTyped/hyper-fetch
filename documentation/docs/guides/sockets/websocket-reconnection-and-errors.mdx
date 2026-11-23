@@ -7,11 +7,9 @@ sidebar_label: Errors & Reconnection
 
 # Handling WebSocket errors and reconnection
 
-Most websocket errors are not bugs in your code. They are the network, a deploy, a proxy timeout or a laptop lid. The
-browser reports them through two events, `error` and `close`, and neither one brings the connection back. This page
-explains what each event tells you, what the close codes mean, how to detect a dead connection with a heartbeat, and how
-to write a reconnect loop that does not hammer your server. The last section shows which parts the HyperFetch socket
-adapter already does.
+Most WebSocket errors come from the network, a deploy, a proxy timeout or a closed laptop lid, and neither the `error`
+nor the `close` event brings the connection back. This guide explains both events, the close codes, heartbeats and a
+safe reconnect loop, then shows what the HyperFetch WebSocket adapter does for you and how to tune it.
 
 :::secondary What you'll learn
 
@@ -40,7 +38,7 @@ In browsers, a failed connection fires `error` and then `close`. So the practica
 - Use `onerror` to log that something went wrong.
 - Use `onclose` to decide what to do next, based on `code`.
 
-```ts
+```ts title="Plain WebSocket events"
 const socket = new WebSocket("wss://example.com/ws");
 
 socket.onerror = () => {
@@ -117,7 +115,7 @@ retries at the same moment, and when it comes back it takes all of them at once.
 - **Fresh credentials** per attempt, since the token from an hour ago may have expired.
 - **Resubscribing** to whatever the server needs to know about after a new connection.
 
-```ts
+```ts title="A hand-written reconnect loop"
 let delay = 1000;
 let closedByUser = false;
 
@@ -147,8 +145,7 @@ connection state. That is the part worth handing to a library.
 
 ## What the HyperFetch adapter does
 
-The `WebsocketAdapter`, the default adapter of a HyperFetch `Socket`, implements this loop. Here is what it does,
-according to its source:
+The `WebsocketAdapter`, the default adapter of a HyperFetch socket, implements this loop:
 
 - **Reconnects lost connections with backoff and jitter.** Every lost connection is retried. The delay is exponential
   backoff with full jitter: the first retry comes between `reconnectTime` and twice that, the window doubles with every
@@ -169,14 +166,14 @@ according to its source:
   `online` event, which connects at once. Getting the tab focus back skips the rest of a pending delay.
 - **Handles the Node.js 22 case.** A handshake that fails with only `error` is treated as an abnormal `1006` close.
 
-The [connection guide](./connection.mdx) has the full list of retry rules and options.
+The [Socket docs](/docs/sockets/socket#tune-reconnects) list every reconnect option and its default.
 
 ### Configuring it
 
 ```ts title="src/socket.ts"
-import { Socket } from "@hyper-fetch/sockets";
+import { createSocketClient } from "@hyper-fetch/sockets";
 
-export const socket = new Socket({
+export const socket = createSocketClient({
   url: "wss://example.com/ws",
   reconnect: 10, // attempts per outage, default Infinity
   reconnectTime: 2000, // shortest delay before an attempt, default 1000
@@ -207,10 +204,10 @@ The default retries every close code except `1000`. That is wrong for codes wher
 `reason` or `error` of the lost connection and returns whether to retry. `defaultShouldReconnect` is exported, so you can
 extend the default instead of rewriting it:
 
-```ts
-import { Socket, defaultShouldReconnect } from "@hyper-fetch/sockets";
+```ts title="src/socket.ts"
+import { createSocketClient, defaultShouldReconnect } from "@hyper-fetch/sockets";
 
-export const socket = new Socket({
+export const socket = createSocketClient({
   url: "wss://example.com/ws",
   // highlight-next-line
   shouldReconnect: (loss) => defaultShouldReconnect(loss) && loss.code !== 1003 && loss.code !== 1009,
@@ -223,8 +220,8 @@ When the built-in curve does not fit, `reconnectDelay` takes over the timing. It
 (from `0`), the time `elapsed` in ms since the outage began and the `reason` of the loss. Return a delay in ms, or `null` to stop
 reconnecting, which fires `onReconnectFailed`:
 
-```ts
-export const socket = new Socket({
+```ts title="src/socket.ts"
+export const socket = createSocketClient({
   url: "wss://example.com/ws",
   reconnectDelay: ({ attempt, elapsed, reason }) => {
     if (elapsed > 5 * 60_000) return null; // give up after 5 minutes
@@ -235,15 +232,15 @@ export const socket = new Socket({
 ```
 
 The `onConnect` interceptor runs before every attempt, so it is the place for fresh credentials, which is what a `1008`
-close usually needs. The [authentication guide](./authentication.mdx) shows how, and if the interceptor throws, the
-attempt fails and the error goes to `onError`.
+close usually needs. The [authentication guide](/docs/guides/sockets/authentication) shows how. If the interceptor
+throws, the attempt fails and the error goes to `onError`.
 
 ### In React
 
 `useListener` and `useEmitter` expose the same lifecycle, so a component can show the connection state without its own
 listeners on the socket:
 
-```tsx
+```tsx title="components/connection-banner.tsx"
 import { useListener } from "@hyper-fetch/react";
 
 function ConnectionBanner() {
@@ -259,17 +256,38 @@ function ConnectionBanner() {
 }
 ```
 
-For a "Try again" button after the attempts ran out, call `socket.reconnect()`. The [connection guide](./connection.mdx)
-covers manual `connect`, `disconnect` and `reconnect`, and the [WebSockets in React page](./websockets-in-react.mdx)
-covers the hooks from the start.
+For a "Try again" button after the attempts ran out, call `socket.reconnect()`. The
+[connection guide](/docs/guides/sockets/connection) covers manual `connect`, `disconnect` and `reconnect`.
 
-:::secondary Summary
+---
 
-- `onerror` carries no details. Read `code` in `onclose` to decide what to do.
-- `1000` means done. `1006` means the connection dropped. `1008` usually needs new credentials before a retry.
-- Browsers cannot send ping frames, so client heartbeats are ordinary messages with a reply timeout.
-- A reconnect loop needs backoff, jitter, a limit, a reset on success and fresh credentials.
-- The HyperFetch `WebsocketAdapter` reconnects with jittered backoff, limits attempts, times out handshakes and runs an
-  optional heartbeat. Tune it with `reconnectTime`, `maxReconnectTime`, `shouldReconnect` and `reconnectDelay`.
+:::success Congratulations!
+
+You can now handle WebSocket failures without hand-written loops.
+
+- You can read **`onclose` codes** to decide what to do, since `onerror` carries no details.
+- You know that `1000` means done, `1006` a dropped connection and `1008` usually **new credentials**.
+- You can detect dead connections with the adapter's **heartbeat**.
+- You can tune reconnects with **`reconnectTime`**, **`maxReconnectTime`**, **`shouldReconnect`** and **`reconnectDelay`**.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Connection"
+  description="Connect on demand, disconnect, destroy and follow the network."
+  to="/docs/guides/sockets/connection"
+/>
+
+<LinkCard
+  type="docs"
+  title="Socket reconnects"
+  description="Every reconnect option with its default."
+  to="/docs/sockets/socket#tune-reconnects"
+/>
+
+- Guides: [authentication](/docs/guides/sockets/authentication), [WebSockets in React](/docs/guides/sockets/websockets-in-react).
+- Runnable examples: [WebSocket chat](/examples/realtime/websocket-chat).
+- API: [`defaultShouldReconnect`](/docs/api/sockets/Functions/defaultShouldReconnect).

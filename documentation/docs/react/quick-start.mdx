@@ -149,8 +149,19 @@ export const App = () => (
 );
 ```
 
-You now have typed data in components, deduplicated requests, a cache that survives remounts and a list that refreshes
-after a mutation, with no state management code.
+---
+
+## What just happened
+
+- The [client](/docs/core/client) holds the base URL and the [cache](/docs/core/cache); each
+  [request](/docs/core/request) carries its endpoint and types, so the hooks need no generics.
+- [`useFetch`](/docs/react/hooks/use-fetch) sent `getUsers` once for every mounted list and keeps the response in the
+  cache across remounts.
+- [`useSubmit`](/docs/react/hooks/use-submit) sent `createUser` on demand, and `client.cache.invalidate` refreshed every
+  list that reads `getUsers`.
+
+Run a finished version in the browser with the [basic data fetching](/examples/getting-started/basic) and
+[CRUD](/examples/mutations/crud) examples.
 
 ---
 

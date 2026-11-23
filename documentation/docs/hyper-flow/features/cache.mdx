@@ -81,7 +81,7 @@ Changes apply to the cache in your app right away, and every hook that reads the
 | **Simulate Error**     | The entry is replaced with a failed response, so hooks render their error state            |
 
 **Simulate Error** asks which error to use. The list comes from **Simulated Errors** in the app's
-[settings](/docs/hyper-flow/features/settings.mdx#simulated-errors), where you can add errors with your own status code and
+[settings](/docs/hyper-flow/features/settings#simulated-errors), where you can add errors with your own status code and
 body. The simulated error stays until the next successful request replaces it.
 
 :::tip Test your empty and error states
@@ -91,4 +91,27 @@ component that reads it refetch. A refetch in your app brings the real data back
 
 :::
 
-Read [Cache](/docs/core/cache.mdx) for how keys, `staleTime` and `cacheTime` work in the client.
+Read [Cache](/docs/core/cache) for how keys, `staleTime` and `cacheTime` work in the client.
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="guides"
+      title="Cache revalidation"
+      description="Invalidate and refetch from your own code."
+      to="/docs/guides/core/advanced/cache-revalidation"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Settings"
+      description="Add the errors you simulate on a cache entry."
+      to="/docs/hyper-flow/features/settings"
+    />
+  </div>
+</div>

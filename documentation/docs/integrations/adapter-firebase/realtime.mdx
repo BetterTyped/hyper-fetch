@@ -7,130 +7,85 @@ sidebar_label: Realtime Database
 
 # Firebase Realtime Database in React
 
-In firebase realtime database react code, the usual pattern is an `onValue` subscription inside an effect and a snapshot
-converted into state by hand. With HyperFetch, each Realtime Database operation is a request with a Realtime Database `method`,
-so `useFetch` and `useSubmit` handle loading, caching and types. This page covers reading and writing data, how lists
-are returned, and how to query them.
-
----
+Each Realtime Database operation is a request with a Realtime Database `method`, so `useFetch` and `useSubmit` handle
+loading, caching and types instead of snapshots converted by hand. This page covers reading and writing, how lists are
+returned, and how to query them.
 
 :::tip Purpose
 
-1.  **Read** values and lists with `get`.
-2.  **Write** with `set`, `push`, `update` and `remove`, with the payload typed per request.
-3.  **Query** lists with ordering, limits and cursors.
+1. **Read** values and lists with `get`.
+2. **Write** with `set`, `push`, `update` and `remove`, with the payload typed per request.
+3. **Query** lists with ordering, limits and cursors.
 
 :::
 
 ---
 
-## Realtime Database or Firestore
-
-Firebase has two databases, and this adapter supports both with the same request API.
-
-|                 | Realtime Database                              | Firestore                                        |
-| --------------- | ---------------------------------------------- | ------------------------------------------------ |
-| Data model      | One JSON tree, addressed by path               | Documents in collections                         |
-| Queries         | Order by one child, key or value, then limit or range | Several filters, sorting, cursors          |
-| Indexes         | `.indexOn` in the security rules               | Single-field by default, composite on demand     |
-| Good fit        | Small, fast-changing state: chat, presence, counters | Structured app data with richer queries    |
-
-The [Firestore page](./firestore.mdx) covers the other one.
-
----
-
 ## Setup
 
-```tsx
-import { Client } from "@hyper-fetch/core";
+Pass a Realtime Database instance to `FirebaseAdapter`. With `url: ""` every endpoint is the full database path.
+
+```ts title="api/firebase.ts"
+import { createClient } from "@hyper-fetch/core";
 import { FirebaseAdapter } from "@hyper-fetch/firebase";
+import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 
-export const client = new Client({ url: "" }).setAdapter(FirebaseAdapter(getDatabase(app)));
+const app = initializeApp({ projectId: "my-project", databaseURL: "https://my-project.firebaseio.com" });
 
-type Message = { text: string; author: string; sentAt: number };
+export const client = createClient({ url: "" }).setAdapter(FirebaseAdapter(getDatabase(app)));
+
+export type Message = { text: string; author: string; sentAt: number };
 ```
+
+The Realtime Database is one JSON tree addressed by path, and its queries order by one child, key or value. Pick
+[Firestore](/docs/integrations/adapter-firebase/firestore) for documents in collections with several filters.
 
 ---
 
 ## Methods
 
-| Method   | `data`                           | `extra`                               |
-| -------- | -------------------------------- | ------------------------------------- |
-| `get`    | the value, or a list (see below) | `ref` (DatabaseReference), `snapshot` |
-| `set`    | the payload                      | `ref`                                 |
-| `push`   | the payload plus the new `__key` | `ref` of the new child, `key`         |
-| `update` | the payload                      | `ref`                                 |
-| `remove` | `null`                           | `ref`                                 |
+| Method   | `data`                                  | `extra`                               |
+| -------- | --------------------------------------- | ------------------------------------- |
+| `get`    | the value, or a list, see below         | `ref` (DatabaseReference), `snapshot` |
+| `set`    | the payload                             | `ref`                                 |
+| `push`   | the payload plus the new `__key`        | `ref` of the new child, `key`         |
+| `update` | the payload                             | `ref`                                 |
+| `remove` | `null`                                  | `ref`                                 |
 
 `get` is the default, so a request without `method` reads.
 
-### `get`
+### Read
 
-```tsx
-const getMessages = client.createRequest<{ response: (Message & { __key: string })[] | null }>()({
+```ts title="api/messages.ts"
+export const getMessages = client.createRequest<{ response: (Message & { __key: string })[] | null }>()({
   endpoint: "rooms/:roomId/messages",
-});
-
-const getMessage = client.createRequest<{ response: Message | null }>()({
-  endpoint: "rooms/:roomId/messages/:messageId",
-  method: "get",
 });
 
 const { data } = await getMessages.setParams({ roomId: "general" }).send();
 ```
 
-### `set`
+### Write
 
-Writes the payload at the path, replacing what is there. A `null` payload deletes the value.
+`set` replaces the value at the path, and a `null` payload deletes it. `push` adds a child with a generated key.
+`update` writes only the given children and keeps the others.
 
-```tsx
-const setTopic = client.createRequest<{ response: string; payload: string }>()({
-  endpoint: "topics/:roomId",
-  method: "set",
-});
-
-await setTopic.setParams({ roomId: "general" }).send({ payload: "Tea talk" });
-```
-
-### `push`
-
-Adds a child with a generated key to a list.
-
-```tsx
-const sendMessage = client.createRequest<{ response: Message & { __key: string }; payload: Message }>()({
+```ts title="api/messages.ts"
+export const sendMessage = client.createRequest<{ response: Message & { __key: string }; payload: Message }>()({
   endpoint: "rooms/:roomId/messages",
   method: "push",
 });
 
-const { data } = await sendMessage
-  .setParams({ roomId: "general" })
-  .send({ payload: { text: "Hi", author: "ann", sentAt: Date.now() } });
-// data.__key is the generated key
-```
-
-### `update`
-
-Writes only the given children and keeps the others.
-
-```tsx
-const editMessage = client.createRequest<{ response: Partial<Message>; payload: Partial<Message> }>()({
+export const editMessage = client.createRequest<{ response: Partial<Message>; payload: Partial<Message> }>()({
   endpoint: "rooms/:roomId/messages/:messageId",
   method: "update",
 });
 
-await editMessage.setParams({ roomId: "general", messageId: "-Nx1" }).send({ payload: { text: "Hi all" } });
-```
+const { data } = await sendMessage
+  .setParams({ roomId: "general" })
+  .send({ payload: { text: "Hi", author: "ann", sentAt: Date.now() } }); // data.__key is the generated key
 
-### `remove`
-
-```tsx
-const deleteMessage = client.createRequest<{ response: null }>()({
-  endpoint: "rooms/:roomId/messages/:messageId",
-  method: "remove",
-});
-
-await deleteMessage.setParams({ roomId: "general", messageId: "-Nx1" }).send();
+await editMessage.setParams({ roomId: "general", messageId: data!.__key }).send({ payload: { text: "Hi all" } });
 ```
 
 ---
@@ -144,15 +99,9 @@ await deleteMessage.setParams({ roomId: "general", messageId: "-Nx1" }).send();
 | `rooms`, `rooms/a/messages` | odd      | an array of children, each spread into an object with its `__key` |
 | `rooms/a`, `topics/general` | even     | the stored value as is                                            |
 
-A list keeps the order of the query, so `$orderByChild` results arrive sorted. An empty list is `null` with
-`status: "emptyResource"`.
-
-:::caution Lists hold objects
-
-Each child of a list is spread into an object, so lists should hold objects. A list of plain values such as strings
-returns entries like `{ 0: "c", __key: "2" }`. Read such data from an even-segment path, or store objects.
-
-:::
+A list keeps the order of the query. An empty list is `null` with `status: "emptyResource"`. Each child is spread into
+an object, so a list of plain strings returns entries like `{ 0: "c", __key: "2" }`: store objects, or read such data
+from an even-segment path.
 
 ---
 
@@ -161,10 +110,10 @@ returns entries like `{ 0: "c", __key: "2" }`. Read such data from an even-segme
 Pass `queryParams` a callback that builds the constraints. Type the request with the type of the list's children, and
 paths and values are checked.
 
-```tsx
+```ts title="api/messages.ts"
 import type { RealtimeDBQueryParams } from "@hyper-fetch/firebase";
 
-const getMessages = client.createRequest<{
+export const listMessages = client.createRequest<{
   response: (Message & { __key: string })[] | null;
   queryParams?: RealtimeDBQueryParams<Message>;
 }>()({
@@ -172,76 +121,101 @@ const getMessages = client.createRequest<{
   method: "get",
 });
 
-const { data } = await getMessages.setParams({ roomId: "general" }).send({
+const { data } = await listMessages.setParams({ roomId: "general" }).send({
   queryParams: (c) => c.orderByChild("sentAt").limitToLast(50),
 });
 ```
 
-| Chain method                                  | Realtime Database equivalent | Notes                                            |
-| --------------------------------------------- | ---------------------------- | ------------------------------------------------ |
-| `orderByChild(path)`                          | `orderByChild(path)`         | nested children use `/`: `"author/name"`         |
-| `orderByKey()`, `orderByValue()`              | the same                     | one `orderBy*` per query, enforced by the types  |
-| `limitToFirst(n)`, `limitToLast(n)`           | the same                     |                                                  |
-| `equalTo(value, key?)`                        | `equalTo(value, key)`        | after an `orderBy*`; `value` has its type        |
-| `startAt`, `startAfter`, `endAt`, `endBefore` | the same, with `(value, key)` | after an `orderBy*`; `value` has its type       |
+| Chain method                                  | Notes                                            |
+| --------------------------------------------- | ------------------------------------------------ |
+| `orderByChild(path)`                          | nested children use `/`: `"author/name"`         |
+| `orderByKey()`, `orderByValue()`              | one `orderBy*` per query, enforced by the types  |
+| `limitToFirst(n)`, `limitToLast(n)`           | -                                                |
+| `equalTo(value, key?)`                        | after an `orderBy*`, `value` has the child's type |
+| `startAt`, `startAfter`, `endAt`, `endBefore` | after an `orderBy*`, with `(value, key?)`        |
 
-:::caution Realtime Database rules still apply
+`orderByChild` needs an `.indexOn` rule for that child. Without it the request resolves with `status: "error"` and the
+message `Index not defined, add ".indexOn" ...`.
 
-1.  A query can have one `orderBy*`; a second one does not compile.
-2.  `orderByChild` needs an `.indexOn` rule for that child. Without it the request resolves with `status: "error"` and
-    the message `Index not defined, add ".indexOn" ...`.
+### Pagination
 
-:::
+The optional `key` of a cursor breaks ties between children with the same value, so pages stay stable when values
+repeat.
 
-The optional `key` of a cursor breaks ties between children with the same value, so paging stays stable when values
-repeat:
-
-```tsx
+```ts title="api/messages.ts"
+const page1 = await listMessages.setParams({ roomId: "general" }).send({
+  queryParams: (c) => c.orderByChild("sentAt").limitToFirst(50),
+});
 const last = page1.data?.at(-1);
 
-const page2 = await getMessages.setParams({ roomId: "general" }).send({
+const page2 = await listMessages.setParams({ roomId: "general" }).send({
   queryParams: (c) => c.orderByChild("sentAt").startAfter(last!.sentAt, last!.__key).limitToFirst(50),
 });
 ```
 
-`queryParams` also takes the constraints array the callback resolves to, built with `$orderByChild`, `$limitToLast` and
+### Constraints as data
+
+`queryParams` also takes the array the callback resolves to, built with `$orderByChild`, `$limitToLast`, `$equalTo` and
 the other `$`-helpers.
 
 ---
 
-## Realtime Database in React components
+## Realtime Database in your app
 
-```tsx
+In React, `useFetch` reads once per query and caches the result.
+
+```tsx title="LastMessages.tsx"
 import { useFetch } from "@hyper-fetch/react";
 
-function LastMessages({ roomId }: { roomId: string }) {
-  const { data, loading } = useFetch(
-    getMessages.setParams({ roomId }).setQueryParams((c) => c.orderByChild("sentAt").limitToLast(50)),
+import { listMessages } from "./api/messages";
+
+export const LastMessages = ({ roomId }: { roomId: string }) => {
+  const { data } = useFetch(
+    listMessages.setParams({ roomId }).setQueryParams((c) => c.orderByChild("sentAt").limitToLast(50)),
   );
 
-  // data is a list of messages with __key, or null
-}
+  return data?.map((message) => <p key={message.__key}>{message.text}</p>);
+};
 ```
 
-`useFetch` reads once. To show new messages as they arrive, use a listener, see
-[realtime listening](./realtime-queries.mdx).
+To show new messages as they arrive, use a listener, see
+[realtime listening](/docs/integrations/adapter-firebase/realtime-queries).
 
 ---
 
-:::note When it's helpful
+## Web and admin differences
 
-- Chat rooms, presence and counters, where reads and writes need loading state and typed payloads.
-- Lists you show sorted and limited, such as the last 50 messages, cached per query.
+Realtime Database requests work the same in
+[`@hyper-fetch/firebase-admin`](/docs/integrations/adapter-firebase-admin/realtime), except:
 
-:::
+| Topic                      | `@hyper-fetch/firebase` (web)    | `@hyper-fetch/firebase-admin` (server)            |
+| -------------------------- | -------------------------------- | ------------------------------------------------- |
+| Database instance          | `getDatabase(app)` from `firebase/database` | `getDatabase()` from `firebase-admin/database`, with `databaseURL` in `initializeApp` |
+| Security rules             | enforced for the signed-in user  | bypassed                                          |
 
 ---
 
 :::secondary Summary
 
-1.  `get` reads; `set`, `push`, `update` and `remove` write.
-2.  Odd-segment paths return lists as arrays of objects with `__key`; even-segment paths return the value as is.
-3.  Queries are a `queryParams` callback; cursors and `equalTo` take the ordered value and an optional tie key.
-4.  Missing `.indexOn` rules and other Firebase errors arrive in `response.error`.
+- `get` reads; `set`, `push`, `update` and `remove` write.
+- Odd-segment paths return lists of objects with `__key`; even-segment paths return the value as is.
+- Queries are a `queryParams` callback with one `orderBy*`; cursors take a value and an optional tie key.
+- Missing `.indexOn` rules and other Firebase errors arrive in `response.error`.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="Realtime listening"
+  description="Keep Realtime Database paths live with onValue listeners."
+  to="/docs/integrations/adapter-firebase/realtime-queries"
+/>
+
+<LinkCard
+  type="api"
+  title="RealtimeDBQueryParams API reference"
+  description="The query params type that checks children and values."
+  to="/docs/api/adapter-firebase/Types/RealtimeDBQueryParams"
+/>

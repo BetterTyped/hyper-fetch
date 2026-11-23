@@ -7,13 +7,9 @@ sidebar_label: HTTP vs WebSocket
 
 # HTTP vs WebSocket
 
-The difference in http vs websocket comes down to who starts the conversation. With HTTP the client asks and the server
-answers, once per request. With a WebSocket the connection stays open and either side can send a message at any time. So
-the question is never "which is faster", it is "does the server need to tell the client something the client did not ask
-for?"
-
-Most apps need both. This page covers where the line sits, how polling and webhooks fit in, and how to run HTTP requests
-and a socket side by side in one HyperFetch setup.
+With HTTP the client asks and the server answers, once per request. With a WebSocket the connection stays open and
+either side can send at any time. The real question is whether the server needs to tell the client something it did not
+ask for. This guide compares the two with polling and webhooks, and runs HTTP and a socket side by side in HyperFetch.
 
 :::secondary What you'll learn
 
@@ -63,7 +59,7 @@ those things up:
 - **Status codes and error shape.** `404`, `409` and `422` mean something to every tool. Over a socket you design your own
   error messages and match them to the request that caused them.
 - **Request and response pairing.** An HTTP response belongs to its request. A socket reply is just another message, so
-  you need an id to correlate it. The [emitting guide](./emitting.mdx#server-replies) shows the pattern.
+  you need an id to correlate it. The [emitting guide](/docs/guides/sockets/emitting#get-a-reply-from-the-server) shows the pattern.
 - **Tooling.** Logs, tracing, rate limits, auth middleware and API docs all assume HTTP requests.
 
 So the usual split is: **reads and writes go over REST, change notifications go over the socket**. A user submits a form
@@ -91,7 +87,7 @@ immediately asks again. It works through any proxy, but every message still cost
 
 In HyperFetch, polling is two options on `useFetch`:
 
-```tsx
+```tsx title="Polling every 30 seconds"
 import { Time } from "@hyper-fetch/core";
 import { useFetch } from "@hyper-fetch/react";
 
@@ -101,8 +97,8 @@ const { data } = useFetch(getOrders, {
 });
 ```
 
-The [refreshing guide](../react/01-basics/refreshing.mdx) covers the related options, like pausing while the tab is in the
-background.
+The [refreshing guide](/docs/guides/react/basics/refreshing) covers the related options, like pausing while the tab is
+in the background.
 
 ---
 
@@ -134,7 +130,7 @@ pushes an event to the user's open tab over the socket so the page changes witho
 
 - **Plain HTTP**: forms, CRUD, search, anything the user triggers and waits for.
 - **HTTP with polling**: dashboards that can be 30 seconds stale, low traffic admin screens.
-- **SSE**: the server pushes and the client only listens. See [SSE vs WebSocket](./sse-vs-websocket.mdx).
+- **SSE**: the server pushes and the client only listens. See [SSE vs WebSocket](/docs/guides/sockets/sse-vs-websocket).
 - **WebSocket**: both sides talk often, like chat, presence, cursors or games.
 - **Webhooks**: another company's server needs to tell yours that something happened.
 
@@ -148,12 +144,12 @@ connection, and a listener connects them.
 
 ```ts title="src/api.ts"
 import { createClient } from "@hyper-fetch/core";
-import { Socket } from "@hyper-fetch/sockets";
+import { createSocketClient } from "@hyper-fetch/sockets";
 
 type Note = { id: string; title: string };
 
 export const client = createClient({ url: "https://api.example.com" });
-export const socket = new Socket({ url: "wss://api.example.com/ws" });
+export const socket = createSocketClient({ url: "wss://api.example.com/ws" });
 
 // HTTP: read and write
 export const getNotes = client.createRequest<{ response: Note[] }>()({ endpoint: "/notes" });
@@ -176,7 +172,7 @@ onNotesChanged.listen(() => {
 
 Components stay plain HTTP components:
 
-```tsx
+```tsx title="src/notes.tsx"
 import { useFetch, useSubmit } from "@hyper-fetch/react";
 
 import { createNote, getNotes } from "./api";
@@ -204,16 +200,39 @@ Why this split works:
 - The socket protocol stays tiny. It only names what changed.
 
 When the event already carries the full record, you can write it into the cache instead of refetching, with
-`client.cache.update()`. The [listener reference](../../sockets/listener.mdx#global-event-subscriptions) shows that
-variant, and [cache revalidation](../core/02-advanced/cache-revalidation.mdx) covers `invalidate` with strings and
-regular expressions.
+`client.cache.update()`. The [listener docs](/docs/sockets/listener#keep-the-http-cache-in-sync) show that variant, and
+[cache revalidation](/docs/guides/core/advanced/cache-revalidation) covers `invalidate` with strings and regular
+expressions.
 
-:::secondary Summary
+---
 
-- HTTP is client-initiated request and response. A WebSocket is an open two-way channel.
-- REST gives you caching, status codes and tooling. A socket gives you server push. Most apps want both.
-- Polling with `refresh` and `refreshTime` is fine for slow-changing data and few clients.
-- Webhooks are server to server. WebSockets reach the user. They often run in sequence.
-- In HyperFetch, read and write over the `Client`, listen on the `Socket`, and invalidate the cache from a listener.
+:::success Congratulations!
+
+You can now pick the right transport for each feature.
+
+- You know that **HTTP** is client-initiated request and response, and a **WebSocket** an open two-way channel.
+- You know what **REST** gives you that a socket does not: caching, status codes and tooling.
+- You can decide when **polling** is enough and when **webhooks** fit.
+- You can **read and write over HTTP** and **invalidate the cache** from a socket listener.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="SSE vs WebSocket"
+  description="When a one-way stream over HTTP is enough."
+  to="/docs/guides/sockets/sse-vs-websocket"
+/>
+
+<LinkCard
+  type="guides"
+  title="Listening to events"
+  description="Listeners, topic params and keeping the HTTP cache in sync."
+  to="/docs/guides/sockets/listening"
+/>
+
+- Runnable examples: [live cache updates](/examples/realtime/live-cache-updates), [polling](/examples/data-fetching/polling),
+  [WebSocket chat](/examples/realtime/websocket-chat).
+- Guides: [auto-refreshing data](/docs/guides/react/basics/refreshing).

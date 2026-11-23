@@ -7,14 +7,12 @@ description:
 sidebar_label: Testing
 ---
 
-# Testing Collections and Live Queries
+# Testing collections and live queries
 
-Collections are built from plain HyperFetch requests and listeners, so they are tested the way you already test
-requests: mock what the backend answers, render, assert. The db adds a few things worth testing on their own: that a
-rejected write reverts, that a query sends what you expect, and that socket events reach the screen.
-
-All examples run with [Vitest](https://vitest.dev), [Testing Library](https://testing-library.com) and
-[MSW](https://mswjs.io).
+Collections are built from plain requests and listeners, so you test them the way you test requests: mock what the
+backend answers, render, assert. This guide adds the db-specific checks: a rejected write reverts, a query sends what
+you expect, and socket events reach the screen. The examples use [Vitest](https://vitest.dev),
+[Testing Library](https://testing-library.com) and [MSW](https://mswjs.io).
 
 :::secondary What you'll learn
 
@@ -41,8 +39,8 @@ export type AppDb = ReturnType<typeof createAppDb>;
 ```
 
 Collections are only definitions, so every db can share them. Components get the db from
-[`DbProvider`](../../../react/07-db/db-provider.mdx), which is the same setup
-[server rendering](../02-patterns/server-rendering.mdx) needs:
+[`DbProvider`](/docs/react/db/db-provider), which is the same setup
+[server rendering](/docs/guides/db/patterns/server-rendering) needs:
 
 ```tsx title="test/render.tsx"
 import { DbProvider } from "@hyper-fetch/react";
@@ -55,7 +53,7 @@ export const renderWithDb = (ui: React.ReactElement, db = createAppDb()) => {
 
 Destroy each db after its test, so its timers and subscriptions stop:
 
-```ts
+```ts title="test/setup.ts"
 afterEach(() => db.destroy());
 ```
 
@@ -65,10 +63,10 @@ afterEach(() => db.destroy());
 
 A loader is a request, so `setMock` on that request mocks every load that goes through it:
 
-```tsx
+```tsx title="test/team-feed.test.tsx"
 it("renders the team feed", async () => {
   getTeamPosts.setMock(() => ({
-    data: { items: [summary("p1"), summary("p2")] },
+    data: { items: [summary("p1"), summary("p2")], next: null },
     status: 200,
   }));
 
@@ -82,12 +80,12 @@ it("renders the team feed", async () => {
 The mock runs inside the request lifecycle, so retries, deduplication and the db's ordering rules behave as they do
 against a real server. Return an `error` and a status to test the error state:
 
-```ts
+```ts title="test/team-feed.test.tsx"
 getTeamPosts.setMock(() => ({ error: new Error("Server error"), status: 500 }));
 ```
 
 A failed first load shows `status: "error"`. If your loader's request retries, the error appears after the last attempt,
-so keep retries off in tests or wait for it with `findBy...` queries. See [Mocking](../../testing/mocking.mdx) for
+so keep retries off in tests or wait for it with `findBy...` queries. See [mocking](/docs/guides/testing/mocking) for
 timing options and per-test overrides.
 
 ---
@@ -97,7 +95,7 @@ timing options and per-test overrides.
 The most valuable db test checks the unhappy path of an optimistic write: the change shows at once, the server rejects
 it, and the old value comes back.
 
-```ts
+```ts title="test/rename.test.ts"
 it("reverts a rename the server rejects", async () => {
   const db = createAppDb();
   const errors: DbErrorEvent[] = [];
@@ -135,9 +133,9 @@ it("reverts a rename the server rejects", async () => {
 ## Checking the plan
 
 Which loader serves a query, and what it sends, is part of your app's contract with the backend. `explain()` reads it
-without any network, so a plan test is fast and catches a new loader that silently changed an existing query:
+without any network, so a plan test is fast and catches a new loader that changed an existing query:
 
-```ts
+```ts title="test/plans.test.ts"
 it("sends the team filter and runs the rest locally", () => {
   const db = createAppDb();
   const plan = db.postSummary.where((post) => and(eq(post.teamId, "t1"), gt(post.likes, 10))).explain();
@@ -153,7 +151,7 @@ it("sends the team filter and runs the rest locally", () => {
 
 Queries that should never compile are tested by the type checker. Put them in a type test with `@ts-expect-error`:
 
-```ts
+```ts title="test/plans.test-d.ts"
 // @ts-expect-error a query without the required teamId has no loader
 db.postSummary.where((post) => gt(post.likes, 10)).get();
 ```
@@ -165,7 +163,7 @@ db.postSummary.where((post) => gt(post.likes, 10)).get();
 Syncs listen on your Socket. With the WebSocket adapter, the server sends frames shaped `{ topic, data }`. MSW
 intercepts WebSockets too, so a test can broadcast an event to every connected client:
 
-```ts
+```ts title="test/live-feed.test.ts"
 import { ws } from "msw";
 import { setupServer } from "msw/node";
 
@@ -177,7 +175,7 @@ afterAll(() => server.close());
 
 it("shows a rename from another user", async () => {
   const db = createAppDb();
-  getTeamPosts.setMock(() => ({ data: { items: [summary("p1")] }, status: 200 }));
+  getTeamPosts.setMock(() => ({ data: { items: [summary("p1")], next: null }, status: 200 }));
 
   const feed = db.postSummary.where((post) => eq(post.teamId, "t1"));
   const unsubscribe = feed.subscribe(() => {});
@@ -211,7 +209,7 @@ it("shows a rename from another user", async () => {
 
 ---
 
-:::success Tested!
+:::success Congratulations!
 
 Teamboard's data layer is covered.
 
@@ -229,7 +227,17 @@ Teamboard's data layer is covered.
 
 <LinkCard
   type="guides"
-  title="Debugging the DB"
+  title="Debugging the db"
   description="Find out why a query loads, does not update or shows the wrong rows: symptoms, causes and fixes."
   to="/docs/guides/db/production/debugging"
 />
+
+<LinkCard
+  type="guides"
+  title="Mocking requests"
+  description="setMock timing, per-test overrides and switching mocks off."
+  to="/docs/guides/testing/mocking"
+/>
+
+- Reference: [`DbProvider`](/docs/react/db/db-provider), [DB overview: errors](/docs/db/overview#errors).
+- API reference: [`DbErrorEvent`](/docs/api/db/Types/DbErrorEvent), [`QueryExplanation`](/docs/api/db/Types/QueryExplanation).

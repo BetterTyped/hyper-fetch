@@ -1,13 +1,15 @@
 ---
 sidebar_position: 3
 title: DB Related Data
+description: "Connect collections in @hyper-fetch/db: links keep a post and its summary in step, normalize fills nested records, and joins add related rows."
 sidebar_label: Related Data
 ---
 
 # Related data
 
-> Records often show up in more than one shape and inside each other: a post and its summary, a post and its author. The
-> db keeps each shape in its own collection and connects them with links, normalizing and joins.
+Records often show up in more than one shape and inside each other: a post and its summary, a post and its author. The
+db keeps each shape in its own [collection](/docs/db/overview#collections) and connects them with links, normalizing
+and joins.
 
 :::tip Purpose
 
@@ -24,7 +26,7 @@ sidebar_label: Related Data
 A list that returns summaries is its own collection, so the same post lives in `post` and `postSummary`. A link tells the
 db that both hold the same records:
 
-```ts
+```ts title="db.ts"
 const db = createDb({ post: Post, postSummary: PostSummary }, { links: [["post", "postSummary"]] });
 
 // The summary in every list shows the new title at once
@@ -44,7 +46,7 @@ await db.post.update(1, { title: "Renamed" });
 
 A response that nests other records can fill their collections too:
 
-```ts
+```ts title="collections.ts"
 const User = collection(UserSchema, { key: "id" });
 
 const Post = collection(PostSchema, { key: "id" })
@@ -64,7 +66,7 @@ const Post = collection(PostSchema, { key: "id" })
 
 A join adds the row of another collection whose key a field holds:
 
-```ts
+```tsx title="team-posts.tsx"
 const query = db.postSummary
   .where((post) => eq(post.teamId, teamId))
   .join("author", db.user, (post) => post.authorId);
@@ -86,7 +88,7 @@ const { data } = useLiveQuery(query);
 
 Options go in an object, with the field as `by`:
 
-```ts
+```ts title="Inner and one-to-many joins"
 // Only posts whose author the db holds
 db.postSummary.join("author", db.user, { by: (post) => post.authorId, type: "inner" });
 
@@ -116,3 +118,22 @@ db.postSummary.join("comments", db.comment, { by: (post) => post.id, on: "postId
 - Joins add related rows to query results, loaded in one batch and kept live.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Related data and joins"
+  description="Normalize REST responses and join authors, comments and teams step by step."
+  to="/docs/guides/db/patterns/related-data"
+/>
+
+<LinkCard
+  type="guides"
+  title="List and detail"
+  description="Keep summaries and full records in step with links."
+  to="/docs/guides/db/patterns/list-and-detail"
+/>
+
+- Related: [`useLiveQuery`](/docs/react/db/use-live-query), [DB overview](/docs/db/overview),
+  [`createDb` API](/docs/api/db/Functions/createDb).

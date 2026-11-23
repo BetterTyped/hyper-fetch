@@ -5,123 +5,137 @@ description: "Create a HyperFetch client with createClient, set the base URL and
 sidebar_label: Setup
 ---
 
-The first step to using **HyperFetch** is setting up the `Client`. The `Client` is the core of the library, acting as a
-central hub for all your requests. It holds the base configuration for your API, including the server URL, and other
-important options. This guide will walk you through the process of initializing and configuring your client instance.
-
----
+Every request in HyperFetch is created from a [client](/docs/core/client), which holds the base URL, the adapter, the
+cache and the dispatchers for one backend. This guide creates a client, types its errors, shares it across the app and
+creates the first request from it.
 
 :::secondary What you'll learn
 
-1.  How to **initialize the `Client`** and why it's the starting point for all data exchange.
-2.  The main **configuration options** available on the `Client`.
-3.  The **best practices for creating and sharing** a client instance across your application.
-4.  How to **create a `Request`** from the `Client` instance.
+1. How to **create a client** with `createClient` and a base `url`.
+2. How to type the **global error** once for every request.
+3. How to **share one client** per backend and create requests from it.
+4. What the main **client options** change.
 
 :::
 
 ---
 
-## Client Initialization
+## Create the client
 
-The `Client` is the main export of the `@hyper-fetch/core` package. It is a class that can be instantiated to create a
-new client. However, we recommend using the `createClient` function, which is a simple wrapper around the `Client`
-constructor.
+Install the core package, then call `createClient` with the base URL of your API.
 
-To get started, you need to import `createClient` and create a new instance. The only required option is the `url`,
-which should be the base URL of your API.
+```npm2yarn2pnpm
+npm install @hyper-fetch/core
+```
 
 ```ts title="src/api/client.ts"
 import { createClient } from "@hyper-fetch/core";
 
-export const client = createClient({
+type ApiError = { message: string; code: number };
+
+// Keep Error in the union: timeouts, aborts and network failures arrive as Error instances
+export const client = createClient<{ error: ApiError | Error }>({
   url: "https://api.example.com",
 });
 ```
 
-This creates a client instance that can be used to make requests to `https://api.example.com`.
-
-<LinkCard
-  type="docs"
-  title="Client"
-  description="Read more about the Client in the documentation."
-  to="/docs/core/client"
-/>
+The `error` generic is the **global error**: the error body your API returns, merged with each request's own `error`
+type. See [global error](/docs/guides/typescript/global-error).
 
 ---
 
-## Request Initialization
+## Create a request from it
 
-Once you have a `client` instance, you can start creating requests. A `Request` defines a specific API endpoint,
-including its method, parameters, and data transformation logic. Requests are the core of fetching and they are created
-with the `createRequest` method on the `client`.
+`client.createRequest` defines one endpoint. It is called twice: the first call takes the types, the second the
+options. Keep requests at module level and import them where you send them.
 
 ```ts title="src/api/users.ts"
 import { client } from "./client";
 
-export const getUser = client.createRequest()({
-  method: "GET",
-  endpoint: "/users/:id",
+type User = { id: number; name: string };
+
+export const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+});
+
+export const createUser = client.createRequest<{ response: User; payload: { name: string } }>()({
+  endpoint: "/users",
+  method: "POST",
 });
 ```
 
-This creates a `getUser` request that can be used to fetch user data. We will explore how to use this request in the
-next guides.
-
-<LinkCard
-  type="docs"
-  title="Request"
-  description="Read more about the Request in the documentation."
-  to="/docs/core/request"
-/>
+`method` defaults to `"GET"`. The [fetching guide](/docs/guides/core/basics/fetching) sends these requests.
 
 ---
 
-## Client Configuration
+## Share one client per backend
 
-The `createClient` function accepts a configuration object with several options to customize its behavior. You can
-configure caching, request queues, and more.
+Create the client once in its own module and import it everywhere. Requests inherit its auth, interceptors and defaults,
+and they share its cache and queues.
 
-Here are some of the most common options:
+- **One backend**: one client, exported from `api/client.ts`.
+- **Several backends**: one client each. Clients are isolated, so they never share cache, queues or interceptors.
+- **Tests**: call `client.clear()` between tests, see [test isolation](/docs/guides/testing/isolation).
 
-(@import core ClientOptionsType type=returns)
-
----
-
-## Common approach
-
-For most applications, you should only have one client instance. This ensures that all requests share the same
-configuration. The best way to achieve this is to create the client in a dedicated file and export it.
-
-```ts title="src/api/client.ts"
+```ts title="src/api/clients.ts"
 import { createClient } from "@hyper-fetch/core";
 
-export const client = createClient({
-  url: "https://api.example.com",
-});
+export const api = createClient({ url: "https://api.example.com" });
+export const payments = createClient({ url: "https://payments.example.com" });
 ```
 
-Then, you can import the `client` instance wherever you need to make a request.
+---
 
-```ts title="src/features/users/api.ts"
-// import { client } from "api/client";
+## Configure the client
 
-export const getUser = client.createRequest()({
-  method: "GET",
-  endpoint: "/users/:id",
-});
+`createClient` takes the base `url` and factories for the modules. Most apps only set `url`.
+
+| Option             | Default                  | Use it to                                                      |
+| ------------------ | ------------------------ | -------------------------------------------------------------- |
+| `url`              | required                 | Set the base URL of every request                              |
+| `mode`             | `"auto"`                 | Force `"client"` or `"server"` cache behavior                  |
+| `cache`            | `() => new Cache()`      | Add persistent storage, see [persistence](/docs/guides/core/advanced/persistence) |
+| `fetchDispatcher`  | `() => new Dispatcher()` | Configure the queue of GET and QUERY requests                  |
+| `submitDispatcher` | `() => new Dispatcher()` | Configure the queue of every other method                      |
+| `appManager`       | `() => new AppManager()` | Change how focus and online state are detected                 |
+
+The rest is set with methods on the client, chained after `createClient`:
+
+```ts title="src/api/client.ts"
+export const client = createClient({ url: "https://api.example.com" })
+  .setDebug(process.env.NODE_ENV === "development")
+  .setLogLevel("debug")
+  .onAuth((request) => request.setHeaders({ ...request.headers, Authorization: `Bearer ${getToken()}` }));
 ```
 
-This approach keeps your configuration centralized and makes it easy to manage.
+- **Defaults for every request**: `client.adapter.setRequestDefaults`, see [global defaults](/docs/guides/core/basics/global-defaults).
+- **Another transport**: `client.setAdapter`, see [custom adapter](/docs/guides/core/advanced/custom-adapter) and the
+  [Axios](/docs/integrations/adapter-axios/overview) or [GraphQL](/docs/integrations/adapter-graphql/overview) adapters.
+- **Auth and interceptors**: see [authentication](/docs/guides/core/basics/authentication) and
+  [intercepting](/docs/guides/core/advanced/intercepting).
 
 ---
 
 :::success Congratulations!
 
-You've successfully set up the HyperFetch `Client` and are ready for the next steps!
+You've set up the HyperFetch client.
 
-- You can **initialize a `Client`** with a base `url`.
-- You know the **importance of using** a single, shared `Client` instance.
-- You can **create a `Request`** from the `client`.
+- You can create a client with **`createClient`** and type its **global error**.
+- You can create **requests** from it with `client.createRequest<Types>()(options)`.
+- You can **share one client** per backend and configure it with options and methods.
 
 :::
+
+Runnable examples: [Basic data fetching](/examples/getting-started/basic) and
+[Vanilla TypeScript](/examples/getting-started/vanilla).
+
+<LinkCard type="guides" title="Fetching" description="Send requests and read the response." to="/docs/guides/core/basics/fetching" />
+
+<LinkCard type="docs" title="Client" description="Everything the client owns and configures." to="/docs/core/client" />
+
+<LinkCard
+  type="api"
+  title="Client API reference"
+  description="Every method of the Client class with its signature."
+  to="/docs/api/core/Classes/Client"
+/>

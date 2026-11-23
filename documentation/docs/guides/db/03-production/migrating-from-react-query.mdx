@@ -9,10 +9,10 @@ sidebar_label: Migrating from React Query
 
 # Migrating from React Query and Apollo
 
-React Query caches **responses** by query key. Apollo caches **normalized objects** by type and id, but only for
-GraphQL. The db keeps **typed rows** per collection, fed by any backend, and reads them with live queries. Moving to it
-does not have to be a rewrite: the db works next to your existing hooks, so you can migrate one feature at a time,
-starting where keeping copies in sync hurts most.
+React Query caches **responses** by query key, and Apollo caches **normalized objects** for GraphQL. The db keeps
+**typed rows** per collection, fed by any backend, and works next to your existing hooks, so you can migrate one feature
+at a time, starting where keeping copies in sync hurts most. To move request-level hooks instead, see
+[migrating from React Query to `useFetch`](/docs/guides/react/basics/migrating-from-react-query).
 
 :::secondary What you'll learn
 
@@ -51,7 +51,7 @@ answers it, and whether a request is needed at all.
 
 Teamboard's feed, built with TanStack Query: a list, a socket handler that patches it, and an optimistic like.
 
-```tsx
+```tsx title="Before: TanStack Query"
 const useTeamPosts = (teamId: string) =>
   useQuery({ queryKey: ["posts", teamId], queryFn: () => api.get(`/teams/${teamId}/posts`) });
 
@@ -81,7 +81,7 @@ const like = useMutation({
 The db loads through HyperFetch requests, so start by declaring the endpoints you already call. If you use the CLI or an
 SDK, you already have them.
 
-```ts
+```ts title="src/requests.ts"
 const getTeamPosts = client.createRequest<{ response: { items: PostSummary[] } }>()({
   endpoint: "/teams/:teamId/posts",
 });
@@ -95,7 +95,7 @@ const updatePost = client.createRequest<{ response: Post; payload: Partial<Post>
 
 The `queryFn` becomes a loader, and the variable part of the key, `teamId`, becomes a required filter:
 
-```ts
+```ts title="src/db.ts"
 const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" }).load(getTeamPosts, {
   rows: (response) => response.items,
   where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
@@ -106,7 +106,7 @@ export const db = createDb({ postSummary: PostSummary });
 
 ### 3. Replace the reads
 
-```tsx
+```tsx title="src/team-feed.tsx"
 // diff-remove-next-line
 const { data, isPending } = useTeamPosts(teamId);
 // diff-add-next-line
@@ -124,7 +124,7 @@ const { data, status } = useLiveQuery(db.postSummary.where((post) => eq(post.tea
 
 ### 4. Move the socket handler into a sync
 
-```ts
+```ts title="src/db.ts"
 const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" })
   .load(getTeamPosts, {
     rows: (response) => response.items,
@@ -140,17 +140,17 @@ const PostSummary = collection(PostSummarySchema, { key: "id", version: "updated
 ```
 
 Delete the `useEffect`. The sync subscribes while a query needs it, for the teams on screen, and every query showing a
-changed post updates. See [Real-time Sync](../01-basics/realtime-sync.mdx).
+changed post updates. See [real-time sync](/docs/guides/db/basics/realtime-sync).
 
 ### 5. Replace the mutation
 
-```ts
+```ts title="src/db.ts"
 collection(PostSchema, { key: "id", version: "updatedAt" }).mutate({
   update: { request: updatePost, map: (key, changes) => ({ params: { postId: key }, payload: changes }) },
 });
 ```
 
-```tsx
+```tsx title="src/like-button.tsx"
 // diff-remove-next-line
 like.mutate(post);
 // diff-add-next-line
@@ -159,15 +159,15 @@ db.post.update(post.id, { likes: post.likes + 1 });
 
 Delete `onMutate`, `onError` and `onSettled`. The change shows at once, reverts exactly on failure, and the response row
 is written back. Link `post` and `postSummary` so the feed shows it too. See
-[Optimistic Writes](../01-basics/optimistic-writes.mdx).
+[optimistic writes](/docs/guides/db/basics/optimistic-writes).
 
 ### 6. Delete what is left
 
 - Query key factories for this feature.
 - `invalidateQueries` calls after writes to these records.
 - `setQueryData` calls that patched copies in other queries.
-- Prefetching of detail pages from list data: [List and Detail Views](../02-patterns/list-and-detail.mdx) shows the
-  header from the summary at once.
+- Prefetching of detail pages from list data: [list and detail views](/docs/guides/db/patterns/list-and-detail) shows
+  the header from the summary at once.
 
 :::tip Migrate by feature, not by hook
 
@@ -199,11 +199,11 @@ Two differences matter most:
 
 - **Rows are complete.** Apollo lets one entity hold the fields of whichever queries loaded it, so a field can be
   missing at runtime while its type says otherwise. In the db, a summary and a full post are two collections, and each
-  query is typed by exactly the collection it reads. See [List and Detail Views](../02-patterns/list-and-detail.mdx).
+  query is typed by exactly the collection it reads. See [list and detail views](/docs/guides/db/patterns/list-and-detail).
 - **New items place themselves.** In Apollo, adding a created item to every list that should show it is hand-written
   `cache.modify` code with field names as strings. The db evaluates each list's filters and order on the new row and
-  inserts it where it belongs. See [Related Data and Joins](../02-patterns/related-data.mdx) and
-  [Pagination](../01-basics/infinite-scroll.mdx).
+  inserts it where it belongs. See [related data and joins](/docs/guides/db/patterns/related-data) and
+  [pagination](/docs/guides/db/basics/infinite-scroll).
 
 The db is not GraphQL-only, so the same collections can load from a REST endpoint and stay live from a GraphQL
 subscription, or the other way round.
@@ -212,19 +212,17 @@ subscription, or the other way round.
 
 ## What to keep on request-level caching
 
-:::note Stay with `useFetch` or `useQuery` for
+Stay with `useFetch` or `useQuery` for:
 
 - **Computed responses**: dashboards, reports, counts and sums. Queries return rows, not aggregates.
 - **Screens with their own data** that no other view shares, such as settings.
 - **Responses that are not records**: files, one-off RPC results, health checks.
 
-:::
-
 ---
 
-:::success Migrated!
+:::success Congratulations!
 
-You can move features to the db one at a time.
+You've learned how to move features to the db one at a time.
 
 - You can map **query keys, mutations, invalidation and hydration** to their db counterparts.
 - You can migrate a feature's **reads, socket updates and writes** in order, and delete the glue code.
@@ -239,7 +237,7 @@ You can move features to the db one at a time.
 
 <LinkCard
   type="guides"
-  title="Thinking in Collections"
+  title="Thinking in collections"
   description="The mental model behind collections, loaders, syncs and live queries."
   to="/docs/guides/db/basics/thinking-in-collections"
 />
@@ -250,3 +248,7 @@ You can move features to the db one at a time.
   description="How request-level caching in HyperFetch compares with TanStack Query."
   to="/docs/guides/comparisons/tanstack-query"
 />
+
+- Comparisons: [HyperFetch vs Apollo Client](/docs/guides/comparisons/apollo-client).
+- Reference: [DB overview](/docs/db/overview), [`useLiveQuery`](/docs/react/db/use-live-query),
+  [server rendering](/docs/db/server-rendering).

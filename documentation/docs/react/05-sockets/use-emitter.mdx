@@ -7,157 +7,78 @@ sidebar_label: useEmitter
 
 # useEmitter
 
-[Read the API Reference »](/docs/api/react/Hooks/useEmitter)
-
-The `useEmitter` hook is your main tool for **sending events** to a server in React components. It works directly
-with HyperFetch's core systems, particularly the [`Emitter`](/docs/sockets/emitter), to deliver a reliable, reactive, and
-efficient event-emitting experience.
+`useEmitter` returns a typed `emit` function for a socket [emitter](/docs/sockets/emitter), with the connection state
+and callbacks for failed sends. Use it to send WebSocket messages from components. To receive messages, use
+[`useListener`](/docs/react/sockets/use-listener).
 
 :::tip Purpose
 
-1.  **Declarative event emitting**: Provide an `Emitter` and let the hook manage the process.
-2.  **Automatic connection management**: Handles `connected` state for you.
-3.  **Lifecycle callbacks**: Easily run side effects on emits, failed emits, or reconnections.
-4.  **Typed payloads**: `emit` is typed from the emitter, so a wrong payload shape is a compile error.
+1. **Typed payloads**: a wrong payload shape is a compile error.
+2. **Connection state**: `connected` and `connecting` to disable sending while offline.
+3. **Error callbacks**: `onEmitError` reports messages that could not be sent.
 
 :::
 
-> If you intend to `listen` to events from the server, we recommend choosing the
-> [`useListener`](/docs/react/sockets/use-listener) hook.
-
 ---
 
-## Quick Start
+## Usage
 
-To use `useEmitter`, provide a prepared [`Emitter`](/docs/sockets/emitter) instance. The hook returns an `emit` function
-to send events and the current state of the socket connection.
-
-First, let's define an emitter.
-
-```tsx
-// src/api/chat.ts
-import { socketInstance } from "./socket";
-
-export const emitMessage = socketInstance.createEmitter<ChatMessageType>()({
-  topic: "chat-message", // topic of the event
-});
-```
-
-Now, let's use it in a component.
-
-```tsx
-// src/components/MessageComponent.tsx
+```tsx title="components/message-form.tsx"
+import { useState } from "react";
 import { useEmitter } from "@hyper-fetch/react";
-import { emitMessage } from "./api/chat";
+import { socket } from "./api/socket";
 
-const MessageComponent: React.FC = () => {
+export const emitMessage = socket.createEmitter<{ text: string }>()({ topic: "chat-message" });
+
+function MessageForm() {
+  const [text, setText] = useState("");
   const { emit, connected, onEmitError } = useEmitter(emitMessage);
 
-  onEmitError(({ error }) => {
-    alert(`Message not sent: ${error.message}`);
-  });
-
-  const onSubmit = (values: { message: string }) => {
-    emit({ payload: values });
-  };
+  onEmitError(({ error }) => toast(`Message not sent: ${error.message}`));
 
   return (
-    <Form onSubmit={onSubmit}>
-      {/* ... form fields ... */}
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        emit({ payload: { text } });
+      }}
+    >
+      <input value={text} onChange={(event) => setText(event.target.value)} />
       <button type="submit" disabled={!connected}>
         Send
       </button>
-    </Form>
+    </form>
   );
-};
-```
-
-<LinkCard
-  type="docs"
-  title="Emitter"
-  description="Learn more about creating and configuring emitters."
-  to="/docs/sockets/emitter"
-/>
-
----
-
-## Event Handlers
-
-To handle side effects such as notifications, logging, or triggering other actions, `useEmitter` provides a set of event
-handler hooks. This keeps your component's rendering logic clean and separates side effects from state management.
-
-1.  `onEmit`: Fires before we send event message.
-2.  `onEmitError`: Fires when a message of this topic could not be sent (socket not connected, payload mapper, encoder
-    or transport failure). It receives `{ error }`.
-3.  `onConnected`: Fires when the socket connection is successfully opened.
-4.  `onDisconnected`: Fires when the socket connection is closed.
-5.  `onConnecting`: Fires when the socket is connecting.
-6.  `onReconnecting`: Fires when the socket is attempting to reconnect.
-7.  `onReconnectingFailed`: Fires when the socket fails to reconnect.
-
-```tsx
-import { useEmitter } from "@hyper-fetch/react";
-import { emitMessage } from "./api";
-
-const MessageComponent: React.FC = () => {
-  const { emit, onEmit, onEmitError, onConnected, onDisconnected, onConnecting, onReconnecting, onReconnectingFailed } =
-    useEmitter(emitMessage);
-
-  onEmit((emitter) => {
-    // Event before we send event message
-    console.log(emitter); // Emitter instance
-  });
-
-  onEmitError(({ error }) => {
-    console.log(error.message); // Why the message was not sent
-  });
-
-  onConnected(() => {
-    toast({ type: "info", message: "Socket connection opened." });
-  });
-
-  onDisconnected(() => {
-    toast({ type: "warning", message: "Socket connection closed." });
-  });
-
-  onConnecting(() => {
-    toast({ type: "info", message: "Socket is connecting." });
-  });
-
-  onReconnecting(({ attempts }) => {
-    toast({ type: "warning", message: `Reconnecting... (attempt ${attempts})` });
-  });
-
-  onReconnectingFailed(({ attempts }) => {
-    toast({ type: "error", message: `Reconnecting failed after ${attempts} attempts.` });
-  });
-
-  // ...
-};
+}
 ```
 
 ---
 
-## Sending Data
+## Options
 
-Data can be passed in several ways. One option is to use the `setPayload` method on the
-[`Emitter`](/docs/sockets/emitter).
+| Option               | Default | Description                                                 |
+| -------------------- | ------- | ----------------------------------------------------------- |
+| `dependencyTracking` | `true`  | Re-render only for the returned fields the component reads. |
 
-```tsx
-const { emit } = useEmitter(emitMessage.setPayload({ message: "New message" }));
+Set defaults for every `useEmitter` with the `useEmitter` key of the
+[`Provider`](/docs/react/overview#global-defaults) config.
 
-// The payload is already set, so no arguments are needed
+---
+
+## Returns
+
+(@import react useEmitter type=returns)
+
+---
+
+## Send a payload
+
+Pass the payload to `emit`, or set it on the emitter with `setPayload` and call `emit()` without arguments.
+
+```tsx title="Payload on the emitter"
+const { emit } = useEmitter(emitMessage.setPayload({ text: "Hello" }));
+
 emit();
-```
-
-However, you may need to pass data dynamically, which requires passing a `payload` to the `emit` function.
-
-```tsx
-const { emit } = useEmitter(emitMessage);
-
-const handleSubmit = (message: string) => {
-  emit({ payload: { message } });
-};
 ```
 
 `emit` returns `void` and takes no acknowledgement callback. Nothing is queued: a message emitted while the socket is
@@ -166,58 +87,55 @@ its own topic with [`useListener`](/docs/react/sockets/use-listener).
 
 ---
 
-## Options
+## Callbacks
 
-Customize the behavior of `useEmitter` by passing an options object as the second argument.
+| Callback                                          | Fires when                                                                         |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `onEmit`                                          | Right before a message is sent. Receives the emitter.                              |
+| `onEmitError`                                     | A message could not be sent: socket not connected, payload mapper, encoder or transport failure. Receives `{ error }`. |
+| `onConnected` / `onDisconnected` / `onConnecting` | The connection opens, closes or starts opening.                                    |
+| `onReconnecting` / `onReconnectingFailed`         | A reconnect attempt starts, or all attempts failed. Receives `{ attempts }`.       |
+| `onError`                                         | The socket reports an error.                                                       |
 
-```tsx
-const { ... } = useEmitter(emitter, options)
+```tsx title="Log sends"
+const { onEmit, onReconnectingFailed } = useEmitter(emitMessage);
+
+onEmit((emitter) => console.log("Sending to", emitter.topic));
+onReconnectingFailed(({ attempts }) => toast(`Could not reconnect after ${attempts} attempts`));
 ```
-
-(@import react UseEmitterOptionsType type=returns)
-
-<LinkCard
-  type="api"
-  title="UseEmitterOptionsType API Reference"
-  description="Learn more about the useEmitter hook options."
-  to="/docs/api/react/Types/UseEmitterOptionsType"
-/>
 
 ---
 
-## Returns
+:::secondary Summary
 
-`useEmitter` returns an object containing the socket's state and helper methods.
+1. `useEmitter` returns a typed `emit` and the connection state.
+2. Messages sent while disconnected are dropped and reported by `onEmitError`.
+3. Replies come through a separate listener with `useListener`.
 
-```tsx
-const values = useEmitter(emitter);
-```
+:::
 
-(@import react useEmitter type=returns)
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Emitting in React"
+  description="Send socket messages from components and handle failures."
+  to="/docs/guides/react/sockets/emitting"
+/>
+
+<LinkCard
+  type="docs"
+  title="Emitter"
+  description="Create emitters with topics, payloads and encoders."
+  to="/docs/sockets/emitter"
+/>
 
 <LinkCard
   type="api"
-  title="useEmitter API Reference"
-  description="Learn more about the values returned from the useEmitter hook."
+  title="useEmitter API reference"
+  description="Generated types for the hook, its options and its return value."
   to="/docs/api/react/Hooks/useEmitter"
 />
 
----
-
-## See More
-
-<LinkCard
-  type="docs"
-  title="useListener"
-  description="Learn more about the useListener hook for receiving socket events."
-  to="/docs/react/sockets/use-listener"
-/>
-
-<LinkCard type="docs" title="Emitter" description="Learn more about the Emitter class." to="/docs/sockets/emitter" />
-
-<LinkCard
-  type="docs"
-  title="Socket"
-  description="Learn more about creating a socket instance."
-  to="/docs/sockets/socket"
-/>
+- Runnable example: [WebSocket chat](/examples/realtime/websocket-chat).
+- Related: [Socket](/docs/sockets/socket), [`UseEmitterOptionsType`](/docs/api/react/Types/UseEmitterOptionsType).

@@ -178,12 +178,12 @@ flowchart LR
 
 | Building block                                  | What it owns                                                                           |
 | ----------------------------------------------- | -------------------------------------------------------------------------------------- |
-| [Client](/docs/core/client.mdx)                 | Base URL, adapter, cache, dispatchers, interceptors and plugins for one backend        |
-| [Request](/docs/core/request.mdx)               | One endpoint: method, params, payload, query params, cache and retry options           |
-| [Dispatcher](/docs/core/dispatcher.mdx)         | When requests go out: deduplication, cancelation, queues, offline and retries          |
-| [Cache](/docs/core/cache.mdx)                   | Responses by key, freshness with `staleTime`, garbage collection with `cacheTime`      |
-| [Adapter](/docs/core/adapter.mdx)               | The transport: the built-in fetch adapter, or Axios, GraphQL, Firebase and your own    |
-| [Managers](/docs/core/managers.mdx)             | Focus and online state, request lifecycle events and aborting                          |
+| [Client](/docs/core/client)                 | Base URL, adapter, cache, dispatchers, interceptors and plugins for one backend        |
+| [Request](/docs/core/request)               | One endpoint: method, params, payload, query params, cache and retry options           |
+| [Dispatcher](/docs/core/dispatcher)         | When requests go out: deduplication, cancelation, queues, offline and retries          |
+| [Cache](/docs/core/cache)                   | Responses by key, freshness with `staleTime`, garbage collection with `cacheTime`      |
+| [Adapter](/docs/core/adapter)               | The transport: the built-in fetch adapter, or Axios, GraphQL, Firebase and your own    |
+| [Managers](/docs/core/managers)             | Focus and online state, request lifecycle events and aborting                          |
 
 ---
 
@@ -210,8 +210,8 @@ export const loader = () => getDesigners.send();
 getDesigners.setMock(() => ({ data: [{ id: 1, name: "Ann" }], status: 200 }));
 ```
 
-For larger APIs, [`createSdk`](/docs/core/sdk.mdx) builds all requests from one typed schema, and the
-[CLI](/docs/cli/overview.mdx) generates that schema from an OpenAPI spec.
+For larger APIs, [`createSdk`](/docs/core/sdk) builds all requests from one typed schema, and the
+[CLI](/docs/cli/overview) generates that schema from an OpenAPI spec.
 
 ---
 
@@ -225,12 +225,23 @@ For larger APIs, [`createSdk`](/docs/core/sdk.mdx) builds all requests from one 
 
 :::
 
-In React, add [`@hyper-fetch/react`](/docs/react/overview.mdx) on top: `useFetch` and `useSubmit` read the same requests
-and the same cache. For realtime data, add [`@hyper-fetch/sockets`](/docs/sockets/overview.mdx).
+In React, add [`@hyper-fetch/react`](/docs/react/overview) on top: `useFetch` and `useSubmit` read the same requests
+and the same cache. For realtime data, add [`@hyper-fetch/sockets`](/docs/sockets/overview).
 
 ---
 
+:::secondary Summary
+
+- A **client** per backend owns the adapter, cache, dispatchers and interceptors.
+- A **request** per endpoint is typed once and sent anywhere with `send()`, which never throws.
+- Cache, deduplication, cancelation, queues, retries and offline handling come from the client, with no extra setup.
+
+:::
+
 ## Next steps
+
+Runnable examples: [Vanilla TypeScript](/examples/getting-started/vanilla) (core without a framework) and
+[HyperFetch on the server](/examples/integrations/server-runtimes).
 
 <div className="row">
   <div className="col col--6">

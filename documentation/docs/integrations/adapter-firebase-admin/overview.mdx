@@ -4,140 +4,213 @@ title: Firebase Admin SDK for Node.js with Typed Requests
 description: Use the Firebase Admin SDK in Node.js with typed Firestore and Realtime Database requests, retries, queues and errors returned in the response.
 sidebar_label: Overview
 ---
+
 # Firebase Admin SDK for Node.js with typed requests
 
-[Read the API Reference »](/api/adapter-firebase-admin/Functions/FirebaseAdminAdapter.mdx)
-
-`@hyper-fetch/firebase-admin` wraps the firebase admin sdk node package (`firebase-admin`) so Firestore and Realtime
-Database operations from server code are HyperFetch requests. Route handlers, workers and scripts get typed responses,
-retries and queues with the same request API as the browser package.
-
----
+`@hyper-fetch/firebase-admin` runs Firestore and Realtime Database operations of the Firebase Admin SDK
+(`firebase-admin`) as HyperFetch requests. Route handlers, workers and scripts get typed responses, retries and queues
+with the same API as the web package, [`@hyper-fetch/firebase`](/docs/integrations/adapter-firebase/overview). This
+page lists only what differs from it.
 
 :::tip Purpose
 
-1.  **Server-side Firebase as requests**: Admin SDK reads and writes are regular HyperFetch requests.
-2.  **Same API as the web package**: methods, constraints and responses match `@hyper-fetch/firebase`, apart from the
-    differences listed below.
-3.  **Retries and queues for backend work**: HyperFetch retry, deduplication and queueing on top of the Admin SDK.
-4.  **Live data on the server**: `FirebaseSocketsAdminAdapter` listens to Firestore and Realtime Database changes.
-5.  **No rejected promises**: Firebase errors come back in `response.error`.
+1. **Server-side Firebase as requests**: Admin SDK reads and writes are regular requests.
+2. **Same API as the web package**: methods, paths, responses and constraints match, apart from the differences below.
+3. **Live data on the server**: `FirebaseSocketsAdminAdapter` listens to Firestore and Realtime Database changes.
+4. **No rejected promises**: Firebase errors come back in `response.error`.
 
 :::
 
 ---
 
-## What the Firebase Admin SDK is for
+## Install
 
-Firebase has two JavaScript SDKs. The web SDK (`firebase`) runs in the browser as the signed-in user, and security
-rules decide what that user may read and write. The Admin SDK (`firebase-admin`) runs on a server you control, such as
-Node.js, Cloud Functions or a container. It authenticates with a service account or the default credentials of the
-environment, and it has full access to the project.
+`firebase-admin` is a peer dependency. Add `@hyper-fetch/sockets` for live listeners.
 
-Use the Admin SDK for work that should not depend on a user's rules: webhooks that update orders, scheduled cleanups,
-data migrations, or an API route that checks permissions in your own code first. Never ship it, or its credentials, to
-a browser.
-
----
-
-## Installation
-
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/firebase-admin firebase-admin
 ```
-
-Add `@hyper-fetch/sockets` for live listeners.
 
 ---
 
 ## Setup
 
-```ts
-import { Client } from "@hyper-fetch/core";
+1. Initialize the Admin SDK once and pass the database to `FirebaseAdminAdapter`. The instance decides the methods, as
+   in the [web package](/docs/integrations/adapter-firebase/overview#setup).
+
+```ts title="server/firebase.ts"
+import { createClient } from "@hyper-fetch/core";
 import { FirebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
-import { cert, initializeApp } from "firebase-admin/app";
+import { applicationDefault, cert, getApps, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
-initializeApp({ credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT!)) });
+const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT; // JSON from a secret manager, never committed
 
-export const client = new Client({ url: "" }).setAdapter(FirebaseAdminAdapter(getFirestore()));
+const app =
+  getApps()[0] ??
+  initializeApp({ credential: serviceAccount ? cert(JSON.parse(serviceAccount)) : applicationDefault() });
 
-type Order = { __key: string; status: "open" | "paid"; total: number };
+export const db = getFirestore(app);
+export const client = createClient({ url: "" }).setAdapter(FirebaseAdminAdapter(db));
+```
 
-const getOrders = client.createRequest<{ response: Order[] }>()({
+2. Create a request with a Firebase path and method.
+
+```ts title="server/orders.ts"
+import type { FirestoreQueryParams } from "@hyper-fetch/firebase-admin";
+
+import { client } from "./firebase";
+
+export type Order = { status: "open" | "paid"; total: number };
+
+export const getOrders = client.createRequest<{
+  response: (Order & { __key: string })[];
+  queryParams?: FirestoreQueryParams<Order>;
+}>()({
   endpoint: "orders",
   method: "getDocs",
 });
-
-const { data, error } = await getOrders.send();
 ```
 
-Use `getDatabase()` from `firebase-admin/database` for Realtime Database; `initializeApp` then needs a `databaseURL`.
+3. Send it from server code, after you checked who is asking.
 
-| Database instance | Methods                                                           | Default method |
-| ----------------- | ----------------------------------------------------------------- | -------------- |
-| `getFirestore()`  | `getDoc`, `getDocs`, `addDoc`, `setDoc`, `updateDoc`, `deleteDoc` | `getDoc`       |
-| `getDatabase()`   | `get`, `set`, `push`, `update`, `remove`                          | `get`          |
+```ts title="server/routes/orders.ts"
+import { getOrders } from "../orders";
+
+const { data, error } = await getOrders.send({ queryParams: (c) => c.where("status", "==", "open").limit(50) });
+```
+
+For the Realtime Database pass `getDatabase(app)` from `firebase-admin/database`, and give `initializeApp` a
+`databaseURL`.
 
 :::danger Admin access bypasses security rules
 
-1.  The Admin SDK reads and writes everything, whatever your security rules say. Check who may do what in your own code
-    before you send a request.
-2.  Keep service account credentials on the server. Browser code uses
-    [`@hyper-fetch/firebase`](/docs/integrations/adapter-firebase/overview).
+1. The Admin SDK reads and writes everything, whatever your security rules say. Authorize every operation in your own
+   code, for example after `getAuth().verifyIdToken(token)`.
+2. Path params are inserted into the Firebase path. Reject values with `/`, which change the target document.
+3. Keep credentials on the server. Browser code uses [`@hyper-fetch/firebase`](/docs/integrations/adapter-firebase/overview).
 
 :::
 
 ---
 
-## Paths and responses
+## How it maps
 
-Paths, responses and querying work like the web package, apart from the
-[differences](#differences-from-hyper-fetchfirebase) below:
+The same mapping as the [web package](/docs/integrations/adapter-firebase/overview#how-it-maps), with the Admin SDK
+underneath:
 
-- The Firebase path is `client.url + endpoint`. An odd number of segments is a collection or list, an even number a
-  document or value.
-- Responses are `{ data, error, status, success, extra }`, with `status` `"success"`, `"emptyResource"` or `"error"`.
-- Documents and list items carry `__key`, their id.
-- Queries are a `queryParams` callback, checked against the document type when the request declares it:
+| Firebase Admin SDK                                       | HyperFetch                                                                     |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Database instance                                        | `FirebaseAdminAdapter(db)` on the client                                       |
+| Path (`db.doc("orders/1")`, `db.ref("sessions")`)        | `client.url + endpoint`, with `:params`                                        |
+| Reference method (`get`, `set`, `add`, `push`, ...)      | request `method`, named like the web SDK (`getDocs`, `setDoc`, `push`, ...)    |
+| Data you write                                           | `payload`                                                                      |
+| `set(data, { merge: true })`                             | request `options: { merge: true }`                                             |
+| Query (`where`, `orderBy`, `limit`, ...)                 | `queryParams` callback or `$`-helper array, part of the cache key              |
+| Document data and id                                     | `data`, with the id as `__key`                                                 |
+| Thrown error                                             | `error`, with `status: "error"`                                                |
+| `onSnapshot`, `on("value")`                              | a `Listener` on a `Socket` with `FirebaseSocketsAdminAdapter`, path in `topic` |
 
-```ts
+---
+
+## Paths
+
+Same rules as the [web package](/docs/integrations/adapter-firebase/overview#paths): the path is
+`client.url + endpoint`, an odd number of segments is a collection or list, and an even number a document or value.
+
+---
+
+## Responses
+
+Same as the [web package](/docs/integrations/adapter-firebase/overview#responses): `status` is `"success"`,
+`"emptyResource"` or `"error"`, and documents and list items carry `__key`. The one difference is Firestore `setDoc`,
+whose `data` is the Admin SDK `WriteResult` instead of the payload.
+
+---
+
+## Querying
+
+Same chain as the [web package](/docs/integrations/adapter-firebase/overview#querying), checked against the document
+type you pass to `FirestoreQueryParams` or `RealtimeDBQueryParams` from `@hyper-fetch/firebase-admin`.
+
+```ts title="server/orders.ts"
 const { data } = await getOrders.send({
   queryParams: (c) => c.where("status", "==", "open").orderBy("total", "desc").limit(50),
 });
 ```
 
-See the [Firebase adapter overview](/docs/integrations/adapter-firebase/overview) for the full rules.
+---
+
+## Live data
+
+Create a socket with `FirebaseSocketsAdminAdapter` to react to changes from a worker, described in
+[realtime listening](/docs/integrations/adapter-firebase-admin/realtime-queries).
+
+```ts title="server/live.ts"
+import { Socket } from "@hyper-fetch/sockets";
+import { FirebaseSocketsAdminAdapter } from "@hyper-fetch/firebase-admin";
+
+import { db } from "./firebase";
+
+export const socket = new Socket({ url: "", adapter: FirebaseSocketsAdminAdapter(db) });
+```
 
 ---
 
-## Differences from `@hyper-fetch/firebase`
+## Web and admin differences
 
-| Topic                                     | `@hyper-fetch/firebase` (web)                | `@hyper-fetch/firebase-admin` (server)         |
-| ----------------------------------------- | -------------------------------------------- | ---------------------------------------------- |
-| Request adapter                           | `FirebaseAdapter`                            | `FirebaseAdminAdapter`                         |
-| Socket adapter                            | `FirebaseSocketsAdapter`                     | `FirebaseSocketsAdminAdapter`                  |
-| Security rules                            | enforced for the signed-in user              | bypassed                                       |
-| Firestore `setDoc` `data`                 | the payload                                  | the Admin SDK `WriteResult`                    |
-| Firestore socket `connect` / `disconnect` | toggle the network of the instance           | throw; stop listeners with their stop function |
-| Realtime document listener `data`         | the value                                    | the value plus `__key`                         |
-| Firestore listener `extra`                | `ref`, `snapshot`, `status`, `groupedResult` | the same, plus `unsubscribe`                   |
+The two packages share methods, paths, responses and constraints. These are the differences:
 
-:::note When to use it
-
-- API routes and server actions that read or write Firebase on behalf of a user you already authorized.
-- Background jobs and scripts where retries, queues and typed responses save you wiring.
-- Code shared between server and browser that should look the same on both sides.
-
-:::
+| Topic                                        | `@hyper-fetch/firebase` (web)                | `@hyper-fetch/firebase-admin` (server)         |
+| -------------------------------------------- | -------------------------------------------- | ---------------------------------------------- |
+| Runs                                         | in browsers and React Native, as the user    | on servers, with a service account             |
+| Request adapter                              | `FirebaseAdapter`                            | `FirebaseAdminAdapter`                         |
+| Socket adapter                               | `FirebaseSocketsAdapter`                     | `FirebaseSocketsAdminAdapter`                  |
+| Security rules                               | enforced for the signed-in user              | bypassed                                       |
+| Firestore `setDoc` `data`                    | the payload                                  | the Admin SDK `WriteResult`                    |
+| Firestore socket `connect()`, `disconnect()` | toggle the network of the instance           | throw, stop listeners with their stop function |
+| Realtime document listener `data`            | the value                                    | the value plus `__key`                         |
+| Firestore listener `extra`                   | `ref`, `snapshot`, `status`, `groupedResult` | the same, plus `unsubscribe`                   |
+| Documents in `groupedResult`                 | with `__key`                                 | without `__key`                                |
+| `@hyper-fetch/db` collections                | `firestoreCollection`                        | not available                                  |
 
 ---
 
 :::secondary Summary
 
-1.  Pass `getFirestore()` or `getDatabase()` from `firebase-admin` to `FirebaseAdminAdapter`.
-2.  Paths, responses, `__key` and `queryParams` callbacks match the web package.
-3.  Admin access bypasses security rules, so authorize in your own code.
-4.  `setDoc` returns the `WriteResult`, and the Firestore socket cannot connect or disconnect.
+- Pass `getFirestore()` or `getDatabase()` from `firebase-admin` to `FirebaseAdminAdapter`.
+- Paths, responses, `__key` and `queryParams` match the web package.
+- Admin access bypasses security rules, so authorize in your own code.
+- `setDoc` returns the `WriteResult`, and the Firestore socket cannot connect or disconnect.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="Firestore"
+  description="Firestore methods and queries with the Admin SDK."
+  to="/docs/integrations/adapter-firebase-admin/firestore"
+/>
+
+<LinkCard
+  type="docs"
+  title="Realtime Database"
+  description="Realtime Database methods and queries with the Admin SDK."
+  to="/docs/integrations/adapter-firebase-admin/realtime"
+/>
+
+<LinkCard
+  type="docs"
+  title="Realtime listening"
+  description="Listen to changes from Node.js workers."
+  to="/docs/integrations/adapter-firebase-admin/realtime-queries"
+/>
+
+<LinkCard
+  type="api"
+  title="FirebaseAdminAdapter API reference"
+  description="The adapter factory and its method, status and extra types."
+  to="/docs/api/adapter-firebase-admin/Functions/FirebaseAdminAdapter"
+/>

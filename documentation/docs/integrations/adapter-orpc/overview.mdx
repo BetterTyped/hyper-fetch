@@ -7,255 +7,204 @@ sidebar_label: Overview
 
 # oRPC client for React with caching and hooks
 
-[Read the API Reference »](/docs/api/adapter-orpc/Functions/OrpcAdapter.mdx)
-
-`@hyper-fetch/orpc` is an oRPC client for HyperFetch. Your oRPC server and router stay as they are, and the frontend
-calls procedures through `createRequest`, `send()` and the React hooks you use for REST and GraphQL. Types come from
-your router or contract, rich types go through the oRPC serializer, and every call gets caching, deduplication, retries
-and offline queues.
+`@hyper-fetch/orpc` calls the procedures of an [oRPC](https://orpc.dev/docs/getting-started) `RPCHandler` as HyperFetch
+requests, typed from your router or contract. Use it instead of `createORPCClient` when you want one client for oRPC,
+REST, GraphQL and sockets, with caching, deduplication, retries, offline queues and the React hooks.
 
 :::tip Purpose
 
-1. **Call oRPC procedures** with the same request API you use for REST and GraphQL.
-2. **Infer types from your router or contract** through the regular `createSdk`.
+1. **Call oRPC procedures** with the request API you use for REST and GraphQL.
+2. **Infer types from your router or contract** through the regular [`createSdk`](/docs/core/sdk).
 3. **Keep rich types** such as `Date`, `BigInt`, `Map`, `Set` and files, encoded by the oRPC serializer.
-4. **Cache every input separately**, without writing query keys by hand.
-5. **Listen to event iterators** over HTTP streams or WebSockets, with the
-   [socket adapters](/docs/integrations/adapter-orpc/event-iterators.mdx).
+4. **Listen to event iterators** over HTTP streams or a WebSocket, see
+   [event iterators](/docs/integrations/adapter-orpc/event-iterators).
 
 :::
 
 ---
 
-## What oRPC is, and where this adapter fits
+## Install
 
-[oRPC](https://orpc.dev/docs/getting-started) is a TypeScript library for typesafe APIs. You write procedures, group
-them in a router, and the client calls them like local functions with types inferred from the server. No code
-generation. The same router can also be served as a REST API with an OpenAPI spec, and you can start from a contract
-instead of an implementation.
+`@orpc/client` (v1) is a required peer dependency: the adapter encodes data with its serializer, so client and server
+always speak the same format. `@orpc/server` is only needed for the `OrpcSchema<typeof router>` type.
 
-oRPC ships its own client, `createORPCClient` with an `RPCLink`, and a TanStack Query integration for React. This
-adapter is the alternative on the client side: HyperFetch sends the same RPC requests, encoded with the same serializer
-from `@orpc/client`, and adds its own cache, queues and hooks on top.
-
-| You want                                              | Use                                  |
-| ----------------------------------------------------- | ------------------------------------ |
-| A thin typed client with no extra cache               | `createORPCClient`                   |
-| oRPC inside an app that already uses TanStack Query   | oRPC's TanStack Query integration    |
-| One client for oRPC, REST, GraphQL and sockets, with offline queues | `@hyper-fetch/orpc`    |
-
----
-
-## Installation
-
-Install the adapter next to the core package and `@orpc/client`. The adapter encodes the data with the oRPC serializer
-from `@orpc/client`, so the client and the server always speak the same format. `@orpc/server` is only needed for the
-`OrpcSchema` type, and the project that imports your router type usually has it already.
-
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/orpc @orpc/client
 ```
 
 ---
 
-## Getting Started
+## Setup
 
-Point the client at the URL where your `RPCHandler` is mounted, and describe the router with `OrpcSchema`.
+1. Point the client at the URL where your `RPCHandler` is mounted.
 
-```ts
-import { createClient, createSdk } from "@hyper-fetch/core";
+```ts title="api/client.ts"
+import { createClient } from "@hyper-fetch/core";
 import { OrpcAdapter } from "@hyper-fetch/orpc";
+
+export const client = createClient({ url: "http://localhost:3000/rpc" }).setAdapter(OrpcAdapter());
+```
+
+2. Describe the router with `OrpcSchema` and create the SDK. `camelCaseToKebabCase: false` keeps procedure names as
+   written in the router (`findById`, not `find-by-id`).
+
+```ts title="api/sdk.ts"
+import { createSdk } from "@hyper-fetch/core";
 import type { OrpcSchema } from "@hyper-fetch/orpc";
 
-import type { router } from "./server";
+import type { router } from "../server/router";
+import { client } from "./client";
 
-const client = createClient({ url: "http://localhost:3000/rpc" }).setAdapter(OrpcAdapter());
-
-const api = createSdk<typeof client, OrpcSchema<typeof router>>(client, { camelCaseToKebabCase: false });
-
-const { data, error } = await api.planet.find.$query.setPayload({ id: 1 }).send();
+export const api = createSdk<typeof client, OrpcSchema<typeof router>>(client, { camelCaseToKebabCase: false });
 ```
 
-`camelCaseToKebabCase: false` keeps procedure names as they are written in the router (`findById`, not `find-by-id`).
+3. Call procedures with `send()` or the hooks. Every procedure is available as `$query` and `$mutation`, and its input
+   is the payload.
 
-### Contract-first
-
-For contract-first APIs, pass the client type of the contract. It works without `@orpc/server`.
-
-```ts
-import type { ContractRouterClient } from "@orpc/contract";
-
-import type { contract } from "./contract";
-
-const api = createSdk<typeof client, OrpcSchema<ContractRouterClient<typeof contract>>>(client, {
-  camelCaseToKebabCase: false,
-});
-```
-
-`OrpcSchema<RouterClient<typeof router>>` works the same way, so you can reuse the client type you already have.
-
----
-
-## Queries and mutations in React
-
-oRPC procedures have no kind, so every procedure is available both as `$query` and `$mutation`, the same way the oRPC
-query utils offer `queryOptions` and `mutationOptions` for every procedure. The procedure input is the request payload.
-
-```tsx
+```tsx title="Planet.tsx"
 import { useFetch, useSubmit } from "@hyper-fetch/react";
 
-const { data, loading } = useFetch(api.planet.find.$query.setPayload({ id: 1 }));
+import { api } from "./api/sdk";
 
-const { submit } = useSubmit(api.planet.create.$mutation);
-await submit({ payload: { name: "Earth" } });
+export const Planet = ({ id }: { id: number }) => {
+  const { data, loading } = useFetch(api.planet.find.$query.setPayload({ id }));
+  const { submit, submitting } = useSubmit(api.planet.create.$mutation);
+
+  if (loading) return <p>Loading...</p>;
+
+  return (
+    <button disabled={submitting} onClick={() => submit({ payload: { name: "Mars" } })}>
+      Add a planet next to {data?.name}
+    </button>
+  );
+};
 ```
 
-Like `GET` requests in the `HttpAdapter`, identical queries running at the same time are deduplicated by default.
-Mutations are not deduplicated.
-
-Both are sent as `POST {url}/planet/find` with the serialized input as a JSON body, which is what the oRPC `RPCHandler`
-accepts by default.
+For contract-first APIs pass the client type of the contract, which works without `@orpc/server`:
+`createSdk<typeof client, OrpcSchema<ContractRouterClient<typeof contract>>>(client, { camelCaseToKebabCase: false })`.
+`OrpcSchema<RouterClient<typeof router>>` works the same way.
 
 ---
 
-## GET queries
+## How it maps
 
-Set `queryMethod: "GET"` to send queries as `GET {url}/planet/find?data={"json":{"id":1}}`, which lets the browser,
-proxies and CDNs cache them. Mutations always use `POST`.
+| oRPC                                      | HyperFetch                                                                                    |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `RPCHandler` URL with its `prefix`        | client `url`                                                                                  |
+| Procedure path (`planet.find`)            | `endpoint` `planet/find`, or `api.planet.find` in the SDK                                     |
+| Procedure                                 | request with method `QUERY` (default, `$query`) or `MUTATION` (`$mutation`)                   |
+| Input                                     | `payload`, serialized with the oRPC serializer                                                |
+| Output                                    | `data`, with `Date`, `BigInt`, `Map`, `Set` and files restored                                |
+| `ORPCError`                               | `error` in the shape of `ORPCError.toJSON()`, with the response's HTTP `status`               |
+| Response headers                          | `extra.headers`                                                                               |
+| Event iterator procedure                  | a listener with `OrpcStreamAdapter` or `OrpcWebsocketAdapter`, see [event iterators](/docs/integrations/adapter-orpc/event-iterators) |
 
-```ts
-const client = createClient({ url: "http://localhost:3000/rpc" }).setAdapter(OrpcAdapter({ queryMethod: "GET" }));
+On the wire, both methods send `POST {url}/planet/find` with the serialized input, which is what `RPCHandler` accepts by
+default. The adapter adds the serialized input to the cache and query keys, so `{ id: 1 }` and `{ id: 2 }` are cached,
+deduplicated and queued separately. The abort key has no input, so `request.abort()` stops every running call of the
+procedure. Queries are deduplicated by default, mutations are not.
 
-// Use POST for one request
-const { data } = await api.planet.list.$query.setOptions({ queryMethod: "POST" }).send();
-```
+Without the SDK, create the request yourself:
 
-The `RPCHandler` accepts `GET` only for the procedures declared with `.route({ method: "GET" })`, unless its
-`strictGetMethodPluginEnabled` option is turned off. Other procedures fail with `METHOD_NOT_SUPPORTED` and the status
-`405`. Requests with files, or with a URL longer than 2083 characters, are sent with `POST`, the same as in the official
-`RPCLink`.
+```ts title="api/planets.ts"
+type Planet = { id: number; name: string };
 
----
-
-## Requests without the SDK
-
-The SDK is optional. `QUERY` and `MUTATION` are the methods of this adapter, and the endpoint is the procedure path.
-
-```ts
-const findPlanet = client.createRequest<{ response: Planet; payload: { id: number } }>()({
+export const findPlanet = client.createRequest<{ response: Planet; payload: { id: number } }>()({
   endpoint: "planet/find",
   method: "QUERY",
 });
-
-const createPlanet = client.createRequest<{ response: Planet; payload: { name: string } }>()({
-  endpoint: "planet/create",
-  method: "MUTATION",
-});
 ```
-
-`QUERY` is the default method. The paths `planet/find` and `/planet/find` point to the same procedure and share the
-cache.
 
 ---
 
-## Cache keys
+## Adapter options
 
-The adapter adds the serialized input to the cache and query keys, so `{ id: 1 }` and `{ id: 2 }` are cached,
-deduplicated and queued separately. A `Date` and its ISO string stay different keys. Files are compared by their name,
-type and size. The abort key does not contain the input, so `request.abort()` stops every running call of the procedure.
+| Option                  | Default  | Description                                                                         |
+| ----------------------- | -------- | ----------------------------------------------------------------------------------- |
+| `queryMethod`           | `"POST"` | HTTP method of `QUERY` requests. Mutations always use `POST`.                       |
+| `customJsonSerializers` | -        | Serializers of custom types. The server's `RPCHandler` needs the same list.          |
 
-A `cancelable` request replaces the running call with the same query key, which means the same input. To cancel the
-previous call when the input changes, for example in a search field, share the query key between the inputs.
+Request `options` are passed to `fetch` (except `method`, `headers`, `body` and `signal`), plus `timeout` in
+milliseconds (default `5000`) and a per-request `queryMethod`.
 
-```ts
-const search = api.planet.search.$query.setCancelable(true).setDeduplicate(false).setQueryKey("planet-search");
+```ts title="api/client.ts"
+export const client = createClient({ url: "http://localhost:3000/rpc" }).setAdapter(
+  OrpcAdapter({ queryMethod: "GET", customJsonSerializers: [moneySerializer] }),
+);
+
+const { data } = await api.planet.list.$query.setOptions({ queryMethod: "POST", timeout: 10000 }).send();
 ```
+
+With `queryMethod: "GET"`, queries go as `GET {url}/planet/find?data=...`, so browsers, proxies and CDNs can cache them.
+`RPCHandler` accepts `GET` only for procedures declared with `.route({ method: "GET" })`, unless you turn off its
+`strictGetMethodPluginEnabled` option; others fail with `METHOD_NOT_SUPPORTED` and status `405`. Requests with files,
+or with a URL longer than 2083 characters, are sent with `POST`, as in `RPCLink`.
 
 ---
 
 ## Errors
 
-Failed procedures resolve with the error sent by the server, in the shape of `ORPCError.toJSON()`, and the HTTP status
-of the response.
+Failed procedures resolve with the error the server sent and the HTTP status. With `OrpcSchema`, defined errors keep
+their code and data types, so checking `error.defined` and `error.code` narrows `error.data`.
 
-```ts
+```ts title="planet.ts"
 const { error, status } = await api.planet.find.$query.setPayload({ id: 999 }).send();
 
-status; // 404
-// `error` also includes the global error of the client (`Error` by default), so check for the oRPC shape first
-if (error && "defined" in error) {
-  error.defined; // true for the errors from the `.errors()` map of the procedure
-  error.code; // "NOT_FOUND"
-  error.status; // 404
-  error.message; // "Planet not found"
-  error.data; // { id: 999 }
+// `error` also includes the client's global error (`Error` by default), so check for the oRPC shape first
+if (error && "defined" in error && error.defined && error.code === "NOT_FOUND") {
+  console.log(status, error.message, error.data); // 404, "Planet not found", { id: 999 }
 }
 ```
 
-With `OrpcSchema` the defined errors keep their code and data type, so checking `error.defined` and `error.code` narrows
-`error.data`. Any other error has `defined: false`, and its data is `unknown`. For requests created by hand, use the
-exported `OrpcErrorType`.
-
-A response that did not come from a procedure, such as an HTML error page from a proxy, resolves with an
-`UnexpectedError` and the status of that response.
+Errors outside the `.errors()` map have `defined: false` and `unknown` data. A response that did not come from a
+procedure, such as an HTML page from a proxy, resolves with an `UnexpectedError`. For requests created by hand, type
+errors with `OrpcErrorType`.
 
 ---
 
-## Rich types and files
-
-The input and the output go through the oRPC serializer, so these types arrive as they were sent: `Date`, `BigInt`,
-`Map`, `Set`, `URL`, `RegExp`, `NaN` and `undefined` inside arrays. Object properties set to `undefined` are left out,
-the same as in JSON.
-
-```ts
-const { data } = await api.event.byDate.$query.setPayload({ date: new Date() }).send();
-
-data?.createdAt; // Date
-```
-
-An input with a `File` or a `Blob` is sent as `multipart/form-data`, and outputs with files are read the same way.
-
-```ts
-await api.planet.uploadImage.$mutation.setPayload({ planetId: 1, image: file }).send();
-```
-
-Custom types need the same `customJsonSerializers` on the server and in the adapter.
-
-```ts
-const client = createClient({ url }).setAdapter(OrpcAdapter({ customJsonSerializers: [moneySerializer] }));
-```
-
----
-
-## Options
-
-Request options are passed to `fetch`, with an additional `timeout` in milliseconds (5 seconds by default) and
-`queryMethod`.
-
-```ts
-const findPlanet = client.createRequest<{ response: Planet }>()({
-  endpoint: "planet/me",
-  options: { credentials: "include", timeout: 10000 },
-});
-```
-
-Query params are appended to the URL. The `data` key is reserved for the oRPC format and is skipped.
-
----
-
-## Limitations
+## Limits
 
 - Request batching is not supported.
-- Procedures returning an event iterator are left out of `OrpcSchema`. Listen to them with the socket adapters, see
-  [Event Iterators](/docs/integrations/adapter-orpc/event-iterators.mdx).
+- Event iterator procedures are left out of `OrpcSchema`. Use the [socket adapters](/docs/integrations/adapter-orpc/event-iterators).
 - The SDK can't reach a procedure named like a request property, such as `send` or `method`. Use `createRequest` with
   the procedure path for those.
+- A `cancelable` request only replaces a running call with the same input. To cancel on every keystroke of a search,
+  share one query key: `api.planet.search.$query.setCancelable(true).setDeduplicate(false).setQueryKey("planet-search")`.
+- Query params are appended to the URL. The `data` key is reserved by the oRPC format and skipped.
 
-:::secondary What you've learned
+---
 
-1. `OrpcAdapter` calls oRPC procedures with the RPC protocol, and `OrpcSchema` types them through `createSdk`.
-2. Every procedure is available as `$query` and `$mutation`, sent with `POST` or, for queries, with `GET`.
-3. The oRPC serializer keeps `Date`, `BigInt`, files and other rich types.
-4. Errors keep the `ORPCError` shape, and defined errors are typed by code.
+:::secondary Summary
+
+- `OrpcAdapter()` calls procedures with the RPC protocol, and `OrpcSchema` types them through `createSdk`.
+- Every procedure is available as `$query` and `$mutation`, and its input is the payload.
+- The oRPC serializer keeps `Date`, `BigInt`, files and other rich types.
+- Errors keep the `ORPCError` shape, and defined errors are typed by code.
 
 :::
+
+## Next steps
+
+Runnable examples: [oRPC](/examples/integrations/orpc), a contract-first API on Hono with a typed React client, and
+[oRPC event iterators](/examples/integrations/orpc-event-iterator).
+
+<LinkCard
+  type="docs"
+  title="Event iterators"
+  description="Stream oRPC async generators into typed listeners."
+  to="/docs/integrations/adapter-orpc/event-iterators"
+/>
+
+<LinkCard
+  type="docs"
+  title="SDK"
+  description="How createSdk builds typed requests from a schema."
+  to="/docs/core/sdk"
+/>
+
+<LinkCard
+  type="api"
+  title="OrpcAdapter API reference"
+  description="The adapter factory and its option, error and extra types."
+  to="/docs/api/adapter-orpc/Functions/OrpcAdapter"
+/>

@@ -1,153 +1,130 @@
 ---
 title: Managing Request Queues
-description: "Build a file upload queue in React with HyperFetch: add requests with useSubmit, show their progress with useQueue, and pause or resume the whole queue."
+description: "Build a file upload queue in React with HyperFetch: send requests one by one with setQueued, show their progress with useQueue, and stop or resume it."
 sidebar_label: Queues
 ---
 
 # Request Queues
 
-Request queuing is an advanced feature that gives you powerful control over request execution. It's particularly useful
-for scenarios like handling multiple file uploads, where you want to process them sequentially or in parallel in the
-background, without blocking the UI. The user can continue to interact with the application, and you can even provide
-controls to pause and resume the entire queue.
-
-HyperFetch handles this with a combination of `useSubmit` to add requests to a queue and `useQueue` to monitor and
-control it.
+A queued request waits for the previous one with the same query key and runs one at a time, in order. This guide builds
+a file upload queue: [`useSubmit`](/docs/react/hooks/use-submit) adds uploads, [`useQueue`](/docs/react/hooks/use-queue)
+shows each one with its progress, and the user can stop, pause or resume the queue.
 
 :::secondary What you'll learn
 
-1.  What **request queuing** is and when to use it.
-2.  How to **add requests** to a queue using `useSubmit`.
-3.  How to monitor a queue's state with the **`useQueue` hook**.
-4.  How to build a UI to display **queued requests** and their progress.
-5.  How to **pause** and **resume** the entire queue.
+1.  How to send requests **one by one** with `setQueued(true)`.
+2.  How to show **queued requests and their progress** with `useQueue`.
+3.  How to **stop, pause and start** the queue or a single request.
+4.  When a queue fits, and when **cancelable** or **deduplicated** requests fit better.
 
 :::
 
-## File Upload Queue
+---
 
-Let's build an example of a file upload queue. We'll allow the user to select multiple files, which will be added to a
-queue. The UI will display the status of each upload, and provide buttons to pause and resume the queue processing.
+## Send requests one by one
 
-```tsx
-// A component to display a single request from the queue
-function QueuedRequest({ request }) {
-  const { uploading, downloading, stopped, success, failed, canceled } = request;
-  const progress = uploading?.progress || downloading?.progress || 0;
+Mark the request as queued. Every `submit()` adds a request to the queue of its query key, and the dispatcher sends the
+next one when the previous one finishes.
 
-  let status = "pending";
-  if (stopped) status = "stopped";
-  if (canceled) status = "canceled";
-  if (failed) status = "error";
-  if (success) status = "finished";
+```ts title="api/files.ts"
+export const uploadFile = client
+  .createRequest<{ response: { url: string }; payload: FormData }>()({ endpoint: "/files", method: "POST" })
+  .setQueued(true);
+```
 
-  let statusColor = "text-gray-600";
-  if (status === "finished") statusColor = "text-green-600";
-  if (status === "error") statusColor = "text-red-600";
-  if (status === "stopped" || status === "canceled") statusColor = "text-yellow-600";
+---
 
-  return (
-    <div className="p-4 border-b">
-      <p className="font-semibold">File ID: {request.requestId.substring(0, 8)}</p>
-      <p className={`capitalize ${statusColor}`}>Status: {status}</p>
-      <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-        <div className="bg-purple-600 h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
-      </div>
-    </div>
-  );
-}
+## Show the queue with useQueue
 
-function UploadQueue() {
-  const fileInputRef = React.useRef(null);
+`useQueue` follows the queue of a request and returns its `requests`, each with `uploading` and `downloading` progress
+and `success`, `failed` and `canceled` flags. Finished requests leave the list, unless `keepFinishedRequests` is `true`.
 
-  // 1. Use useSubmit to add requests to the queue
-  // highlight-start
-  const { submit } = useSubmit(postFile.setQueued(true));
-  // highlight-end
+```tsx title="components/upload-queue.tsx"
+import { useSubmit, useQueue } from "@hyper-fetch/react";
+import { uploadFile } from "../api/files";
 
-  // 2. Use useQueue to monitor and control the queue
-  // highlight-start
-  const { requests, stopped, stop, start } = useQueue(postFile, { keepFinishedRequests: true });
-  // highlight-end
+export function UploadQueue() {
+  const { submit } = useSubmit(uploadFile);
+  const { requests, stopped, stop, start } = useQueue(uploadFile, { keepFinishedRequests: true });
 
-  const handleFileChange = (event) => {
-    const files = Array.from(event.target.files);
-    files.forEach((file) => {
-      const formData = new FormData();
-      formData.append("file", file);
-      // Each submit call adds a new request to the queue
-      submit({ payload: formData });
+  const onFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
+    Array.from(event.target.files ?? []).forEach((file) => {
+      const payload = new FormData();
+      payload.append("file", file);
+      submit({ payload });
     });
   };
 
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
-
   return (
-    <div className="border rounded-md">
-      <div className="p-4 border-b flex justify-between items-center">
-        <h2 className="text-xl font-bold">Upload Queue</h2>
-        <div>
-          <button
-            onClick={triggerFileInput}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2"
-          >
-            Add Files
-          </button>
-          <input type="file" multiple ref={fileInputRef} onChange={handleFileChange} className="hidden" />
-          {stopped ? (
-            <button onClick={start} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
-              Start
-            </button>
-          ) : (
-            <button onClick={stop} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-              Stop
-            </button>
-          )}
+    <div className="border rounded-md p-4">
+      <input type="file" multiple onChange={onFiles} />
+      <button onClick={stopped ? start : stop}>{stopped ? "Start" : "Stop"}</button>
+      {requests.map((item) => (
+        <div key={item.requestId} className="py-2 border-b">
+          <span>{item.success ? "Done" : item.failed ? "Failed" : item.stopped ? "Stopped" : "Waiting"}</span>
+          <progress value={item.uploading.progress} max={100} />
+          {!item.success && <button onClick={item.deleteRequest}>Remove</button>}
         </div>
-      </div>
-      <div>
-        {requests.length === 0 ? (
-          <p className="p-4 text-gray-500">No files in the queue.</p>
-        ) : (
-          requests.map((req) => <QueuedRequest key={req.requestId} request={req} />)
-        )}
-      </div>
+      ))}
     </div>
   );
 }
 ```
 
-### How It Works
+`useQueue` picks the dispatcher from the request method: the fetch dispatcher for `GET`, the submit dispatcher for the
+other methods. For a `GET` sent with `useSubmit`, pass `{ dispatcherType: "submit" }`.
 
-1.  **Enabling Queuing**: We tell a request that it should be part of a queue by using `.setQueued(true)` on the request
-    instance. Queued requests are sent one at a time, in the order they were submitted.
-2.  **`useSubmit`**: This hook is configured with our queue-enabled request. Every time we call its `submit` function,
-    it doesn't immediately send the request. Instead, it adds it to the queue associated with the `postFile` request.
-3.  **`useQueue`**: This hook listens to the state of the queue for the `postFile` request. It returns:
-    - `requests`: An array of the queue items (`requestId`, `request`, `stopped`, ...) with their `uploading` and
-      `downloading` progress and the `success`, `failed` and `canceled` flags. Finished requests leave the list unless
-      `keepFinishedRequests` is `true`.
-    - `stopped`: A boolean indicating if the queue is currently stopped.
-    - `stop`: A function to stop the queue. It cancels the ongoing requests.
-    - `pause`: A function to pause the queue. Ongoing requests finish, the next ones wait.
-    - `start`: A function to resume the queue.
-4.  **The UI**: We map over the `requests` array to display each queued item's status and progress. Buttons are wired to
-    the `stop` and `start` functions to control the queue. An invisible file input is used to allow the user to select
-    files to upload.
+---
 
-This pattern is incredibly powerful for managing background tasks and giving users fine-grained control over them.
+## Stop, pause and start
+
+| Control                  | Effect                                                              |
+| ------------------------ | ------------------------------------------------------------------- |
+| `stop()`                 | Stops the queue and cancels the requests in progress                |
+| `pause()`                | Lets the requests in progress finish, holds the next ones           |
+| `start()`                | Resumes the queue                                                   |
+| `item.stopRequest()`     | Stops one request, and cancels it when it is running                |
+| `item.startRequest()`    | Resumes a stopped request                                           |
+| `item.deleteRequest()`   | Removes one request from the queue                                  |
+
+The queue lives in the client's dispatcher, not in the component, so it keeps running when the component unmounts and
+shows its current state when it mounts again.
+
+---
+
+## Queue, cancel or deduplicate
+
+| You want                                                  | Use                                                            |
+| --------------------------------------------------------- | -------------------------------------------------------------- |
+| Every call sent, in order, one at a time                  | `setQueued(true)`                                              |
+| Only the latest call matters, older ones are aborted      | `setCancelable(true)`                                          |
+| Identical calls at the same time share one request        | `setDeduplicate(true)`                                         |
+| Calls made offline are sent once the network is back      | Default behavior, see [offline](/docs/guides/core/advanced/offline) |
+
+Queued uploads of different endpoints run in parallel, because each query key has its own queue.
 
 ---
 
 :::success Congratulations!
 
-You've learned how to manage request queues in HyperFetch!
+You can now run requests in a controlled queue.
 
-- You can enable **queuing** on a request-by-request basis.
-- You can add jobs to a queue using **`useSubmit`**.
-- You can monitor and control queues using the **`useQueue`** hook.
-- You can build complex UIs for **background task management**.
+- You can send requests **one by one** with `setQueued(true)`.
+- You can show **each queued request** and its progress with `useQueue`.
+- You can **stop, pause and resume** the queue or a single request.
+- You know when to use **cancelable** or **deduplicated** requests instead.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="useQueue reference"
+  description="Options and returned values of the queue hook."
+  to="/docs/react/hooks/use-queue"
+/>
+
+- Guides: [queueing in core](/docs/guides/core/advanced/queueing), [progress](/docs/guides/react/basics/progress).
+- Runnable examples: [queue](/examples/request-control/queue), [offline queue](/examples/offline/offline-queue),
+  [file upload](/examples/mutations/file-upload).

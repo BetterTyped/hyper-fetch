@@ -31,7 +31,7 @@ abort key. The status filters narrow the list further and work together with the
 | **Success**     | Finished with a successful response                                              |
 | **Failed**      | Finished with an error, such as a `4xx` or `5xx` status, a timeout or a network error |
 | **In progress** | Are being sent or waiting for a response                                         |
-| **Paused**      | Wait in a [stopped queue](/docs/hyper-flow/features/queues.mdx)                  |
+| **Paused**      | Wait in a [stopped queue](/docs/hyper-flow/features/queues)                  |
 | **Canceled**    | Were aborted, for example by `request.abort()` or a newer `cancelable` request   |
 | **Removed**     | Were removed from a queue before they finished                                   |
 
@@ -45,7 +45,7 @@ third time to go back to the default order.
 />
 
 **Clear network** empties the list in HyperFlow and keeps your search and filter, so new requests are filtered the same
-way. It does not change anything in your app, and the [dashboard](/docs/hyper-flow/features/dashboard.mdx) statistics
+way. It does not change anything in your app, and the [dashboard](/docs/hyper-flow/features/dashboard) statistics
 keep counting.
 
 GraphQL requests are listed by their operation name instead of the whole document.
@@ -84,4 +84,29 @@ can paste a payload or response into a test.
 ## History limit
 
 HyperFlow keeps the latest 1,000 requests per app and drops the oldest as new ones arrive. Change the limit with
-**Network History Limit** in the app's [settings](/docs/hyper-flow/features/settings.mdx#network-history-limit).
+**Network History Limit** in the app's [settings](/docs/hyper-flow/features/settings#network-history-limit).
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Queues"
+      description="Stop a queue to hold requests and test loading states."
+      to="/docs/hyper-flow/features/queues"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Request"
+      description="The options you see under Request Details."
+      to="/docs/core/request"
+    />
+  </div>
+</div>
+
+The runnable [Devtools example](/examples/integrations/devtools) sends successful, failed, slow and canceled requests to try the filters on.

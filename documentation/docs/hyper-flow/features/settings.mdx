@@ -59,14 +59,14 @@ Open an app and select **Settings** at the bottom of its sidebar.
 
 ### Network history limit
 
-How many requests the [Network](/docs/hyper-flow/features/network.mdx) page keeps for this app. The default is 1,000.
+How many requests the [Network](/docs/hyper-flow/features/network) page keeps for this app. The default is 1,000.
 When the limit is reached, the oldest requests are dropped. Raise it to look further back, lower it if HyperFlow slows
 down with very busy apps.
 
 ### Simulated errors
 
 The errors you can choose from when you use **Simulate Error** on a
-[cache entry](/docs/hyper-flow/features/cache.mdx#change-an-entry). The built-in **Default** error has status `400` and
+[cache entry](/docs/hyper-flow/features/cache#change-an-entry). The built-in **Default** error has status `400` and
 cannot be changed or removed.
 
 <Screenshot
@@ -96,3 +96,26 @@ Hover an error to edit or remove it. Add the errors your UI handles differently,
 
 Apps you no longer use can be removed from the home screen: open the **⋮** menu on an app's card and select **Remove
 Application**.
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Cache"
+      description="Simulate an error on a cache entry."
+      to="/docs/hyper-flow/features/cache#change-an-entry"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Troubleshooting"
+      description="What to check when the server or an app does not connect."
+      to="/docs/hyper-flow/troubleshooting"
+    />
+  </div>
+</div>

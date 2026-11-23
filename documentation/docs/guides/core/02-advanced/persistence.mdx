@@ -6,244 +6,169 @@ sidebar_label: Persistence
 
 # Persistence
 
-Persistence in HyperFetch allows you to store cache and request queue data across application sessions. This is
-achieved by providing a custom storage implementation that can save and retrieve data from a persistent source like
-`localStorage` or `AsyncStorage`. This guide will walk you through setting up persistence for both cache and queues.
+The cache and the request queues live in memory, so a reload empties them. Give them a storage and they survive: the
+app opens with the last data, and writes made offline are sent on the next start. This guide covers cache persistence,
+queue persistence and the difference between sync and async storages.
 
 :::secondary What you'll learn
 
-1.  How to enable **data persistence** for caching and request queues.
-2.  The difference between **synchronous** and **asynchronous** persistence storages.
-3.  How to implement **cache persistence** to store data between sessions.
-4.  How to use **queue persistence** for offline support.
-5.  The **limitations** of using persistent queues in a browser environment.
-
-:::
-
-:::note
-
-Persistence storages can only handle JSON-serializable data. Remember that all file objects need to be converted to a
-format like Base64 to be stored correctly.
+1. The difference between a **sync `storage`** and an **async `lazyStorage`**.
+2. How to **persist the cache** in IndexedDB or MMKV.
+3. How to **persist request queues** for offline writes.
+4. What is **not kept**, and how to clear data on logout.
 
 :::
 
 ---
 
-## Cache Persistence
+## Sync storage or lazy storage
 
-To enable cache persistence, you need to provide a custom storage implementation to the `Cache` instance. This storage
-object must have `set`, `get`, `keys`, `delete`, and `clear` methods.
+Both the [Cache](/docs/core/cache) and the [Dispatcher](/docs/core/dispatcher) take one of two storages:
 
-```typescript
-// An example using MMKV for React Native
-import { MMKV } from "react-native-mmkv";
-import { Cache, Client, CacheStorageType } from "@hyper-fetch/core";
+| Option        | Shape                                         | Use it for                               |
+| ------------- | --------------------------------------------- | ---------------------------------------- |
+| `storage`     | Sync `get`, `set`, `keys`, `delete`, `clear`  | MMKV, or `localStorage` wrapped with JSON |
+| `lazyStorage` | Async `get`, `set`, `keys`, `delete`          | IndexedDB, AsyncStorage                  |
 
-export const storage = new MMKV({ id: "my-key" });
+A `storage` replaces the in-memory `Map`. A `lazyStorage` is a mirror next to it: every change is written to it, and
+data is read from it when it is not in memory. Values must be JSON-serializable, so convert files to Base64 or keep them
+out of the cache.
 
-const persistenceStorage: CacheStorageType = {
-  set: (key, data) => {
-    storage.set(key, JSON.stringify(data));
-  },
-  get: (key) => {
-    const value = storage.getString(key);
-    return value ? JSON.parse(value) : undefined;
-  },
-  keys: () => storage.getAllKeys(),
-  delete: (key) => storage.delete(key),
-  clear: () => storage.clearAll(),
-};
+---
 
-export const client = new Client({
-  url: "https://api.my-app.com",
-  // highlight-next-line
-  cache: () =>
-    new Cache({
-      storage: persistenceStorage,
-    }),
-});
-```
+## Persist the cache
 
-### Async Persistence Storages
+With IndexedDB through `idb-keyval`, pass a `lazyStorage`. A read that misses memory loads the entry from IndexedDB in
+the background and emits it to the readers.
 
-For asynchronous storages like `IndexedDB`, you can use the `lazyStorage` option. This approach loads data on-demand,
-which can improve performance by not loading the entire cache into memory at once. Data is fetched when `cache.get()` is
-called, and components are updated once the async operation completes.
+```ts title="src/api/client.ts"
+import { Cache, CacheAsyncStorageType, createClient } from "@hyper-fetch/core";
+import { del, get, keys, set } from "idb-keyval";
 
-```typescript
-// An example using idb-keyval for the browser
-import { get, set, del, keys } from "idb-keyval";
-import { Cache, Client, CacheAsyncStorageType } from "@hyper-fetch/core";
-
-const asyncStorage: CacheAsyncStorageType = {
-  set: (key, data) => set(key, data),
+const cacheStorage: CacheAsyncStorageType = {
   get: (key) => get(key),
-  keys: () => keys(),
+  set: (key, value) => set(key, value),
+  keys: () => keys() as Promise<string[]>,
   delete: (key) => del(key),
 };
 
-export const client = new Client({
-  url: "https://api.my-app.com",
-  // highlight-next-line
-  cache: () =>
-    new Cache({
-      lazyStorage: asyncStorage,
-    }),
+export const client = createClient({
+  url: "https://api.example.com",
+  // Bump the version when response shapes change, old entries are dropped
+  cache: () => new Cache({ lazyStorage: cacheStorage, version: "2" }),
 });
 ```
 
-With `revalidate: false`, `useFetch` waits for the lazy storage before it decides to fetch. Fresh persisted data is
-shown without a request, and only missing or stale data is fetched. With the default `revalidate: true` the request
-starts right away, and the persisted data is shown as soon as it is read.
+In React, `useFetch` with `revalidate: false` waits for the lazy storage before it decides to fetch, so fresh persisted
+data is shown without a request. With the default `revalidate: true` the request starts at once, and the persisted data
+is shown as soon as it is read.
 
-Clearing the cache with `client.cache.clear()` or `client.clear()` also removes every element from the lazy storage,
-using its `keys` and `delete` methods. Call it on logout, so the persisted data of one user is never loaded for the
-next one.
+For a sync store such as MMKV in React Native, pass a `storage` instead:
+
+```ts title="src/api/client.ts"
+import { Cache, CacheStorageType, createClient } from "@hyper-fetch/core";
+import { MMKV } from "react-native-mmkv";
+
+const mmkv = new MMKV({ id: "hyper-fetch-cache" });
+
+const cacheStorage: CacheStorageType = {
+  get: (key) => {
+    const value = mmkv.getString(key);
+    return value ? JSON.parse(value) : undefined;
+  },
+  set: (key, data) => mmkv.set(key, JSON.stringify(data)),
+  keys: () => mmkv.getAllKeys(),
+  delete: (key) => mmkv.delete(key),
+  clear: () => mmkv.clearAll(),
+};
+
+export const client = createClient({
+  url: "https://api.example.com",
+  cache: () => new Cache({ storage: cacheStorage }),
+});
+```
 
 ---
 
-## Queue Persistence
+## Persist request queues
 
-Queue persistence ensures that requests are not lost if the application closes or loses internet connection. When the
-application restarts, the dispatcher will attempt to resend any queued requests. To enable it, provide a synchronous
-`storage` (localStorage, MMKV) or an asynchronous `lazyStorage` (IndexedDB, AsyncStorage) to the `Dispatcher`.
+Give the `submitDispatcher` a storage to keep writes made offline through a reload. On start the dispatcher reads the
+persisted queues, puts their requests in front of the ones added meanwhile and sends them. Requests with `offline: true`
+wait for the connection first.
 
-The restored queue is sent right after the client is created, once the current task ends. The adapter, interceptors
-and plugins you chain after `new Client()` apply to the restored requests too. When the app starts offline, requests
-with the `offline` option wait for the connection. In the browser, a request canceled because the page is closing or
-reloading stays in the queue, so the next page load sends it again.
+```ts title="src/api/client.ts"
+import { createClient, Dispatcher, DispatcherAsyncStorageType } from "@hyper-fetch/core";
+import { createStore, del, get, keys, set } from "idb-keyval";
 
-When requests are stored in a JSON-serializing storage (e.g. MMKV, AsyncStorage), they are automatically reconstructed
-back into proper `Request` class instances when read from the queue. This means you can use any JSON-based storage
-without worrying about losing request functionality.
-
-:::caution
-
-Persistent queues are not recommended for browser environments due to concurrency issues between multiple tabs or
-windows. This can lead to duplicated requests and potential data corruption. They are best suited for environments like
-React Native where only a single instance of the application is running.
-
-:::
-
-### Fetching Request Persistence
-
-You can make requests persistent by providing storage to the `fetchDispatcher`.
-
-```typescript
-import { MMKV } from "react-native-mmkv";
-import { Client, Dispatcher, DispatcherStorageType } from "@hyper-fetch/core";
-
-export const storage = new MMKV({ id: "my-key" });
-
-const persistenceStorage: DispatcherStorageType = {
-  set: (key, data) => {
-    storage.set(key, JSON.stringify(data));
-  },
-  get: (key) => {
-    const value = storage.getString(key);
-    return value ? JSON.parse(value) : undefined;
-  },
-  keys: () => storage.getAllKeys(),
-  entries: function* () {
-    const keys = storage.getAllKeys();
-    for (const key of keys) {
-      yield [key, JSON.parse(storage.getString(key) || "null")];
-    }
-  },
-  delete: (key) => storage.delete(key),
-  clear: () => storage.clearAll(),
-};
-
-export const client = new Client({
-  url: "https://api.my-app.com",
-  // highlight-next-line
-  fetchDispatcher: () =>
-    new Dispatcher({
-      storage: persistenceStorage,
-    }),
-});
-```
-
-### Submit Request Persistence
-
-Similarly, requests sent to `submitDispatcher` can be persisted by providing storage to the `submitDispatcher`.
-
-```typescript
-import { MMKV } from "react-native-mmkv";
-import { Client, Dispatcher, DispatcherStorageType } from "@hyper-fetch/core";
-
-export const storage = new MMKV({ id: "my-key" });
-
-const persistenceStorage: DispatcherStorageType = {
-  set: (key, data) => {
-    storage.set(key, JSON.stringify(data));
-  },
-  get: (key) => {
-    const value = storage.getString(key);
-    return value ? JSON.parse(value) : undefined;
-  },
-  keys: () => storage.getAllKeys(),
-  entries: function* () {
-    const keys = storage.getAllKeys();
-    for (const key of keys) {
-      yield [key, JSON.parse(storage.getString(key) || "null")];
-    }
-  },
-  delete: (key) => storage.delete(key),
-  clear: () => storage.clearAll(),
-};
-
-export const client = new Client({
-  url: "https://api.my-app.com",
-  // highlight-next-line
-  submitDispatcher: () =>
-    new Dispatcher({
-      storage: persistenceStorage,
-    }),
-});
-```
-
-### Async Queue Storage
-
-Asynchronous storages like IndexedDB go to the `lazyStorage` option. The queue in memory stays the source of truth:
-every change is written to the lazy storage as JSON, in the order it happened. On start, the dispatcher reads the
-persisted queues, puts their requests in front of the ones added in the meantime, and sends them. A failing lazy
-storage is logged and never breaks the requests.
-
-```typescript
-import { get, set, del, keys } from "idb-keyval";
-import { Client, Dispatcher, DispatcherAsyncStorageType } from "@hyper-fetch/core";
+// A separate store, so queue entries never mix with cache entries
+const queueStore = createStore("hyper-fetch", "submit-queue");
 
 const queueStorage: DispatcherAsyncStorageType = {
-  set: (key, data) => set(`queue:${key}`, data),
-  get: (key) => get(`queue:${key}`),
-  keys: async () =>
-    (await keys())
-      .map(String)
-      .filter((key) => key.startsWith("queue:"))
-      .map((key) => key.slice("queue:".length)),
-  delete: (key) => del(`queue:${key}`),
+  get: (key) => get(key, queueStore),
+  set: (key, data) => set(key, data, queueStore),
+  keys: () => keys(queueStore) as Promise<string[]>,
+  delete: (key) => del(key, queueStore),
 };
 
-export const client = new Client({
-  url: "https://api.my-app.com",
-  // highlight-next-line
+export const client = createClient({
+  url: "https://api.example.com",
   submitDispatcher: () => new Dispatcher({ lazyStorage: queueStorage }),
 });
 ```
 
-Requests are saved with `request.toJSON()`, so their functions (mappers, a function `retryTime`, `retryOnError`) are
-not kept. Use a separate store or key prefix for each dispatcher.
+The restored requests are sent once the current task ends, so the adapter, interceptors and plugins chained after
+`createClient` apply to them. A sync `DispatcherStorageType` also works, with an extra `entries` method. Give each
+dispatcher its own store or key prefix.
+
+:::caution Several browser tabs
+
+Every open tab reads the same persisted queue on start and may send its requests. Persist queues in the browser only
+when duplicates are harmless or the API is idempotent. They are safest where one instance of the app runs, such as
+React Native.
+
+:::
+
+---
+
+## What is not kept
+
+Requests are stored with `request.toJSON()`, so functions are lost: mappers, `setRetryOnError`, a function `retryTime`
+and `$hooks`. A restored request is rebuilt as a `Request` and uses the client's interceptors, so keep logic that must
+survive a reload in client interceptors rather than on the request.
+
+Call `client.clear()` on logout. It removes every queued request and empties the cache, including its lazy storage, so
+the next user never sees persisted data of the previous one.
+
+| Persist           | Option                                | Result after a reload                       |
+| ----------------- | ------------------------------------- | ------------------------------------------- |
+| Cache             | `Cache({ lazyStorage })` or `storage` | Screens open with the last data             |
+| Write queue       | `submitDispatcher` storage            | Offline writes are sent on the next start   |
+| Read queue        | `fetchDispatcher` storage             | Rarely needed, reads are repeated anyway    |
 
 ---
 
 :::success Congratulations!
 
-You've learned how to implement persistence in HyperFetch!
+You've learned how to persist data across sessions.
 
-- You can enable **cache persistence** using synchronous or asynchronous storages.
-- You know how to set up **queue persistence** for `fetchDispatcher` and `submitDispatcher`.
-- You understand how to create **custom storage adapters** for persistence.
-- You are aware of the **concurrency issues** with persistent queues in browsers.
+- You can pick a sync **`storage`** or an async **`lazyStorage`**.
+- You can **persist the cache** and bump its `version` when shapes change.
+- You can **persist write queues** so offline changes survive a reload.
+- You can clear everything on logout with **`client.clear()`**.
 
 :::
+
+Runnable examples: [Cache persistence](/examples/offline/cache-persistence),
+[IndexedDB persistence](/examples/offline/indexeddb-persistence), [Cache versions](/examples/offline/cache-versions) and
+[Resume after reload](/examples/offline/resume-after-reload).
+
+<LinkCard type="guides" title="Offline" description="Hold requests while offline and send them later." to="/docs/guides/core/advanced/offline" />
+
+<LinkCard type="docs" title="Cache" description="Freshness, invalidation and storage options." to="/docs/core/cache#persist-the-cache" />
+
+<LinkCard
+  type="api"
+  title="Cache API reference"
+  description="Every method of the Cache class."
+  to="/docs/api/core/Classes/Cache"
+/>

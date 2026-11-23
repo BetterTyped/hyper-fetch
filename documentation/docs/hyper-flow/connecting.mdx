@@ -88,14 +88,14 @@ You can start HyperFlow and your app in any order. While HyperFlow is closed, th
 growing delay, starting at 3 seconds, up to 100 times. It keeps the latest 1,000 events meanwhile and sends them once it
 connects.
 
-If your app does not show up, see [Troubleshooting](/docs/hyper-flow/troubleshooting.mdx).
+If your app does not show up, see [Troubleshooting](/docs/hyper-flow/troubleshooting).
 
 ---
 
 ## Inspect sockets and dbs
 
 Pass the sockets and `@hyper-fetch/db` dbs you want to see. They appear under the same app, on the
-[Sockets](/docs/hyper-flow/features/sockets.mdx) and [DB](/docs/hyper-flow/features/db.mdx) pages.
+[Sockets](/docs/hyper-flow/features/sockets) and [DB](/docs/hyper-flow/features/db) pages.
 
 ```ts title="api/client.ts"
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
@@ -157,7 +157,7 @@ the same app in several places.
 | ------------- | ------------------------ | ------------------------------------------------------------------------------------ |
 | `appName`     | required                 | The name HyperFlow shows. Apps with the same name are treated as one app.           |
 | `environment` | the `appName`            | A badge on the app's card, shown when it differs from the name.                     |
-| `url`         | `"ws://localhost:2137"`  | Where HyperFlow listens. Change it when you [change the port](/docs/hyper-flow/features/settings.mdx#server-port). |
+| `url`         | `"ws://localhost:2137"`  | Where HyperFlow listens. Change it when you [change the port](/docs/hyper-flow/features/settings#server-port). |
 | `sockets`     | `[]`                     | `@hyper-fetch/sockets` instances to show on the Sockets page.                       |
 | `dbs`         | `[]`                     | `@hyper-fetch/db` dbs to show on the DB page.                                       |
 | `WebSocket`   | the global `WebSocket`   | The WebSocket class to connect with. Pass the one from `ws` on Node.js 18 and 20.   |
@@ -168,6 +168,32 @@ the same app in several places.
 :::secondary Summary
 
 You installed the plugin, added it to your client in development, and saw your app connect. Next, take the
-[interface tour](/docs/hyper-flow/interface.mdx) to find your way around.
+[interface tour](/docs/hyper-flow/interface) to find your way around.
 
 :::
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Tour the interface"
+      description="Find your way around the home screen and an app's pages."
+      to="/docs/hyper-flow/interface"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="integrations"
+      title="Devtools plugin"
+      description="The plugin's setup for every framework and runtime."
+      to="/docs/integrations/plugin-devtools"
+    />
+  </div>
+</div>
+
+The runnable [Devtools example](/examples/integrations/devtools) adds the plugin in development only, as shown above. The
+[DevtoolsPlugin API reference](/docs/api/plugin-devtools/Functions/DevtoolsPlugin) lists its options and types.

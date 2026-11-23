@@ -1,13 +1,15 @@
 ---
 sidebar_position: 5
 title: DB Server Rendering
+description: "Render @hyper-fetch/db queries on the server: one db per request, load with query.get(), send db.dehydrate() and start the client db from it."
 sidebar_label: Server Rendering
 ---
 
 # Server rendering
 
-> On the server, each request gets its own db. Queries load before rendering, `db.dehydrate()` captures their rows,
-> and the client's db starts from them, so its first render matches the server's.
+On the server, each request gets its own db. Queries load before rendering, `db.dehydrate()` captures their rows, and
+the client's db starts from them, so its first render matches the server's. Components read the db through
+[`DbProvider`](/docs/react/db/db-provider).
 
 :::tip Purpose
 
@@ -21,7 +23,7 @@ sidebar_label: Server Rendering
 
 ## Server
 
-```tsx
+```tsx title="server.tsx"
 import { createDb, eq } from "@hyper-fetch/db";
 import type { DbOptions } from "@hyper-fetch/db";
 import { DbProvider } from "@hyper-fetch/react";
@@ -49,7 +51,7 @@ const state = db.dehydrate(); // send it with the page, for example as JSON
 
 ## Client
 
-```tsx
+```tsx title="client.tsx"
 const db = createAppDb({ state });
 
 hydrateRoot(
@@ -72,3 +74,15 @@ hydrateRoot(
 - Start the client's db with `createDb(collections, { state })`, and give it to components with `DbProvider`.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Server rendering with Next.js"
+  description="Dehydrate and hydrate a db with the App Router, the Pages Router and other frameworks."
+  to="/docs/guides/db/patterns/server-rendering"
+/>
+
+- Related: [`DbProvider` and `useDb`](/docs/react/db/db-provider), [HTTP cache hydration](/docs/react/hydrate),
+  [`DehydratedDb` type](/docs/api/db/Types/DehydratedDb).

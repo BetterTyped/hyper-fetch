@@ -7,41 +7,40 @@ sidebar_label: Overview
 
 # NestJS
 
-NestJS describes your controllers and DTOs as an OpenAPI document through `@nestjs/swagger`. The HyperFetch CLI reads
-that document and writes a typed SDK, so your frontend calls every route with the response, payload, params and query
-types of your DTOs. There is no NestJS package to install: the OpenAPI document is the contract.
-
----
+`@nestjs/swagger` describes your NestJS controllers and DTOs as an OpenAPI document, and the
+[HyperFetch CLI](/docs/cli/overview) turns that document into a typed SDK. The frontend then calls every route with the
+response, payload, params and query types of your DTOs. There is no NestJS package to install.
 
 :::tip Purpose
 
-1.  **No glue package**: `@nestjs/swagger` and the HyperFetch CLI are all you need.
-2.  **Types from your DTOs**: Responses, bodies, path params and query params come from the DTOs you already have.
-3.  **One command to resync**: Change a controller, run the generate script, and the compiler shows every call to fix.
+1. **No glue package**: `@nestjs/swagger` and the CLI are all you need.
+2. **Types from your DTOs**: responses, bodies, path params and query params come from the DTOs you already have.
+3. **One command to resync**: change a controller, regenerate, and the compiler shows every call to fix.
 
 :::
 
 ---
 
-## How it fits together
+## Install
 
-| Step | Where    | What happens                                                          |
-| ---- | -------- | --------------------------------------------------------------------- |
-| 1    | NestJS   | `@nestjs/swagger` serves the OpenAPI document as JSON                 |
-| 2    | Terminal | `@hyper-fetch/cli generate` reads it and writes `src/api/nest.sdk.ts` |
-| 3    | Frontend | `createSdk(client)` gives you `sdk.users.$get` and the other requests |
+On the server, install the Swagger module. In the frontend, install HyperFetch and the CLI:
+
+```bash title="server"
+npm install @nestjs/swagger
+```
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core
+npm install -D @hyper-fetch/cli
+```
 
 ---
 
 ## 1. Serve the OpenAPI document
 
-Install the Swagger module in your NestJS app and register it in `main.ts`:
+Build the document in `main.ts` and mount it with `SwaggerModule.setup()`:
 
-```bash
-npm install @nestjs/swagger
-```
-
-```ts title="main.ts"
+```ts title="server/src/main.ts"
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
@@ -49,87 +48,82 @@ import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const config = new DocumentBuilder().setTitle("Shop API").setVersion("1.0").build();
 
-  const config = new DocumentBuilder()
-    .setTitle("Shop API")
-    .setVersion("1.0")
-    .build();
   // highlight-next-line
-  SwaggerModule.setup("docs", app, () =>
-    SwaggerModule.createDocument(app, config),
-  );
+  SwaggerModule.setup("docs", app, () => SwaggerModule.createDocument(app, config));
 
   await app.listen(3000);
 }
 bootstrap();
 ```
 
-The UI is now on `http://localhost:3000/docs` and the JSON document on `http://localhost:3000/docs-json`. The CLI reads
-the JSON one.
-
-:::info DTO properties
-
-`@nestjs/swagger` only sees the DTO properties it is told about. Decorate them with `@ApiProperty()`, or add the Swagger
-CLI plugin to `nest-cli.json` so it reads them from your TypeScript types:
-
-```json title="nest-cli.json"
-{
-  "compilerOptions": {
-    "plugins": ["@nestjs/swagger"]
-  }
-}
-```
-
-:::
+The Swagger UI is on `http://localhost:3000/docs` and the JSON document on `http://localhost:3000/docs-json`. The CLI
+reads the JSON one.
 
 ---
 
 ## 2. Generate the SDK
 
-Run the CLI in your frontend project while the NestJS app is running:
+Run the CLI in the frontend project while the NestJS app is running:
 
-```bash
-npx @hyper-fetch/cli@latest generate --template openapi --url http://localhost:3000/docs-json --fileName nest.sdk.ts
+```bash title="frontend"
+npx hyper-fetch generate --template openapi --fileName nest.sdk.ts --overwrite \
+  --url http://localhost:3000/docs-json
 ```
 
-It writes `nest.sdk.ts` to `src/api`. On the first run it also creates `api.json` with that location. Every path becomes
-a key and every method a `$`-prefixed key on it, so `GET /users/{id}` is `sdk.users.$id.$get`.
+It writes `src/api/nest.sdk.ts`. The folder comes from `api.json`, which the first run creates. Every path becomes
+nested keys and every method a `$` key, so `GET /users/{id}` is `sdk.users.$id.$get`.
 
 ---
 
 ## 3. Call your API
 
-```ts
+```ts title="frontend/src/api/client.ts"
 import { createClient } from "@hyper-fetch/core";
 
-import { createSdk } from "./api/nest.sdk";
+import { createSdk } from "./nest.sdk";
 
 export const client = createClient({ url: "http://localhost:3000" });
 export const sdk = createSdk(client);
-
-// code-editor-split
-
-import { sdk } from "./client";
-
-// Typed from the DTO of GET /users/{id}
-const { data, error } = await sdk.users.$id.$get.setParams({ id: "42" }).send();
-
-// Typed from the DTO of POST /users
-await sdk.users.$post.send({
-  payload: { name: "Ada", email: "ada@example.com" },
-});
 ```
 
-The same requests work with `useFetch` and `useSubmit` from `@hyper-fetch/react`, with caching, retries and
-deduplication included.
+```ts title="frontend/src/users.ts"
+import { sdk } from "./api/client";
+
+// data is typed from the response DTO of GET /users/{id}
+const { data, error } = await sdk.users.$id.$get.setParams({ id: "42" }).send();
+
+// payload is typed from the body DTO of POST /users
+await sdk.users.$post.send({ payload: { name: "Ada", email: "ada@example.com" } });
+```
+
+Every entry is a regular [Request](/docs/core/request), so it also works with `useFetch` and `useSubmit` from
+[`@hyper-fetch/react`](/docs/react/overview).
+
+---
+
+## Framework quirks
+
+- **DTO properties**: `@nestjs/swagger` only sees the properties it is told about. Decorate them with
+  `@ApiProperty()`, or add the Swagger CLI plugin to `nest-cli.json` so it reads them from your TypeScript types:
+
+```json title="server/nest-cli.json"
+{
+  "compilerOptions": { "plugins": ["@nestjs/swagger"] }
+}
+```
+
+- **No running server**: write the document to a file in `main.ts` (`writeFileSync("openapi.json",
+  JSON.stringify(document))`) and pass that path to `--url`. A local path is resolved from the frontend project.
 
 ---
 
 ## Keep the SDK in sync
 
-Install the CLI in the frontend project and add a script, so regenerating is one command locally and in CI:
+Add a script so regenerating is one command locally and in CI. `-o` overwrites the old file without asking:
 
-```json title="package.json"
+```json title="frontend/package.json"
 {
   "scripts": {
     "api:generate": "hyper-fetch generate -t openapi -u http://localhost:3000/docs-json -f nest.sdk.ts -o"
@@ -137,16 +131,9 @@ Install the CLI in the frontend project and add a script, so regenerating is one
 }
 ```
 
-`-o` overwrites the old file without asking. To generate without a running server, write the document to a file in
-`main.ts` (`writeFileSync("openapi.json", JSON.stringify(document))`) and pass that path to `--url` instead.
+---
 
-:::note When it's helpful
-
-- Your frontend and NestJS backend live in different repositories, so they can't share TypeScript types.
-- You want a renamed DTO field to fail the frontend build instead of failing at runtime.
-- You already keep Swagger docs for your API and want the client to come from the same source.
-
-:::
+## Next steps
 
 <LinkCard
   type="docs"
@@ -154,11 +141,20 @@ Install the CLI in the frontend project and add a script, so regenerating is one
   description="Everything the generated SDK can do, from React hooks to regenerating it in CI."
   to="/docs/cli/openapi-typescript-client"
 />
+<LinkCard
+  type="integrations"
+  title="Example: OpenAPI codegen"
+  description="A runnable React app that generates its SDK from the Petstore OpenAPI spec."
+  to="/examples/integrations/openapi-codegen"
+/>
+
+See every flag of the CLI on the [generate command](/docs/cli/commands/generate) page, and per-endpoint defaults on the
+[SDK](/docs/core/sdk) page.
 
 :::secondary Summary
 
-- `@nestjs/swagger` serves your API as an OpenAPI document at `/docs-json`.
-- `@hyper-fetch/cli generate` turns that document into a typed SDK.
+- `@nestjs/swagger` serves your controllers and DTOs as an OpenAPI document at `/docs-json`.
+- `hyper-fetch generate` turns that document into a typed SDK.
 - `createSdk(client)` gives you typed requests for `send()`, `useFetch` and `useSubmit`.
 
 :::

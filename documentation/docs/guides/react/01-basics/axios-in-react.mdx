@@ -6,10 +6,10 @@ sidebar_label: Axios in React
 
 # Axios in React
 
-Using axios in react usually starts with one `axios.get` inside `useEffect`. That's fine for a first screen. Then the
-same problems show up in every component that fetches: a loading flag, an error state, a request that should stop when
-the user leaves, and a slow response that lands after a newer one. This page shows the plain Axios version first and
-what it needs to be correct, then the same component with Axios kept as the transport and HyperFetch hooks on top.
+Axios in React usually starts with `axios.get` inside `useEffect`, and every component then needs loading and error
+state, cancellation and protection against late responses. This guide shows the plain Axios version and what it takes to
+be correct, then keeps Axios as the transport and puts [`useFetch`](/docs/react/hooks/use-fetch) and
+[`useSubmit`](/docs/react/hooks/use-submit) on top.
 
 :::secondary What you'll learn
 
@@ -27,14 +27,14 @@ what it needs to be correct, then the same component with Axios kept as the tran
 
 Install Axios:
 
-```bash
+```bash npm2yarn2pnpm
 npm install axios
 ```
 
 Here is a component that loads one user. It is longer than the one-line version you usually see, because each extra
 line fixes a real bug:
 
-```tsx
+```tsx title="components/user-profile.tsx"
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -114,7 +114,7 @@ identical request is already in flight.
 
 The usual next step is to pull the effect into a hook:
 
-```tsx
+```tsx title="hooks/use-axios-get.ts"
 function useAxiosGet<T>(url: string) {
   const [state, setState] = useState<{ data: T | null; loading: boolean; error: Error | null }>({
     data: null,
@@ -155,10 +155,10 @@ This is the point where people reach for a data fetching library. You don't have
 
 ## Axios with HyperFetch hooks
 
-The [`@hyper-fetch/axios` adapter](../../../integrations/adapter-axios/overview.mdx) makes Axios the transport under
+The [`@hyper-fetch/axios` adapter](/docs/integrations/adapter-axios/overview) makes Axios the transport under
 HyperFetch. Axios still sends every request. HyperFetch adds the cache, deduplication, retries and the React hooks.
 
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/react @hyper-fetch/axios axios
 ```
 
@@ -185,7 +185,7 @@ export const getUser = client.createRequest<{ response: User }>()({
 
 ### Reading with useFetch
 
-```tsx
+```tsx title="components/user-profile.tsx"
 import { useFetch } from "@hyper-fetch/react";
 import { getUser } from "./api/client";
 
@@ -206,13 +206,13 @@ Here is what changed against the `useEffect` version:
   moves to the new entry, so a late response for user 1 is stored under user 1 and never shown as user 2.
 - **One request, not two.** If a request with the same key is already running when the hook mounts, it doesn't send
   another. That covers StrictMode's second effect run and two components mounting at once.
-- **Cached between screens.** Results stay in the cache, 5 minutes by default (`staleTime`). See
-  [cache revalidation](../../core/02-advanced/cache-revalidation.mdx).
+- **Cached between screens.** Results stay fresh for 5 minutes by default, change it with `staleTime`. See
+  [cache revalidation](/docs/guides/core/advanced/cache-revalidation).
 
 For search boxes, where every keystroke sends a request, set `cancelable: true`. A new request then aborts the pending
 ones in the same queue, and the adapter passes the abort signal to Axios:
 
-```ts
+```ts title="api/users.ts"
 export const searchUsers = client.createRequest<{ response: User[]; queryParams: { q: string } }>()({
   endpoint: "/users",
   cancelable: true,
@@ -223,13 +223,13 @@ export const searchUsers = client.createRequest<{ response: User[]; queryParams:
 const { data } = useFetch(searchUsers.setQueryParams({ q: search }));
 ```
 
-[Cancellation](../../core/02-advanced/cancellation.mdx) explains `cancelable`, `queryKey` and manual `abort()`.
+[Cancellation](/docs/guides/core/advanced/cancellation) explains `cancelable`, `queryKey` and manual `abort()`.
 
 ### Writing with useSubmit
 
 Writes go through `useSubmit`, which sends nothing until you call `submit`:
 
-```tsx
+```tsx title="components/rename-user.tsx"
 import { useSubmit } from "@hyper-fetch/react";
 
 const updateUser = client.createRequest<{ response: User; payload: { name: string } }>()({
@@ -252,14 +252,14 @@ function RenameUser({ userId }: { userId: number }) {
 ```
 
 The payload is typed by the request, so `submit({ payload: { name: 1 } })` fails to compile. More in
-[submitting](./submitting.mdx).
+[submitting](/docs/guides/react/basics/submitting).
 
 ### Upload progress
 
 Upload progress is the most common reason to keep Axios in a browser app, because `fetch` has no upload progress event.
 The adapter forwards Axios's upload events to `useSubmit`:
 
-```tsx
+```tsx title="Upload progress"
 const { submit, onSubmitUploadProgress } = useSubmit(uploadAvatar);
 
 onSubmitUploadProgress(({ progress, timeLeft }) => {
@@ -267,7 +267,7 @@ onSubmitUploadProgress(({ progress, timeLeft }) => {
 });
 ```
 
-The [upload progress guide](./progress.mdx) builds a full progress bar.
+The [upload progress guide](/docs/guides/react/basics/progress) builds a full progress bar.
 
 ---
 
@@ -286,7 +286,7 @@ Request `options` take Axios request config. A few fields are set by the adapter
 
 The adapter sends through the default `axios` export, so interceptors you register on `axios.interceptors` still run.
 An instance made with `axios.create()` is not used. Move its settings to request `options` and its interceptors to
-[client interceptors](../../core/02-advanced/intercepting.mdx), which work the same with any adapter.
+[client interceptors](/docs/guides/core/advanced/intercepting), which work the same with any adapter.
 
 ---
 
@@ -302,21 +302,43 @@ An instance made with `axios.create()` is not used. Move its settings to request
 | Retries                         | Not built in, often `axios-retry`     | `retry`, `retryTime`                             |
 | Upload progress                 | `onUploadProgress`                    | `onSubmitUploadProgress`                         |
 
-:::note When to use it
+### When to use it
 
 - You already use Axios and want caching and hooks without rewriting your requests as `fetch` calls.
 - Your app uploads files and needs real upload progress.
 - You need an Axios-only option such as `withCredentials`, `maxContentLength` or a Node `httpAgent`.
-- If you don't need any Axios feature, the default `fetch` adapter does the same job.
-  [Axios vs fetch](../../comparisons/axios-vs-fetch.mdx) compares the two.
+- If you need no Axios feature, the default `fetch` adapter does the same job.
+  [Axios vs fetch](/docs/guides/comparisons/axios-vs-fetch) compares the two.
+
+---
+
+:::success Congratulations!
+
+You can now use Axios in React without hand-written effects.
+
+- You can write a correct **`useEffect` fetch** with an `AbortController` cleanup, and you know its limits.
+- You can keep **Axios as the transport** with `@hyper-fetch/axios`.
+- You can read with **`useFetch`** and write with **`useSubmit`**, cached and deduplicated.
+- You can abort superseded requests with **`cancelable: true`** and show **upload progress**.
 
 :::
 
-:::secondary Summary
+## Next steps
 
-- An axios get request in `useEffect` needs loading state, error state and an `AbortController` cleanup to be correct.
-- The cleanup handles race conditions and makes StrictMode's double effect harmless, but can't share or cache requests.
-- `@hyper-fetch/axios` keeps Axios as the transport and adds `useFetch`, `useSubmit`, caching and deduplication.
-- `cancelable: true` aborts superseded requests, and upload progress comes through `onSubmitUploadProgress`.
+<LinkCard
+  type="integrations"
+  title="Axios adapter"
+  description="Install, configure and map Axios options in HyperFetch."
+  to="/docs/integrations/adapter-axios/overview"
+/>
 
-:::
+<LinkCard
+  type="guides"
+  title="Axios vs fetch"
+  description="When the default fetch adapter is enough and when Axios helps."
+  to="/docs/guides/comparisons/axios-vs-fetch"
+/>
+
+- Runnable examples: [Axios](/examples/integrations/axios), [upload progress](/examples/mutations/upload-progress),
+  [cancellation](/examples/request-control/cancellation).
+- Guides: [fetching data](/docs/guides/react/basics/fetching), [upload progress](/docs/guides/react/basics/progress).

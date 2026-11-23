@@ -7,12 +7,11 @@ description:
 sidebar_label: List and Detail Views
 ---
 
-# List and Detail Views
+# List and detail views
 
-Most APIs return less in a list than on a detail page. Teamboard's feed returns post summaries without `body`, and
-`GET /posts/:postId` returns the full post. The classic trouble starts when the user renames a post on its detail page
-and goes back: the feed still shows the old title, because the two responses are separate copies. This guide models both
-shapes so that every view shows the same post, the detail header renders at once from the list, and edits reach both.
+Most APIs return less in a list than on a detail page: Teamboard's feed returns post summaries without `body`, and
+`GET /posts/:postId` returns the full post. This guide models both shapes so that a rename on the detail page shows in
+the feed, the detail header renders at once from the list, and action responses reach both.
 
 :::secondary What you'll learn
 
@@ -32,7 +31,7 @@ It is tempting to store summaries and full posts in one collection, with `body` 
 every component that reads `body` has to guess whether it is really empty or just not loaded yet, and the types cannot
 tell. The db keeps rows **complete** instead: each shape is its own collection, and each is honest about its fields.
 
-```ts
+```ts title="src/db.ts"
 const byTeam = { teamId: { eq: (teamId: string) => ({ params: { teamId } }) } };
 
 // The feed's shape: every field except `body`
@@ -67,7 +66,7 @@ const Post = collection(PostSchema, { key: "id", version: "updatedAt" })
 
 A **link** tells the db that two collections hold the same records:
 
-```ts
+```ts title="src/db.ts"
 export const db = createDb({ post: Post, postSummary: PostSummary }, { links: [["post", "postSummary"]] });
 
 // The feed shows the new title at once, and both revert if the request fails
@@ -83,7 +82,7 @@ await db.post.update(postId, { title: "Renamed" });
 - Links name collections of the db, so a typo does not compile.
 
 `postSummary` declares no `mutate`. It does not need to: writes go through `post`, and the link carries them to the
-feed.
+feed. The [related data reference](/docs/db/related-data#links) lists the link rules in short form.
 
 ---
 
@@ -92,7 +91,7 @@ feed.
 When the user opens a post from the feed, its summary is already in the db. Render the header from it at once, and the
 body when the full post arrives:
 
-```tsx
+```tsx title="src/post-page.tsx"
 const PostPage = ({ postId }: { postId: string }) => {
   // Only reads what the db holds: never sends a request
   const summary = useLiveQuery(db.postSummary.findOne(postId).local());
@@ -132,7 +131,7 @@ renders from `post` alone once it loads. The component above already handles bot
 Some requests are not loaders and not writes the db sends, yet their responses hold records. **Ingest** writes them into
 collections whenever they succeed, however they were sent: `useSubmit`, `useFetch` or `send()`.
 
-```ts
+```ts title="src/db.ts"
 const publishPost = client.createRequest<{ response: Post }>()({
   endpoint: "/posts/:postId/publish",
   method: "POST",
@@ -153,7 +152,7 @@ collection(PostSummarySchema, { key: "id", version: "updatedAt" }).ingest(likePo
 });
 ```
 
-```tsx
+```tsx title="src/publish-button.tsx"
 const PublishButton = ({ postId }: { postId: string }) => {
   const { submit, submitting } = useSubmit(publishPost.setParams({ postId }));
 
@@ -184,9 +183,9 @@ const PublishButton = ({ postId }: { postId: string }) => {
 
 ---
 
-:::success In step everywhere!
+:::success Congratulations!
 
-Teamboard's feed and detail page never disagree again.
+Teamboard's feed and detail page show the same post.
 
 - You can model list and detail shapes as **two complete collections**.
 - You can **link** them, so writes and optimistic changes reach both.
@@ -201,7 +200,16 @@ Teamboard's feed and detail page never disagree again.
 
 <LinkCard
   type="guides"
-  title="Related Data and Joins"
+  title="Related data and joins"
   description="Normalize nested REST responses into their own collections, and join authors and comments into results."
   to="/docs/guides/db/patterns/related-data"
 />
+
+<LinkCard
+  type="docs"
+  title="useLiveQuery: list item before detail"
+  description="The same header-then-body pattern in the hook reference."
+  to="/docs/react/db/use-live-query#show-a-list-item-before-its-detail-loads"
+/>
+
+- API reference: [`IngestOptions`](/docs/api/db/Types/IngestOptions), [`DbOptions`](/docs/api/db/Types/DbOptions).

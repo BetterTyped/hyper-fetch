@@ -130,13 +130,24 @@ await getFirstUser.send(); // no options needed anymore
 :::info Node.js and the cache
 
 On the server, the client does not cache by default, so data of one user never reaches another. Give a request a scope
-with `setScope(id)` to cache it per user, see [Cache](/docs/core/cache.mdx).
+with `setScope(id)` to cache it per user, see [Cache](/docs/core/cache).
 
 :::
 
 ---
 
+## What just happened
+
+- The [client](/docs/core/client) holds the base URL, the fetch adapter, the cache and two dispatchers.
+- Each [request](/docs/core/request) is a typed, immutable template. Setters return a new request.
+- `send()` went through a [dispatcher](/docs/core/dispatcher), the adapter and the [cache](/docs/core/cache), and
+  resolved with `{ data, error, status }`.
+
+---
+
 ## Next steps
+
+Run the same flow in the browser with the [Vanilla TypeScript example](/examples/getting-started/vanilla).
 
 <div className="row">
   <div className="col col--6">

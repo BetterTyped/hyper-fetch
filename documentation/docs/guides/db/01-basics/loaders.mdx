@@ -7,23 +7,20 @@ description:
 sidebar_label: Loaders
 ---
 
-# Loading Data with Loaders
+# Loading data with loaders
 
-A loader tells a collection how to get rows from your backend. It is an **existing request** plus three facts the db
-cannot guess: how to read rows from the response, which filters and orders the endpoint accepts, and whether it reads
-records by key. With that, the db can turn any query into the right request, and run the rest of the query on the rows
-that come back.
-
-This guide gives Teamboard's collections their loaders.
+A loader is an **existing request** plus three facts the db cannot guess: how to read rows from the response, which
+filters and orders the endpoint accepts, and whether it reads records by key. With them, the db turns any query into
+the right request and runs the rest of the query on the rows that come back. This guide gives Teamboard's collections
+their loaders.
 
 :::secondary What you'll learn
 
 1.  How to turn a request into a **list loader** or a **by-key loader**.
 2.  How to read rows from **wrapped responses** with `rows`, and what a **`RowMismatch`** error means.
 3.  How to declare the **filters and orders** an endpoint can send, and which ones it **requires**.
-4.  How the db **picks a loader** when a collection has several, and how `explain()` shows the choice.
-5.  How to load many records **in one request** with `byKeys`.
-6.  How **freshness**, `fixed` filters and `serverOnly` fields keep answers correct.
+4.  How the db **picks a loader** when a collection has several, and how to batch reads with **`byKeys`**.
+5.  How **freshness**, `fixed` filters and `serverOnly` fields keep answers correct.
 
 :::
 
@@ -33,7 +30,7 @@ This guide gives Teamboard's collections their loaders.
 
 Start with the two endpoints almost every resource has: one that lists and one that reads by id.
 
-```ts
+```ts title="src/db.ts"
 import { collection } from "@hyper-fetch/db";
 
 const getTeamPosts = client.createRequest<{
@@ -66,7 +63,7 @@ const Post = collection(PostSchema, { key: "id" }).load(getPost, {
 Without `rows`, the response itself is the list of rows, or the row. Most APIs wrap lists, and some nest related
 records, so `rows` maps a response to complete rows:
 
-```ts
+```ts title="src/db.ts"
 const getFeed = client.createRequest<{
   response: { data: { items: (Omit<PostSummary, "authorId"> & { author: User })[] } };
 }>()({ endpoint: "/feed" });
@@ -80,7 +77,7 @@ collection(PostSummarySchema, { key: "id" }).load(getFeed, {
 The rows a loader produces must be **exactly** the schema's row type. A missing field, an extra field or a field of
 another type is a compile error:
 
-```ts
+```ts title="src/db.ts"
 const PostSummary = collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
   // error-next-line
   rows: (response) => response.items.map(({ likes, ...post }) => post),
@@ -91,16 +88,9 @@ createDb({ postSummary: PostSummary });
 // `PostSummary` is a RowMismatch: the rows lack `likes`, so it has no collection methods
 ```
 
-The error shows up where you use the result, not inside the callback. The loader returns a `RowMismatch` type that holds
-what it received and what it expected, so hover it to see the difference. The check sits in the return type on purpose:
-a check among the arguments would stop TypeScript from inferring the callbacks.
-
-:::tip Nested records
-
-Rows nested in a response, like the author above, can fill their own collection too. See
-[Related Data and Joins](../02-patterns/related-data.mdx).
-
-:::
+The error shows where you use the result, not inside the callback: the loader returns a `RowMismatch` type that holds
+what it received and what it expected, so hover it to see the difference. Nested records, like the author above, can
+fill their own collection too. See [Related data and joins](/docs/guides/db/patterns/related-data).
 
 ---
 
@@ -108,7 +98,7 @@ Rows nested in a response, like the author above, can fill their own collection 
 
 `where` lists, for each field, the operators the endpoint can serve. `orderBy` lists the fields it can sort by:
 
-```ts
+```ts title="src/db.ts"
 const PostSummary = collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
   rows: (response) => response.items,
   where: {
@@ -123,8 +113,8 @@ const PostSummary = collection(PostSummarySchema, { key: "id" }).load(getTeamPos
 });
 ```
 
-Now a query decides what is sent. Conditions joined by a top-level `and` that the loader declares go to the backend, and
-the rest run on the returned rows:
+Now the query decides what is sent. Conditions joined by a top-level `and` that the loader declares go to the backend,
+and the rest run on the returned rows:
 
 ```ts
 import { and, eq, gt, inArray } from "@hyper-fetch/db";
@@ -138,9 +128,9 @@ db.postSummary.where((post) =>
 );
 ```
 
-Operators are one fixed vocabulary for every backend: `eq`, `gt`, `gte`, `lt`, `lte`, `inArray`, `and`, `or` and `not`.
-`or` and `not` always run on the client. How an operator is written for **your** backend, such as `likes_gt=10`, belongs
-to the loader.
+Operators are one vocabulary for every backend: `eq`, `gt`, `gte`, `lt`, `lte`, `inArray`, `and`, `or` and `not`. `or`
+and `not` always run on the client. How an operator is written for **your** backend, such as `likes_gt=10`, belongs to
+the loader.
 
 ### Required filters
 
@@ -155,9 +145,10 @@ useLiveQuery(db.postSummary.where((post) => gt(post.likes, 10)));
 
 ### One notation for the whole API
 
-When your API writes every operator the same way, declare the notation once in `createDb` and mark fields with `true`:
+When your API writes every operator the same way, declare the notation once in `createDb` and mark fields with `true`.
+A loader's own mapping always wins over the db-wide notation.
 
-```ts
+```ts title="src/db.ts"
 const db = createDb(
   { postSummary: PostSummary },
   {
@@ -180,15 +171,13 @@ collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
 });
 ```
 
-A loader's own mapping always wins over the db-wide notation.
-
 ---
 
 ## Several loaders on one collection
 
 A collection can load through several endpoints. Add them in one chain:
 
-```ts
+```ts title="src/db.ts"
 const getPosts = client.createRequest<{ response: PostSummary[]; queryParams?: { authorId?: string } }>()({
   endpoint: "/posts",
 });
@@ -219,14 +208,14 @@ db.postSummary.where((post) => and(eq(post.teamId, "t1"), eq(post.authorId, "u1"
 // loader: 0, sent: teamId, local: authorId each sends one condition, so the first one wins
 ```
 
-Adding a loader can change which loader serves an existing query. The plan is deterministic, `explain()` shows it, and
+Adding a loader can change which loader serves an existing query. `explain()` shows the plan, and
 [HyperFlow](/docs/hyper-flow/features/db) shows it for every mounted query.
 
 ### Conditions the endpoint applies on its own
 
 Some endpoints filter without being asked, such as a feed that only returns published posts. Declare it with `fixed`:
 
-```ts
+```ts title="src/db.ts"
 collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
   rows: (response) => response.items,
   where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
@@ -235,12 +224,9 @@ collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
 });
 ```
 
-The db applies the fixed filters to every query this loader serves:
-
-- A draft loaded somewhere else never shows up in the team feed.
-- A post moved back to `draft` by a socket event or a write leaves the feed at once.
-
-Leave the condition undeclared and the db has no way to know that drafts do not belong in that list.
+The db applies fixed filters to every query this loader serves. A draft loaded somewhere else never shows in the team
+feed, and a post moved back to `draft` by a socket event or a write leaves it at once. Without `fixed`, the db has no way
+to know that drafts do not belong in that list.
 
 ---
 
@@ -249,7 +235,7 @@ Leave the condition undeclared and the db has no way to know that drafts do not 
 A by-key loader with `byKey` reads one row per request. With `byKeys`, every key the mounted queries need in the same
 tick goes out as **one** request:
 
-```ts
+```ts title="src/db.ts"
 const getUsers = client.createRequest<{ response: User[]; queryParams?: { ids?: string[] } }>()({
   endpoint: "/users",
 });
@@ -259,7 +245,7 @@ const User = collection(UserSchema, { key: "id" }).load(getUsers, {
 });
 ```
 
-```tsx
+```tsx title="src/avatar.tsx"
 // Twenty avatars on screen, one GET /users request with all twenty ids
 const Avatar = ({ userId }: { userId: string }) => {
   const { data: user } = useLiveQuery(db.user.findOne(userId));
@@ -267,7 +253,8 @@ const Avatar = ({ userId }: { userId: string }) => {
 };
 ```
 
-Batching is what makes [joins](../02-patterns/related-data.mdx) cheap: the authors of a whole list load in one request.
+Batching is what makes [joins](/docs/guides/db/patterns/related-data) cheap: the authors of a whole list load in one
+request.
 
 ---
 
@@ -275,21 +262,20 @@ Batching is what makes [joins](../02-patterns/related-data.mdx) cheap: the autho
 
 A loaded subset decides on its own when to load again:
 
-- It stays **fresh while syncs cover it** with `insert`, `update` and `delete` events. A live subset never refetches
-  just because time passed. See [Real-time Sync](./realtime-sync.mdx).
-- Without full sync coverage, it is fresh for the request's **`staleTime`**, five minutes by default. Set it on the
-  request, as you would for `useFetch`:
+- It stays **fresh while syncs cover it** with `insert`, `update` and `delete` events, and never refetches just because
+  time passed. See [Real-time sync](/docs/guides/db/basics/realtime-sync).
+- Without full sync coverage, it is fresh for the request's `staleTime`: default five minutes, change it on the request
+  as you would for `useFetch`.
+- Stale subsets of mounted queries refetch when a query mounts, the window regains focus or the connection returns.
+- A subset no query uses is kept for `gcTime`: default five minutes, change it in `createDb`. Rows that no other subset
+  holds then leave the collection.
 
-```ts
+```ts title="src/requests.ts"
 const getTeamPosts = client.createRequest<{ response: { items: PostSummary[] } }>()({
   endpoint: "/teams/:teamId/posts",
   staleTime: 30_000,
 });
 ```
-
-- Stale subsets of mounted queries refetch when a query mounts, the window regains focus or the connection returns.
-- When no query uses a subset, it is kept for `gcTime` (five minutes by default, set in `createDb`), then released. Rows
-  that no other subset holds leave the collection.
 
 Requests run by loaders **skip the core Cache**, so each row is stored once. Deduplication, retries, authentication,
 plugins and `setMock()` still apply, because a loader is a plain request.
@@ -302,7 +288,7 @@ Answering locally only works when the client compares values the way the server 
 exact: strings by code point, dates by instant. If the backend sorts titles case-insensitively, or by locale, mark the
 field `serverOnly`:
 
-```ts
+```ts title="src/db.ts"
 collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
   rows: (response) => response.items,
   where: {
@@ -314,35 +300,33 @@ collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
 });
 ```
 
-Queries that filter or sort by `title` are then always sent to the backend instead of being answered from held rows, and
-their subsets never answer other queries. A missing `serverOnly` returns wrong rows with no request to correct them, so
-mark every field your backend compares in its own way.
-
-`serverOnly` covers answers, not later writes: a row inserted by a socket event is still matched and sorted with exact
-comparisons. When the client cannot reproduce the server's matching at all, as with full-text search, use a
-[server-only operator](../02-patterns/search-and-server-filters.mdx) instead.
-
-:::note Which option do I need?
-
-- The response wraps or reshapes rows: **`rows`**.
-- The endpoint needs a value in its URL: **`where` with `required: true`**.
-- The endpoint filters or sorts on request: **`where`** and **`orderBy`**, or `true` with a db-wide notation.
-- The endpoint filters on its own: **`fixed`**.
-- The backend compares a field differently: **`serverOnly`**.
-- The endpoint reads by id: **`byKey`**, or **`byKeys`** when it accepts many ids.
-- The endpoint returns pages: **`cursor`** and **`page`**, or **`limit`**. See
-  [Pagination and Infinite Scroll](./infinite-scroll.mdx).
-
-:::
+Queries that filter or sort by `title` are then always sent to the backend, and their subsets never answer other
+queries. A missing `serverOnly` returns wrong rows with no request to correct them. It covers answers, not later
+writes: a row inserted by a socket event is still matched with exact comparisons. When the client cannot reproduce the
+server's matching at all, as with full-text search, use a
+[server-only operator](/docs/guides/db/patterns/search-and-server-filters).
 
 ---
 
-:::success Well loaded!
+## Which option do I need?
+
+| The endpoint...                                | Option                                                                                     |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| wraps or reshapes rows                         | `rows`                                                                                     |
+| needs a value in its URL                       | `where` with `required: true`                                                              |
+| filters or sorts on request                    | `where` and `orderBy`, or `true` with a db-wide notation                                   |
+| filters on its own                             | `fixed`                                                                                    |
+| compares a field differently from the client   | `serverOnly`                                                                               |
+| reads by id                                    | `byKey`, or `byKeys` when it accepts many ids                                              |
+| returns pages                                  | `cursor` and `page`, or `limit`. See [Pagination](/docs/guides/db/basics/infinite-scroll) |
+
+---
+
+:::success Congratulations!
 
 Teamboard's collections know how to reach the backend.
 
-- You can turn a request into a **list loader** or a **by-key loader**.
-- You can map wrapped responses with **`rows`**, and read a **`RowMismatch`** when they do not fit.
+- You can turn a request into a **list loader** or a **by-key loader**, and map wrapped responses with **`rows`**.
 - You can declare **filters, orders and required filters**, per loader or once for the whole API.
 - You can predict which **loader a query uses**, and check it with `explain()`.
 - You can batch reads by key with **`byKeys`**.
@@ -356,7 +340,17 @@ Teamboard's collections know how to reach the backend.
 
 <LinkCard
   type="guides"
-  title="Live Queries in React"
+  title="Live queries in React"
   description="Read collections with useLiveQuery: filters, orders, selections, single rows and loading states."
   to="/docs/guides/db/basics/live-queries"
 />
+
+<LinkCard
+  type="docs"
+  title="DB overview: loaders"
+  description="The short reference for loaders, queries, syncs and writes."
+  to="/docs/db/overview#loaders"
+/>
+
+- API reference: [`collection`](/docs/api/db/Functions/collection), [`LoaderOptions`](/docs/api/db/Types/LoaderOptions),
+  [`createDb`](/docs/api/db/Functions/createDb).

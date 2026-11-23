@@ -7,47 +7,38 @@ sidebar_label: graphql-tag
 
 # graphql-tag and the gql template literal
 
-`graphql-tag` is a small library that exports one template literal tag, `gql`. It parses a GraphQL query string into a
-`DocumentNode`, the AST that the `graphql` package and most GraphQL tools work with. A syntax error in the query throws
-when the document is created, not when the server answers.
+`graphql-tag` exports one template literal tag, `gql`, which parses a GraphQL string into a `DocumentNode`, the AST the
+`graphql` package and most GraphQL tools work with. A syntax error throws when the document is created, not when the
+server answers. The [GraphQL adapter](/docs/integrations/adapter-graphql/overview) accepts a `DocumentNode` or a plain
+string, so the tag is optional.
 
-The GraphQL adapter accepts a `DocumentNode` or a plain string as the `endpoint`. `graphql-tag` is not required, it is
-a separate install, and most projects that write queries by hand use it.
-
-```bash
+```bash npm2yarn2pnpm
 npm install graphql graphql-tag
 ```
 
-:::tip Why use `graphql-tag`?
+:::tip Purpose
 
-- **Standardization**: It ensures that your GraphQL queries are valid and conform to the official specification.
-- **Tooling Support**: It enables better tooling support, such as syntax highlighting and autocompletion in your editor.
-- **Readability**: It makes your queries more readable by allowing you to write them as multi-line strings.
+1. **Catch syntax errors early**: an invalid document throws where it is defined.
+2. **Editor support**: GraphQL plugins highlight and autocomplete the content of `gql` literals.
+3. **Safe variables in types**: a `gql` document never turns `$id: ID!` into a URL param, which a string literal can.
 
 :::
 
 ---
 
-## Usage
+## Send a gql document
 
-Write queries and mutations with `gql` and pass the result as the `endpoint`. The adapter prints the document back to a
-string when it sends the request, and reads the operation name from it for the cache key.
+Pass the result of `gql` as the `endpoint`. The adapter prints the document back to a string when it sends the request
+and reads the operation name from it for the cache key.
 
-```ts
-import { Client } from "@hyper-fetch/core";
-import { GraphqlAdapter } from "@hyper-fetch/graphql";
+```ts title="api/users.ts"
 import gql from "graphql-tag";
 
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
+import { client } from "./client";
 
-interface User {
-  user: {
-    username: string;
-    firstName: string;
-  };
-}
+type User = { username: string; firstName: string };
 
-const getUser = client.createRequest<{ response: User }>()({
+export const getUser = client.createRequest<{ response: { user: User } }>()({
   endpoint: gql`
     query GetUser {
       user {
@@ -65,12 +56,37 @@ const { data, error } = await getUser.send();
 
 ## gql documents, strings and typed documents
 
-| Endpoint                           | Response and variables types     | When to use                                     |
-| ---------------------------------- | -------------------------------- | ----------------------------------------------- |
-| Plain string                       | Declare them with generics       | Quick scripts, no parsing step                  |
-| `gql` from `graphql-tag`           | Declare them with generics       | Hand-written queries with editor support        |
-| Typed document from codegen or gql.tada | Read from the document      | Larger apps that want types generated from the schema |
+| Endpoint                                | Response and variables types | When to use                                     |
+| --------------------------------------- | ---------------------------- | ----------------------------------------------- |
+| Plain string                            | Declare them with generics   | Quick scripts without variables                 |
+| `gql` from `graphql-tag`                | Declare them with generics   | Hand-written documents with editor support      |
+| Typed document from codegen or gql.tada | Read from the document       | Apps that want types generated from the schema  |
 
-Editor plugins for GraphQL highlight and autocomplete the content of `gql` template literals, which is a large part of
-why the tag is popular. For typed documents, see [typed documents](./overview.mdx#typed-documents). For more
-examples, see [queries](./queries.mdx) and [mutations](./mutations.mdx).
+An inline string literal that declares variables, like `query ($id: ID!)`, makes TypeScript read `:` as a URL param and
+ask for `params`. Wrap it in `gql`, or pass it with the `document` option.
+
+---
+
+:::secondary Summary
+
+- `gql` turns a string into a `DocumentNode` and fails early on syntax errors.
+- The adapter accepts `gql` documents, strings and typed documents as the `endpoint`.
+- Typed documents are the only kind that types the request without generics.
+
+:::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="Queries"
+  description="Send typed queries with variables and cache them in React."
+  to="/docs/integrations/adapter-graphql/queries"
+/>
+
+<LinkCard
+  type="docs"
+  title="Mutations"
+  description="Send mutations and refetch the queries they changed."
+  to="/docs/integrations/adapter-graphql/mutations"
+/>

@@ -7,156 +7,175 @@ sidebar_label: Overview
 
 # Axios Adapter for HyperFetch
 
-[Read the API Reference »](/docs/api/adapter-axios/Variables/AxiosAdapter.mdx)
-
-The `@hyper-fetch/axios` adapter makes Axios the HTTP transport under HyperFetch. Axios still sends every request, with
-its own options, headers and error objects. HyperFetch adds what Axios doesn't ship with: a response cache, retries,
-deduplication, cancellation of stale requests, offline queues and typed requests.
-
----
+`@hyper-fetch/axios` makes [Axios](https://axios-http.com) the transport under a HyperFetch [Client](/docs/core/client).
+Axios still sends every request with its own options and error objects, while HyperFetch adds the cache, retries,
+deduplication, offline queues and typed requests.
 
 :::tip Purpose
 
-1.  **Keep `axios`**: Use familiar `axios` options, headers, and error handling.
-2.  **Add the missing parts**: Combine `axios` with HyperFetch's caching, queueing, and persistence.
-3.  **Track progress**: Get real upload and download progress events.
-4.  **Full control**: Access `axios` response details and error objects when needed.
+1. **Keep axios**: axios options, defaults and interceptors still apply.
+2. **Real upload progress**: every axios `onUploadProgress` event reaches `send()` and the React hooks.
+3. **Add what axios lacks**: [cache](/docs/core/cache), [retries](/docs/guides/core/basics/retries),
+   [deduplication](/docs/guides/core/advanced/deduplication) and [offline](/docs/guides/core/advanced/offline) queues.
 
 :::
 
 ---
 
-## Two meanings of "axios adapter"
+## Install
 
-The phrase gets used for two different things, so it helps to separate them:
-
-- **Axios's own `adapter` option** picks how Axios sends a request. The
-  [Axios request config docs](https://axios-http.com/docs/req_config) list three built-in adapters: `xhr` (the default in
-  browsers), `http` (the default in Node.js) and `fetch`. Setting `adapter: "fetch"` is what people mean by the axios
-  fetch adapter.
-- **A HyperFetch adapter** is the layer that turns a HyperFetch request into a network call. The default one uses
-  `fetch`. `AxiosAdapter` hands the call to Axios instead.
-
-They stack. You can use the HyperFetch Axios adapter and still pass Axios's `adapter` option through the request
-options, because everything except the handful of fields listed at the bottom of this page goes straight to Axios.
-
----
-
-## Why put Axios under HyperFetch
-
-| Need                          | Axios alone                                  | Axios through HyperFetch                     |
-| ----------------------------- | -------------------------------------------- | --------------------------------------------- |
-| Upload progress               | Yes, `onUploadProgress` (on XHR)             | Yes, reported as `onUploadProgress` events    |
-| Response cache                | Not built in, needs an extra library          | [Built-in cache](../../core/cache.mdx) with `staleTime` and invalidation |
-| Retries                       | Not built in, usually `axios-retry`          | [`retry` and `retryTime`](../../guides/core/01-basics/retries.mdx), with `exponentialBackoff()` |
-| Interceptors                  | `axios.interceptors`                         | [Client interceptors](../../guides/core/02-advanced/intercepting.mdx) |
-| Deduplication                 | Not built in                                 | Yes, `deduplicate`                            |
-| Offline queue                 | Not built in                                 | Yes, `offline`                                |
-| Typed response, payload, params | Generics passed on each call              | Declared once on the request                  |
-
-If you were looking for an axios cache adapter, this covers that case: the cache lives in HyperFetch, above the
-transport, so every request sent through Axios is cached by its method, endpoint and query params. There is no extra
-cache package to configure.
-
-The upload progress row is the main reason to pick Axios over the default adapter in a browser. `fetch` has no upload
-progress event, while Axios on XHR reports bytes as they leave. See the
-[file upload progress bar guide](../../guides/react/01-basics/progress.mdx).
-
----
-
-## Getting Started
-
-To use the `axios` adapter:
-
-1. Install the package:
+`axios` and `@hyper-fetch/core` are peer dependencies.
 
 ```bash npm2yarn2pnpm
-npm install @hyper-fetch/axios
+npm install @hyper-fetch/core @hyper-fetch/axios axios
 ```
 
-2. Import it and set it on your `Client` instance:
+---
+
+## Setup
+
+1. Set the adapter on your client. `AxiosAdapter` is an instance, so pass it without calling it.
 
 (@import adapter-axios AxiosAdapter type=import)
 
-```tsx
-import { Client } from "@hyper-fetch/core";
+```ts title="client.ts"
+import { createClient } from "@hyper-fetch/core";
 import { AxiosAdapter } from "@hyper-fetch/axios";
 
-const client = new Client({ url: "base-url" }).setAdapter(AxiosAdapter);
+export const client = createClient({ url: "https://api.example.com" }).setAdapter(AxiosAdapter);
 ```
 
-3. ...and voila! It's done. Now you can set `axios` options on your requests.
+2. Create a request. Its `options` are now typed as the axios request config.
 
----
-
-## Usage
-
-You can pass any valid `axios` request configuration options to your HyperFetch requests. These options can be set when
-you create a request or when you send it.
-
-Here's an example of how to use some common `axios` options:
-
-```tsx
+```ts title="api/users.ts"
 import { client } from "./client";
 
-// Create a request with axios-specific options
-const getUsers = client.createRequest()({
-  endpoint: "/users",
-  options: {
-    // highlight-start
-    // Set a 5-second timeout for the request
-    timeout: 5000,
-    // Add authentication credentials
-    auth: {
-      username: "your-username",
-      password: "your-password",
-    },
-    // highlight-end
-  },
+type User = { id: number; name: string };
+
+export const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  options: { timeout: 5000, withCredentials: true },
 });
 ```
 
-Or use the `setOptions` method:
+3. Send it, or pass it to a hook such as [`useFetch`](/docs/react/hooks/use-fetch).
 
-```ts
-import { client } from "./client";
+```ts title="send.ts"
+import { isAxiosError } from "axios";
 
-const getUsers = client
-  .createRequest()({
-    endpoint: "/users",
-  })
-  .setOptions({
-    // highlight-start
-    // Set a 5-second timeout for the request
-    timeout: 5000,
-    // Add authentication credentials
-    auth: {
-      username: "your-username",
-      password: "your-password",
-    },
-    // highlight-end
-  });
+import { getUser } from "./api/users";
+
+const { data, error, status, extra } = await getUser.setParams({ userId: 1 }).send();
+
+if (isAxiosError<{ message: string }>(error)) {
+  console.log(status, error.response?.data?.message);
+}
+// extra.headers holds the axios response headers
 ```
 
 ---
 
-## See More
+## How it maps
 
-For a full list of available `axios` request configuration options, please refer to the
-[official axios documentation](https://axios-http.com/docs/req_config).
+| Axios                                  | HyperFetch                                                                          |
+| -------------------------------------- | ----------------------------------------------------------------------------------- |
+| `url` (with `baseURL`)                 | client `url` + request `endpoint` + encoded `queryParams`                           |
+| `method`                               | request `method`, typed as the axios `Method`, default `"GET"`                      |
+| `params`                               | `queryParams` (do not use axios `params`, the query string would be added twice)    |
+| `data`                                 | `payload`. Plain objects are JSON-stringified by core, `FormData` and `Blob` are not |
+| `headers`                              | request `headers` and `setHeaders`                                                  |
+| `signal`                               | `request.abort()` and the request's `abortKey`                                      |
+| `onUploadProgress`, `onDownloadProgress` | the `send()` progress callbacks, `onSubmitUploadProgress` in `useSubmit`          |
+| `response.data`, `response.status`     | `data`, `status`                                                                    |
+| `response.headers`                     | `extra.headers`                                                                     |
+| rejected `AxiosError`                  | `error` (with `response.data` holding the server body), `status` `0` when there is no response |
+| any other config field                 | request `options` and `setOptions`                                                  |
 
-:::caution Key Differences
+`send()` resolves with the [Response](/docs/core/request) object and never rejects. An aborted request resolves with a
+HyperFetch abort error, not an `AxiosError`, so narrow with `isAxiosError` before reading `error.response`.
 
-While you can use most `axios` options, some are managed by HyperFetch to ensure proper integration. You should **not**
-pass the following options, as they will be overwritten by the adapter:
+---
 
-- `url`
-- `baseURL`
-- `method`
-- `data` (use `payload` in `send` method instead)
-- `onUploadProgress` (use `onUploadProgress` in `send` method instead)
-- `onDownloadProgress` (use `onDownloadProgress` in `send` method instead)
-- `signal` (managed by HyperFetch for cancellation)
-- `headers` (use the request `headers` instead)
+## Adapter options
+
+Request `options` accept the axios request config except `url`, `baseURL`, `method`, `data`, `onUploadProgress` and
+`onDownloadProgress`. `headers` and `signal` still type-check, but the adapter overwrites them. See the
+[axios request config](https://axios-http.com/docs/req_config) for every field.
+
+```ts title="api/reports.ts"
+export const downloadReport = client.createRequest<{ response: Blob }>()({
+  endpoint: "/reports/:reportId",
+  options: { responseType: "blob", timeout: 30000 },
+});
+
+// setOptions replaces the whole options object on the returned clone
+const slowReport = downloadReport.setOptions({ responseType: "blob", timeout: 120000 });
+```
+
+Set options for every request with `setAdapterDefaults`. Request `options` win over them.
+
+```ts title="client.ts"
+export const client = createClient({ url: "https://api.example.com" }).setAdapter(
+  AxiosAdapter.setAdapterDefaults(() => ({ timeout: 5000 })),
+);
+```
+
+Axios's own `adapter` option (`"xhr"`, `"http"` or `"fetch"`) is a regular config field, so you can still pick how axios
+sends requests underneath the HyperFetch adapter.
+
+---
+
+## Differences from the HTTP adapter
+
+| Behavior               | Default HTTP adapter                    | `AxiosAdapter`                                           |
+| ---------------------- | --------------------------------------- | -------------------------------------------------------- |
+| Timeout                | default 5000 ms, change it with `timeout` | none, set `options.timeout` or `setAdapterDefaults`    |
+| GET deduplication      | on by default                           | off, set `deduplicate: true` on the request              |
+| Upload progress        | one event when the body is handed off   | every axios `onUploadProgress` event (XHR in browsers)   |
+| Errors                 | the response body                       | the `AxiosError`, body in `error.response.data`          |
+| Interceptors           | HyperFetch only                         | HyperFetch, plus interceptors on the default `axios` export |
+
+Limits:
+
+- The adapter always calls the default `axios` export. Instances from `axios.create()` are not used, so register
+  interceptors on `axios` itself or use HyperFetch [interceptors](/docs/guides/core/advanced/intercepting).
+- `AxiosAdapter` is one shared object. `setAdapterDefaults` and the other setters change it for every client that uses it.
+- Keep the default `validateStatus`. The adapter treats a resolved axios call as success, so `validateStatus: () => true`
+  turns 404 and 500 responses into successes.
+
+---
+
+:::secondary Summary
+
+- `setAdapter(AxiosAdapter)` routes every request through axios. Requests, cache and hooks stay the same.
+- Axios config goes in request `options`. URL, method, payload, headers and abort stay HyperFetch's.
+- Set a `timeout` yourself and narrow errors with `isAxiosError`.
 
 :::
+
+## Next steps
+
+Runnable examples: [Axios](/examples/integrations/axios) and [Upload progress](/examples/mutations/upload-progress).
+Related guides: [Axios in React](/docs/guides/react/basics/axios-in-react) and
+[error handling](/docs/guides/core/basics/error-handling).
+
+<LinkCard
+  type="guides"
+  title="File upload progress bar"
+  description="Show percent, bytes and time left for an upload sent through axios."
+  to="/docs/guides/react/basics/progress"
+/>
+
+<LinkCard
+  type="docs"
+  title="Adapter"
+  description="How adapters plug into the client and how to change their defaults."
+  to="/docs/core/adapter"
+/>
+
+<LinkCard
+  type="api"
+  title="AxiosAdapter API reference"
+  description="The adapter instance and its option, method and extra types."
+  to="/docs/api/adapter-axios/Variables/AxiosAdapter"
+/>

@@ -23,7 +23,7 @@ Work through these checks in order. Each one rules out a cause.
 3. **The ports match.** The plugin connects to `ws://localhost:2137`. If you changed the port in HyperFlow, pass the same
    one with the `url` option.
 4. **The runtime has a `WebSocket`.** Node.js 18 and 20 do not. Install `ws` and pass it with the `WebSocket` option, see
-   [Node.js backends](/docs/hyper-flow/connecting.mdx#nodejs-backends-and-other-runtimes).
+   [Node.js backends](/docs/hyper-flow/connecting#nodejs-backends-and-other-runtimes).
 5. **The app can reach `localhost`.** An app inside Docker, a virtual machine or a phone does not see your computer as
    `localhost`. Use your computer's address in `url`, such as `ws://host.docker.internal:2137` from Docker or
    `ws://192.168.1.20:2137` from a phone on the same network, and make sure your firewall allows the port.
@@ -39,7 +39,7 @@ app's console.
 
 Another program uses the port, often a second HyperFlow window or an older HyperFlow that did not quit. Quit the other
 program, or pick another port in **Settings** › **Change Port** and pass it to the plugin with `url`. See
-[Server port](/docs/hyper-flow/features/settings.mdx#server-port).
+[Server port](/docs/hyper-flow/features/settings#server-port).
 
 ---
 
@@ -54,7 +54,7 @@ are treated as one, so give each app and each environment its own name or `envir
 ## Requests are missing from the Network page
 
 - **The history limit was reached.** HyperFlow keeps the latest 1,000 requests per app. Raise
-  [Network History Limit](/docs/hyper-flow/features/settings.mdx#network-history-limit).
+  [Network History Limit](/docs/hyper-flow/features/settings#network-history-limit).
 - **A search or filter is active.** Select **All** and clear the search field.
 - **The request used another client.** Every client needs its own plugin, so a second `createClient` without
   `DevtoolsPlugin` stays invisible.
@@ -71,8 +71,8 @@ you edit the entry your components read: two cache keys that differ in a param o
 ## A cache entry is missing
 
 Entries disappear when their `cacheTime` passes, and requests with `cache: false` are never stored. On the server, the
-client caches nothing unless a request has a scope, see [Cache](/docs/core/cache.mdx). The
-[Cache tab](/docs/hyper-flow/features/dashboard.mdx#cache) of the dashboard lists requests that were not cached.
+client caches nothing unless a request has a scope, see [Cache](/docs/core/cache). The
+[Cache tab](/docs/hyper-flow/features/dashboard#cache) of the dashboard lists requests that were not cached.
 
 ---
 
@@ -89,7 +89,7 @@ Pass them to the plugin with the `sockets` and `dbs` options. HyperFlow only sho
 
 It is built for development. The plugin connects to a server on the developer's machine, so in production it only
 tries to connect and gives up. Add it only in development builds, as shown in
-[Connect your app](/docs/hyper-flow/connecting.mdx#2-add-it-to-your-client).
+[Connect your app](/docs/hyper-flow/connecting#2-add-it-to-your-client).
 
 </details>
 
@@ -112,7 +112,7 @@ Yes. The plugin works wherever the HyperFetch client runs and a `WebSocket` is a
 <summary>Which adapters are supported?</summary>
 
 All of them: fetch, Axios, GraphQL, tRPC, oRPC, Firebase and custom adapters. The
-[compatibility table](/docs/hyper-flow/compatibility.mdx) lists every feature per adapter.
+[compatibility table](/docs/hyper-flow/compatibility) lists every feature per adapter.
 
 </details>
 
@@ -120,7 +120,7 @@ All of them: fetch, Axios, GraphQL, tRPC, oRPC, Firebase and custom adapters. Th
 <summary>Is the data still there after I restart HyperFlow?</summary>
 
 Your apps and their settings are. Requests, cache entries, queues, socket messages and db snapshots are kept in memory
-and start empty after a restart. See [What HyperFlow remembers](/docs/hyper-flow/features/settings.mdx#what-hyperflow-remembers).
+and start empty after a restart. See [What HyperFlow remembers](/docs/hyper-flow/features/settings#what-hyperflow-remembers).
 
 </details>
 
@@ -131,3 +131,28 @@ and start empty after a restart. See [What HyperFlow remembers](/docs/hyper-flow
 HyperFlow is in alpha. If something here does not help, open an issue on
 [GitHub](https://github.com/BetterTyped/hyper-fetch/issues) with your operating system, HyperFlow version, adapter and
 what you expected to see.
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Connect your app"
+      description="Every plugin option and setup for other runtimes."
+      to="/docs/hyper-flow/connecting"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Settings"
+      description="The server port, the history limit and simulated errors."
+      to="/docs/hyper-flow/features/settings"
+    />
+  </div>
+</div>
+
+Compare your setup with the runnable [Devtools example](/examples/integrations/devtools), which connects to HyperFlow with no extra setup.

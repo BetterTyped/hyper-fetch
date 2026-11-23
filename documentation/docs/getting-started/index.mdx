@@ -8,79 +8,93 @@ sidebar_label: Intro
 import { Cards } from "./components/cards";
 import { Environments } from "./components/environments";
 
-> **`HyperFetch`** is a modern, open source framework for request-based and real-time communication, purpose-built to
-> eliminate boilerplate and streamline data handling across any TypeScript environment—whether you're working in the
-> browser, on the server, or in native platforms like React Native or Electron.
+**HyperFetch** is a TypeScript framework for request-based and realtime communication. You define each endpoint once as
+a typed request, and the client behind it caches, deduplicates, retries, queues and resumes it after going offline, in
+the browser, on the server, in React Native or in Electron.
+
+```ts title="api.ts"
+import { createClient } from "@hyper-fetch/core";
+
+type User = { id: number; name: string };
+
+// One client per backend: base URL, adapter, cache and queues
+export const client = createClient({ url: "https://api.example.com" });
+
+// One typed request per endpoint, defined once
+export const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+});
+
+// `:userId` is a required, typed param. send() resolves, it never throws.
+const { data, error, status } = await getUser.send({ params: { userId: 1 } });
+```
+
+In React the same request goes into a hook: `useFetch(getUser.setParams({ userId: 1 }))`.
+
+---
+
+## What you get
+
+- **Typed requests**: response, payload, params, query params and errors are checked when you send, see
+  [Request](/docs/core/request).
+- **Cache**: responses are stored by key with `staleTime` and `cacheTime`, see [Cache](/docs/core/cache).
+- **Request control**: deduplication, cancelation, queues, retries and offline handling, see
+  [Dispatcher](/docs/core/dispatcher).
+- **Any transport**: the built-in fetch adapter, or Axios, GraphQL, Firebase, tRPC and oRPC, see
+  [Adapter](/docs/core/adapter).
+- **Realtime**: WebSocket and SSE listeners and emitters typed the same way, see [Sockets](/docs/sockets/overview).
+- **Typed SDKs**: describe a whole API as one schema, or [generate it from OpenAPI](/docs/cli/overview), see
+  [SDK](/docs/core/sdk).
+- **Devtools**: inspect requests, cache and queues in [HyperFlow](/docs/hyper-flow).
 
 ---
 
 ## Modules
 
-Our framework consist of the core modules which are responsible for the request-based and real-time communication or
-connecting to particular framework - like HyperFetch React.
+Core does the work. The other packages bind it to a framework or add a transport.
 
 <Cards />
 
+---
+
 ## Environments
 
-Core library should work in any JavaScript environment.
-
-For frontend frameworks and libraries, we release additional packages that enrich core logic and add appropriate API
-connections for the given environment (as with the addition of hooks in React).
+Core runs in any JavaScript environment with `fetch`. Framework packages add bindings on top, such as the hooks of
+HyperFetch React.
 
 <Environments />
 
-## Integrations
+---
 
-We also provide integrations for some of the most popular data-exchange libraries or services like Firebase.
+## Where to start
+
+1. [Install](/docs/getting-started/installation) the packages you need.
+2. Follow a [quick start](/docs/getting-started/quick-start): plain TypeScript, React or sockets.
+3. Open a runnable example, such as [Basic data fetching](/examples/getting-started/basic) or
+   [Vanilla TypeScript](/examples/getting-started/vanilla).
+4. Read the [guides](/docs/guides/getting-started) when you need a specific task, like auth, pagination or offline.
+
+---
+
+## Next steps
 
 <LinkCard
-  type="promo"
-  title="Check out our integrations"
-  description="We have integrations for some of the most popular data-exchange libraries and services."
-  to="/docs/integrations/getting-started"
+  type="docs"
+  title="Quick start"
+  description="Create a client, define typed requests and send them in a few minutes."
+  to="/docs/getting-started/quick-start"
 />
-
----
-
-## Our Motivation
-
-We got the idea for HyperFetch after leading several React projects. There are many great libraries using for fetching
-data like `Axios`, `SWR`, and `React Query`. However, the logic that they provide is detached from each other – i.e. the
-hooks are detached from the fetchers. So you often need to mix them together in order to fetch the data.
-
-This gives users a lot of customization options, but it also comes with some issues - for example how to track
-upload/download progress, how to call the requests outside of the components while still using the caching and other
-features. It is hard to inform the hooks about the request status inside of the components or SSR environments.
-
-Usually you’d need to build your logic every time you start developing a new application. And there is no
-`standard schema` nor any standards on how to manage this. It usually causes the challenges on the project level in how
-to name things, how to organize requests and of course you have to build the whole logic around it.
-
-We decided to overcome this issue by creating a _straightforward_, _opinionated_, yet _flexible_ fetching solution.
-
----
-
-## Our Goals
-
-1. Establish a consistent, neutral standard for seamless data exchange.
-2. Accelerate development by reusing logic and configurations, eliminating repetitive work across projects.
-3. Benefit from a comprehensive set of built-in fetching capabilities, easily extendable to meet custom requirements.
-4. Centralize server configurations to avoid duplication and ensure consistency between and within projects.
-5. Boost development speed: set up fetchers and dependencies in minutes, drastically reducing setup time.
-6. Effortlessly monitor request progress and manage queues with intuitive tracking tools.
-7. Leverage advanced offline support and data persistence features for robust application behavior.
-8. Improve developer experience and code quality through automated processes that prevent common errors.
-
----
-
-## Guides
-
-We have many examples and guides to help you get started.
 
 <LinkCard
   type="guides"
-  title="Learn more with Guides"
-  description="Learn basics and advanced concepts of data exchange and caching."
+  title="Guides"
+  description="Task-by-task guides for fetching, mutations, caching, offline and testing."
   to="/docs/guides/getting-started"
+/>
+
+<LinkCard
+  type="integrations"
+  title="Integrations"
+  description="Adapters and server frameworks: Axios, GraphQL, Firebase, tRPC, oRPC, Hono, Elysia and more."
+  to="/docs/integrations/getting-started"
 />

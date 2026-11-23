@@ -7,7 +7,7 @@ sidebar_label: DB
 
 # DB
 
-The **DB** page shows what a [`@hyper-fetch/db`](/docs/db/overview.mdx) db holds: its collections, the subsets of rows
+The **DB** page shows what a [`@hyper-fetch/db`](/docs/db/overview) db holds: its collections, the subsets of rows
 each loader fetched, every live query with its plan, and the writes waiting in the outbox. Use it to answer why a query
 sent a request, why it did not, or why a row has not reached the server yet.
 
@@ -80,3 +80,26 @@ With `offline` writes turned on, the **Outbox** lists writes waiting to reach th
 with their collection, key and whether they were sent. An empty outbox shows **The outbox is empty.**
 
 The DB page is read-only. It updates every time the db changes.
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="db overview"
+      description="Collections, loaders, syncs and live queries."
+      to="/docs/db/overview"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Sockets"
+      description="The socket syncs that keep live queries current."
+      to="/docs/hyper-flow/features/sockets"
+    />
+  </div>
+</div>

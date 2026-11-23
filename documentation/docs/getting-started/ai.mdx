@@ -5,107 +5,67 @@ description: "Why HyperFetch suits AI coding agents and LLMs: one consistent req
 sidebar_label: AI / LLMs
 ---
 
-# AI & LLMs
+# AI and LLMs
 
-> In the era of Large Language Models (LLMs) and AI-driven development, the need for predictable, stable, and
-> standardized tools is more critical than ever. HyperFetch is designed with a core philosophy of consistency and type
-> safety, making it an exceptional choice for building applications that leverage AI or for creating SDKs that AI can
-> easily understand and use.
+HyperFetch gives coding agents one pattern to follow for every API: a client, typed requests and `send()` or a hook. The
+same shape works for REST, GraphQL, Firebase and realtime, and the types reject wrong params or payloads at compile time.
+This page covers why that helps agents and how to install the HyperFetch agent skills.
 
----
+```ts title="api/chat.ts"
+import { createClient } from "@hyper-fetch/core";
 
-## The Power of a Standardized Interface
+export const client = createClient({ url: "https://api.example.com" });
 
-One of the biggest challenges in modern development is the variety of tools and patterns used to interact with APIs.
-Different libraries have different conventions, and projects often mix and match approaches. HyperFetch solves this by
-providing a single, standardized interface that works identically across all scenarios.
+export const postMessage = client.createRequest<{
+  response: { id: string; message: string };
+  payload: { prompt: string; context?: string[] };
+}>()({ endpoint: "/chat", method: "POST" });
 
-Whether you're fetching data from a `REST` API, a `GraphQL` endpoint, or a `Firebase` backend, the process remains the
-same:
-
-1.  **Configure a Client**: Set up a single client with your base configuration.
-2.  **Define a Request**: Create a typed request that specifies the endpoint, method, and data structures.
-3.  **Execute the Request**: Use hooks (`useFetch`, `useSubmit`) or send requests directly.
-
-This consistency means that once you (or an AI) learn the HyperFetch pattern, you can apply it everywhere.
-
-```typescript
-// 1. Create a client once, it can be shared across the entire application
-export const client = createClient({
-  url: "https://api.yourai.com",
-});
-
-// 2. Define a typesafe request
-// highlight-start
-interface ChatResponse {
-  id: string;
-  message: string;
-}
-
-interface ChatPayload {
-  prompt: string;
-  context?: string[];
-}
-// highlight-end
-
-const postChatMessage = client.createRequest<{ response: ChatResponse; payload: ChatPayload }>()({
-  endpoint: "/chat",
-  method: "POST",
-});
-
-// 3. Use it anywhere, in the same way
-const sendMessage = async (prompt: string) => {
-  // highlight-next-line
-  const { data, error } = await postChatMessage.setPayload({ prompt }).send();
-
-  if (data) {
-    console.log("AI Response:", data.message);
-  } else {
-    console.error("Error:", error);
-  }
-};
+// Same call shape for every request in the app
+const { data, error } = await postMessage.send({ payload: { prompt: "Hello" } });
 ```
 
 ---
 
-## How This Benefits AI and LLMs
+## Why a single pattern helps agents
 
-AI models, especially LLMs, thrive on patterns and predictability. When an AI is tasked with generating code, a
-consistent framework like HyperFetch offers several advantages:
+Every request is defined and sent the same way, whatever the transport:
 
-- **Reduced Hallucinations**: With a stable and well-defined API, the AI is less likely to "hallucinate" or invent
-  incorrect ways of using the library.
-- **Higher Accuracy**: The strong type-safety of HyperFetch guides the AI in generating code that is not only
-  syntactically correct but also type-correct, reducing runtime errors.
-- **Easy Fine-Tuning**: If you're building a custom AI model or a specialized assistant, fine-tuning it to work with
-  HyperFetch is straightforward due to the predictable structure of requests and clients.
-- **Faster Development**: Developers using AI code assistants will get more reliable and consistent code suggestions,
-  speeding up the development process.
+1. **Configure a client** once with the base URL and adapter.
+2. **Define a request** with its endpoint, method and types.
+3. **Send it** with `send()`, or use `useFetch` and `useSubmit` in React.
+
+For an agent this means fewer patterns to learn and fewer ways to get it wrong:
+
+- **Errors show up at compile time.** A missing `:userId` param or a wrong payload shape fails `tsc`, so the agent sees
+  the mistake before running anything.
+- **No `try/catch` decisions.** `send()` always resolves with `{ data, error, status }`, so there is one way to handle
+  failures.
+- **Requests are data.** An agent can read a request's endpoint, method and options from one definition instead of
+  tracing hooks and fetchers.
 
 ---
 
-## Building Shareable SDKs
+## Share an API as an SDK
 
-HyperFetch is an excellent foundation for creating your own SDKs. By wrapping your API endpoints in HyperFetch
-requests, you can create a shareable package that can be used across different teams and even shared publicly.
-
-Because the SDK is built on a standardized flow, any developer or AI assistant familiar with HyperFetch can immediately
-understand how to use it. This drastically reduces the learning curve and promotes broader adoption of your APIs.
+Wrap your endpoints in an [SDK](/docs/core/sdk) and publish it as a package. Any developer or agent who knows HyperFetch
+can use it right away, because every leaf is a regular request. If the API has an OpenAPI schema, the
+[CLI](/docs/cli/overview) generates the SDK for you.
 
 <LinkCard
   type="docs"
-  title="Building SDKs with HyperFetch"
-  description="Learn how to build SDKs with HyperFetch."
+  title="SDK"
+  description="Describe a whole API as one typed schema and get requests by dot notation."
   to="/docs/core/sdk"
 />
 
 ---
 
-## Agent Skills
+## Install the agent skills
 
 HyperFetch ships agent skills: instructions that coding agents such as Claude Code, Cursor, Codex or OpenCode load when
 a task touches a HyperFetch package. Each package has its own skill with the patterns, defaults, type-safety rules and
-pitfalls taken from the source and tests.
+pitfalls, checked against the source and tests.
 
 Install all of them with the [skills](https://skills.sh) CLI:
 
@@ -119,33 +79,50 @@ Or pick the packages you use:
 npx skills add BetterTyped/hyper-fetch/skills --skill hyper-fetch-core --skill hyper-fetch-react
 ```
 
-| Skill                        | Package                           |
-| ---------------------------- | --------------------------------- |
-| `hyper-fetch-core`           | `@hyper-fetch/core`               |
-| `hyper-fetch-react`          | `@hyper-fetch/react`              |
-| `hyper-fetch-sockets`        | `@hyper-fetch/sockets`            |
-| `hyper-fetch-axios`          | `@hyper-fetch/axios`              |
-| `hyper-fetch-graphql`        | `@hyper-fetch/graphql`            |
-| `hyper-fetch-firebase`       | `@hyper-fetch/firebase`           |
-| `hyper-fetch-firebase-admin` | `@hyper-fetch/firebase-admin`     |
-| `hyper-fetch-trpc`           | `@hyper-fetch/trpc`               |
-| `hyper-fetch-orpc`           | `@hyper-fetch/orpc`               |
-| `hyper-fetch-hono`           | `@hyper-fetch/hono`               |
-| `hyper-fetch-elysia`         | `@hyper-fetch/elysia`             |
-| `hyper-fetch-devtools`       | `@hyper-fetch/plugin-devtools`    |
-| `hyper-fetch-eslint`         | `eslint-plugin-hyper-fetch`       |
-| `hyper-fetch-oxlint`         | `oxlint-plugin-hyper-fetch`       |
-| `hyper-fetch-cli`            | `@hyper-fetch/cli`                |
+| Skill                        | Package                        |
+| ---------------------------- | ------------------------------ |
+| `hyper-fetch-core`           | `@hyper-fetch/core`            |
+| `hyper-fetch-react`          | `@hyper-fetch/react`           |
+| `hyper-fetch-sockets`        | `@hyper-fetch/sockets`         |
+| `hyper-fetch-db`             | `@hyper-fetch/db`              |
+| `hyper-fetch-axios`          | `@hyper-fetch/axios`           |
+| `hyper-fetch-graphql`        | `@hyper-fetch/graphql`         |
+| `hyper-fetch-firebase`       | `@hyper-fetch/firebase`        |
+| `hyper-fetch-firebase-admin` | `@hyper-fetch/firebase-admin`  |
+| `hyper-fetch-trpc`           | `@hyper-fetch/trpc`            |
+| `hyper-fetch-orpc`           | `@hyper-fetch/orpc`            |
+| `hyper-fetch-hono`           | `@hyper-fetch/hono`            |
+| `hyper-fetch-elysia`         | `@hyper-fetch/elysia`          |
+| `hyper-fetch-devtools`       | `@hyper-fetch/plugin-devtools` |
+| `hyper-fetch-eslint`         | `eslint-plugin-hyper-fetch`    |
+| `hyper-fetch-oxlint`         | `oxlint-plugin-hyper-fetch`    |
+| `hyper-fetch-cli`            | `@hyper-fetch/cli`             |
+
+The docs site also publishes [`/llms.txt`](pathname:///llms.txt), an index of every page for assistants that read it.
 
 ---
 
-:::secondary[Summary]
+:::secondary Summary
 
-- **Standardization**: HyperFetch provides a single, standardized interface for all types of APIs, which is ideal for
-  AI and LLMs.
-- **Type Safety**: The strong type-safety of HyperFetch guides AI in generating correct and reliable code.
-- **Predictability**: A consistent and predictable API reduces AI hallucinations and improves the accuracy of generated
-  code.
-- **Agent skills**: `npx skills add BetterTyped/hyper-fetch/skills` gives coding agents one skill per package.
+- **One pattern**: client, typed request, `send()` or a hook, for every transport.
+- **Compile-time checks**: wrong params, payloads and query params fail the typecheck.
+- **SDKs**: share an API as typed requests, or generate them from OpenAPI.
+- **Agent skills**: `npx skills add BetterTyped/hyper-fetch/skills` installs one skill per package.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="Core quick start"
+  description="The pattern every skill builds on: client, request, send."
+  to="/docs/core/quick-start"
+/>
+
+<LinkCard
+  type="docs"
+  title="Generate an SDK from OpenAPI"
+  description="Turn an OpenAPI schema into typed requests with the CLI."
+  to="/docs/cli/openapi-typescript-client"
+/>

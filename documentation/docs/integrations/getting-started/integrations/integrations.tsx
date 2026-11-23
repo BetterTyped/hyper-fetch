@@ -73,8 +73,8 @@ export const Integrations = () => {
           Have an idea for new integrations?
         </Title>
         <Description className="text-lg text-slate-400 text-center">
-          Create and add your own integrations. Place it on this page by creating a Pull Request on github. <br />
-          If you have an idea for a new integration, open a new issue and let us know what you need.
+          Built your own integration? Add it to this page with a pull request on GitHub. <br />
+          Missing one? Open an issue and tell us what you want to connect.
         </Description>
         <div>
           <a

@@ -4,22 +4,18 @@ title: Firebase Admin Realtime Listeners in Node.js
 description: Listen to Firestore and Realtime Database changes from Node.js workers with the Firebase Admin SDK, with typed listeners and live query filters.
 sidebar_label: Realtime listening
 ---
+
 # Firebase Admin realtime listeners in Node.js
 
-[Read the API Reference »](/api/adapter-firebase-admin/Functions/FirebaseSocketsAdminAdapter.mdx)
-
-A Node.js worker can react to data changes as they happen, for example to send an email when an order is paid. With the
-firebase admin sdk that is `onSnapshot` for Firestore and `on("value")` for the Realtime Database. Here both run through
-`@hyper-fetch/sockets` with `FirebaseSocketsAdminAdapter`. Listeners work like the
-[web package listeners](/docs/integrations/adapter-firebase/realtime-queries), with a few server-side differences.
-
----
+`FirebaseSocketsAdminAdapter` runs Admin SDK `onSnapshot` and `on("value")` through a [Socket](/docs/sockets/socket),
+so a Node.js worker can react to changes, for example send an email when an order is paid. Listeners work like the
+[web package listeners](/docs/integrations/adapter-firebase/realtime-queries), with the differences listed below.
 
 :::tip Purpose
 
-1.  **Listen** to Firestore queries and Realtime Database paths from workers and long-running servers.
-2.  **Filter** live queries with `setQueryParams((c) => ...)`, the same chain as requests.
-3.  **Process** changes with `groupByChangeType`, or read once with `onlyOnce`.
+1. **Listen** to Firestore queries and Realtime Database paths from workers and long-running servers.
+2. **Filter** live queries with `setQueryParams((c) => ...)`, the same chain as requests.
+3. **Group** Firestore changes into added, modified and removed, or read a Realtime Database path once.
 
 :::
 
@@ -27,7 +23,10 @@ firebase admin sdk that is `onSnapshot` for Firestore and `on("value")` for the 
 
 ## Setup
 
-```ts
+Install `@hyper-fetch/sockets`, then create a socket per database. Call `FirebaseSocketsAdminAdapter(db)` inside each
+`new Socket(...)`, because an adapter binds to the socket it was created for.
+
+```ts title="server/sockets.ts"
 import { Socket } from "@hyper-fetch/sockets";
 import { FirebaseSocketsAdminAdapter } from "@hyper-fetch/firebase-admin";
 import { initializeApp } from "firebase-admin/app";
@@ -40,67 +39,116 @@ export const firestoreSocket = new Socket({ url: "", adapter: FirebaseSocketsAdm
 export const realtimeSocket = new Socket({ url: "", adapter: FirebaseSocketsAdminAdapter(getDatabase()) });
 ```
 
-Create the adapter inside each `new Socket(...)`. An adapter binds to the socket it was created for.
-
 ---
 
 ## Listening
 
-```ts
-type Job = { __key: string; state: "queued" | "running" | "done"; payload: unknown };
+Same as the [web package](/docs/integrations/adapter-firebase/realtime-queries#listening): the path is
+`socket.url + topic`, `listen` returns a stop function, and every snapshot arrives once as the full current result.
+That result includes items you already handled, so make side effects such as sending mail idempotent.
 
-const onQueuedJobs = firestoreSocket
-  .createListener<Job[]>()({ topic: "jobs", options: { groupByChangeType: true } })
-  .setQueryParams((c) => c.where("state", "==", "queued"));
+```ts title="server/workers/jobs.ts"
+type Job = { __key: string; state: "queued" | "running" | "done" };
 
-const stop = onQueuedJobs.listen(({ data, extra }) => {
-  const added = extra.groupedResult?.added ?? [];
-  console.log(`${data.length} queued, ${added.length} new`);
-});
+const onJobs = firestoreSocket.createListener<Job[]>()({ topic: "jobs" });
+
+const stop = onJobs.listen(({ data }) => console.log(`${data.length} jobs`));
 
 process.on("SIGTERM", () => stop());
 ```
 
-Every snapshot is delivered once, as the full current result. It includes items you already handled, so make side
-effects such as sending mail idempotent, for example with a transaction or a status check.
+---
 
-| Option              | Database          | Effect                                                                                                                                   |
-| ------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `groupByChangeType` | Firestore         | On collection listeners, adds `extra.groupedResult` with the `added`, `modified` and `removed` documents. Document listeners get `null`. |
-| `onlyOnce`          | Realtime Database | Uses `once("value")`: receives the first value and stops.                                                                                |
+## Filtering
 
-Listener query params work like the web package: a callback or the constraints array, while the deprecated
-`options.constraints` still works.
+Same as the [web package](/docs/integrations/adapter-firebase/realtime-queries#filtering): a callback or the `$`-helper
+array, set with `setQueryParams`.
 
-`extra` holds `ref`, `snapshot` and `status`, plus `unsubscribe` and `groupedResult` for Firestore. `groupedResult` is
-`null` when the snapshot has no document changes, and its documents have no `__key`.
-
-```ts
-const onSettings = realtimeSocket.createListener<Settings | null>()({
-  topic: "settings",
-  options: { onlyOnce: true },
-});
+```ts title="server/workers/jobs.ts"
+const onQueuedJobs = onJobs.setQueryParams((c) => c.where("state", "==", "queued"));
 ```
 
 ---
 
-:::caution Server-side differences
+## Options
 
-1.  **The Firestore socket cannot connect or disconnect.** `connect()` and `disconnect()` throw. Stop listeners with the
-    function `listen` returns, and shut Firebase down with `app.delete()` from `firebase-admin/app`.
-2.  **Realtime Database document listeners add `__key`.** On an even-segment path `data` is the value plus its `__key`,
-    and the value should be an object.
-3.  **One listener per topic on a socket.** Listeners on the same socket and topic also receive each other's snapshots.
+The same `groupByChangeType` (Firestore) and `onlyOnce` (Realtime Database) options as the
+[web package](/docs/integrations/adapter-firebase/realtime-queries#options).
 
-:::
+### Grouping changes
+
+`groupedResult` is `null` on document listeners and when a snapshot has no document changes. On the server its
+documents have no `__key`.
+
+```ts title="server/workers/jobs.ts"
+const onJobChanges = firestoreSocket.createListener<Job[]>()({ topic: "jobs", options: { groupByChangeType: true } });
+
+onJobChanges.listen(({ extra }) => {
+  const added = extra.groupedResult?.added ?? [];
+  console.log(`${added.length} new jobs`);
+});
+```
+
+### Reading once
+
+`onlyOnce` uses `once("value")`: the listener receives the first value and stops.
+
+```ts title="server/settings.ts"
+const onSettings = realtimeSocket.createListener<Settings | null>()({ topic: "settings", options: { onlyOnce: true } });
+```
+
+---
+
+## Listeners in your app
+
+Start listeners when the worker starts and stop them on shutdown. Every `listen()` holds an open Firebase subscription
+until its stop function runs. Shut Firebase down with `app.delete()` from `firebase-admin/app`.
+
+---
+
+## Web and admin differences
+
+Listeners work the same in [`@hyper-fetch/firebase`](/docs/integrations/adapter-firebase/realtime-queries), except:
+
+| Topic                                        | `@hyper-fetch/firebase` (web)                | `@hyper-fetch/firebase-admin` (server)         |
+| -------------------------------------------- | -------------------------------------------- | ---------------------------------------------- |
+| Socket adapter                               | `FirebaseSocketsAdapter`                     | `FirebaseSocketsAdminAdapter`                  |
+| Firestore socket `connect()`, `disconnect()` | toggle the network of the instance           | throw, stop listeners with their stop function |
+| Realtime document listener `data`            | the value                                    | the value plus `__key`                         |
+| Firestore listener `extra`                   | `ref`, `snapshot`, `status`, `groupedResult` | the same, plus `unsubscribe`                   |
+| Documents in `groupedResult`                 | with `__key`                                 | without `__key`                                |
+
+---
+
+## Limits
+
+The [web limits](/docs/integrations/adapter-firebase/realtime-queries#limits) apply: one listener per topic on a socket,
+and sockets cannot emit. On the Realtime Database, document listeners spread the value into an object with `__key`, so
+store objects at those paths.
 
 ---
 
 :::secondary Summary
 
-1.  Create each socket with its own `FirebaseSocketsAdminAdapter(db)`.
-2.  Listeners deliver every snapshot once as the full current result; keep side effects idempotent.
-3.  Filter with `setQueryParams((c) => ...)`, group with `groupByChangeType`, read once with `onlyOnce`.
-4.  Stop listeners with their stop function; the Firestore socket cannot disconnect.
+- Create each socket with its own `FirebaseSocketsAdminAdapter(db)`.
+- Every snapshot arrives as the full current result, so keep side effects idempotent.
+- Filter with `setQueryParams((c) => ...)`, group with `groupByChangeType`, read once with `onlyOnce`.
+- Stop listeners with their stop function; the Firestore socket cannot disconnect.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="Web realtime listening"
+  description="Listener fields, filters and options in detail."
+  to="/docs/integrations/adapter-firebase/realtime-queries"
+/>
+
+<LinkCard
+  type="api"
+  title="FirebaseSocketsAdminAdapter API reference"
+  description="The socket adapter factory and its listener types."
+  to="/docs/api/adapter-firebase-admin/Functions/FirebaseSocketsAdminAdapter"
+/>

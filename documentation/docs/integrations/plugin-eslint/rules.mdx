@@ -7,119 +7,111 @@ sidebar_label: Rules
 
 # ESLint rules for typed requests and clients
 
-The HyperFetch ESLint plugin has two rules for typed request linting: `client-generic-types` and
-`request-generic-types`. This page describes each rule, what it checks, and code that triggers it.
+The HyperFetch ESLint plugin has two rules. Both check the first generic passed to a HyperFetch factory and report what
+TypeScript lets through: every generic key is optional, so next to any valid key a typo like `rsponse` is legal and the
+data quietly falls back to the default type.
+
+| Rule                                              | Description                                                    | Recommended | Fixable |
+| ------------------------------------------------- | -------------------------------------------------------------- | ----------- | ------- |
+| [`client-generic-types`](#client-generic-types)   | Checks the generic of `createClient` from `@hyper-fetch/core` | Yes         | No      |
+| [`request-generic-types`](#request-generic-types) | Checks the generic of every `.createRequest<...>()` call      | Yes         | No      |
 
 ---
 
-## What the rules accept
+## What both rules report and accept
+
+Both rules report:
+
+- **Unexpected keys**: any key the factory does not accept. All unknown keys are listed in one report.
+- **Empty generics**: `<{}>`, which sets nothing.
+- **Non-object generics**: a keyword, union or other type where an object is expected, such as `<unknown>`.
+
+Both rules accept:
 
 - **Type references** such as `createRequest<RequestType>()`. TypeScript already checks those against the constraint.
 - **Intersections** such as `createRequest<GqlResponse<User> & { payload: Input }>()`. Each object part is checked, and
-  references inside the intersection are trusted.
+  references inside it are trusted.
 - **Quoted keys** such as `{ "response": User }`, which count the same as `{ response: User }`.
 
-`client-generic-types` checks `createClient` imported from `@hyper-fetch/core` by name, alias or namespace, and allows
-the `error` key. `request-generic-types` allows `response`, `payload`, `error`, `queryParams`, `endpoint` and `params`,
-matching `RequestGenericType` in `@hyper-fetch/core`.
+Neither rule has options or an autofix: the right key depends on what you meant.
 
 ---
 
-1. ## client-generic-types
+## client-generic-types
 
-This rule ensures proper generic types are used when creating clients with HyperFetch. It extends TypeScript's
-functionality to trace issues with object-like generic types that might otherwise be missed.
+Checks the generic of `createClient` when it is imported from `@hyper-fetch/core` by name, alias or namespace. A
+`createClient` from another library is ignored. The only allowed key is `error`, the global error type of the
+[client](/docs/core/client).
 
-### Description
-
-The rule checks for:
-
-- Unexpected generic type properties that don't match the expected interface
-- Empty generic type objects (`{}`)
-- Generic types that don't match the expected object-like format
-
-### Examples of Issues Caught
-
-**Unexpected generic type:**
-
-```tsx
-// ❌ Error: Unexpected generic type(s) found: nonExistingGenericType
+```ts title="api/client.ts"
 import { createClient } from "@hyper-fetch/core";
-const someClient = createClient<{ nonExistingGenericType: any }>({ url: "http://localhost:3000" });
+
+// error-next-line
+const typo = createClient<{ eror: ApiError }>({ url: "http://localhost:3000" });
+// Unexpected generic type(s) found: eror
+
+// error-next-line
+const empty = createClient<{}>({ url: "http://localhost:3000" });
+// Generic type provided to createClient is empty
+
+// error-next-line
+const notObject = createClient<unknown>({ url: "http://localhost:3000" });
+// Generic type provided to createClient is not matching the expected object-like format
+
+// Correct
+const client = createClient<{ error: ApiError }>({ url: "http://localhost:3000" });
 ```
 
-**Empty generic type:**
-
-```tsx
-// ❌ Error: Generic type provided to createClient is empty
-import { createClient } from "@hyper-fetch/core";
-const someClient = createClient<{}>({ url: "http://localhost:3000" });
-```
-
-**Non-object-like generic type:**
-
-```tsx
-// ❌ Error: Generic type provided to createClient is not matching the expected object-like format
-import { createClient } from "@hyper-fetch/core";
-const someClient = createClient<unknown>({ url: "http://localhost:3000" });
-```
-
-### Configuration
-
-Default severity: `"error"`
+It only reads `createClient` calls from `@hyper-fetch/core`, so it has no false positives to turn it off for.
 
 ---
 
-2. ## request-generic-types
+## request-generic-types
 
-This rule ensures proper generic types are used when creating requests with HyperFetch. It extends TypeScript's
-functionality to trace issues with object-like generic types that might otherwise be missed.
+Checks the generic of every `.createRequest<...>()` call. The allowed keys are `response`, `payload`, `error`,
+`queryParams`, `endpoint` and `params`, matching `RequestGenericType` in `@hyper-fetch/core`.
 
-### Description
+```ts title="api/users.ts"
+// error-next-line
+const getUser = client.createRequest<{ rsponse: User; eror: ApiError }>()({
+  endpoint: "/users/:id",
+});
+// Unexpected generic type(s) found: rsponse, eror
 
-The rule checks for:
+// error-next-line
+const listUsers = client.createRequest<{}>()({ endpoint: "/users" });
+// Generic type provided to createRequest is empty
 
-- Unexpected generic type properties that don't match the expected interface
-- Empty generic type objects (`{}`)
-- Generic types that don't match the expected object-like format
-
-### Examples of Issues Caught
-
-**Unexpected generic type:**
-
-```tsx
-// ❌ Error: Unexpected generic type(s) found: nonExistingGenericType
-import { client } from "./client";
-const request = client.createRequest<{ nonExistingGenericType: any }>()({ endpoint: "/api/users" });
+// Correct
+const getUserById = client.createRequest<{ response: User; params: { id: number } }>()({
+  endpoint: "/users/:id",
+});
 ```
 
-**Empty generic type:**
-
-```tsx
-// ❌ Error: Generic type provided to createRequest is empty
-import { client } from "./client";
-const request = client.createRequest<{}>()({ endpoint: "/api/users" });
-```
-
-**Non-object-like generic type:**
-
-```tsx
-// ❌ Error: Generic type provided to createRequest is not matching the expected object-like format
-import { client } from "./client";
-const request = client.createRequest<unknown>()({ endpoint: "/api/users" });
-```
-
-### Configuration
-
-Default severity: `"error"`
+The rule matches the method name, so a `createRequest` method on an object that is not a HyperFetch client is checked
+too. Turn it off for those files if their generics use other keys.
 
 ---
 
-## When to Use These Rules
+## Next steps
 
-These rules are particularly useful for:
+<LinkCard
+  type="integrations"
+  title="Configuration"
+  description="Flat config, legacy .eslintrc and per-rule severity."
+  to="/docs/integrations/plugin-eslint/configuration"
+/>
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Every generic key a request accepts and what it types."
+  to="/docs/core/request"
+/>
 
-1. Large codebases where multiple developers might be working with HyperFetch
-2. Projects where type safety is critical
-3. Applications where you want to ensure consistent usage of HyperFetch
-4. Preventing subtle type-related bugs that might only manifest at runtime
+:::secondary Summary
+
+- Both rules report unknown keys, empty generics and generics that are not object types.
+- Type references are trusted, and intersections are checked part by part.
+- `client-generic-types` only checks `createClient` from `@hyper-fetch/core`.
+
+:::

@@ -7,15 +7,15 @@ sidebar_label: Queries
 
 # GraphQL query examples with variables
 
-A graphql query reads data. You name the fields you want, the server returns exactly those fields, and nothing changes on
-the server. This page shows the parts of a query, then how to send one with HyperFetch: written with `graphql-tag`,
-typed with generics, and run from a React component.
+A GraphQL query reads data: you name the fields you want and the server returns exactly those, without changing
+anything. With the [GraphQL adapter](/docs/integrations/adapter-graphql/overview) a query is a request whose `endpoint`
+is the document and whose `payload` is the variables.
 
-:::tip What you'll learn
+:::tip Purpose
 
-- How to create a basic GraphQL query.
-- How to use TypeScript with your queries.
-- How to pass variables to your queries.
+1. **Read the parts** of a query: operation, variables, arguments and selection set.
+2. **Send typed queries** with generics or typed documents.
+3. **Cache queries in React** per operation and variables.
 
 :::
 
@@ -23,7 +23,7 @@ typed with generics, and run from a React component.
 
 ## Anatomy of a GraphQL query
 
-```graphql
+```graphql title="GetUserById.graphql"
 query GetUserById($userId: ID!) {
   user(id: $userId) {
     username
@@ -32,83 +32,31 @@ query GetUserById($userId: ID!) {
 }
 ```
 
-| Part                    | In the example        | What it does                                                        |
-| ----------------------- | --------------------- | ------------------------------------------------------------------- |
-| Operation type          | `query`               | Reads data. `mutation` writes, `subscription` streams.              |
-| Operation name          | `GetUserById`         | Names the operation in logs, tooling and the cache key              |
-| Variable definitions    | `$userId: ID!`        | Inputs with types. `!` means required.                              |
-| Arguments               | `id: $userId`         | Pass a variable to a field                                          |
-| Selection set           | `username firstName`  | The fields the response will contain, nothing more                  |
+| Part                 | In the example       | What it does                                           |
+| -------------------- | -------------------- | ------------------------------------------------------ |
+| Operation type       | `query`              | Reads data. `mutation` writes, `subscription` streams. |
+| Operation name       | `GetUserById`        | Names the operation in logs, devtools and the cache key |
+| Variable definitions | `$userId: ID!`       | Typed inputs. `!` means required.                      |
+| Arguments            | `id: $userId`        | Pass a variable to a field                             |
+| Selection set        | `username firstName` | The fields the response contains, nothing more         |
 
-Always pass dynamic values as variables instead of building the query string by hand. The query text stays the same, so
-servers can cache the parsed query, persisted queries work, and you never have to escape user input.
-
-On the wire, a query is a `POST` with a JSON body of `query`, `variables` and `operationName`, or a `GET` with the same
-fields in the query string. The [overview](./overview.mdx#what-is-sent) has the details.
+Pass dynamic values as variables instead of building the query string. The query text stays the same, so servers can
+cache the parsed query, persisted queries work, and you never escape user input.
 
 ---
 
-## Basic Query
+## Send a query
 
-Here's how to create a simple query to fetch a user's data.
+Declare the response and the variables with generics, then pass the variables as the `payload`.
 
-```tsx
-import { Client } from "@hyper-fetch/core";
-import { GraphqlAdapter } from "@hyper-fetch/graphql";
+```ts title="api/users.ts"
 import gql from "graphql-tag";
 
-// 1. Initialize Client with adapter
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
+import { client } from "./client";
 
-// 2. Define an interface for your data
-interface User {
-  user: {
-    username: string;
-    firstName: string;
-  };
-}
+type User = { username: string; firstName: string };
 
-// 3. Create a request
-const getUser = client.createRequest<{ response: User }>()({
-  endpoint: gql`
-    query GetUser {
-      user {
-        username
-        firstName
-      }
-    }
-  `,
-});
-
-// 4. Send the request
-const { data, error } = await getUser.send();
-```
-
----
-
-## Query Variables
-
-You often need to pass variables to your queries to filter results or fetch specific data. You can do this by defining
-variables in your GraphQL query and passing them in the `send` method.
-
-```tsx
-import { Client } from "@hyper-fetch/core";
-import { GraphqlAdapter } from "@hyper-fetch/graphql";
-import gql from "graphql-tag";
-
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
-
-// 1. Define types for the response and variables
-type User = {
-  username: string;
-  firstName: string;
-};
-type Variables = {
-  userId: string;
-};
-
-// 2. Create the request with variables in the query
-const getUser = client.createRequest<{ response: { user: User }; payload: Variables }>()({
+export const getUser = client.createRequest<{ response: { user: User }; payload: { userId: string } }>()({
   endpoint: gql`
     query GetUserById($userId: ID!) {
       user(id: $userId) {
@@ -119,29 +67,38 @@ const getUser = client.createRequest<{ response: { user: User }; payload: Variab
   `,
 });
 
-// 3. Pass variables when sending the request
-const { data, error } = await getUser.send({
-  payload: { userId: "1" },
-});
+const { data, error } = await getUser.send({ payload: { userId: "1" } });
+// or: await getUser.setPayload({ userId: "1" }).send();
 ```
 
-You can also use the `.setPayload()` method to set variables before sending the request. This is useful when you want to
-separate setting the variables from sending the request.
+A query without variables needs no `payload`.
 
-```ts
-const { data, error } = await getUser.setPayload({ userId: "1" }).send();
+---
+
+## Typed documents
+
+A typed document from GraphQL Code Generator or gql.tada carries its result and variables types, so the request needs no
+generics and the variables are checked against the schema.
+
+```ts title="api/users.ts"
+import { GetUserByIdDocument } from "./gql/graphql"; // generated
+
+export const getUser = client.createRequest()({ endpoint: GetUserByIdDocument });
+
+const { data } = await getUser.send({ payload: { userId: "1" } }); // data and payload typed by the document
 ```
 
 ---
 
 ## Queries in React
 
-`useFetch` sends the query when the component mounts and again when the variables change. The result is cached by the
-operation and its variables, so another component with the same query reads the cached data. Add `deduplicate: true` to
-the request to merge identical queries that start at the same time into one network call.
+[`useFetch`](/docs/react/hooks/use-fetch) sends the query on mount and again when the variables change. The result is
+cached per operation and variables, so another component with the same query reads the cached data.
 
-```tsx
+```tsx title="UserName.tsx"
 import { useFetch } from "@hyper-fetch/react";
+
+import { getUser } from "./api/users";
 
 export const UserName = ({ userId }: { userId: string }) => {
   const { data, loading } = useFetch(getUser.setPayload({ userId }));
@@ -152,5 +109,68 @@ export const UserName = ({ userId }: { userId: string }) => {
 };
 ```
 
-To refetch queries after a write, see [mutations](./mutations.mdx#refetching-queries-after-a-mutation). For the cache
-options behind `useFetch`, see [cache](../../core/cache.mdx).
+Add `deduplicate: true` to the request to merge identical queries that start at the same time into one network call.
+To refetch a query after a write, see [mutations](/docs/integrations/adapter-graphql/mutations#refetch-queries-after-a-mutation).
+
+---
+
+## Send a query with GET
+
+Queries go as `POST` by default. `GraphqlMethod.GET` puts `query`, `operationName` and `variables` in the query string, so
+browsers and CDNs can cache the response. Add `persistedQueries` to keep the URL short.
+
+```ts title="api/users.ts"
+import { GraphqlMethod } from "@hyper-fetch/graphql";
+
+export const listUsers = client.createRequest()({
+  endpoint: ListUsersDocument,
+  method: GraphqlMethod.GET,
+  options: { persistedQueries: true },
+});
+```
+
+A `GET` request sends no `Content-Type`, so it needs no CORS preflight. See
+[persisted queries](/docs/integrations/adapter-graphql/overview#persisted-queries) for how the hash is negotiated.
+
+---
+
+## Errors
+
+`send()` resolves with `error` as a list: the GraphQL `errors`, or one `Error` for a network failure, abort or timeout. A
+response with both `data` and `errors` fails unless `errorPolicy` is `"all"`. See
+[partial data](/docs/integrations/adapter-graphql/overview#partial-data).
+
+---
+
+:::secondary Summary
+
+- A query is a request: the document is the `endpoint`, the variables the `payload`.
+- Typed documents type `data` and `payload` without generics.
+- `useFetch` caches each operation and set of variables on its own.
+
+:::
+
+## Next steps
+
+Runnable example: [GraphQL](/examples/integrations/graphql).
+
+<LinkCard
+  type="docs"
+  title="Mutations"
+  description="Send mutations and refetch the queries they changed."
+  to="/docs/integrations/adapter-graphql/mutations"
+/>
+
+<LinkCard
+  type="docs"
+  title="Cache"
+  description="How cached data, staleTime and invalidation work."
+  to="/docs/core/cache"
+/>
+
+<LinkCard
+  type="api"
+  title="GraphqlAdapter API reference"
+  description="The adapter factory and its option, error and extra types."
+  to="/docs/api/adapter-graphql/Functions/GraphqlAdapter"
+/>

@@ -7,59 +7,40 @@ sidebar_label: Subscriptions
 
 # tRPC subscriptions over WebSocket and SSE
 
-[Read the API Reference »](/docs/api/adapter-trpc/Functions/TrpcWebsocketAdapter.mdx)
-
-A tRPC subscription is a procedure that keeps sending events after the client calls it, for example new chat messages
-or job progress. tRPC subscriptions run over a websocket with `wsLink` or over Server-Sent Events with
-`httpSubscriptionLink`. The HyperFetch socket adapters speak both protocols, so each subscription procedure becomes a
-typed listener on a `Socket`, with the procedure input as the payload.
+A tRPC subscription is a procedure that keeps sending events after one call, such as chat messages or job progress.
+`TrpcSseAdapter` speaks the protocol of `httpSubscriptionLink` and `TrpcWebsocketAdapter` the one of `wsLink`, so each
+subscription becomes a typed [Listener](/docs/sockets/listener) on a [Socket](/docs/sockets/socket) without server
+changes, with the procedure input as the payload.
 
 :::tip Purpose
 
-1. **Listen to tRPC subscriptions** with the `Socket`, `Listener` and `useListener` API you use for other realtime
-   sources.
+1. **Listen to subscriptions** with the `Socket`, `Listener` and `useListener` API of other realtime sources.
 2. **Infer types from your router** with `TrpcSocketSchema` and `createSocketSdk`.
-3. **Share one server subscription** between every listener with the same input.
+3. **Share one server subscription** between listeners with the same input.
 4. **Resume after reconnecting** from the last `tracked()` event.
-5. **Support transformers** such as `superjson`.
 
 :::
 
 ---
 
-## How tRPC subscriptions work
+## Install
 
-On the server, a subscription procedure is an async generator. Each `yield` sends one event to the client, and the
-`signal` it receives aborts when the client unsubscribes. Wrapping an event in `tracked(id, data)`
-gives it an id, so a client that reconnects can pass the last id back as `lastEventId` and the server resumes from there
-instead of replaying everything.
+The socket adapters ship in `@hyper-fetch/trpc` and need `@hyper-fetch/sockets`.
 
-On the client, tRPC's own links open the connection: `wsLink` for a websocket and `httpSubscriptionLink` for SSE. The
-adapters on this page replace those links. `TrpcWebsocketAdapter` speaks the `wsLink` protocol and `TrpcSseAdapter`
-speaks the `httpSubscriptionLink` protocol, so the server needs no changes. Which one to pick is covered under
-[Server-Sent Events](#server-sent-events).
-
----
-
-## Installation
-
-The socket adapters live in the tRPC package and need `@hyper-fetch/sockets`.
-
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/trpc
 ```
 
 ---
 
-## WebSocket
+## Listen over HTTP
 
-`TrpcWebsocketAdapter` speaks the protocol of `wsLink`, so it works with `applyWSSHandler` from
-`@trpc/server/adapters/ws`.
+On the server, a subscription is an async generator. Each `yield` sends one event, and `tracked(id, data)` gives it an
+id the client can resume from. `TrpcSseAdapter` works with the HTTP handlers of tRPC (`createHTTPServer`,
+`fetchRequestHandler` and the others), so point the socket at the same URL as your queries.
 
-```ts title="server.ts"
+```ts title="server/router.ts"
 import { initTRPC, tracked } from "@trpc/server";
-import { applyWSSHandler } from "@trpc/server/adapters/ws";
-import { WebSocketServer } from "ws";
 
 const t = initTRPC.create();
 
@@ -76,20 +57,16 @@ export const appRouter = t.router({
 });
 
 export type AppRouter = typeof appRouter;
-
-applyWSSHandler({ wss: new WebSocketServer({ port: 3001 }), router: appRouter });
 ```
 
-Create a socket with the adapter and describe the router with `TrpcSocketSchema`.
-
-```ts title="socket.ts"
-import { Socket, createSocketSdk } from "@hyper-fetch/sockets";
-import { TrpcWebsocketAdapter } from "@hyper-fetch/trpc";
+```ts title="api/socket.ts"
+import { createSocketSdk, Socket } from "@hyper-fetch/sockets";
+import { TrpcSseAdapter } from "@hyper-fetch/trpc";
 import type { TrpcSocketSchema } from "@hyper-fetch/trpc";
 
-import type { AppRouter } from "./server";
+import type { AppRouter } from "../server/router";
 
-export const socket = new Socket({ url: "ws://localhost:3001", adapter: TrpcWebsocketAdapter() });
+export const socket = new Socket({ url: "http://localhost:3000/trpc", adapter: TrpcSseAdapter() });
 
 export const realtime = createSocketSdk<typeof socket, TrpcSocketSchema<AppRouter>>(socket, {
   camelCaseToKebabCase: false,
@@ -100,150 +77,122 @@ const stop = realtime.chat.onMessage.$listener.setPayload({ room: "general" }).l
 });
 ```
 
-Every subscription procedure becomes a `$listener`. Its topic is the procedure path with slashes (`chat/onMessage`), and
-queries and mutations are left out of the schema - send them with the
-[TrpcAdapter](/docs/integrations/adapter-trpc/overview.mdx).
+Every subscription gets its own `EventSource`, opened as `GET {url}/chat.onMessage?input=...`. The socket counts as
+connected once it can open streams, and `socket.disconnect()` closes all of them.
 
 ---
 
-## Server-Sent Events
+## Listen over WebSocket
 
-`TrpcSseAdapter` speaks the protocol of `httpSubscriptionLink`, so it works with the HTTP handlers of tRPC
-(`createHTTPServer`, `fetchRequestHandler` and the other adapters). Point the socket at the URL of the HTTP handler.
+`TrpcWebsocketAdapter` works with `applyWSSHandler` from `@trpc/server/adapters/ws` and keeps one connection for every
+subscription.
 
-```ts
-import { Socket } from "@hyper-fetch/sockets";
-import { TrpcSseAdapter } from "@hyper-fetch/trpc";
+```ts title="server/ws.ts"
+import { applyWSSHandler } from "@trpc/server/adapters/ws";
+import { WebSocketServer } from "ws";
 
-export const socket = new Socket({ url: "http://localhost:3000/trpc", adapter: TrpcSseAdapter() });
+import { appRouter } from "./router";
+
+applyWSSHandler({ wss: new WebSocketServer({ port: 3001 }), router: appRouter });
 ```
 
-Every subscription gets its own `EventSource`, opened as `GET {url}/chat.onMessage?input={"room":"general"}`. The socket
-counts as connected once it can open the streams, and `socket.disconnect()` closes all of them.
+```ts title="api/socket.ts"
+import { TrpcWebsocketAdapter } from "@hyper-fetch/trpc";
 
-:::note When to use which?
-
-- **WebSocket** keeps one connection for every subscription. Use it when a client holds many subscriptions at once.
-- **Server-Sent Events** need no WebSocket server and pass through HTTP proxies and serverless platforms. Use them when
-  you already serve tRPC over HTTP.
-- Both adapters share the schema, the payloads and the `extra`, so switching only changes the socket.
-
-:::
-
-Both adapters use the global `WebSocket` and `EventSource`. In environments without them, such as `EventSource` in
-Node.js, pass the class in the `adapterOptions`.
-
-```ts
-import { EventSource } from "eventsource";
-
-const socket = new Socket({
-  url: "http://localhost:3000/trpc",
-  adapter: TrpcSseAdapter(),
-  adapterOptions: { EventSource },
-});
+export const socket = new Socket({ url: "ws://localhost:3001", adapter: TrpcWebsocketAdapter() });
 ```
 
-The WebSocket adapter takes `WebSocket` the same way, for example from the `ws` package.
+Pick SSE when you already serve tRPC over HTTP, behind proxies or on serverless platforms. Pick WebSocket when a client
+holds many subscriptions at once. Both adapters share the schema, the payloads and the `extra`, so switching only
+changes the socket.
 
 ---
 
 ## Inputs and shared subscriptions
 
-The procedure input is the listener payload. Set it with `setPayload()` or pass it to `listen()`.
+`TrpcSocketSchema` turns every subscription procedure into a `$listener`. Its topic is the procedure path with slashes
+(`chat/onMessage`), and its payload is the input: required, optional or absent, as the procedure declares. Queries and
+mutations are left out, send them with the [`TrpcAdapter`](/docs/integrations/adapter-trpc/overview).
 
-```ts
+```ts title="api/chat.ts"
 realtime.chat.onMessage.$listener.setPayload({ room: "general" }).listen(onMessage);
 realtime.chat.onMessage.$listener.listen(onMessage, { payload: { room: "general" } });
 ```
 
-The payload follows the procedure: it is required when the input is required, optional when the input is optional, and
-not taken when the procedure has no input.
-
-- Listeners with the same input share one server subscription. The first one starts it and the last one to leave stops
-  it (`subscription.stop` over WebSocket, closing the stream over SSE).
+- Listeners with the same input share one server subscription. The last one to leave stops it (`subscription.stop`
+  over WebSocket, closing the stream over SSE).
 - Listeners with different inputs are separate subscriptions and never receive each other's events.
-- Listeners created before the socket connects wait, and their subscriptions start when it connects.
+- Listeners created before the socket connects wait and start when it connects.
 
 ---
 
-## Tracked events and resuming
+## Event ids and resuming
 
-Events yielded with `tracked(id, data)` reach the listeners as `data`, without the wrapper. The id is in the `extra`.
-
-```ts
-realtime.chat.onMessage.$listener.setPayload({ room: "general" }).listen(({ data, extra }) => {
-  data; // { id: string; room: string; text: string }
-  extra.eventId; // "message-42", or null for events that are not tracked
-  extra.payload; // { room: "general" }
-});
-```
-
-After a reconnect, every subscription is restarted with the last event id as `lastEventId`, and tRPC passes it to the
-procedure in `input.lastEventId`. A procedure that reads it can send the events the client missed. Over SSE the
-`EventSource` also sends it as `Last-Event-ID` when it reconnects on its own.
+Events yielded with `tracked(id, data)` reach the listeners as `data`, without the wrapper. `extra.eventId` holds the
+id (`null` for untracked events) and `extra.payload` the input. After a reconnect every subscription restarts with the
+last id as `input.lastEventId`, so the procedure can send the events the client missed. Over SSE the `EventSource` also
+sends it as `Last-Event-ID` when it reconnects on its own.
 
 ---
 
-## React
+## Subscriptions in React
 
-`useListener` from `@hyper-fetch/react` works with both adapters. Changing the payload stops the previous subscription
-and starts a new one, and unmounting stops it.
+[`useListener`](/docs/react/sockets/use-listener) works with both adapters. Changing the payload stops the previous
+subscription and starts a new one, and unmounting stops it.
 
-```tsx
+```tsx title="ChatRoom.tsx"
 import { useListener } from "@hyper-fetch/react";
 
-const ChatRoom = ({ room }: { room: string }) => {
-  const { data, extra, connected } = useListener(realtime.chat.onMessage.$listener.setPayload({ room }));
+import { realtime } from "./api/socket";
+
+export const ChatRoom = ({ room }: { room: string }) => {
+  const { data, extra, status, error } = useListener(realtime.chat.onMessage.$listener.setPayload({ room }));
+
+  if (status === "failed") return <p>{error?.message}</p>;
 
   return (
-    <div>
-      <p>{connected ? "Live" : "Connecting..."}</p>
-      <p>{data?.text}</p>
-      <span>{extra?.eventId}</span>
-    </div>
+    <p>
+      {status === "listening" ? "Live" : "Connecting..."} {data?.text} ({extra?.eventId})
+    </p>
   );
 };
 ```
+
+`status` is `"idle"`, `"starting"` until the server confirms the subscription, `"listening"`, then `"ended"` or
+`"failed"` with the `error`. Call `listen()` from the hook to subscribe again.
 
 ---
 
 ## Errors
 
-Subscription errors are reported to the `socket.onError` callbacks as a `TrpcSocketError`. Its `shape` holds the error
-sent by the server, after the transformer, and `topic` and `payload` tell which subscription failed.
+Subscription errors reach `socket.onError` as a `TrpcSocketError`. Its `shape` holds the server error after the
+transformer, and `topic` and `payload` tell which subscription failed.
 
-```ts
+```ts title="api/socket.ts"
 import { TrpcSocketError } from "@hyper-fetch/trpc";
 
 socket.onError(({ error }) => {
   if (error instanceof TrpcSocketError) {
-    error.topic; // "chat/onMessage", or null when the server rejected the whole connection
-    error.payload; // { room: "general" }
-    error.shape.data.code; // "UNAUTHORIZED"
+    console.log(error.topic, error.payload, error.shape.data.code); // topic is null when the whole connection failed
   }
 });
 ```
 
 - Over WebSocket, an error ends the subscription on the server.
-- Over SSE, errors with the `INTERNAL_SERVER_ERROR` code keep the stream, and the `EventSource` reconnects. Other errors
-  end the subscription, the same way `httpSubscriptionLink` handles them.
-- Messages that don't follow the protocol, and callbacks that throw, are reported to `onError` too. The connection stays
-  open and the other listeners keep receiving events.
+- Over SSE, `INTERNAL_SERVER_ERROR` errors keep the stream and the `EventSource` reconnects. Other errors end the
+  subscription, as in `httpSubscriptionLink`.
+- Messages that break the protocol and callbacks that throw are reported too. Other listeners keep their events.
 
 ---
 
 ## Subscription lifecycle
 
-The server confirms every subscription and tells when it is over, so `listen()` takes `onStart` and `onEnd`.
+The server confirms every subscription and tells when it is over. Pass `onStart` and `onEnd` to `listen()`.
 
-```ts
+```ts title="api/chat.ts"
 realtime.chat.onMessage.$listener.setPayload({ room: "general" }).listen(onMessage, {
-  onStart: ({ topic }) => {
-    // The server accepted the subscription, and again after every reconnect
-  },
-  onEnd: ({ topic, error }) => {
-    // The procedure returned (`error` is null) or failed with a TrpcSocketError
-  },
+  onStart: ({ topic }) => {}, // accepted by the server, and again after every reconnect
+  onEnd: ({ topic, error }) => {}, // the procedure returned (error is null) or failed with a TrpcSocketError
 });
 ```
 
@@ -253,134 +202,105 @@ realtime.chat.onMessage.$listener.setPayload({ room: "general" }).listen(onMessa
 | `onEnd`, no error   | `stopped` result          | `return` event                                          |
 | `onEnd`, with error | error of the subscription | `serialized-error` that is not retryable, failed stream |
 
-- A listener that joins a subscription the server already confirmed gets `onStart` right away.
-- After a reconnect, or when the `EventSource` reconnects on its own, `onStart` runs again once the server confirms the
-  restarted subscription.
-- On the end, events still pending in a `delivery` strategy are delivered first. Then the listener unsubscribes and
-  `onEnd` runs. Errors also reach `socket.onError`.
-- An ended subscription is never restarted by a reconnect. A new `listen()` with the same input starts a fresh one,
-  without the last event id of the old one.
-- Errors of the whole connection, such as a failing `createContext`, are reported to `socket.onError` and don't end the
-  subscriptions.
+- A listener that joins a confirmed subscription gets `onStart` right away.
+- On the end, events pending in a `delivery` strategy are delivered first, then `onEnd` runs.
+- A reconnect never restarts an ended subscription. A new `listen()` starts a fresh one without the old event id.
+- Errors of the whole connection, such as a failing `createContext`, reach `socket.onError` and don't end subscriptions.
 - Unsubscribing yourself does not call `onEnd`.
-
-`useListener` follows the same lifecycle in `status`: `"idle"`, `"starting"` until the server confirms, `"listening"`,
-then `"ended"` or `"failed"` with the `error`. Call `listen()` from the hook to subscribe again.
-
-```tsx
-const { data, status, error, listen } = useListener(realtime.onCount.$listener.setPayload({ to: 10 }));
-
-if (status === "failed") {
-  return <p>{error?.message}</p>;
-}
-```
 
 ---
 
-## Connection params
+## Options
 
-Pass `connectionParams` in the `adapterOptions` to send values that the server reads in `createContext` as
-`info.connectionParams`. The WebSocket adapter sends them as the first message of every connection, the SSE adapter adds
-them to the URL of every stream.
+Adapter options go in the socket's `adapterOptions`:
 
-```ts
-const socket = new Socket({
-  url: "ws://localhost:3001",
-  adapter: TrpcWebsocketAdapter(),
-  adapterOptions: { connectionParams: { token: getToken() } },
-});
-```
+| Option             | Adapter                | Description                                                         |
+| ------------------ | ---------------------- | ------------------------------------------------------------------- |
+| `autoConnect`      | both                   | Connect when the socket is created, default `true`                  |
+| `connectionParams` | both                   | Read by the server in `createContext` as `info.connectionParams`    |
+| `WebSocket`        | `TrpcWebsocketAdapter` | The `WebSocket` class, for example from `ws`. The global by default |
+| `protocols`        | `TrpcWebsocketAdapter` | Subprotocols of the `WebSocket`                                     |
+| `keepAlive`        | `TrpcWebsocketAdapter` | `{ enabled, intervalMs?, pongTimeoutMs? }`, ping a quiet connection |
+| `EventSource`      | `TrpcSseAdapter`       | The `EventSource` class, for example from `eventsource` in Node.js  |
+| `eventSourceInit`  | `TrpcSseAdapter`       | Passed to the `EventSource` constructor                             |
 
-To resolve a fresh value for every connection attempt, for example a short-lived token, change it in `socket.onConnect`.
+### Connection params
 
-```ts
+The WebSocket adapter sends `connectionParams` as the first message of every connection, the SSE adapter adds them to
+the URL of every stream. For a fresh token per attempt, change them in `socket.onConnect`.
+
+```ts title="api/socket.ts"
 socket.onConnect(async ({ connection }) => ({
   ...connection,
   adapterOptions: { ...connection.adapterOptions, connectionParams: { token: await refreshToken() } },
 }));
 ```
 
----
+### Keep-alive
 
-## Keep-alive
+The WebSocket adapter always answers the server's `PING`. With `keepAlive` it also sends its own on a quiet connection
+and reconnects when the `PONG` is late. Over SSE the server decides: with `sse.client.reconnectAfterInactivityMs` in
+`initTRPC.create()`, a stream without events or pings for that long restarts from the last event.
 
-The WebSocket adapter answers the `PING` of the server. Enable `keepAlive` to send its own `PING` on a quiet connection
-and reconnect when the `PONG` does not arrive in time.
+### Timeouts and cleanup
 
-```ts
-const socket = new Socket({
-  url: "ws://localhost:3001",
-  adapter: TrpcWebsocketAdapter(),
-  adapterOptions: { keepAlive: { enabled: true, intervalMs: 5000, pongTimeoutMs: 1000 } },
-});
-```
+The socket's `connectionTimeout` (default 5 seconds) limits one connection attempt, including a stream that has not
+received its `connected` event. `reconnectTime` (default 1 second) and `maxReconnectTime` (default 30 seconds) bound
+the jittered backoff of the WebSocket adapter, see [reconnection](/docs/guides/sockets/connection). `socket.destroy()`
+closes the connection for good.
 
-Over SSE the server decides. When it sets `sse.client.reconnectAfterInactivityMs` in `initTRPC.create()`, a stream that
-gets no event or ping for that long is restarted from the last event.
+### Transformers
 
----
+Pass the server's transformer to the adapter factory. It handles inputs, events and errors.
 
-## Timeouts and cleanup
-
-The socket options control the timing, the same way as for every socket adapter (see
-[retries](/docs/guides/sockets/connection#retries)).
-
-- `connectionTimeout` (5 seconds by default) limits one connection attempt: the WebSocket handshake, or a stream that
-  has not received the `connected` event yet, also while the `EventSource` retries it on its own. An attempt that takes
-  longer is a failed attempt, and the next one follows the reconnection delay.
-- `reconnectTime` (1 second by default) and `maxReconnectTime` (30 seconds by default) bound the delay before the
-  WebSocket adapter connects again after the connection was lost. The delay grows with every failed attempt, with
-  jitter, and resets once a connection stays up for `minUptime`.
-- When the server asks the client to reconnect, the adapter moves to a new connection right away - also after the
-  `reconnect` attempts ran out.
-
-```ts
-const socket = new Socket({
-  url: "ws://localhost:3001",
-  adapter: TrpcWebsocketAdapter(),
-  connectionTimeout: 10_000,
-  reconnectTime: 500,
-  maxReconnectTime: 10_000,
-});
-```
-
-Call `socket.destroy()` when the socket is not needed anymore. It closes the connection and stops following the online
-state of the app, so a destroyed socket never connects again.
-
----
-
-## Transformers
-
-Pass the same transformer that the server uses in `initTRPC.create()`. It handles the inputs, the events and the errors.
-
-```ts
+```ts title="api/socket.ts"
 import superjson from "superjson";
 
-const socket = new Socket({ url: "ws://localhost:3001", adapter: TrpcWebsocketAdapter({ transformer: superjson }) });
-
-realtime.event.onCreated.$listener.listen(({ data }) => {
-  data.createdAt; // Date
-});
+export const socket = new Socket({ url: "ws://localhost:3001", adapter: TrpcWebsocketAdapter({ transformer: superjson }) });
 ```
 
 ---
 
-## Limitations
+## Limits
 
-- The socket adapters handle subscriptions only. `emitter.emit()` throws, send queries and mutations with the
-  `TrpcAdapter`.
+- The adapters handle subscriptions only. `emit()` throws; send queries and mutations with the `TrpcAdapter`.
 - WebSocket batching, lazy connections and custom encoders (`experimental_encoder`) are not supported.
 - A procedure that yields its own `{ id, data }` objects without `tracked()` is typed as tracked. Wrap the events with
   `tracked()` or use other field names.
 
-:::secondary What you learned
+---
 
-- `TrpcWebsocketAdapter` and `TrpcSseAdapter` connect a `Socket` to tRPC subscriptions over WebSocket or SSE.
-- `TrpcSocketSchema` maps the subscriptions of a router to `$listener`s with typed payloads and events.
-- Listeners with the same input share one server subscription, different inputs never mix.
-- `extra.eventId` holds the id of tracked events, and subscriptions resume from it after reconnecting.
-- `onStart` and `onEnd` (and `status` in `useListener`) follow the server - an ended subscription takes a new
-  `listen()`.
+:::secondary Summary
+
+- `TrpcSseAdapter` and `TrpcWebsocketAdapter` connect a `Socket` to tRPC subscriptions over SSE or WebSocket.
+- `TrpcSocketSchema` maps a router's subscriptions to `$listener`s with typed payloads and events.
+- Listeners with the same input share one server subscription; `extra.eventId` resumes it after a reconnect.
 - Errors arrive in `socket.onError` as a `TrpcSocketError`.
 
 :::
+
+## Next steps
+
+Runnable example: [tRPC subscriptions](/examples/integrations/trpc-subscriptions), a live chat over SSE with typed
+events and resume.
+
+<LinkCard
+  type="docs"
+  title="tRPC overview"
+  description="Call queries and mutations with TrpcAdapter and TrpcSchema."
+  to="/docs/integrations/adapter-trpc/overview"
+/>
+
+<LinkCard
+  type="docs"
+  title="useListener"
+  description="Listen to a socket topic in a React component."
+  to="/docs/react/sockets/use-listener"
+/>
+
+<LinkCard
+  type="api"
+  title="TrpcWebsocketAdapter API reference"
+  description="The WebSocket socket adapter and its options."
+  to="/docs/api/adapter-trpc/Functions/TrpcWebsocketAdapter"
+/>

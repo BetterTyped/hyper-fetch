@@ -5,112 +5,77 @@ description: Apollo Client vs HyperFetch for GraphQL and React. Normalized cache
 sidebar_label: vs Apollo Client
 ---
 
-# Apollo Client alternative: GraphQL in React with HyperFetch
+# HyperFetch vs Apollo Client
 
-Apollo Client is the GraphQL client most React teams start with, and for a lot of them it's the right one to keep. If
-you're looking at graphql and react and wondering whether you need Apollo at all, the useful question is narrower:
-does your app depend on a normalized cache, or do you mostly need typed operations, loading state and caching per
-query? This page compares the apollo graphql client with HyperFetch's GraphQL adapter on that question and the ones
-around it. Every claim about Apollo links to its own docs.
+Apollo Client is a GraphQL client built around a normalized cache: each object is stored once, so one mutation updates
+every query that shows it. HyperFetch's [GraphQL adapter](/docs/integrations/adapter-graphql/overview) caches each
+operation with its variables, next to REST, sockets and other backends. This page compares the two for GraphQL in React.
 
-:::secondary What you'll learn
+:::info How this page was written
 
-1.  What **Apollo Client** does well, and who should stay on it.
-2.  How a **normalized cache** differs from a **per-operation cache** in daily work.
-3.  How queries, mutations and **subscriptions** look in each client.
-4.  When HyperFetch is a reasonable **Apollo Client alternative**, and when it isn't.
+Apollo claims come from the [Apollo Client docs](https://www.apollographql.com/docs/react), linked where they are used,
+with the `@apollo/client/react` imports of the current major version. HyperFetch claims are checked against its source.
+If something is out of date, [open an issue](https://github.com/BetterTyped/hyper-fetch/issues) and we will fix it.
 
 :::
 
 ---
 
-## What Apollo Client does well
+## When to choose which
 
-Apollo describes itself as a ["GraphQL state management library for JavaScript"](https://www.apollographql.com/docs/react).
-That's accurate. It's more than a request sender.
-
-- **A normalized cache.** `InMemoryCache` splits each response into objects and stores each one once, under a cache ID
-  built from `__typename` and `id`. Every query that returned the same object reads the same entry, so an update shows
-  up everywhere it's referenced. See the [caching overview](https://www.apollographql.com/docs/react/caching/overview).
-- **Cache-first reads.** `useQuery` answers from the cache when it can. The default `fetchPolicy` is `cache-first`
-  ([queries docs](https://www.apollographql.com/docs/react/data/queries)).
-- **Mutations that update the cache on their own.** If a mutation returns the changed object with its `id`, Apollo
-  writes it to the cache and every query showing it updates. New items in lists need `refetchQueries` or an `update`
-  function. `optimisticResponse` shows the predicted result right away
-  ([mutations docs](https://www.apollographql.com/docs/react/data/mutations)).
-- **Subscriptions two ways.** Over WebSocket with `GraphQLWsLink` and the `graphql-ws` library, and over HTTP with
-  multipart responses through `HttpLink` ([subscriptions docs](https://www.apollographql.com/docs/react/data/subscriptions)).
-- **Devtools.** A browser extension for Chrome and Firefox with a cache inspector, a watched query inspector, a mutation
-  inspector and GraphiQL. There's also an experimental VS Code version that can debug React Native and Node apps
-  ([developer tooling](https://www.apollographql.com/docs/react/development-testing/developer-tooling)).
-- **Reach.** React integration is built in, and the docs list community integrations for Angular, Vue, Svelte,
-  Solid.js and others.
-
-If your UI shows the same entities in many places (a user's name in a header, a list, a detail panel and a comment
-thread) and you want one mutation to fix all of them without thinking about it, Apollo is built for that. Stay on it.
+- **Apollo Client** when the same entities show up across many queries and mutations should update all of them without
+  extra code.
+- **Apollo Client** when you use subscriptions over multipart HTTP, or GraphOS features such as the Explorer.
+- **HyperFetch** when GraphQL is one of several backends. REST, Firebase and WebSockets use the same requests, cache and
+  hooks.
+- **HyperFetch** when your queries rarely overlap on the same objects, so invalidating a query is simpler than cache
+  merge rules.
 
 ---
 
-## The core difference: how results are cached
+## Feature comparison
 
-The two clients cache at different levels, and most other differences follow from that.
+**Yes**: built in. **Partial**: possible with your own code or an extra package. **No**: not available.
 
-| Question                                    | Apollo Client                                          | HyperFetch                                         |
-| ------------------------------------------- | ------------------------------------------------------ | -------------------------------------------------- |
-| What is a cache entry?                      | One object, keyed by `__typename:id`                   | One operation with one set of variables            |
-| A mutation returns an updated user          | Every query holding that user updates                  | You invalidate or update the queries that need it  |
-| A new item should appear in a list          | `refetchQueries` or an `update` function               | Invalidate the list query                          |
-| Two queries return different fields of one object | Fields merge into one entry                      | Two separate entries                               |
-| Debugging "why did this change?"            | Follow references in the normalized store              | Look at one entry                                  |
+| Capability                    | Apollo Client                                   | HyperFetch                                              |
+| ----------------------------- | ----------------------------------------------- | ------------------------------------------------------- |
+| Cache                         | Normalized by `__typename` and `id` ¹           | Per operation and variables ²                           |
+| Default read                  | `cache-first`                                   | Cached data, refetched in the background on mount       |
+| Mutation updates other views  | Yes, for objects returned with their id ³       | Partial, you invalidate or update the queries           |
+| React hooks                   | `useQuery`, `useMutation`, `useSubscription`    | `useFetch`, `useSubmit`, `useListener`                  |
+| Optimistic UI                 | `optimisticResponse`                            | `setOptimistic` on the request                          |
+| Subscriptions over WebSocket  | Yes, `GraphQLWsLink` (`graphql-ws`)             | Yes, `GraphqlWsAdapter` (`graphql-transport-ws`)        |
+| Subscriptions over HTTP       | Yes, multipart through `HttpLink`               | No                                                      |
+| Offline write queue           | No                                              | Yes, [request queue](/docs/guides/core/advanced/offline) |
+| REST and other backends       | No, GraphQL only                                | Yes, swap the [adapter](/docs/core/adapter)             |
+| Devtools                      | Browser extension, VS Code (experimental) ⁴     | [HyperFlow](/docs/hyper-flow) desktop app               |
+| UI frameworks                 | React, community integrations                   | React                                                   |
 
-A per-operation cache is less automatic. It's also easy to predict: a query's result is exactly what the server sent
-for that query, and it changes only when that query is refetched, invalidated or set by hand.
-
-HyperFetch's GraphQL adapter builds the cache key from the operation name, a fingerprint of the document and the
-variables, so two documents with the same operation name but different fields never share an entry. Details are in the
-[GraphQL adapter overview](../../integrations/adapter-graphql/overview.mdx).
+1. Per the [caching overview](https://www.apollographql.com/docs/react/caching/overview), the cache ID joins
+   `__typename` and `id`, and nested objects become references to one entry.
+2. The cache key is built from the operation name, a fingerprint of the document and the variables, so two documents
+   with the same name but different fields never share an entry. For records shared across queries, see the
+   [`@hyper-fetch/db`](/docs/db/overview) package.
+3. Per the [mutations docs](https://www.apollographql.com/docs/react/data/mutations), a new object is not added to list
+   fields on its own. That needs `refetchQueries` or an `update` function.
+4. The [developer tooling](https://www.apollographql.com/docs/react/development-testing/developer-tooling) page lists a
+   Chrome and Firefox extension with cache, query and mutation inspectors, and an experimental VS Code integration that
+   also debugs React Native and Node apps.
 
 ---
 
-## Queries
+## Side by side
 
-Apollo, from its [get started](https://www.apollographql.com/docs/react/get-started) page:
+### Query a user
 
-```tsx
-import { ApolloClient, HttpLink, InMemoryCache, gql } from "@apollo/client";
-import { ApolloProvider, useQuery } from "@apollo/client/react";
+<Tabs>
+<TabItem value="hf" label="HyperFetch">
 
-const client = new ApolloClient({
-  link: new HttpLink({ uri: "https://api.example.com/graphql" }),
-  cache: new InMemoryCache(),
-});
-
-const GET_USER = gql`
-  query GetUser($id: ID!) {
-    user(id: $id) {
-      id
-      name
-    }
-  }
-`;
-
-function Profile({ id }: { id: string }) {
-  const { data, loading, error } = useQuery(GET_USER, { variables: { id } });
-  // ...
-}
-
-// <ApolloProvider client={client}><App /></ApolloProvider>
-```
-
-HyperFetch. The request is defined once, outside components, and needs no provider:
-
-```tsx
+```tsx title="profile.tsx"
 import { Client } from "@hyper-fetch/core";
 import { GraphqlAdapter, GraphqlErrorType } from "@hyper-fetch/graphql";
 import { useFetch } from "@hyper-fetch/react";
 import gql from "graphql-tag";
-
-type User = { id: string; name: string };
 
 export const client = new Client<GraphqlErrorType>({ url: "https://api.example.com/graphql" }).setAdapter(
   GraphqlAdapter(),
@@ -119,45 +84,62 @@ export const client = new Client<GraphqlErrorType>({ url: "https://api.example.c
 export const getUser = client.createRequest<{ response: { user: User }; payload: { id: string } }>()({
   endpoint: gql`
     query GetUser($id: ID!) {
-      user(id: $id) {
-        id
-        name
-      }
+      user(id: $id) { id name }
     }
   `,
 });
 
 function Profile({ id }: { id: string }) {
-  // highlight-next-line
+  // Variables are the request payload. No provider needed.
   const { data, loading, error } = useFetch(getUser.setPayload({ id }));
-  // ...
 }
 ```
 
-The variables are the request `payload`. With [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) or
-[gql.tada](https://gql-tada.0no.co/) you can pass a typed document as `endpoint` and drop the generics: the response
-and variables types come from the document. GraphQL `errors` in a `200` response come back as `error`, and
-`errorPolicy: "all"` keeps partial data with the errors in `extra.errors`. See [queries](../../integrations/adapter-graphql/queries.mdx).
+</TabItem>
+<TabItem value="apollo" label="Apollo Client">
 
----
+```tsx title="profile.tsx"
+import { ApolloClient, HttpLink, InMemoryCache, gql } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 
-## Mutations
+export const client = new ApolloClient({
+  link: new HttpLink({ uri: "https://api.example.com/graphql" }),
+  cache: new InMemoryCache(),
+});
 
-Apollo's `useMutation` returns a mutate function, and the normalized cache does the rest when the response includes the
-changed object.
+const GET_USER = gql`
+  query GetUser($id: ID!) {
+    user(id: $id) { id name }
+  }
+`;
 
-In HyperFetch a mutation is another request, sent with `useSubmit`. You say which queries it affects:
+function Profile({ id }: { id: string }) {
+  // Needs <ApolloProvider client={client}> above it
+  const { data, loading, error } = useQuery(GET_USER, { variables: { id } });
+}
+```
 
-```tsx
+</TabItem>
+</Tabs>
+
+With [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) or [gql.tada](https://gql-tada.0no.co/) you pass a
+typed document as `endpoint` and drop the generics. See [GraphQL queries](/docs/integrations/adapter-graphql/queries).
+
+### Rename a user
+
+<Tabs>
+<TabItem value="hf" label="HyperFetch">
+
+```tsx title="rename-button.tsx"
 import { useSubmit } from "@hyper-fetch/react";
 
-const renameUser = client.createRequest<{ response: { renameUser: User }; payload: { id: string; name: string } }>()({
+export const renameUser = client.createRequest<{
+  response: { renameUser: User };
+  payload: { id: string; name: string };
+}>()({
   endpoint: gql`
     mutation RenameUser($id: ID!, $name: String!) {
-      renameUser(id: $id, name: $name) {
-        id
-        name
-      }
+      renameUser(id: $id, name: $name) { id name }
     }
   `,
 });
@@ -165,7 +147,7 @@ const renameUser = client.createRequest<{ response: { renameUser: User }; payloa
 function RenameButton({ id }: { id: string }) {
   const { submit, submitting, onSubmitSuccess } = useSubmit(renameUser);
 
-  // highlight-next-line
+  // The cost of no normalized cache: say which queries the mutation affects
   onSubmitSuccess(() => client.cache.invalidate(getUser.setPayload({ id })));
 
   return (
@@ -176,21 +158,40 @@ function RenameButton({ id }: { id: string }) {
 }
 ```
 
-That `invalidate` line is the cost of not having a normalized cache. In return, nothing changes in your UI that you
-didn't ask to change. [Mutations](../../integrations/adapter-graphql/mutations.mdx) and
-[submitting](../react/01-basics/submitting.mdx) cover optimistic updates and progress.
+</TabItem>
+<TabItem value="apollo" label="Apollo Client">
 
----
+```tsx title="rename-button.tsx"
+import { gql } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 
-## Subscriptions
+const RENAME_USER = gql`
+  mutation RenameUser($id: ID!, $name: String!) {
+    renameUser(id: $id, name: $name) { id name }
+  }
+`;
 
-Apollo sends subscriptions through a link. For WebSocket that's `GraphQLWsLink`, usually combined with `HttpLink`
-through `ApolloLink.split` so only subscriptions go over the socket. `useSubscription` reads them.
+function RenameButton({ id }: { id: string }) {
+  // The returned `User:id` object updates every query that holds it
+  const [renameUser, { loading }] = useMutation(RENAME_USER);
 
-HyperFetch uses a separate `Socket` with the `GraphqlWsAdapter`. It speaks `graphql-transport-ws`, the protocol of
-`graphql-ws`, and there's no link to split:
+  return (
+    <button disabled={loading} onClick={() => renameUser({ variables: { id, name: "Ada" } })}>
+      Rename
+    </button>
+  );
+}
+```
 
-```tsx
+</TabItem>
+</Tabs>
+
+### Subscribe to messages
+
+<Tabs>
+<TabItem value="hf" label="HyperFetch">
+
+```tsx title="chat-room.tsx"
 import { Socket } from "@hyper-fetch/sockets";
 import { GraphqlWsAdapter } from "@hyper-fetch/graphql";
 import { useListener } from "@hyper-fetch/react";
@@ -202,9 +203,7 @@ const onMessage = socket.createListener<{ onMessage: { text: string } }, { room:
   options: {
     document: gql`
       subscription OnMessage($room: String!) {
-        onMessage(room: $room) {
-          text
-        }
+        onMessage(room: $room) { text }
       }
     `,
   },
@@ -216,64 +215,67 @@ function ChatRoom({ room }: { room: string }) {
 }
 ```
 
-Listeners with the same document and variables share one server subscription, and after a reconnect every subscription
-is sent again. HyperFetch does not do subscriptions over multipart HTTP. See
-[subscriptions](../../integrations/adapter-graphql/subscriptions.mdx).
+</TabItem>
+<TabItem value="apollo" label="Apollo Client">
+
+```tsx title="chat-room.tsx"
+import { gql } from "@apollo/client";
+import { useSubscription } from "@apollo/client/react";
+
+// The client's link uses ApolloLink.split to send subscriptions over GraphQLWsLink
+const ON_MESSAGE = gql`
+  subscription OnMessage($room: String!) {
+    onMessage(room: $room) { text }
+  }
+`;
+
+function ChatRoom({ room }: { room: string }) {
+  const { data, loading } = useSubscription(ON_MESSAGE, { variables: { room } });
+  return <p>{loading ? "Connecting..." : data?.onMessage.text}</p>;
+}
+```
+
+</TabItem>
+</Tabs>
+
+HyperFetch listeners with the same topic, document and variables share one server subscription, and every subscription is
+sent again after a reconnect. See [GraphQL subscriptions](/docs/integrations/adapter-graphql/subscriptions).
 
 ---
 
-## Devtools
+## Where Apollo Client is the better choice
 
-Apollo Client Devtools live in the browser's inspector and know your normalized cache. That's a real advantage when you
-debug cache merges.
-
-HyperFetch's devtools are [HyperFlow](../../hyper-flow/index.mdx), a desktop app you connect with `DevtoolsPlugin`.
-GraphQL requests are listed by operation name, and you can inspect, invalidate and delete cache entries and stop or
-start queues.
-
----
-
-## Side by side
-
-| Capability                        | Apollo Client                                 | HyperFetch                                               |
-| --------------------------------- | --------------------------------------------- | -------------------------------------------------------- |
-| Cache                             | Normalized, by `__typename` and `id`          | Per operation and variables                              |
-| Default read policy               | `cache-first`                                 | Cached data, refetched in the background on mount        |
-| React hooks                       | `useQuery`, `useMutation`, `useSubscription`  | `useFetch`, `useSubmit`, `useListener`                   |
-| Optimistic UI                     | `optimisticResponse`                          | `setOptimistic` on the request                           |
-| Subscriptions over WebSocket      | `GraphQLWsLink` (`graphql-ws`)                | `GraphqlWsAdapter` (`graphql-transport-ws`)              |
-| Subscriptions over HTTP multipart | Yes                                           | Not supported                                            |
-| REST and other backends           | GraphQL only                                  | Swap the adapter: fetch, Axios, Firebase, sockets        |
-| Devtools                          | Browser extension, VS Code (experimental)     | HyperFlow desktop app                                    |
-| Frameworks                        | React, plus community integrations            | React                                                    |
+- **Entity-heavy UIs.** When a user's name shows in a header, a list, a detail panel and a comment thread, the
+  normalized cache fixes all of them after one mutation.
+- **Cache-aware devtools.** The browser extension inspects the normalized store and runs queries through GraphiQL.
+- **Subscriptions over multipart HTTP**, which HyperFetch does not support.
+- **GraphOS and the wider Apollo ecosystem**, and community integrations for other UI frameworks.
 
 ---
 
-## Which one fits you
+## Migrating and next steps
 
-**Stay on Apollo Client when:**
+The DB migration guide moves a feature from Apollo or TanStack Query to [`@hyper-fetch/db`](/docs/db/overview)
+collections, the closest match to a normalized cache. The runnable [GraphQL](/examples/integrations/graphql) and
+[GraphQL mutations](/examples/integrations/graphql-mutations) examples show the adapter in an app.
 
-- The same entities show up across many queries and you want mutations to update all of them without extra code.
-- You use subscriptions over multipart HTTP, or other Apollo and GraphOS features like the Explorer.
-- You want devtools that show the normalized store inside the browser.
-- Your team works in Angular, Vue or Svelte as well as React.
+<LinkCard
+  type="guides"
+  title="Migrating from React Query and Apollo"
+  description="Move one feature at a time to collections and live queries, and what changes for a normalized cache."
+  to="/docs/guides/db/production/migrating-from-react-query"
+/>
 
-**Pick HyperFetch when:**
+<LinkCard
+  type="integrations"
+  title="GraphQL adapter"
+  description="Queries, mutations, subscriptions and typed documents with HyperFetch."
+  to="/docs/integrations/adapter-graphql/overview"
+/>
 
-- GraphQL is one of several backends. REST, Firebase and WebSockets use the same `createRequest`, cache and hooks.
-- Your queries rarely overlap on the same objects, so a normalized cache adds rules without saving work.
-- You want requests to wait while the device is offline and go out when it reconnects. See
-  [offline](../core/02-advanced/offline.mdx).
-- You'd rather invalidate the queries a mutation touched than learn cache merge policies.
-
-For the other libraries people compare, see the [overview](./index.mdx) and
-[HyperFetch vs TanStack Query](./tanstack-query.mdx).
-
-:::secondary Summary
-
-- Apollo Client's normalized cache stores each object once, so one mutation updates every query that shows it.
-- HyperFetch caches each operation with its variables, and mutations invalidate the queries they affect.
-- Both do GraphQL subscriptions over `graphql-ws`. Only Apollo does them over multipart HTTP.
-- Pick Apollo for entity-heavy GraphQL apps, HyperFetch when GraphQL sits next to REST, sockets or offline needs.
-
-:::
+<LinkCard
+  type="guides"
+  title="All comparisons"
+  description="TanStack Query, SWR, RTK Query and the overview table."
+  to="/docs/guides/comparisons"
+/>

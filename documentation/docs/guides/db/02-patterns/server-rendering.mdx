@@ -7,12 +7,11 @@ description:
 sidebar_label: Server Rendering
 ---
 
-# Server Rendering with Next.js
+# Server rendering with Next.js
 
-Teamboard's team page should arrive with its posts already in the HTML: better for search engines, better on slow
-phones, and no spinner before the first paint. The db runs on the server too. Each request gets its **own db**, the page
-loads its queries before rendering, and `db.dehydrate()` captures the rows. The browser's db starts from them, so its
-first render matches the server's, and then it carries on live: refetching stale rows, opening syncs and taking writes.
+The db runs on the server too: each request gets its **own db**, the page loads its queries before rendering, and
+`db.dehydrate()` captures the rows. The browser's db starts from them, so its first render matches the server's, then
+carries on live. This guide sends Teamboard's team page with its posts already in the HTML.
 
 :::secondary What you'll learn
 
@@ -30,7 +29,7 @@ first render matches the server's, and then it carries on live: refetching stale
 
 Most DB guides use a module-level db:
 
-```ts
+```ts title="src/db.ts"
 // error-next-line
 export const db = createDb({ post: Post, postSummary: PostSummary });
 // On a server, every request shares this one db
@@ -50,7 +49,7 @@ export const createAppDb = (options?: DbOptions) => createDb(collections, option
 export type AppDb = ReturnType<typeof createAppDb>;
 ```
 
-Components stop importing `db` and read it from the nearest [`DbProvider`](../../../react/07-db/db-provider.mdx) with
+Components stop importing `db` and read it from the nearest [`DbProvider`](/docs/react/db/db-provider) with
 `useDb<AppDb>()`. The type argument gives back the typed collections.
 
 ---
@@ -156,7 +155,7 @@ as type-tagged JSON. Some things never leave the server:
 Type-tagged JSON keeps `Date`, `bigint`, `Map` and `Set` values intact through `JSON.stringify`. A value of your own
 class needs a codec, and the codec has to be passed on **both** sides:
 
-```ts
+```ts title="src/db.ts"
 export const createAppDb = (options?: DbOptions) => createDb(collections, { codecs: [money], ...options });
 ```
 
@@ -166,7 +165,7 @@ not have is ignored.
 :::caution Authentication on the server
 
 Loaders run your requests on the server, with your client's authentication, such as `onAuth` from the
-[authentication guide](../../core/01-basics/authentication.mdx). On the server it has to find the current request's
+[authentication guide](/docs/guides/core/basics/authentication). On the server it has to find the current request's
 credentials, not a token kept in a module. When that is not possible, load only public data on the server and let the
 browser load the rest: a failed server load only means the browser loads it itself.
 
@@ -196,7 +195,7 @@ export default function TeamPage({ state, teamId }: { state: DehydratedDb; teamI
 
 With any other server, render inside the request's db and send the state with the HTML:
 
-```tsx
+```tsx title="server.tsx"
 const db = createAppDb();
 await db.postSummary.where((post) => eq(post.teamId, teamId)).get();
 
@@ -235,14 +234,14 @@ On the client, `hydrateRoot` the same tree with `createAppDb({ state })` in the 
 
 ---
 
-:::success Rendered on the server!
+:::success Congratulations!
 
 Teamboard's team page arrives with its posts.
 
 - You can create a **db per request** with a factory, and read it with `DbProvider` and `useDb<AppDb>()`.
 - You can load queries with **`query.get()`** and send **`db.dehydrate()`** with the page.
 - You can hydrate the client with **`createAppDb({ state })`**, ready on the first render and refreshed after.
-- You know what is **never dehydrated**, and that **codecs** belong on both sides.
+- You can tell what is **never dehydrated**, and pass **codecs** on both sides.
 - You can use the same pattern with the **Pages Router** or plain `renderToString`.
 
 :::
@@ -260,7 +259,11 @@ Teamboard's team page arrives with its posts.
 
 <LinkCard
   type="docs"
-  title="Server Rendering reference"
+  title="Server rendering reference"
   description="The dehydrate and hydrate APIs in short form."
   to="/docs/db/server-rendering"
 />
+
+- Reference: [`DbProvider` and `useDb`](/docs/react/db/db-provider).
+- API reference: [`DehydratedDb`](/docs/api/db/Types/DehydratedDb), [`DbOptions`](/docs/api/db/Types/DbOptions),
+  [`useDb`](/docs/api/react/Hooks/useDb).

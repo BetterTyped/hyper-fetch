@@ -26,8 +26,9 @@ with an optimistic write. The rename shows in the list at once and reverts if th
 npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/db @hyper-fetch/react zod
 ```
 
-Zod is used here for the schema. Any [Standard Schema](https://standardschema.dev) library works, such as Valibot or
-ArkType, and `rowType<Post>()` works without one.
+`@hyper-fetch/sockets` is a peer of `@hyper-fetch/db`, used by [syncs](/docs/db/overview#syncs-and-ingest). Zod is used
+here for the schema. Any [Standard Schema](https://standardschema.dev) library works, such as Valibot or ArkType, and
+`rowType<Post>()` works without one.
 
 ---
 
@@ -126,9 +127,18 @@ export const TeamPosts = ({ teamId }: { teamId: number }) => {
 
 ## 4. Write to it
 
-```ts title="post-row.tsx"
-// highlight-next-line
-const { success } = await db.post.update(post.id, { title: "Renamed" });
+```tsx title="post-row.tsx"
+import { db } from "./db";
+
+export const PostRow = ({ post }: { post: { id: number; title: string } }) => {
+  const rename = async () => {
+    // highlight-next-line
+    const { success } = await db.post.update(post.id, { title: "Renamed" });
+    if (!success) alert("Rename failed, the old title is back");
+  };
+
+  return <p onClick={rename}>{post.title}</p>;
+};
 ```
 
 The new title shows in every query that holds the post before the request finishes. If the request fails, the db
@@ -136,7 +146,20 @@ reverts this change and keeps any other changes made since. The write resolves w
 
 ---
 
+## What just happened
+
+- The [collection](/docs/db/overview#collections) turned `GET /teams/:teamId/posts` into a typed set of rows, and its
+  [loader](/docs/db/overview#loaders) mapped the `teamId` condition to the request params.
+- [`useLiveQuery`](/docs/react/db/use-live-query) picked that loader, sent one request and keeps the list current.
+- [`db.post.update`](/docs/db/overview#writes) changed the row optimistically, then sent `updatePost` with `mutate`'s
+  `map`.
+
+---
+
 ## Next steps
+
+The [DB guides](/docs/guides/db/basics/thinking-in-collections) build a full app step by step, starting with
+[loaders](/docs/guides/db/basics/loaders) and [live queries](/docs/guides/db/basics/live-queries).
 
 <div className="row">
   <div className="col col--6">

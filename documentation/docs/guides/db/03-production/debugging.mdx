@@ -7,11 +7,11 @@ description:
 sidebar_label: Debugging
 ---
 
-# Debugging the DB
+# Debugging the db
 
-The db decides a lot on its own: which loader serves a query, which rows it holds, which socket topics it opens. When
-something looks wrong, the answer is almost always in one of those decisions, and every one of them can be read. This
-guide starts with the tools that show them, then walks through the problems people hit most, as symptom, cause and fix.
+The db decides which loader serves a query, which rows it holds and which socket topics it opens, and every one of those
+decisions can be read. This guide starts with the tools that show them, then walks through the most common problems as
+symptom, cause and fix.
 
 :::secondary What you'll learn
 
@@ -29,7 +29,7 @@ guide starts with the tools that show them, then walks through the problems peop
 
 ### `explain()`: one query
 
-```ts
+```ts title="debug.ts"
 db.postSummary.where((post) => and(eq(post.teamId, "t1"), gt(post.likes, 10))).explain();
 ```
 
@@ -45,7 +45,7 @@ db.postSummary.where((post) => and(eq(post.teamId, "t1"), gt(post.likes, 10))).e
 
 ### `inspect()` and `onChange()`: the whole db
 
-```ts
+```ts title="debug.ts"
 const snapshot = db.inspect();
 // snapshot.collections: rows, pending optimistic layers and loaded subsets (fresh, live, loading, error, observers)
 // snapshot.queries: every live query with its subscribers, status and plan
@@ -58,7 +58,7 @@ db.onChange(() => console.log(db.inspect()));
 
 Pass the db to the devtools plugin, and the [DB Inspector](/docs/hyper-flow/features/db) shows the same snapshot live:
 
-```ts
+```ts title="src/client.ts"
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
 client.addPlugin(DevtoolsPlugin({ appName: "Teamboard", dbs: [db] }));
@@ -68,7 +68,7 @@ client.addPlugin(DevtoolsPlugin({ appName: "Teamboard", dbs: [db] }));
 
 Requests, writes and queries never throw. Everything that fails reaches one listener:
 
-```ts
+```ts title="src/db.ts"
 db.onError(({ type, error, collection }) => {
   console.error(`[db] ${type} failed in ${collection ?? "db"}`, error);
 });
@@ -120,8 +120,8 @@ collection(PostSummarySchema, { key: "id" })
   .sync(onPostChanged, { type: "update", row: ({ body, ...changes }) => changes });
 ```
 
-The db never reads schemas at runtime, so it cannot drop `body` for you, and a summary must never gain a field it does
-not declare.
+The db does not strip fields a collection lacks, so drop `body` in the mapping: a summary must never gain a field it
+does not declare.
 
 ---
 
@@ -146,7 +146,7 @@ Check, in this order:
 **Cause:** the feed reads `postSummary`. An optimistic change reaches another collection only through a link.
 
 **Fix:** `createDb(collections, { links: [["post", "postSummary"]] })`. See
-[List and Detail Views](../02-patterns/list-and-detail.mdx).
+[list and detail views](/docs/guides/db/patterns/list-and-detail).
 
 ### The old value flashes back after a write
 
@@ -158,7 +158,7 @@ Check, in this order:
 - If the server changes more than you sent, use `onSuccess: "refetch"`, which keeps the change on screen until the
   reload lands.
 - If a socket event confirms every write, use `onSuccess: "sync"`.
-- Add `version: "updatedAt"` to collections with syncs. Ordering by the server's version is the most robust option.
+- Add `version: "updatedAt"` to collections with syncs, so writes are ordered by the server's version.
 
 ### A new row is missing from a paginated list
 
@@ -166,7 +166,7 @@ Check, in this order:
 no more pages. Without `orderBy`, the db cannot know where it belongs.
 
 **Fix:** give paginated queries an `orderBy` the loader can send. See
-[Pagination and Infinite Scroll](../01-basics/infinite-scroll.mdx).
+[pagination and infinite scroll](/docs/guides/db/basics/infinite-scroll).
 
 ---
 
@@ -179,7 +179,8 @@ no more pages. Without `orderBy`, the db cannot know where it belongs.
 **Cause:** a list that is not paginated shows **every** held row that matches its conditions, whichever subset loaded
 it. The endpoint filters by `status` on its own, and the db does not know.
 
-**Fix:** declare it with `fixed: { status: "published" }` on that loader. See [Loaders](../01-basics/loaders.mdx).
+**Fix:** declare it with `fixed: { status: "published" }` on that loader. See
+[loaders](/docs/guides/db/basics/loaders#conditions-the-endpoint-applies-on-its-own).
 
 ### A filtered list is wrong, but only sometimes
 
@@ -187,13 +188,14 @@ it. The endpoint filters by `status` on its own, and the db does not know.
 or locale-aware titles. The client compares exactly.
 
 **Fix:** mark the field `serverOnly: ["title"]` on the loader, so queries on it always go to the backend. See
-[Search and Server-side Filters](../02-patterns/search-and-server-filters.mdx) for what that does and does not cover.
+[search and server-side filters](/docs/guides/db/patterns/search-and-server-filters) for what that does and does not
+cover.
 
 ### Data from the previous user after signing out
 
 **Fix:** call `await db.clear()` on sign-out. It removes rows, loaded subsets, pending writes and the persisted data of
 the scope, in every tab. With persistence, give each user their own `scope`. See
-[Offline-First Apps](../02-patterns/offline-first.mdx).
+[offline-first apps](/docs/guides/db/patterns/offline-first#signing-out).
 
 ---
 
@@ -233,9 +235,9 @@ All of these except the last one resolve without sending a request.
 
 ---
 
-:::success Debugged!
+:::success Congratulations!
 
-You know where to look when the db surprises you.
+You've learned where to look when the db surprises you.
 
 - You can read a query's plan with **`explain()`**, and the whole db with **`inspect()`** or HyperFlow.
 - You can catch every failure with **`db.onError`**.
@@ -251,7 +253,18 @@ You know where to look when the db surprises you.
 
 <LinkCard
   type="guides"
-  title="Common Mistakes"
+  title="Common mistakes"
   description="Short wrong-versus-right pairs for the patterns that trip people up most."
   to="/docs/guides/db/production/common-mistakes"
 />
+
+<LinkCard
+  type="promo"
+  title="DB Inspector in HyperFlow"
+  description="See collections, loaded subsets, live query plans and the outbox."
+  to="/docs/hyper-flow/features/db"
+/>
+
+- Reference: [DB overview: errors](/docs/db/overview#errors).
+- API reference: [`QueryExplanation`](/docs/api/db/Types/QueryExplanation), [`DbInspection`](/docs/api/db/Types/DbInspection),
+  [`DbErrorEvent`](/docs/api/db/Types/DbErrorEvent).

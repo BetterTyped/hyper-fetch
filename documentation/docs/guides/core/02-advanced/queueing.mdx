@@ -4,120 +4,144 @@ description: "Queue HyperFetch requests so they run one by one in order, enable 
 sidebar_label: Queueing
 ---
 
-# Request Queueing
+# Request queueing
 
-In modern web applications, managing network requests efficiently is crucial for a smooth user experience. Sometimes,
-you need to ensure that requests are sent one by one, in a specific order. This is where **request queueing** comes in.
-HyperFetch provides a powerful queueing mechanism to handle these scenarios gracefully.
-
-This guide will walk you through setting up and using the request queue, from basic configurations to more advanced use
-cases.
-
----
+Some requests must run one at a time and in order: uploads that would saturate the connection, writes that depend on
+the previous one, or changes made offline. With `queued: true`, HyperFetch sends them one by one. This guide covers
+queued requests and how to pause, stop and resume a queue.
 
 :::secondary What you'll learn
 
-1.  How to **enable queueing** on individual requests.
-2.  How to **configure queueing globally** on the client instance.
-3.  How to **handle large file uploads** using queueing to prevent network congestion.
-4.  The benefits of using queueing for **offline support** and handling requests in sequence.
+1. How to send requests **one by one** with `queued`.
+2. How to make queueing the **default** for some requests.
+3. How to **pause, stop, start and flush** a queue.
+4. How to **watch** a queue's progress.
 
 :::
 
-## Basic Setup
+---
 
-Enabling queueing on a request is as simple as setting the `queued` property to `true`. When multiple requests
-configured this way are triggered, HyperFetch will automatically add them to a queue and execute them sequentially.
+## Send requests one by one
 
-Here's how you define a queued request:
+Every `send()` adds the request to a queue in the [dispatcher](/docs/core/dispatcher), named by its `queryKey`. With
+`queued: true`, each request waits until the previous one in its queue finishes.
 
-```ts
-import { client } from "utils/client";
-
-// This request will be queued
-export const postFile = client.createRequest()({
+```ts title="src/api/files.ts"
+export const uploadFile = client.createRequest<{ response: { url: string }; payload: FormData }>()({
   endpoint: "/files",
   method: "POST",
   queued: true,
 });
 ```
 
-When you call `send()` on this request multiple times, each call will be added to the queue and will only start after
-the previous one has finished.
+```ts title="src/upload.ts"
+for (const file of files) {
+  const formData = new FormData();
+  formData.append("file", file);
 
-```typescript
-const fileRequest = client.createRequest()({
-  endpoint: "/files",
-  method: "POST",
-  queued: true,
-});
-
-const logStatus = (message) => {
-  console.log(`${new Date().toLocaleTimeString()}: ${message}`);
-};
-
-const requests = [1, 2, 3, 4];
-logStatus(`Sending 4 requests...`);
-
-requests.forEach((req) => {
-  fileRequest.send({
-    onRequestStart: () => logStatus(`Request ${req} started.`),
-    onResponse: ({ response }) =>
-      logStatus(`Request ${req} finished ${response.success ? "successfully" : "with an error"}.`),
+  // All added at once, sent in order, one at a time
+  uploadFile.send({
+    payload: formData,
+    onRequestStart: () => console.log(`${file.name} started`),
+    onResponse: ({ response }) => console.log(`${file.name} ${response.success ? "done" : "failed"}`),
   });
+}
+```
+
+Requests of one request share a queue because their default `queryKey` is the same (`POST_/files_`). Requests with
+different keys, such as `/users/1` and `/users/2`, run in separate queues side by side. Give them one `queryKey` with
+`setQueryKey` to put them in the same line.
+
+---
+
+## Make queueing the default
+
+There is no client option for queueing. Return `queued: true` from `setRequestDefaults` for the requests that need it,
+for example every write:
+
+```ts title="src/api/client.ts"
+client.adapter.setRequestDefaults((options) => {
+  const method = options.method ?? "GET";
+  if (method === "GET" || method === "QUERY") return { deduplicate: true };
+  return { queued: true };
+});
+
+// Opt a write out
+const ping = client.createRequest()({ endpoint: "/ping", method: "POST", queued: false });
+```
+
+See [global defaults](/docs/guides/core/basics/global-defaults).
+
+---
+
+## Pause, stop and start a queue
+
+Each client has two dispatchers: `fetchDispatcher` for GET and QUERY, `submitDispatcher` for the other methods. Both
+control a queue by its `queryKey`.
+
+| Method                 | Running request                | Waiting requests            |
+| ---------------------- | ------------------------------ | --------------------------- |
+| `pause(queryKey)`      | Finishes                       | Held                        |
+| `stop(queryKey)`       | Canceled and kept in the queue | Held                        |
+| `start(queryKey)`      | Sent again if it was stopped   | Sent in the queue's mode    |
+| `flushQueue(queryKey)` | -                              | Sent now, unless stopped    |
+
+```ts title="src/upload.ts"
+const { submitDispatcher } = client;
+
+// The user pauses the uploads: the current one finishes, the rest wait
+submitDispatcher.pause(uploadFile.queryKey);
+
+// And resumes them
+submitDispatcher.start(uploadFile.queryKey);
+```
+
+A held request's `send()` promise stays pending until it is sent. To stop and resume a single request, use
+`stopRequest(queryKey, requestId)` and `startRequest(queryKey, requestId)` with the id from `onBeforeSent`. There is no
+priority option: order work with `queued`, separate `queryKey`s and these methods.
+
+---
+
+## Watch a queue
+
+`dispatcher.getQueue(queryKey)` returns the requests and the queue status. The dispatcher's `events` report every
+change, each with a `...ByKey` variant for one queue:
+
+```ts title="src/upload.ts"
+const unsubscribe = client.submitDispatcher.events.onQueueChangeByKey(uploadFile.queryKey, (queue) => {
+  console.log(`${queue.requests.length} uploads left, stopped: ${queue.stopped}`);
 });
 ```
 
-The example above demonstrates that even if we fire all requests at once, they are executed one by one. The `onRequestStart`
-and `onFinished` callbacks show the lifecycle of each request in the queue.
+In React, [`useQueue`](/docs/react/hooks/use-queue) returns the queue of a request with upload progress and
+`stop`, `pause` and `start` functions. See [queues in React](/docs/guides/react/basics/queues).
 
-## Global Configuration
-
-If most of your requests need to be queued, you can enable it globally on the `Client` instance. This saves you from
-repeating the configuration for each request.
-
-```ts
-import { createClient } from "@hyper-fetch/core";
-
-export const client = createClient({
-  url: "https://api.example.com",
-  queueOptions: {
-    queued: true, // Enable queueing for all requests
-  },
-});
-```
-
-Any request created with this client will now be queued by default. You can still override this behavior on a
-per-request basis by setting `queued: false`.
-
-```ts
-// This request will NOT be queued, overriding the client's setting
-const importantRequest = client.createRequest()({
-  endpoint: "/important-data",
-  queued: false,
-});
-```
-
-This gives you the flexibility to manage which requests should be handled sequentially and which can be sent
-concurrently.
-
-## Offline Support
-
-Request queueing is also a cornerstone of building robust offline-first applications. When a user loses internet
-connectivity, queued requests will be held until the connection is restored, at which point they will be sent
-automatically. This ensures that no data is lost and actions are completed once the user is back online.
-
-When combined with persistence solutions like `localStorage`, the queue can even survive page reloads.
+Queued requests also wait out offline periods, and a dispatcher with `lazyStorage` keeps them through a reload. See
+[offline](/docs/guides/core/advanced/offline) and [persistence](/docs/guides/core/advanced/persistence).
 
 ---
 
 :::success Congratulations!
 
-You've learned how to use HyperFetch's request queueing feature!
+You've learned how to queue requests.
 
-- You can enable queueing on **individual requests** using the `queued: true` option.
-- You can set up **global queueing** on the `Client` instance.
-- You understand how queueing helps in sending requests **sequentially**.
-- You know that queueing is essential for **offline support**.
+- You can send requests **one by one** with `queued: true` and a shared `queryKey`.
+- You can make queueing the **default** with `setRequestDefaults`.
+- You can **pause, stop, start and flush** a queue on the dispatcher.
+- You can **watch** a queue with dispatcher events or `useQueue`.
 
 :::
+
+Runnable examples: [Queue](/examples/request-control/queue), [Offline queue](/examples/offline/offline-queue) and
+[Bulk actions](/examples/mutations/bulk-actions).
+
+<LinkCard type="docs" title="Dispatcher" description="Queue modes, events and persistence." to="/docs/core/dispatcher" />
+
+<LinkCard type="guides" title="Queues in React" description="Show upload progress and control queues with useQueue." to="/docs/guides/react/basics/queues" />
+
+<LinkCard
+  type="api"
+  title="Dispatcher API reference"
+  description="Every method of the Dispatcher class."
+  to="/docs/api/core/Classes/Dispatcher"
+/>

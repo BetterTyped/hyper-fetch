@@ -4,39 +4,33 @@ description: Request interceptors add headers, log calls and refresh tokens in o
 sidebar_label: Intercepting
 ---
 
-# Request Interceptors
+# Request interceptors
 
-A request interceptor is a function that runs on every request before it leaves your app, or on every response before
-your code sees it. It's where you put logic that would otherwise be copied into every call: the `Authorization` header,
-logging, error reporting, refreshing an expired token. This guide explains how interceptors work in Axios and with plain
-`fetch`, then shows the HyperFetch versions: `onRequest`, `onAuth`, `onSuccess`, `onError` and `onResponse` on the
-`Client`.
+An interceptor runs on every request before it leaves your app, or on every response before your code sees it. It holds
+logic that would otherwise be copied into every call: headers, logging, error reporting, token refresh. This guide
+compares Axios interceptors and fetch wrappers with HyperFetch's client interceptors.
 
 :::secondary What you'll learn
 
-1.  What an **axios interceptor** does and how a **fetch interceptor** is usually built.
-2.  How to **intercept requests** to add headers or log data.
-3.  How to **intercept successful, failed, and all responses** to handle them globally.
-4.  How to create an **async interceptor** for tasks like refreshing tokens.
-5.  How to **disable interceptors** for specific requests when needed.
-6.  How to **chain multiple interceptors** and in which order they run.
+1. How **Axios interceptors** and **fetch wrappers** map to HyperFetch.
+2. How to **intercept requests** with `onRequest` and `onAuth`.
+3. How to **intercept responses** with `onResponse`, `onSuccess` and `onError`.
+4. How interceptors **chain**, and how to **remove** or **skip** them.
 
 :::
 
 ---
 
-## Axios interceptors and fetch interceptors
+## Axios interceptors and fetch wrappers
 
-Axios has interceptors built in. You register them with
-[`axios.interceptors.request.use()` and `axios.interceptors.response.use()`](https://axios-http.com/docs/interceptors),
-each taking a success handler and an error handler. `use()` returns an id you pass to `eject()` to remove it. One detail
-trips people up: Axios runs request interceptors in reverse order (last added runs first), and response interceptors in
-the order they were added.
+Axios registers interceptors with
+[`axios.interceptors.request.use()` and `axios.interceptors.response.use()`](https://axios-http.com/docs/interceptors)
+and removes them with `eject(id)`. Request interceptors run in reverse order, the last added first.
 
-`fetch` has no interceptor API. A fetch interceptor is a wrapper you write yourself and then call everywhere instead of
-`fetch`:
+`fetch` has no interceptor API. A fetch interceptor is a wrapper you call everywhere instead of `fetch`, and code that
+calls `fetch` directly skips it:
 
-```ts
+```ts title="api-fetch.ts"
 export async function apiFetch(input: string, init: RequestInit = {}) {
   const headers = new Headers(init.headers);
   headers.set("Authorization", `Bearer ${getToken()}`);
@@ -49,229 +43,122 @@ export async function apiFetch(input: string, init: RequestInit = {}) {
 }
 ```
 
-It works, but every feature you add (retries, logging, a second token type) goes into that one function, and code that
-calls `fetch` directly skips it.
+In HyperFetch interceptors live on the client, so every request created from it goes through them, whatever adapter
+sends it.
 
-In HyperFetch the interceptors live on the `Client`, so every request created from it goes through them, no matter
-which adapter sends it.
-
-| Step                      | Axios                              | HyperFetch                        |
-| ------------------------- | ---------------------------------- | ---------------------------------- |
-| Before the request        | `interceptors.request.use(fn)`     | `client.onRequest(fn)`             |
-| Only for `auth: true`     | Not built in                       | `client.onAuth(fn)`                |
-| Successful response       | `interceptors.response.use(fn)`    | `client.onSuccess(fn)`             |
-| Failed response           | `interceptors.response.use(_, fn)` | `client.onError(fn)`               |
-| Every response            | Not built in                       | `client.onResponse(fn)`            |
-| Remove an interceptor     | `eject(id)`                        | `client.removeOnRequestInterceptors([fn])` and friends |
-| Order with several        | Request: last added first          | Always the order they were added   |
+| Step                  | Axios                              | HyperFetch                                    |
+| --------------------- | ---------------------------------- | --------------------------------------------- |
+| Before the request    | `interceptors.request.use(fn)`     | `client.onRequest(fn)`                        |
+| Only for `auth: true` | Not built in                       | `client.onAuth(fn)`                           |
+| Every response        | Not built in                       | `client.onResponse(fn)`                       |
+| Successful response   | `interceptors.response.use(fn)`    | `client.onSuccess(fn)`                        |
+| Failed response       | `interceptors.response.use(_, fn)` | `client.onError(fn)`                          |
+| Remove                | `eject(id)`                        | `client.removeOnRequestInterceptors([fn])` and the others |
+| Order                 | Request: last added first          | Always the order they were added              |
 
 ---
 
-## Request interceptor
+## Intercept requests
 
-The `onRequest` interceptor runs right before a request is sent. It receives the `request` object and must return a
-`request` object, either the same one or a modified copy. This is the place to add headers, log request data, or modify
-the request in any way.
+`onRequest` runs before every request is sent. It receives the request and returns a request, usually built with
+setters. `onAuth` runs after it, only for requests with `auth: true`, which is the default.
 
-### Adding authentication headers
+```ts title="src/api/client.ts"
+export const client = createClient({ url: "https://api.example.com" })
+  .onRequest((request) => {
+    console.log(`-> ${request.method} ${request.endpoint}`);
+    return request.setHeaders({ ...request.headers, "X-Client-Version": "1.4.0" });
+  })
+  .onAuth((request) => request.setHeaders({ ...request.headers, Authorization: `Bearer ${getToken()}` }));
+```
 
-A very common use case for request interceptors is to add an `Authorization` header to all outgoing requests.
+Interceptors can be async, for example to read a token from async storage. The
+[authentication guide](/docs/guides/core/basics/authentication) covers `onAuth` step by step.
 
-```typescript
-// import { Client } from "@hyper-fetch/core";
+---
 
-const client = new Client({
-  url: "https://api.hyper-fetch.com",
-}).onRequest((request) => {
-  const token = "MY_SUPER_SECRET_TOKEN";
-  // highlight-next-line
-  console.log(`[onRequest] Adding auth token to ${request.method} ${request.endpoint}`);
-  return request.setHeaders({
-    ...request.headers,
-    Authorization: `Bearer ${token}`,
+## Intercept responses
+
+Response interceptors run after the adapter, before the response is cached and before `send()` resolves. `onResponse`
+runs first for every response, then `onSuccess` or `onError`. Each receives the response and the request and returns a
+response.
+
+```ts title="src/api/client.ts"
+client
+  .onResponse((response, request) => {
+    console.log(`<- ${request.endpoint} ${response.status}`);
+    return response;
+  })
+  .onError(async (response, request) => {
+    // Refresh the token once, then send the original request again
+    if (response.status === 401 && !request.used) {
+      await refreshToken();
+      return request.setUsed(true).send();
+    }
+    return response;
   });
-});
-
-const getUsers = client.createRequest()({
-  method: "GET",
-  endpoint: "/users",
-});
-
-// The Authorization header will be automatically added to this request
-getUsers.send({
-  onResponse: ({ response, request }) => {
-    console.log("[onResponse] Request successful. Headers sent:", request.headers);
-  },
-});
 ```
 
-If only some endpoints need a token, use `onAuth` instead. It runs after `onRequest`, and only for requests created
-with `auth: true`. The [authentication guide](../01-basics/authentication.mdx) covers it step by step.
+`setUsed(true)` marks the resent request, so a second `401` does not refresh again and the resend is not deduplicated
+against the request still waiting on this interceptor. An interceptor that throws turns the response into a failure
+with the thrown value in `error`.
+
+A response interceptor may change `data`, but the types of `data` come from each request, not from the interceptor. To
+reshape data with types, use [`setResponseMapper`](/docs/guides/core/basics/data-mapping) on the request.
 
 ---
 
-## Response interceptors
+## Chain, remove and skip interceptors
 
-Response interceptors process responses before they reach your request's callbacks and the cache. HyperFetch has three:
-`onResponse` runs for every response, then `onSuccess` or `onError` runs depending on the result. Each receives the
-`response` and the `request`, and must return a `response`.
+Several interceptors of one kind form a pipeline in the order they were added, each receiving what the previous one
+returned. To remove one, keep a reference and pass it to the matching `remove...` method:
 
-### `onSuccess`
-
-The `onSuccess` interceptor runs only for successful responses. You can use it to transform data, show notifications,
-or handle any logic for successful requests.
-
-```typescript
-// import { Client } from "@hyper-fetch/core";
-
-const client = new Client({
-  url: "https://api.hyper-fetch.com",
-}).onSuccess((response, request) => {
-  // highlight-next-line
-  console.log(`[onSuccess interceptor] Request to ${request.endpoint} was successful.`);
-  const modifiedData = { ...response.data, intercepted: true };
-  return { ...response, data: modifiedData };
-});
-
-const getUser = client.createRequest()({
-  endpoint: "/users/1",
-  method: "GET",
-});
-
-getUser.send({
-  onResponse: ({ response }) => {
-    console.log("[onResponse callback] Received data:", response.data);
-  },
-});
-```
-
-### `onError`
-
-The `onError` interceptor runs only for failed responses (network errors, status codes >= 400). This is the place for
-global error handling, such as logging errors to a service or turning error responses into a consistent format.
-
-A common advanced use case is refreshing the token when a `401 Unauthorized` comes back, then sending the original
-request again. Mark the resent request with `setUsed(true)`, so a second `401` doesn't start another refresh and so it
-isn't deduplicated against the request that is still waiting on this interceptor.
-
-```typescript
-// import { Client } from "@hyper-fetch/core";
-
-const client = new Client({
-  url: "https://api.hyper-fetch.com",
-}).onError(async (response, request) => {
-  // highlight-start
-  if (response.status === 401 && !request.used) {
-    // 1. Call your refresh token endpoint and store the new token.
-    await refreshToken();
-    // 2. Send the original request again. The interceptors add the new token.
-    return request.setUsed(true).send();
-  }
-  // highlight-end
-  return response;
-});
-```
-
-The full version, with storage and a refresh request, is in the [authentication guide](../01-basics/authentication.mdx).
-
-### `onResponse`
-
-The `onResponse` interceptor always runs, whether the request succeeded or not. This makes it a good place for logic
-that needs to run after every request, like hiding a global loading indicator or recording timing.
-
-```typescript
-// import { Client } from "@hyper-fetch/core";
-
-const client = new Client({
-  url: "https://api.hyper-fetch.com",
-}).onResponse((response, request) => {
-  // highlight-next-line
-  console.log(`[onResponse interceptor] ${request.endpoint} finished with ${response.status}`);
-  // Here you could hide a global loading spinner
-  return response;
-});
-
-const getSuccess = client.createRequest()({
-  endpoint: "/users/1",
-  method: "GET",
-});
-const getError = client.createRequest()({
-  endpoint: "/users/999", // Should fail
-  method: "GET",
-});
-
-getSuccess.send();
-getError.send();
-```
-
----
-
-## Disabling interceptors
-
-Sometimes you need to bypass interceptors for a specific request, for example the refresh-token call itself. Set
-`disableRequestInterceptors` or `disableResponseInterceptors` to `true` when creating the request.
-
-```typescript
-// import { Client } from "@hyper-fetch/core";
-
-const client = new Client({
-  url: "https://api.hyper-fetch.com",
-}).onRequest((request) => {
-  console.log("[onRequest] Interceptor running...");
+```ts title="src/api/client.ts"
+const logRequest = (request: RequestInstance) => {
+  console.log(request.endpoint);
   return request;
-});
+};
 
-const requestWithInterceptor = client.createRequest()({
-  method: "GET",
-  endpoint: "/users/1",
-});
+client.onRequest(logRequest);
 
-const requestWithoutInterceptor = client.createRequest()({
-  method: "GET",
-  endpoint: "/users/2",
-  // highlight-next-line
-  disableRequestInterceptors: true,
-});
-
-console.log("Sending request WITH interceptor:");
-requestWithInterceptor.send();
-
-console.log("\nSending request WITHOUT interceptor:");
-requestWithoutInterceptor.send();
+// Later
+client.removeOnRequestInterceptors([logRequest]);
 ```
 
----
+A single request can skip them with `disableRequestInterceptors: true` (skips `onRequest` and `onAuth`) or
+`disableResponseInterceptors: true` (skips the response ones), for example a health check that must not trigger a token
+refresh.
 
-## Chaining interceptors
-
-You can register several interceptors of each kind. They form a pipeline and run in the order they were added: each one
-receives what the previous one returned. Unlike Axios, request interceptors are not reversed.
-
-```ts
-const client = new Client({ url })
-  .onRequest(firstRequestInterceptor)
-  .onRequest(secondRequestInterceptor)
-  .onSuccess(firstSuccessInterceptor)
-  .onSuccess(secondSuccessInterceptor);
-```
-
-To remove one later, keep a reference to the function and pass it to `removeOnRequestInterceptors`,
-`removeOnSuccessInterceptors`, `removeOnErrorInterceptors`, `removeOnResponseInterceptors` or
-`removeOnAuthInterceptors`.
-
-For logic that should observe requests without changing them, like metrics or devtools, a
-[plugin](../../../core/plugin.mdx) is a better fit than an interceptor.
+| Need                                  | Use                                             |
+| ------------------------------------- | ----------------------------------------------- |
+| Change every request of a client      | `onRequest`, `onAuth`                           |
+| Handle every response or error        | `onResponse`, `onSuccess`, `onError`            |
+| Change one request                    | `setRequestMapper`, `setResponseMapper`         |
+| Observe without changing, for metrics | A [plugin](/docs/core/plugin)                   |
 
 ---
 
 :::success Congratulations!
 
-You've learned how request interceptors work in HyperFetch.
+You've learned how interceptors work.
 
-- You know how **axios interceptors** and **fetch wrappers** map to HyperFetch's client methods.
-- You can hook into the request lifecycle using **`onRequest`** and **`onAuth`**.
-- You can handle responses globally with **`onSuccess`**, **`onError`**, and **`onResponse`**.
-- You can refresh a token and resend a request with **`setUsed(true)`**.
-- You can **disable interceptors** for individual requests and **chain** them in a predictable order.
+- You know how **Axios interceptors** and **fetch wrappers** map to client methods.
+- You can change requests with **`onRequest`** and **`onAuth`**.
+- You can handle responses with **`onResponse`**, **`onSuccess`** and **`onError`**.
+- You can **chain, remove and skip** interceptors.
 
 :::
+
+Runnable examples: [Retry-After](/examples/request-control/retry-after), an `onError` interceptor that waits and resends,
+[Authentication](/examples/request-control/authentication) and [Plugins](/examples/request-control/plugins).
+
+<LinkCard type="docs" title="Client" description="Interceptors, their order and removal." to="/docs/core/client#intercept-requests-and-responses" />
+
+<LinkCard type="guides" title="Authentication" description="Bearer tokens and token refresh." to="/docs/guides/core/basics/authentication" />
+
+<LinkCard
+  type="api"
+  title="Client API reference"
+  description="onRequest, onError and the other interceptor methods."
+  to="/docs/api/core/Classes/Client"
+/>

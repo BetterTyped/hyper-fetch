@@ -6,99 +6,54 @@ sidebar_label: Request Lifecycle
 
 # Request Lifecycle Events
 
-Understanding and reacting to the lifecycle of a request is key to building robust and user-friendly applications.
-HyperFetch provides a full set of lifecycle event callbacks on its hooks (`useFetch`, `useSubmit`, etc.) that
-allow you to tap into every stage of a request, from the moment it's sent until it's finished.
-
-These callbacks, often called "helper hooks," enable you to trigger side effects, update UI state, or log events at
-precise moments.
+Every request goes through the same stages: it starts, the response arrives, and it ends with success, an error, an
+abort or an offline error. The hooks expose a callback for each stage, so you can show toasts, log or track timing
+without effects. This guide uses [`useFetch`](/docs/react/hooks/use-fetch); `useSubmit` has the same callbacks with an
+`onSubmit` prefix.
 
 :::secondary What you'll learn
 
-1.  About the different **stages of a request's lifecycle**.
-2.  How to use callbacks like **`onSuccess`**, **`onError`**, and **`onFinished`**.
-3.  How to respond to events like **request start** (`onRequestStart`) and **cancellation** (`onAbort`).
-4.  How to build a **real-time event log** to visualize the request lifecycle.
+1.  What the **stages of a request** are and in which order the callbacks fire.
+2.  How to register callbacks like **`onSuccess`**, **`onError`** and **`onFinished`**.
+3.  How **aborts**, **offline errors** and **retries** are reported.
+4.  Which callbacks fire for **requests sent by other components**.
 
 :::
 
-## Visualizing the Lifecycle
+---
 
-The best way to understand the lifecycle is to see it in action. Let's build a component that fetches some data and logs
-each lifecycle event as it happens. We'll provide buttons to trigger a successful request, a failed request, and to
-abort a request.
+## Log every stage
 
-```tsx
-function LifecycleLogger() {
-  const [logs, setLogs] = React.useState([]);
+Call the registrars in the render body. The latest closure is used, so they can read current state. Each callback
+receives one object with `response`, `request`, `requestId` and `details`.
 
-  const addLog = (message) => {
-    const timestamp = new Date().toLocaleTimeString();
-    setLogs((prev) => [`[${timestamp}] ${message}`, ...prev]);
-  };
+```tsx title="components/lifecycle-log.tsx"
+import { useState } from "react";
+import { useFetch } from "@hyper-fetch/react";
+import { getUser } from "../api/users";
 
-  // Setup the fetch hook with lifecycle callback registrars
-  // highlight-start
-  const { refetch, abort, onRequestStart, onSuccess, onError, onFinished, onAbort, onOfflineError } = useFetch(getUser, {
-    disabled: true, // We will trigger it manually
-  });
+export function LifecycleLog() {
+  const [logs, setLogs] = useState<string[]>([]);
+  const log = (message: string) => setLogs((prev) => [`${new Date().toLocaleTimeString()} ${message}`, ...prev]);
 
-  onRequestStart(() => addLog("Request Started"));
-  onSuccess(() => addLog("Request Succeeded"));
-  onError(() => addLog("Request Errored"));
-  onFinished(() => addLog("Request Finished (Success or Error)"));
-  onAbort(() => addLog("Request Aborted"));
-  onOfflineError(() => addLog("Request Offline"));
-  // highlight-end
+  const { refetch, abort, onRequestStart, onResponseStart, onSuccess, onError, onAbort, onOfflineError, onFinished } =
+    useFetch(getUser.setParams({ userId: 1 }));
 
-  const handleFetchSuccess = () => {
-    addLog("--- Starting Success Fetch ---");
-    refetch();
-  };
-
-  const handleFetchError = () => {
-    addLog("--- Starting Error Fetch ---");
-    refetch();
-  };
-
-  const handleAbort = () => {
-    addLog("--- Aborting Fetch ---");
-    abort();
-  };
-
-  const getLogClass = (log) => {
-    if (log.includes("✅")) return "text-green-600";
-    if (log.includes("❌")) return "text-red-600";
-    if (log.includes("🚀")) return "text-blue-600";
-    if (log.includes("🛑")) return "text-yellow-600";
-    if (log.includes("🔌")) return "text-orange-600";
-    return "text-gray-800";
-  };
+  onRequestStart(({ requestId }) => log(`Started ${requestId}`));
+  onResponseStart(() => log("Response is arriving"));
+  onSuccess(({ response }) => log(`Success: ${response.data.name}`));
+  onError(({ response }) => log(`Error: ${response.error.message}`));
+  onAbort(() => log("Aborted"));
+  onOfflineError(() => log("Offline, will send again when online"));
+  onFinished(({ response }) => log(`Finished with status ${response.status}`));
 
   return (
-    <div className="border rounded-md">
-      <div className="p-4 border-b">
-        <h2 className="text-xl font-bold mb-2">Lifecycle Event Log</h2>
-        <div className="space-x-2">
-          <button onClick={handleFetchSuccess} className="px-3 py-1 bg-green-500 text-white rounded">
-            Fetch Success
-          </button>
-          <button onClick={handleFetchError} className="px-3 py-1 bg-red-500 text-white rounded">
-            Fetch Error
-          </button>
-          <button onClick={handleAbort} className="px-3 py-1 bg-yellow-500 text-white rounded">
-            Abort
-          </button>
-          <button onClick={() => setLogs([])} className="px-3 py-1 bg-gray-500 text-white rounded">
-            Clear Log
-          </button>
-        </div>
-      </div>
-      <div className="p-4 bg-gray-50 h-64 overflow-y-auto font-mono text-sm">
-        {logs.map((log, i) => (
-          <p key={i} className={getLogClass(log)}>
-            {log}
-          </p>
+    <div className="border rounded-md p-4">
+      <button onClick={refetch}>Fetch</button>
+      <button onClick={abort}>Abort</button>
+      <div className="font-mono text-sm">
+        {logs.map((line, index) => (
+          <p key={index}>{line}</p>
         ))}
       </div>
     </div>
@@ -106,38 +61,69 @@ function LifecycleLogger() {
 }
 ```
 
-### Key Lifecycle Callbacks
+---
 
-Here's a breakdown of the most commonly used lifecycle callbacks:
+## The order of the callbacks
 
-- **`onRequestStart`**: Fires as soon as the request is about to be sent. Perfect for showing a loading spinner or
-  logging the start of an action.
-- **`onSuccess`**: Fires only when the request completes successfully (e.g., a 2xx HTTP status). Ideal for updating
-  state with the fetched data or showing a success notification.
-- **`onError`**: Fires only when the request fails (e.g., a 4xx/5xx HTTP status, network error). Use this to display an
-  error message to the user.
-- **`onFinished`**: Fires after _every_ request, regardless of whether it succeeded or failed. It's the equivalent of a
-  `finally` block in a promise chain. Great for hiding a loading spinner.
-- **`onAbort`**: Fires when a request is manually cancelled using the `abort()` function returned by the hook.
-- **`onOfflineError`**: Fires if a request fails specifically because the browser is offline. This allows you to show a
-  specific "You are offline" message.
-- **`onRetry`**: Fires when a failed attempt schedules a retry, with the `retry` number and the `delay` before the next
-  attempt. Use it to show "Retrying (2 of 3)...". In `useSubmit` it is called `onSubmitRetry`.
-- **`onUploadProgress` / `onDownloadProgress`**: Fire repeatedly during a file upload or download. See the
-  [Progress guide](/docs/guides/react/basics/progress) for more details.
+| Stage                 | Callback                                                      |
+| --------------------- | ------------------------------------------------------------- |
+| Request sent          | `onRequestStart`, then `onUploadProgress` while uploading     |
+| First response bytes  | `onResponseStart`, then `onDownloadProgress` while downloading |
+| Result, exactly one   | `onSuccess`, `onError`, `onAbort` or `onOfflineError`          |
+| Always last           | `onFinished`                                                  |
+| Next attempt planned  | `onRetry`, with the `retry` number and the `delay` in ms      |
 
-By using these callbacks, you can create a highly interactive and informative UI that responds intelligently to the
-state of your data fetching.
+- **`onAbort`** fires for canceled requests, such as `abort()` or a cancelable request replaced by a newer one. It never
+  calls `onError`.
+- **`onOfflineError`** fires when the request failed because the app is offline. The request is sent again once the
+  network is back, so treat it as "waiting", not as a final error.
+- **`onError` fires for every failed attempt** of a request with retries. `details.willRetry` tells whether another
+  attempt is coming, so show the final error only when it is `false`.
+
+```tsx title="Show only the final error"
+onError(({ response, details }) => {
+  if (!details.willRetry) toast(response.error.message);
+});
+onRetry(({ retry, delay }) => setStatus(`Retry ${retry} in ${delay / 1000}s`));
+```
+
+---
+
+## Callbacks or returned state
+
+| Use                                  | For                                                              |
+| ------------------------------------ | ---------------------------------------------------------------- |
+| Returned `data`, `loading`, `error`  | Rendering. They re-render the component                          |
+| Callbacks                            | Side effects: toasts, analytics, navigation, writing other state |
+
+`useFetch` callbacks fire for every response on the hook's cache key, also for requests sent by other components or by
+`client.cache.invalidate`. A toast in `onSuccess` of a list shown in three components fires three times, so put
+one-off side effects in one component, or use [`useSubmit`](/docs/guides/react/basics/submitting), whose callbacks fire
+only for its own submits.
 
 ---
 
 :::success Congratulations!
 
-You've mastered the HyperFetch request lifecycle!
+You can now run side effects at each stage of a request.
 
-- You can hook into **every stage** of a request's journey.
-- You know the difference between **`onSuccess`**, **`onError`**, and **`onFinished`**.
-- You can handle specific cases like **aborts** and **offline** states.
-- You are equipped to build **complex, state-aware UIs** that responds to data events.
+- You can register **`onRequestStart`**, **`onSuccess`**, **`onError`** and **`onFinished`** in the render body.
+- You can tell **aborts** and **offline errors** apart from real errors.
+- You can show only the **final error** of a retried request with `details.willRetry`.
+- You know that `useFetch` callbacks also fire for **other components' requests**.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="useFetch callbacks"
+  description="Every callback, its arguments and retries."
+  to="/docs/react/hooks/use-fetch#callbacks"
+/>
+
+- Guides: [progress](/docs/guides/react/basics/progress), [error handling](/docs/guides/core/basics/error-handling),
+  [retries](/docs/guides/core/basics/retries), [cancellation](/docs/guides/core/advanced/cancellation).
+- Runnable examples: [retries](/examples/request-control/retries), [cancellation](/examples/request-control/cancellation),
+  [plugins](/examples/request-control/plugins).

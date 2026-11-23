@@ -7,12 +7,10 @@ description:
 sidebar_label: Related Data and Joins
 ---
 
-# Related Data and Joins
+# Related data and joins
 
-Records point at each other. A post has an author and comments, and the author shows up on dozens of posts. REST APIs
-either embed the related record, so the same author is copied into every post, or return only its id, so the client has
-to fetch it. GraphQL clients solved this years ago with a normalized cache. For REST, most apps still patch copies by
-hand. This guide shows both halves for REST: **normalize** embedded records into their own collection, and **join**
+REST APIs either embed a related record, so the same author is copied into every post, or return only its id, so the
+client has to fetch it. This guide covers both: **normalize** embedded records into their own collection, and **join**
 related records into query results, loaded in batches and kept live.
 
 :::secondary What you'll learn
@@ -49,7 +47,7 @@ Teamboard's feed endpoint embeds each post's author. Here is what normalization 
 
 **2. The declaration.** The feed's rows keep the nested author, and `normalize` writes it into the `user` collection:
 
-```ts
+```ts title="src/db.ts"
 const FeedPostSchema = PostSummarySchema.extend({ author: UserSchema });
 
 const User = collection(UserSchema, { key: "id" }).load(getUsers, {
@@ -95,7 +93,7 @@ again, under the same ordering rules as every other write. Views that read `user
 Most REST lists return only the id, as Teamboard's `postSummary` does with `authorId`. A join adds the row whose key
 that field holds:
 
-```tsx
+```tsx title="src/feed.tsx"
 const Feed = ({ teamId }: { teamId: string }) => {
   const { data } = useLiveQuery(
     db.postSummary
@@ -149,7 +147,7 @@ drops `undefined`.
 
 A join can also match a field of the **joined** collection instead of its key. Each result then holds an **array**:
 
-```ts
+```ts title="src/db.ts"
 const getComments = client.createRequest<{ response: Comment[]; queryParams?: { postIds?: string[] } }>()({
   endpoint: "/comments",
 });
@@ -160,7 +158,7 @@ const Comment = collection(CommentSchema, { key: "id" }).load(getComments, {
 });
 ```
 
-```tsx
+```tsx title="src/feed.tsx"
 const { data } = useLiveQuery(
   db.postSummary
     .where((post) => eq(post.teamId, teamId))
@@ -191,7 +189,7 @@ A join is part of a live query, so every change reaches it:
   ingested response or an optimistic write.
 - When a result's foreign key changes, the join follows it and loads the new row if needed.
 - A row loaded for a join is a row read by key, so it joins the syncs its own fields select, the same way `findOne`
-  does. See [Real-time Sync](../01-basics/realtime-sync.mdx#scoping-a-sync).
+  does. See [Real-time sync](/docs/guides/db/basics/realtime-sync#scoping-a-sync).
 
 :::note Normalize, join, or both?
 
@@ -201,15 +199,15 @@ A join is part of a live query, so every change reaches it:
 - **Both** when the API embeds a snapshot but the screen must show the current record: normalize the embedded author,
   and join `user` by `authorId` to read it.
 - For the same record in two shapes, such as a post and its summary, use a **link** instead. See
-  [List and Detail Views](./list-and-detail.mdx).
+  [List and detail views](/docs/guides/db/patterns/list-and-detail).
 
 :::
 
 ---
 
-:::success Fully related!
+:::success Congratulations!
 
-Teamboard shows authors and comments without a single hand-written fetch.
+Teamboard shows authors and comments without a hand-written fetch.
 
 - You can **normalize** embedded records into their own collection.
 - You can add a related row with a **left** or an **inner** join, with types that say which one you used.
@@ -223,8 +221,17 @@ Teamboard shows authors and comments without a single hand-written fetch.
 ## Next steps
 
 <LinkCard
+  type="guides"
+  title="Offline-first apps with the outbox"
+  description="Persist the db, keep writing offline and replay every write in order when the connection returns."
+  to="/docs/guides/db/patterns/offline-first"
+/>
+
+<LinkCard
   type="docs"
-  title="Related Data reference"
+  title="Related data reference"
   description="Links, normalize and joins, with every rule in one place."
   to="/docs/db/related-data"
 />
+
+- API reference: [`JoinSpec`](/docs/api/db/Types/JoinSpec), [`Query`](/docs/api/db/Classes/Query).

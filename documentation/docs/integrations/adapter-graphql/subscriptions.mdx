@@ -7,82 +7,62 @@ sidebar_label: Subscriptions
 
 # GraphQL subscriptions in React over WebSocket
 
-[Read the API Reference »](/docs/api/adapter-graphql/Functions/GraphqlWsAdapter.mdx)
-
-A GraphQL subscription is an operation the server keeps answering: you subscribe once and get a new result every time
-the event happens, such as a new message or a changed order status. To use graphql subscriptions in react you need a
-WebSocket that stays open, a protocol both sides agree on, and a hook that starts and stops the subscription with the
-component. `GraphqlWsAdapter` connects a HyperFetch `Socket` to the server, and each subscription document becomes a
-typed listener, with the variables as the payload.
+A GraphQL subscription is an operation the server keeps answering: you subscribe once and get a result for every event,
+such as a new message. `GraphqlWsAdapter` connects a HyperFetch [Socket](/docs/sockets/socket) to the server, and each
+subscription document becomes a typed [Listener](/docs/sockets/listener) whose payload is the variables.
 
 :::tip Purpose
 
-1. **Listen to GraphQL subscriptions** with the `Socket`, `Listener` and `useListener` API you use for other realtime
-   sources.
-2. **Speak `graphql-transport-ws`**, the protocol of `graphql-ws`, supported by Apollo Server, GraphQL Yoga, Mercurius,
-   Hot Chocolate, Hasura and most other servers.
-3. **Infer the data and the variables** from typed documents of graphql-codegen or gql.tada.
-4. **Share one server subscription** between every listener with the same document and variables.
-5. **Recover on its own**: reconnects with backoff, sends fresh connection params and starts every subscription again.
+1. **Listen to subscriptions** with the `Socket`, `Listener` and `useListener` API of other realtime sources.
+2. **Speak `graphql-transport-ws`**, the `graphql-ws` protocol of Apollo Server, GraphQL Yoga, Mercurius, Hot Chocolate
+   and Hasura.
+3. **Share one server subscription** between listeners with the same document and variables.
+4. **Recover on its own**: reconnect with backoff, fresh connection params and every subscription sent again.
 
 :::
 
 ---
 
-## How GraphQL subscriptions work
+## Anatomy of a GraphQL subscription
 
-```graphql
-subscription OnMessage($roomId: ID!) {
-  messageAdded(roomId: $roomId) {
+```graphql title="OnMessage.graphql"
+subscription OnMessage($room: String!) {
+  onMessage(room: $room) {
     id
     text
   }
 }
 ```
 
-A subscription looks like a query with `subscription` in front, and it has exactly one top-level field. The difference is
-the transport. A query is one HTTP request and one response. A subscription needs a connection that stays open, so the
-server can push a result for every event.
-
-Most servers use WebSocket with the `graphql-transport-ws` protocol from the `graphql-ws` library. The client opens the
-socket, sends `connection_init` with optional params such as an auth token, then one `subscribe` message per
-subscription. The server answers with `next` messages, and `complete` when it ends. The older
-`subscriptions-transport-ws` protocol (`graphql-ws` as the subprotocol name, confusingly) is deprecated, and this adapter
-does not speak it.
+A subscription looks like a query with `subscription` in front and exactly one top-level field. It needs a connection
+that stays open, so the server can push a result per event. With `graphql-transport-ws` the client sends
+`connection_init` with optional params such as a token, then one `subscribe` message per subscription. The server
+answers with `next` messages, and `complete` when it ends.
 
 ---
 
-## Installation
+## Listen to a subscription
 
-The WebSocket adapter lives in the GraphQL package and needs `@hyper-fetch/sockets`.
+The adapter ships in `@hyper-fetch/graphql` and needs `@hyper-fetch/sockets`, see the
+[install step](/docs/integrations/adapter-graphql/overview#install). Create a `Socket` with the adapter, then a listener
+per subscription with the `document` option. The variables are the payload.
 
-```bash
-npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/graphql graphql
-```
-
----
-
-## Getting started
-
-Create a `Socket` with the adapter, then a listener per subscription. Pass the document with the `document` option,
-and the variables as the payload.
-
-```ts
+```ts title="socket.ts"
 import { Socket } from "@hyper-fetch/sockets";
 import { GraphqlWsAdapter } from "@hyper-fetch/graphql";
 import gql from "graphql-tag";
 
-const socket = new Socket({
-  url: "ws://localhost:4000/graphql",
-  adapter: GraphqlWsAdapter(),
-});
+export const socket = new Socket({ url: "ws://localhost:4000/graphql", adapter: GraphqlWsAdapter() });
 
-const onMessage = socket.createListener<{ onMessage: { text: string } }, { room: string }>()({
+type Message = { onMessage: { id: string; text: string } };
+
+export const onMessage = socket.createListener<Message, { room: string }>()({
   topic: "OnMessage",
   options: {
     document: gql`
       subscription OnMessage($room: String!) {
         onMessage(room: $room) {
+          id
           text
         }
       }
@@ -90,77 +70,44 @@ const onMessage = socket.createListener<{ onMessage: { text: string } }, { room:
   },
 });
 
-const stop = onMessage.setPayload({ room: "general" }).listen(({ data, extra }) => {
-  console.log(data.onMessage.text);
-});
+const stop = onMessage.setPayload({ room: "general" }).listen(({ data }) => console.log(data.onMessage.text));
 ```
 
-- The `topic` names the listener in devtools and in `socket.events`. The operation name is a good choice.
-- Without the `document` option the `topic` is sent as the document, like the `endpoint` of the `GraphqlAdapter`:
-  `socket.createListener()({ topic: "subscription { tick }" })`.
-- The operation name is read from the document and sent with it.
-- Queries and mutations are sent with the [`GraphqlAdapter`](/docs/integrations/adapter-graphql/overview.mdx).
-  `emit()` throws.
+- The `topic` names the listener in devtools and `socket.events`. The operation name is a good choice.
+- Without `document`, the `topic` is sent as the document: `socket.createListener()({ topic: "subscription { tick }" })`.
+- Queries and mutations stay on the [`GraphqlAdapter`](/docs/integrations/adapter-graphql/overview). `emit()` throws.
 
 ---
 
 ## Typed documents
 
-A typed document - a `TypedDocumentNode` of graphql-codegen or a gql.tada document - types the listener on its own, the
-same way it types requests of the `GraphqlAdapter`.
+A typed document from GraphQL Code Generator or gql.tada types the listener's data and variables on its own. Generics
+passed to `createListener` win over it.
 
-```ts
-import { OnMessageDocument } from "./gql/graphql";
+```ts title="socket.ts"
+import { OnMessageDocument } from "./gql/graphql"; // generated
 
-const onMessage = socket.createListener()({ topic: "OnMessage", options: { document: OnMessageDocument } });
+export const onMessage = socket.createListener()({ topic: "OnMessage", options: { document: OnMessageDocument } });
 
-// highlight-next-line
 onMessage.setPayload({ room: "general" }).listen(({ data }) => data.onMessage.text);
-
-// @ts-expect-error the variables are required by the document
-onMessage.listen(() => {});
 ```
-
-- A document without variables needs no payload.
-- Generics passed to `createListener` win over the document.
-- A `delivery` strategy is typed with the data of the document too - `batch` delivers arrays of it.
 
 ---
 
-## Variables and shared subscriptions
+## Subscriptions in React
 
-Every document with one set of variables is one server subscription. Listeners with the same document and variables
-share it: the first one starts it, and the last one to stop it sends `complete`. Each listener gets only the events of
-its own variables.
+[`useListener`](/docs/react/sockets/use-listener) starts the subscription on mount, restarts it when the variables
+change and stops it on unmount. In `StrictMode` the server still sees one subscription.
 
-```ts
-const general = onMessage.setPayload({ room: "general" });
-
-general.listen(renderMessages);
-general.listen(playSound); // the same server subscription
-
-onMessage.setPayload({ room: "random" }).listen(renderMessages); // a second one
-```
-
-The variables of the event are in `extra.payload`, so events of every subscription can be told apart where they meet,
-like `socket.events.onListenerEvent`.
-
----
-
-## React
-
-`useListener` from `@hyper-fetch/react` works with the adapter. Changing the variables stops the previous subscription
-and starts a new one, and unmounting stops it. In `StrictMode` the server still sees one subscription.
-
-```tsx
+```tsx title="ChatRoom.tsx"
 import { useListener } from "@hyper-fetch/react";
 
-const ChatRoom = ({ room }: { room: string }) => {
+import { onMessage } from "./socket";
+
+export const ChatRoom = ({ room }: { room: string }) => {
   const { data, status, error } = useListener(onMessage.setPayload({ room }));
 
-  if (status === "failed") {
-    return <p>{error?.message}</p>;
-  }
+  if (status === "failed") return <p>{error?.message}</p>;
 
   return (
     <div>
@@ -176,190 +123,187 @@ const ChatRoom = ({ room }: { room: string }) => {
 
 ---
 
+## Share one subscription between listeners
+
+A document with one set of variables is one server subscription. Listeners with the same document and variables share
+it: the first one starts it and the last one to stop sends `complete`.
+
+```ts title="chat.ts"
+const general = onMessage.setPayload({ room: "general" });
+
+general.listen(renderMessages);
+general.listen(playSound); // same server subscription
+onMessage.setPayload({ room: "random" }).listen(renderMessages); // a second one
+```
+
+Each event carries its variables in `extra.payload`, so events of different subscriptions can be told apart where they
+meet, like `socket.events.onListenerEvent`.
+
+---
+
 ## Errors
 
-GraphQL reports errors of a subscription in two ways, and the adapter keeps them apart.
+GraphQL reports subscription errors in two ways, and the adapter keeps them apart:
 
-- **Errors of one event** come with the event. The server could not resolve a part of it, the subscription keeps
-  running. They are in `extra.errors`, next to the partial `data`.
-- **Errors of the subscription** end it. The document did not validate or its source failed, and the server sent the
-  `error` message. The listener ends with a `GraphqlSubscriptionError`, which also reaches `socket.onError`.
+- **Errors of one event** come in `extra.errors`, next to the partial `data`. The subscription keeps running.
+- **Errors of the subscription** end it. The server sent the `error` message, and the listener ends with a
+  `GraphqlSubscriptionError` (`errors`, `topic`, `payload`), which also reaches `socket.onError`.
 
-```ts
+```ts title="chat.ts"
 import { GraphqlSubscriptionError } from "@hyper-fetch/graphql";
 
 onMessage.setPayload({ room: "general" }).listen(
   ({ data, extra }) => {
-    if (extra.errors) {
-      // Partial data - the subscription goes on
-    }
+    if (extra.errors) console.warn("partial event", extra.errors);
   },
   {
     onEnd: ({ error }) => {
-      if (error instanceof GraphqlSubscriptionError) {
-        error.errors; // GraphQLFormattedError[] sent by the server
-        error.payload; // { room: "general" }
-      }
+      if (error instanceof GraphqlSubscriptionError) console.error(error.errors, error.payload);
     },
   },
 );
 ```
 
-:::note Request errors
-
-A subscription the server can't execute at all, for example with missing variables, gets one event with the errors and
-`null` data, and then it completes. That is how `graphql-ws` servers answer it.
-
-:::
-
-Messages that break the protocol close the connection with `4004`, the same way the `graphql-ws` client does it, and
-are reported to `socket.onError`. Callbacks that throw are reported too, and the other listeners keep their events.
+A subscription the server can't execute at all, for example with missing variables, gets one event with errors and
+`null` data, then completes. Messages that break the protocol close the connection with `4004` and reach
+`socket.onError`.
 
 ---
 
 ## Subscription lifecycle
 
-The protocol has no confirmation of a subscription, so it counts as started once it is sent over an acknowledged
-connection. `listen()` takes `onStart` and `onEnd`.
+The protocol has no confirmation, so a subscription counts as started once it is sent over an acknowledged connection.
+`listen()` takes `onStart` and `onEnd`.
 
-```ts
+```ts title="chat.ts"
 onMessage.setPayload({ room: "general" }).listen(renderMessages, {
-  onStart: ({ topic }) => {
-    // Sent to the server - and again after every reconnect
-  },
-  onEnd: ({ topic, error }) => {
-    // The server completed it (`error` is null) or failed it with a GraphqlSubscriptionError
-  },
+  onStart: ({ topic }) => {}, // sent to the server, and again after every reconnect
+  onEnd: ({ topic, error }) => {}, // completed (error is null) or failed with a GraphqlSubscriptionError
 });
 ```
 
 - A listener that joins a running subscription gets `onStart` right away.
-- On the end, events still pending in a `delivery` strategy are delivered first. Then the listener unsubscribes and
-  `onEnd` runs.
-- An ended subscription is never restarted by a reconnect. A new `listen()` starts a fresh one.
-- Unsubscribing yourself does not call `onEnd`.
+- On the end, events pending in a `delivery` strategy are delivered first, then `onEnd` runs.
+- An ended subscription is never restarted by a reconnect. Unsubscribing yourself does not call `onEnd`.
 
 ---
 
 ## Connection
 
-The connection counts as open once the server acknowledged `connection_init`. The socket's `connectionTimeout` covers
-the whole way there, the WebSocket handshake and the acknowledgement. Subscriptions started before wait for it.
+The connection is open once the server acknowledged `connection_init`. The socket's `connectionTimeout` covers the
+handshake and the acknowledgement, and subscriptions started earlier wait for it.
 
 ### Connection params
 
-`connectionParams` are sent with `connection_init`, and servers read them in `onConnect`, for example as
-`ctx.connectionParams` of `graphql-ws`. Pass a function to read a fresh token on every connection attempt, it can be
-async.
+`connectionParams` are sent with `connection_init`, and `graphql-ws` servers read them as `ctx.connectionParams`. A
+function runs on every connection attempt, so a reconnect sends a fresh token. When it throws, the connection closes
+with `4005` and is not retried.
 
-```ts
-const socket = new Socket({
+```ts title="socket.ts"
+export const socket = new Socket({
   url: "wss://api.example.com/graphql",
   adapter: GraphqlWsAdapter(),
-  adapterOptions: {
-    connectionParams: async () => ({ token: await auth.getFreshToken() }),
-  },
+  adapterOptions: { connectionParams: async () => ({ token: await auth.getFreshToken() }) },
 });
 ```
 
-When the function throws or rejects, the connection is closed with `4005` and not retried. The connection params can
-also be changed per attempt with `socket.onConnect`.
-
 ### Reconnecting
 
-A lost connection is reconnected with the socket's [reconnection options](/docs/guides/sockets/connection.mdx), and
-every running subscription is sent again with a new id once the server acknowledges the new connection.
+A lost connection reconnects with the socket's [reconnection options](/docs/guides/sockets/connection), and every
+running subscription is sent again once the new connection is acknowledged. Close codes a retry can't fix stop it, the
+same ones the `graphql-ws` client gives up on:
 
-Close codes a retry can't fix stop it: the same ones the `graphql-ws` client gives up on, and a normal closure (1000).
-
-| Close code                                | Reconnects |
-| ----------------------------------------- | ---------- |
-| `1000` normal closure                     | no         |
-| `1001`, `1005`, `1006`, `1012`-`1014`     | yes        |
-| other `1xxx` codes, e.g. `1002`, `1011`   | no         |
-| `4400`, `4401`, `4004`, `4005`, `4406`    | no         |
-| `4409`, `4429`, `4500`                    | no         |
-| `4403` forbidden, `4408`, `4504` timeouts | yes        |
-| everything else, e.g. `4499`, `3000`      | yes        |
+| Close code                                                   | Reconnects |
+| ------------------------------------------------------------ | ---------- |
+| `1000` normal closure                                        | no         |
+| `1001`, `1005`, `1006`, `1012`-`1014`                        | yes        |
+| other `1xxx` codes, for example `1002`, `1011`               | no         |
+| `4400`, `4401`, `4004`, `4005`, `4406`, `4409`, `4429`, `4500` | no       |
+| `4403` forbidden, `4408` and `4504` timeouts                 | yes        |
+| everything else, for example `4499`, `3000`                  | yes        |
 
 The socket's `shouldReconnect` replaces these rules. Call `shouldReconnectGraphqlWs` from yours to keep them:
 
-```ts
+```ts title="socket.ts"
 import { GraphqlWsAdapter, shouldReconnectGraphqlWs } from "@hyper-fetch/graphql";
 
-const socket = new Socket({
-  url,
+export const socket = new Socket({
+  url: "wss://api.example.com/graphql",
   adapter: GraphqlWsAdapter(),
-  // Retry after an unauthorized close too - the connection params function refreshes the token
+  // also retry after 4401, the connectionParams function fetches a fresh token
   shouldReconnect: (loss) => loss.code === 4401 || shouldReconnectGraphqlWs(loss),
 });
 ```
 
-### Keep-alive
+### Keep-alive and lazy connections
 
-The adapter answers the server's `ping`. To notice a connection that died without a close, for example behind a proxy,
-turn on `keepAlive`: the client sends `ping` when the connection is quiet and reconnects when the `pong` does not
-arrive in time.
+The adapter always answers the server's `ping`. Turn on `keepAlive` to notice a connection that died without a close,
+for example behind a proxy. With `lazy`, the connection opens with the first subscription and closes after the last one.
 
-```ts
-const socket = new Socket({
-  url,
+```ts title="socket.ts"
+export const socket = new Socket({
+  url: "wss://api.example.com/graphql",
   adapter: GraphqlWsAdapter(),
-  adapterOptions: { keepAlive: { enabled: true, intervalMs: 10_000, pongTimeoutMs: 5_000 } },
+  adapterOptions: { keepAlive: { enabled: true }, lazy: true, lazyCloseTimeout: 3000 },
 });
 ```
-
-### Lazy connection
-
-With `lazy`, the connection opens when the first subscription starts and closes when the last one stops, after
-`lazyCloseTimeout`. A socket without subscriptions holds no connection.
-
-```ts
-const socket = new Socket({
-  url,
-  adapter: GraphqlWsAdapter(),
-  adapterOptions: { lazy: true, lazyCloseTimeout: 3_000 },
-});
-```
-
-A connection closed with `socket.disconnect()` stays closed until `socket.connect()`. While the socket reconnects after
-a lost connection, new subscriptions wait for it.
 
 ---
 
 ## Options
 
-| Option              | Type                             | Default | Description                                                         |
-| ------------------- | -------------------------------- | ------- | ------------------------------------------------------------------- |
-| `autoConnect`       | `boolean`                        | `true`  | Connect when the socket is created. Ignored with `lazy`.            |
-| `lazy`              | `boolean`                        | `false` | Hold a connection only while there are subscriptions.               |
-| `lazyCloseTimeout`  | `number`                         | `0`     | With `lazy`, how long the connection stays after the last one, ms.  |
-| `connectionParams`  | `object \| () => object`         | -       | Sent with `connection_init`. A function runs on every attempt.      |
-| `keepAlive`         | `{ enabled, intervalMs?, ... }`  | off     | Ping a quiet connection, `10000` ms, and wait `5000` ms for `pong`. |
-| `WebSocket`         | `typeof WebSocket`               | global  | The `WebSocket` class, e.g. from the `ws` package in older Node.js. |
+Adapter options, passed as `adapterOptions` to the `Socket`:
 
-Listener options:
+| Option             | Type                             | Default | Description                                                            |
+| ------------------ | -------------------------------- | ------- | ---------------------------------------------------------------------- |
+| `autoConnect`      | `boolean`                        | `true`  | Connect when the socket is created. Ignored with `lazy`.               |
+| `lazy`             | `boolean`                        | `false` | Hold a connection only while there are subscriptions.                  |
+| `lazyCloseTimeout` | `number`                         | `0`     | With `lazy`, how long the connection stays after the last one, in ms.  |
+| `connectionParams` | `object \| () => object`         | -       | Sent with `connection_init`. A function runs on every attempt.         |
+| `keepAlive`        | `{ enabled, intervalMs?, pongTimeoutMs? }` | off | Ping after `intervalMs` (default `10000`) of quiet, wait `pongTimeoutMs` (default `5000`) for `pong`. |
+| `WebSocket`        | `typeof WebSocket`               | global  | The `WebSocket` class, for example from `ws` before Node.js 22.        |
 
-| Option     | Type                     | Description                                                       |
-| ---------- | ------------------------ | ----------------------------------------------------------------- |
-| `document` | `string \| DocumentNode` | The subscription document. Without it, the `topic` is sent.       |
+Listener option: `document` (`string | DocumentNode`), the subscription document. Without it the `topic` is sent.
 
 ---
 
-## Limitations
+## Limits
 
-- Only `graphql-transport-ws` is supported. The legacy `subscriptions-transport-ws` protocol (subprotocol `graphql-ws`)
-  is deprecated and not supported.
+- Only `graphql-transport-ws` is supported. The deprecated `subscriptions-transport-ws` protocol (subprotocol
+  `graphql-ws`) is not.
 - Queries and mutations go over HTTP with the `GraphqlAdapter`, not over the WebSocket.
 - Incremental delivery (`@defer`, `@stream`) results are delivered as they arrive, without merging.
 
-:::secondary What you learned
+---
 
-1. `GraphqlWsAdapter` turns subscription documents into typed listeners, with the variables as the payload.
-2. Typed documents type the data and the variables without generics.
-3. Listeners with the same document and variables share one server subscription.
-4. Errors of an event come in `extra.errors`, errors of the subscription end it with a `GraphqlSubscriptionError`.
-5. The connection is open once acknowledged, reconnects with fresh connection params and sends every subscription
-   again.
+:::secondary Summary
+
+- `GraphqlWsAdapter()` turns subscription documents into typed listeners, with the variables as the payload.
+- Listeners with the same document and variables share one server subscription.
+- Event errors come in `extra.errors`. Subscription errors end it with a `GraphqlSubscriptionError`.
+- The connection reconnects with fresh connection params and sends every subscription again.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="useListener"
+  description="Listen to a socket topic in a React component."
+  to="/docs/react/sockets/use-listener"
+/>
+
+<LinkCard
+  type="guides"
+  title="WebSocket reconnection and errors"
+  description="How the socket reconnects, backs off and reports errors."
+  to="/docs/guides/sockets/websocket-reconnection-and-errors"
+/>
+
+<LinkCard
+  type="api"
+  title="GraphqlWsAdapter API reference"
+  description="The socket adapter factory and its option types."
+  to="/docs/api/adapter-graphql/Functions/GraphqlWsAdapter"
+/>

@@ -80,6 +80,8 @@ already has. Base URL, auth and interceptors stay in one client you write once.
 
 ## Generate the client with HyperFetch
 
+Seven steps take you from a schema to typed requests in React and a CI script.
+
 ### 1. Point the CLI at your schema
 
 ```bash
@@ -92,10 +94,10 @@ npx @hyper-fetch/cli@latest generate \
 `--template` is `openapi` or `swagger`. `--url` takes an `http(s)` URL or a JSON file path relative to `--cwd`. Leave a
 flag out and the CLI asks for it. The prompt only accepts URLs, so pass local files with `--url`.
 
-The first run in a project without an `api.json` runs [`init`](./commands/init.mdx) for you. It creates `api.json` and
+The first run in a project without an `api.json` runs [`init`](/docs/cli/commands/init) for you. It creates `api.json` and
 a `src/api` folder, and the SDK is written there. To choose the folder yourself, run `init` first. There is no `--output`
 flag: the folder comes from `aliases.api` in `api.json`. All flags are listed on the
-[`generate` page](./commands/generate.mdx).
+[`generate` page](/docs/cli/commands/generate).
 
 ### 2. Look at what was generated
 
@@ -177,8 +179,8 @@ export function PetCard({ petId }: { petId: number }) {
 }
 ```
 
-Writes go through `useSubmit` the same way. The [`useFetch`](../react/04-hooks/use-fetch.mdx) and
-[`useSubmit`](../react/04-hooks/use-submit.mdx) pages list every option.
+Writes go through `useSubmit` the same way. The [`useFetch`](/docs/react/hooks/use-fetch) and
+[`useSubmit`](/docs/react/hooks/use-submit) pages list every option.
 
 ### 6. Set defaults for the whole SDK
 
@@ -193,7 +195,7 @@ export const sdk = createSdk(client).$configure({
 });
 ```
 
-Keys are checked against the schema. The [SDK reference](../core/sdk.mdx) covers wildcards and per-method keys.
+Keys are checked against the schema. The [SDK reference](/docs/core/sdk) covers wildcards and per-method keys.
 
 ### 7. Regenerate in CI
 
@@ -221,7 +223,7 @@ in CI and fail the build on a diff, or let the typecheck that follows catch the 
   `findByStatus` in `/pet/findByStatus`). The generated `createSdk` passes it as the `pathSegments` option, and your own
   `pathSegments` entries win. kebab-case paths such as `/user-profiles` are generated as `userProfiles`.
 - **No hooks or mocks are generated.** The SDK gives you requests. Hooks come from `@hyper-fetch/react`, and mocks from
-  `request.setMock()` on a request you keep a reference to. See [mocking](../core/mocking.mdx).
+  `request.setMock()` on a request you keep a reference to. See [mocking](/docs/core/mocking).
 
 ---
 
@@ -243,4 +245,15 @@ in CI and fail the build on a diff, or let the typecheck that follows catch the 
 
 :::
 
-Start with the [CLI overview](./overview.mdx) if you haven't used the CLI before.
+## Next steps
+
+Open the [OpenAPI codegen example](/examples/integrations/openapi-codegen) for a runnable project.
+
+<LinkCard
+  type="docs"
+  title="Generate command"
+  description="Every flag, the generated output and CI recipes."
+  to="/docs/cli/commands/generate"
+/>
+
+<LinkCard type="docs" title="CLI overview" description="Commands, requirements and automatic setup." to="/docs/cli/overview" />

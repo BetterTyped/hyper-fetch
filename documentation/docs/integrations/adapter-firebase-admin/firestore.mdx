@@ -4,19 +4,18 @@ title: Firestore with the Firebase Admin SDK in Node.js
 description: Read, write and query Firestore from Node.js with the Firebase Admin SDK, using typed requests for getDocs, setDoc, updateDoc and constraints.
 sidebar_label: Firestore
 ---
+
 # Firestore with the Firebase Admin SDK in Node.js
 
-To use Firestore from the firebase admin sdk node side, this package turns each operation into a HyperFetch request with
-a Firestore `method`. Requests behave like the [web package](/docs/integrations/adapter-firebase/firestore), with the
-Admin SDK underneath, so security rules do not apply and your code decides who may do what.
-
----
+Each Firestore operation from Node.js is a request with a Firestore `method`, run by the Admin SDK. Methods, data and
+queries match the [web Firestore page](/docs/integrations/adapter-firebase/firestore), so this page shows the server
+setup and the differences.
 
 :::tip Purpose
 
-1.  **Read** documents and collections with `getDoc` and `getDocs`.
-2.  **Write** with `addDoc`, `setDoc`, `updateDoc` and `deleteDoc`, with the payload typed per request.
-3.  **Query** collections with constraints and cursors.
+1. **Read** documents and collections with `getDoc` and `getDocs`.
+2. **Write** with `addDoc`, `setDoc`, `updateDoc` and `deleteDoc`, with the payload typed per request.
+3. **Query** collections with typed constraints and page through them with cursors.
 
 :::
 
@@ -24,105 +23,152 @@ Admin SDK underneath, so security rules do not apply and your code decides who m
 
 ## Setup
 
-```ts
-import { Client } from "@hyper-fetch/core";
+Pass the Admin SDK Firestore instance to `FirebaseAdminAdapter`. With `url: ""` every endpoint is the full Firestore
+path.
+
+```ts title="server/firebase.ts"
+import { createClient } from "@hyper-fetch/core";
 import { FirebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
 initializeApp();
 
-export const client = new Client({ url: "" }).setAdapter(FirebaseAdminAdapter(getFirestore()));
+export const client = createClient({ url: "" }).setAdapter(FirebaseAdminAdapter(getFirestore()));
 
-type Order = { status: "open" | "paid"; total: number; createdAt: number };
-type OrderDoc = Order & { __key: string }; // __key is the document id, added by the adapter
+export type Order = { status: "open" | "paid"; total: number; createdAt: number };
+export type OrderDoc = Order & { __key: string }; // __key is the document id, added by the adapter
 ```
 
 ---
 
 ## Methods
 
-| Method      | Path       | `data`                                  | `extra`                              |
-| ----------- | ---------- | --------------------------------------- | ------------------------------------ |
-| `getDocs`   | collection | documents with `__key`, `[]` when empty | `ref`, `snapshot` (QuerySnapshot)    |
-| `getDoc`    | document   | the document with `__key`, or `null`    | `ref`, `snapshot` (DocumentSnapshot) |
-| `addDoc`    | collection | the payload plus the new `__key`        | `ref` of the new document            |
-| `setDoc`    | document   | the Admin SDK `WriteResult`             | `ref`                                |
-| `updateDoc` | document   | the payload                             | `ref`                                |
-| `deleteDoc` | document   | `null`                                  | `ref`                                |
+The same six methods as the [web package](/docs/integrations/adapter-firebase/firestore#methods), with `getDoc` as the
+default. Only `setDoc` returns something else: the Admin SDK `WriteResult` (with `writeTime`) instead of the payload.
 
-`getDoc` is the default, so a request without `method` reads one document.
+### Read
 
-```ts
+```ts title="server/orders.ts"
+export const getOrder = client.createRequest<{ response: OrderDoc | null }>()({ endpoint: "orders/:orderId" });
+
+const { data } = await getOrder.setParams({ orderId: "a1" }).send();
+```
+
+### Write
+
+```ts title="server/orders.ts"
 import type { WriteResult } from "firebase-admin/firestore";
 
-const getOrder = client.createRequest<{ response: OrderDoc | null }>()({
-  endpoint: "orders/:orderId",
-});
-
-const addOrder = client.createRequest<{ response: OrderDoc; payload: Order }>()({
+export const addOrder = client.createRequest<{ response: OrderDoc; payload: Order }>()({
   endpoint: "orders",
   method: "addDoc",
 });
 
-const saveOrder = client.createRequest<{ response: WriteResult; payload: Order }>()({
+export const saveOrder = client.createRequest<{ response: WriteResult; payload: Order }>()({
   endpoint: "orders/:orderId",
-  method: "setDoc",
-  // options: { merge: true } merges the payload into the existing document
+  method: "setDoc", // add options: { merge: true } to merge into the existing document
 });
 
-const markPaid = client.createRequest<{ response: Partial<Order>; payload: Partial<Order> }>()({
+export const markPaid = client.createRequest<{ response: Partial<Order>; payload: Partial<Order> }>()({
   endpoint: "orders/:orderId",
   method: "updateDoc",
-});
-
-const deleteOrder = client.createRequest<{ response: null }>()({
-  endpoint: "orders/:orderId",
-  method: "deleteDoc",
 });
 
 const { data: created } = await addOrder.send({ payload: { status: "open", total: 40, createdAt: Date.now() } });
 const { error } = await markPaid.setParams({ orderId: created!.__key }).send({ payload: { status: "paid" } });
 ```
 
-:::info setDoc returns the write result
-
-Unlike the web package, `setDoc` resolves with the Admin SDK `WriteResult` (with `writeTime`), not the payload. Read the
-document with `getDoc` when you need its saved state.
-
-:::
-
 ---
 
 ## Querying
 
-```ts
+The chain and its typing match the [web package](/docs/integrations/adapter-firebase/firestore#querying). Import
+`FirestoreQueryParams` from `@hyper-fetch/firebase-admin`.
+
+```ts title="server/orders.ts"
 import type { FirestoreQueryParams } from "@hyper-fetch/firebase-admin";
 
-const getOrders = client.createRequest<{ response: OrderDoc[]; queryParams?: FirestoreQueryParams<Order> }>()({
+export const listOrders = client.createRequest<{ response: OrderDoc[]; queryParams?: FirestoreQueryParams<Order> }>()({
   endpoint: "orders",
   method: "getDocs",
 });
+```
 
-const page1 = await getOrders.send({
-  queryParams: (c) => c.where("status", "==", "open").orderBy("createdAt", "desc").limit(100),
-});
+### Pagination
+
+```ts title="server/orders.ts"
+const page1 = await listOrders.send({ queryParams: (c) => c.orderBy("createdAt", "desc").limit(100) });
 const last = page1.data?.at(-1);
-const page2 = await getOrders.send({
-  queryParams: (c) => c.where("status", "==", "open").orderBy("createdAt", "desc").startAfter(last!.createdAt).limit(100),
+
+const page2 = await listOrders.send({
+  queryParams: (c) => c.orderBy("createdAt", "desc").startAfter(last!.createdAt).limit(100),
 });
 ```
 
-Constraints apply in order, fields and values are checked against `Order`, and cursors take one value per `orderBy`.
-The constraints array built with the `$`-helpers works too. The full list is on the
-[web Firestore page](/docs/integrations/adapter-firebase/firestore#querying).
+### Constraints as data
+
+The `$`-helpers (`$where`, `$orderBy`, `$limit` and the cursors) are exported from `@hyper-fetch/firebase-admin` and work
+as on the [web](/docs/integrations/adapter-firebase/firestore#constraints-as-data).
+
+---
+
+## Firestore in your app
+
+Send requests from route handlers, server actions or jobs, after you checked that the caller may do it. Admin requests
+bypass security rules.
+
+```ts title="server/routes/pay.ts"
+import { markPaid } from "../orders";
+
+export async function payOrder(orderId: string, userId: string) {
+  // check that userId owns orderId before writing
+  const { error, status } = await markPaid.setParams({ orderId }).send({ payload: { status: "paid" } });
+
+  return error ? { ok: false, status } : { ok: true };
+}
+```
+
+---
+
+## Web and admin differences
+
+Firestore requests work the same in [`@hyper-fetch/firebase`](/docs/integrations/adapter-firebase/firestore), except:
+
+| Topic           | `@hyper-fetch/firebase` (web)   | `@hyper-fetch/firebase-admin` (server) |
+| --------------- | ------------------------------- | -------------------------------------- |
+| `setDoc` `data` | the payload                     | the Admin SDK `WriteResult`            |
+| Security rules  | enforced for the signed-in user | bypassed                               |
 
 ---
 
 :::secondary Summary
 
-1.  The same six methods as the web package, with `getDoc` as the default.
-2.  `setDoc` resolves with the `WriteResult`, unlike the web package; the other methods return the same data as there.
-3.  Queries are a `queryParams` callback, and cursors page through ordered results.
+- The same six methods as the web package, with `getDoc` as the default.
+- `setDoc` resolves with the `WriteResult`; the other methods return the same data as on the web.
+- Queries are a `queryParams` callback, and cursors page through ordered results.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="Web Firestore page"
+  description="Every method and query constraint in detail."
+  to="/docs/integrations/adapter-firebase/firestore"
+/>
+
+<LinkCard
+  type="docs"
+  title="Realtime listening"
+  description="React to Firestore changes from Node.js workers."
+  to="/docs/integrations/adapter-firebase-admin/realtime-queries"
+/>
+
+<LinkCard
+  type="api"
+  title="FirebaseAdminAdapter API reference"
+  description="The adapter factory and its method, status and extra types."
+  to="/docs/api/adapter-firebase-admin/Functions/FirebaseAdminAdapter"
+/>

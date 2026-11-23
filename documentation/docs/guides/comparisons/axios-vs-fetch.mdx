@@ -7,53 +7,66 @@ sidebar_label: Axios vs fetch
 
 # Axios vs fetch
 
-The axios vs fetch question comes up on every new project. `fetch` is built into the browser and costs nothing to add.
-Axios is a library that wraps the same job in a friendlier API. Neither is wrong. The real question is how much of the
-work around a request you want to write yourself.
+`fetch` is built into browsers and modern runtimes. Axios is a library that wraps the same job with interceptors,
+timeouts and JSON handling. This page compares them on the work around a request, then shows how HyperFetch keeps one
+request API on either transport.
 
-This page answers that in general terms first, with sources from MDN and the Axios docs. At the end it shows how Hyper
-Fetch lets you keep one request API and switch the transport between native `fetch` and Axios with one line.
+:::info How this page was written
 
-:::secondary What you'll learn
-
-1.  What **fetch** leaves to you: errors, JSON, timeouts, interceptors and progress.
-2.  What **Axios** adds, including **axios errors**, **axios interceptors** and **axios retry** options.
-3.  When fetch is enough and when an **axios alternative** or wrapper makes sense.
-4.  How to **swap the adapter** between fetch and Axios in HyperFetch.
+`fetch` claims come from [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) and Axios claims from the
+[Axios docs](https://axios.rest/pages/getting-started/features), linked where they are used. HyperFetch claims are
+checked against its source. If something is out of date, [open an issue](https://github.com/BetterTyped/hyper-fetch/issues)
+and we will fix it.
 
 :::
 
 ---
 
-## The short answer
+## When to choose which
 
-Use `fetch` when you make a handful of requests and are happy to write a small wrapper. Use Axios (or another wrapper)
-when you need interceptors, upload progress or consistent error handling across many calls. Most teams that start with
-raw `fetch` end up writing half of Axios by hand.
-
-| Concern                     | fetch                                                     | Axios                                                    |
-| --------------------------- | --------------------------------------------------------- | -------------------------------------------------------- |
-| Install                     | Built in                                                  | npm package                                              |
-| HTTP error status (404, 500) | Resolves. You check `response.ok`                        | Rejects by default (`validateStatus`)                    |
-| JSON request body           | `JSON.stringify` and a `Content-Type` header yourself     | Serialized automatically                                 |
-| JSON response               | `await response.json()`                                   | Parsed automatically                                     |
-| Timeout                     | No option. Use `AbortSignal.timeout()`                    | `timeout` config option                                  |
-| Cancel                      | `AbortController`                                         | `signal` (AbortController)                               |
-| Interceptors                | None. Wrap `fetch` yourself                               | `axios.interceptors.request` and `.response`             |
-| Upload progress             | No progress callback in the options                       | `onUploadProgress`                                       |
-| Retry                       | None                                                      | None built in. Docs show an interceptor pattern          |
+- **fetch** when you call a few endpoints and can live with a small wrapper, or run where you can't add packages.
+- **Axios** when many requests share auth headers, token refresh or error handling, and interceptors keep that in one
+  place.
+- **Axios** when you upload files and want a progress bar.
+- **A request layer** such as HyperFetch when you like `fetch` being built in but don't want to write and maintain the
+  wrapper.
 
 ---
 
-## What fetch leaves to you
+## Feature comparison
 
-### HTTP errors don't reject
+**Yes**: built in. **Partial**: possible with your own code or an extra package. **No**: not available.
 
-This catches everyone once. MDN's [fetch reference](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch) says
-a fetch promise "does not reject if the server responds with HTTP status codes that indicate errors". It only rejects on
-network failures or a bad URL. So every call needs a check:
+| Concern                       | fetch                                              | Axios                                          |
+| ----------------------------- | -------------------------------------------------- | ---------------------------------------------- |
+| Install                       | Built in                                           | npm package                                    |
+| Rejects on 404 or 500         | No, you check `response.ok` ¹                      | Yes, change it with `validateStatus` ²         |
+| JSON request body             | Partial, `JSON.stringify` and a header yourself    | Yes, serialized for you                        |
+| JSON response                 | Partial, `await response.json()`                   | Yes, parsed for you                            |
+| Timeout                       | Partial, `AbortSignal.timeout()` ³                 | Yes, `timeout` option                          |
+| Cancel                        | Yes, `AbortController`                             | Yes, `signal`                                  |
+| Interceptors                  | No, wrap `fetch` yourself                          | Yes, `interceptors.request` and `.response`    |
+| Upload progress               | No progress callback                               | Yes, `onUploadProgress`                        |
+| Retry                         | No                                                 | Partial, an interceptor or `axios-retry` ⁴     |
 
-```ts
+1. A fetch promise ["does not reject"](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch) on HTTP error
+   statuses. It rejects on network failures, aborts and invalid requests.
+2. Per [error handling](https://axios.rest/pages/advanced/error-handling), statuses outside 200 to 299 reject.
+3. [`AbortSignal.timeout()`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/timeout_static) aborts with a
+   `TimeoutError`. Combining it with a user cancel means merging two signals.
+4. The request config has no retry option. The [retry guide](https://axios.rest/pages/advanced/retry) builds retries in
+   a response interceptor, with backoff and `Retry-After` for 429.
+
+---
+
+## Side by side
+
+### Handle an error status
+
+<Tabs>
+<TabItem value="fetch" label="fetch">
+
+```ts title="get-user.ts"
 const response = await fetch("/api/users/1");
 
 if (!response.ok) {
@@ -63,191 +76,130 @@ if (!response.ok) {
 const user = await response.json();
 ```
 
-### JSON both ways
+</TabItem>
+<TabItem value="axios" label="Axios">
 
-Per MDN's [Using Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch) guide, you send JSON by
-passing `JSON.stringify(...)` as the `body` and setting `Content-Type: application/json`. You read it with
-`response.json()`, which is async and throws if the body isn't valid JSON.
-
-### No timeout option
-
-`fetch` has no `timeout` setting. The standard way is
-[`AbortSignal.timeout()`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/timeout_static), which aborts
-with a `TimeoutError`:
-
-```ts
-const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
-```
-
-Combining that with a user-triggered cancel means merging two signals.
-
-### No interceptors
-
-There is no hook to add an auth header to every request or to refresh a token on 401. You write a `request()` helper
-around `fetch` and make sure everyone uses it.
-
-### No upload progress
-
-The `fetch` options have no progress callback. You can read a response body as a stream to track downloads, but upload
-progress bars are usually built on XHR, which is what Axios uses in the browser.
-
----
-
-## What Axios adds
-
-The [Axios features page](https://axios.rest/pages/getting-started/features) lists interceptors, request and response
-transforms, abort controller support, timeouts, automatic JSON body serialization and response parsing, progress
-capturing, and client-side XSRF protection. Per the [request config](https://axios.rest/pages/advanced/request-config)
-reference, Axios uses the `xhr` adapter in browsers and `http` in Node, with a `fetch` adapter available too.
-
-### Axios errors
-
-Axios [rejects the promise](https://axios.rest/pages/advanced/error-handling) for any status outside 200 to 299. You
-change that with `validateStatus`. The error object tells you what failed:
-
-```ts
+```ts title="get-user.ts"
 try {
-  await axios.get("/api/users/1");
+  const { data: user } = await axios.get("/api/users/1");
 } catch (error) {
   if (error.response) {
     // The server responded with a status outside 2xx
     console.log(error.response.status, error.response.data);
   } else if (error.request) {
     // The request went out but no response came back
-  } else {
-    console.log("Error", error.message);
   }
 }
 ```
 
-### Axios interceptors
+</TabItem>
+</Tabs>
 
-[Interceptors](https://axios.rest/pages/advanced/interceptors) run before every request and after every response:
+### Add a token to every request
 
-```ts
-const id = axios.interceptors.request.use((config) => {
-  config.headers.Authorization = `Bearer ${getToken()}`;
-  return config;
-});
+<Tabs>
+<TabItem value="fetch" label="fetch">
 
-axios.interceptors.response.use(
-  (response) => response,
-  (error) => Promise.reject(error),
-);
-
-// Remove it later
-axios.interceptors.request.eject(id);
-```
-
-### Timeouts
-
-Set `timeout` in milliseconds. The Axios [first steps](https://axios.rest/pages/getting-started/first-steps) guide warns
-that "Without a `timeout`, a stalled request can hang indefinitely", so set one.
-
-### Axios retry
-
-Axios has no retry option in its request config. Its [retry guide](https://axios.rest/pages/advanced/retry) shows how to
-build retries in a response interceptor: count attempts on the config, back off exponentially, respect `Retry-After` on
-a 429, and opt specific requests out. Many projects use the `axios-retry` package instead. Our
-[retries guide](../core/01-basics/retries.mdx) covers what is worth retrying and what is not.
-
----
-
-## When to pick which
-
-**fetch is enough when:**
-
-- You call a few endpoints and can live with a 20-line wrapper.
-- Bundle size matters more than features, or you're in a runtime with no npm packages.
-- You don't need upload progress.
-
-**Axios is worth it when:**
-
-- Many requests share auth headers, token refresh or error handling, and interceptors keep that in one place.
-- You upload files and want a progress bar.
-- You want non-2xx responses to reject without remembering `response.ok` every time.
-
-**You want an axios alternative when** neither feels right: you like `fetch` being built in, but you don't want to write
-the wrapper. That is where a request layer comes in.
-
----
-
-## The HyperFetch angle: one request API, either transport
-
-HyperFetch sits above the transport. You define requests once with `createRequest`, and the client's adapter decides
-how they go over the wire. The default adapter uses native `fetch`. [`@hyper-fetch/axios`](../../integrations/adapter-axios/overview.mdx)
-swaps in Axios. Your requests and hooks don't change.
-
-```ts
-import { createClient } from "@hyper-fetch/core";
-import { AxiosAdapter } from "@hyper-fetch/axios";
-
-// Native fetch (default)
-export const client = createClient({ url: "https://api.example.com" });
-
-// Same client on Axios. Nothing else in the app changes.
-// export const client = createClient({ url: "https://api.example.com" }).setAdapter(AxiosAdapter);
-
-export const getUser = client.createRequest<{ response: User }>()({
-  endpoint: "/users/:userId",
-});
-
-const { data, error, status } = await getUser.setParams({ userId: 1 }).send();
-```
-
-The default fetch adapter already fills the gaps listed above:
-
-- **Errors.** Non-2xx responses resolve with `error` and `status` set, and `send()` never throws. No `response.ok`
-  check, no try/catch.
-- **JSON.** Object payloads are serialized and get `Content-Type: application/json` unless you set your own. Responses
-  are parsed as JSON when they can be, and `options: { responseType: "blob" }` (or `"text"`, `"arrayBuffer"`) reads
-  files and other bodies as they are.
-- **Timeouts.** 5 seconds by default. Change it with `options: { timeout: 10000 }` on the request.
-- **Cancel.** `request.abort()`, or abort a group by its abort key. See [cancellation](../core/02-advanced/cancellation.mdx).
-- **Retries.** `retry` and `retryTime` on the request, with `exponentialBackoff()` for growing delays and
-  `setRetryOnError` for a condition. Works with either adapter.
-
-### Interceptors without Axios
-
-Client-level interceptors work the same on both adapters:
-
-```ts
-client
-  // Runs for requests with auth enabled (the default)
-  .onAuth((request) => request.setHeaders({ ...request.headers, Authorization: `Bearer ${getToken()}` }))
-  // Runs for every failed response
-  .onError((response) => {
-    if (response.status === 401) logout();
-    return response;
+```ts title="http.ts"
+// Everyone must call this helper instead of fetch
+export const request = (url: string, init: RequestInit = {}) =>
+  fetch(url, {
+    ...init,
+    headers: { ...init.headers, Authorization: `Bearer ${getToken()}` },
+    signal: init.signal ?? AbortSignal.timeout(5000),
   });
 ```
 
-`onRequest`, `onResponse` and `onSuccess` are there too. See [intercepting](../core/02-advanced/intercepting.mdx) and
-[authentication](../core/01-basics/authentication.mdx).
+</TabItem>
+<TabItem value="axios" label="Axios">
 
-### When to switch to the Axios adapter
+```ts title="http.ts"
+export const http = axios.create({ timeout: 5000 });
 
-The main reason is **upload progress**. The fetch adapter reports download progress from the response stream, but it
-can't measure an upload in flight. The Axios adapter passes Axios's `onUploadProgress` through, so in a browser you get
-real progress events with percentage and time left:
-
-```tsx
-const { submit, onSubmitUploadProgress } = useSubmit(uploadAvatar);
-
-onSubmitUploadProgress(({ progress }) => {
-  setPercent(progress);
+http.interceptors.request.use((config) => {
+  config.headers.Authorization = `Bearer ${getToken()}`;
+  return config;
 });
 ```
 
-Other reasons: you need an Axios-only option (XSRF cookies, `maxContentLength`, Node `httpAgent`), or the codebase
-already configures Axios. With the Axios adapter, request `options` take Axios config, and `error` on a failed response
-is the Axios error object. See [progress](../react/01-basics/progress.mdx) for a full upload example.
+</TabItem>
+</Tabs>
 
-:::secondary Summary
+The Axios [first steps](https://axios.rest/pages/getting-started/first-steps) guide warns that without a `timeout`, a
+stalled request can hang indefinitely, so set one in either case.
 
-- `fetch` is built in but leaves errors, JSON, timeouts, interceptors and upload progress to you.
-- Axios rejects on non-2xx, parses JSON, has `timeout`, interceptors and progress. Retry is an interceptor or a package.
-- Pick fetch for a few simple calls, Axios when many requests share logic or you upload files.
-- In HyperFetch, requests stay the same and `setAdapter(AxiosAdapter)` switches the transport.
+---
 
-:::
+## Where each one is the better choice
+
+- **fetch** wins on size and availability: no install, and the same API in browsers, Node, Deno, Bun and workers.
+- **fetch** reads response bodies as streams, which suits large downloads and streaming responses.
+- **Axios** wins when many calls share logic, since interceptors and `axios.create` defaults replace a hand-written
+  wrapper.
+- **Axios** wins for uploads in the browser, where it uses XHR and reports `onUploadProgress`.
+- **Axios** has options `fetch` lacks, such as XSRF cookie handling, `maxContentLength` and Node's `httpAgent`.
+
+---
+
+## One request API on either transport
+
+HyperFetch sits above the transport. You define requests once, and the client's adapter decides how they go over the
+wire: native `fetch` by default, or Axios through [`@hyper-fetch/axios`](/docs/integrations/adapter-axios/overview).
+Requests and hooks don't change.
+
+```ts title="api/client.ts"
+import { createClient } from "@hyper-fetch/core";
+import { AxiosAdapter } from "@hyper-fetch/axios";
+
+// Native fetch by default. Add .setAdapter(AxiosAdapter) to switch to Axios.
+export const client = createClient({ url: "https://api.example.com" });
+
+export const getUser = client.createRequest<{ response: User }>()({ endpoint: "/users/:userId" });
+
+// Resolves with `error` and `status` on 404 or 500, never throws
+const { data, error, status } = await getUser.setParams({ userId: 1 }).send();
+```
+
+The default fetch adapter fills the gaps from the table:
+
+- **Errors.** Non-2xx responses resolve with `error` and `status` set. See [error handling](/docs/guides/core/basics/error-handling).
+- **JSON.** Object payloads are serialized with `Content-Type: application/json` unless you set your own. Responses are
+  parsed as JSON when they can be, and `options: { responseType: "blob" }` (or `"text"`, `"arrayBuffer"`) reads other
+  bodies.
+- **Timeouts.** Default 5 seconds, change it with `options: { timeout }` on the request.
+- **Interceptors.** `client.onAuth`, `onRequest`, `onResponse`, `onSuccess` and `onError` work on both adapters. See
+  [intercepting](/docs/guides/core/advanced/intercepting).
+- **Retries.** Default 0, change it with `retry` and `retryTime`. See [retries](/docs/guides/core/basics/retries).
+
+The main reason to switch to the Axios adapter is **upload progress**: the fetch adapter reports download progress from
+the response stream but cannot measure an upload, while the Axios adapter passes `onUploadProgress` through to
+`useSubmit`'s `onSubmitUploadProgress`. With the Axios adapter, request `options` take Axios config. See
+[progress](/docs/guides/react/basics/progress).
+
+---
+
+## Next steps
+
+The runnable [Axios](/examples/integrations/axios) and [Upload progress](/examples/mutations/upload-progress) examples
+use the Axios adapter, and [Timeouts](/examples/request-control/timeouts) shows the fetch adapter's timeout.
+
+<LinkCard
+  type="integrations"
+  title="Axios adapter"
+  description="Install @hyper-fetch/axios, pass Axios options and read Axios errors."
+  to="/docs/integrations/adapter-axios/overview"
+/>
+
+<LinkCard
+  type="guides"
+  title="Axios in React"
+  description="Use the Axios adapter with useFetch and useSubmit, including upload progress."
+  to="/docs/guides/react/basics/axios-in-react"
+/>
+
+<LinkCard
+  type="guides"
+  title="All comparisons"
+  description="TanStack Query, SWR, RTK Query, Apollo Client and the overview table."
+  to="/docs/guides/comparisons"
+/>

@@ -5,96 +5,99 @@ description: "Isolate HyperFetch tests by calling client.clear() before each tes
 sidebar_label: Isolation
 ---
 
-Isolation is extremely important for making both deterministic and valid tests. Due to the approach to architecture
-where the client is a global module, we need to bring some of our attention to it.
+The client is usually a module-level singleton, so the cache, queues and mocks of one test are still there in the next.
+Without a reset, a test can pass only because an earlier one filled the cache. This guide shows what to reset and when.
 
 :::secondary What you'll learn
 
-1.  How to use **`client.clear()`** to reset the client's state between tests.
-2.  Why you need to **clear the module cache** for full isolation.
-3.  How to set up **test isolation** in a Jest environment.
+1. How to reset the client with **`client.clear()`**.
+2. Why to **clear mocks** after each test.
+3. When you need a **fresh module** instead.
 
 :::
 
 ---
 
-## Why Isolation is Important
+## Reset the client before each test
 
-The `Client` in HyperFetch is often used as a global singleton. While this is great for application development, it can
-cause problems during testing, especially when running tests in parallel. Without proper isolation, state from one test
-(like cached data or queued requests) can leak into another, leading to unpredictable and flaky tests.
+`client.clear()` aborts running requests, removes queued ones, empties the cache (including its lazy storage), resets
+optimistic state and creates the cache, dispatchers and app manager again from the client options.
 
-To prevent this, we need to ensure that each test runs in a clean environment. This involves two steps: clearing the
-client's internal state and resetting the module cache.
-
----
-
-## Clearing Client State
-
-The `client.clear()` method is a built-in utility that resets all of the client's subsystems to their initial state.
-This includes:
-
-- Cache
-- Queue
-- Storage
-- Dispatcher
-
-You should call `client.clear()` before each test to ensure that no data from previous tests interferes with the current
-one.
-
-```typescript
-import { client } from "api/client";
+```ts title="test/setup.ts"
+import { client } from "../src/api/client";
 
 beforeEach(() => {
-  // Clean the client environment to make sure it's isolated for each test
   client.clear();
 });
 ```
 
+The adapter, interceptors, plugins and request defaults are kept, so the client still behaves like the production one.
+The event listeners of the old modules are removed, so listeners you added yourself, for example with
+`client.cache.events` or `client.requestManager.events`, must be added again after `clear()`.
+
 ---
 
-## Clearing Module Cache
+## Clear mocks after each test
 
-While `client.clear()` resets the client's state, the client instance itself is still a singleton that is shared across
-test files. If you run tests in parallel (which most test runners do), you might still face issues with the global
-module.
+Unlike other setters, `setMock` changes the request instance instead of returning a copy. A mock set in one test stays on
+the exported request until you remove it.
 
-To achieve full isolation, you also need to clear the Node.js `require.cache` or your test runner's module cache. This
-ensures that you get a fresh client instance for each test file.
+```ts title="test/setup.ts"
+import { getUser, getUsers } from "../src/api/users";
 
-### Jest
-
-If you are using Jest, you can use `jest.resetModules()` to clear the module cache before each test.
-
-```typescript
-import { client } from "api/client";
-
-beforeEach(() => {
-  // We need to reset modules cache as client is a globally exported module.
-  // This way it will not get mixed-up with other test cases running in parallel.
-  jest.resetModules();
-
-  // Then, we clean the client environment to make sure it's isolated.
-  client.clear();
+afterEach(() => {
+  getUsers.clearMock();
+  getUser.clearMock();
 });
 ```
 
-### Other Environments
+To keep mocks out of shared requests altogether, put them in a [test SDK](/docs/guides/testing/mocking#centralize-mocks-in-a-test-sdk),
+which creates its own request instances.
 
-In Vitest use `vi.resetModules()` the same way. If your test runner has no built-in module cache reset, you might need
-to use a library like `decache` to clear the module cache manually.
+---
 
-`client.clear()` also aborts queued and ongoing requests and resets optimistic state. It removes the event listeners of
-the cache, dispatchers and managers, so subscribe again after calling it.
+## Fresh modules
+
+Vitest and Jest give each test file its own module registry, so test files that run in parallel never share a client.
+Within one file, `client.clear()` is enough in most cases.
+
+When a test needs a client created from scratch, for example to test code that runs at import time, reset the module
+registry and import the client again:
+
+```ts title="src/api/client.test.ts"
+beforeEach(() => {
+  vi.resetModules(); // jest.resetModules() in Jest
+});
+
+it("creates the client with defaults", async () => {
+  const { client } = await import("./client"); // a new instance
+  expect(client.url).toBe("https://api.example.com");
+});
+```
+
+A statically imported `client` keeps pointing at the old instance after `resetModules`, so only modules imported after
+the reset are fresh.
+
+| Leaks between tests        | Reset with                             |
+| -------------------------- | -------------------------------------- |
+| Cache, queues, requests    | `client.clear()` in `beforeEach`       |
+| Mocks on shared requests   | `request.clearMock()` in `afterEach`   |
+| Module-level setup code    | `vi.resetModules()` and a dynamic import |
 
 ---
 
 :::success Congratulations!
 
-You've learned how to properly isolate your tests in HyperFetch!
+You've learned how to isolate tests.
 
-- You can use **`client.clear()`** to reset the client state.
-- You understand the importance of **clearing the module cache** for full isolation.
-- You can set up a **fully isolated testing environment** in Jest.
+- You can reset the cache and queues with **`client.clear()`** before each test.
+- You can remove mocks with **`clearMock()`** after each test.
+- You know when you need a **fresh module** and how to import it.
 
 :::
+
+Runnable example: [Testing](/examples/getting-started/testing).
+
+<LinkCard type="guides" title="Mocking" description="Mock requests and inject a test SDK." to="/docs/guides/testing/mocking" />
+
+<LinkCard type="docs" title="Client" description="What client.clear() resets." to="/docs/core/client#reset-the-client" />

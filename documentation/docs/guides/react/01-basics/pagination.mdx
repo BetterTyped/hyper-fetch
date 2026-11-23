@@ -6,89 +6,59 @@ sidebar_label: Pagination
 
 # Pagination in React
 
-Pagination in React comes down to one piece of state, the current page, and a request that depends on it. Change the
-page, fetch the new slice, show it. The hard parts are around that: not flashing a spinner on every click, not
-refetching pages the user already saw, and knowing when there is no next page. With HyperFetch you put the page in
-the request's query params, and `useFetch` refetches when it changes. Each page gets its own cache entry, so going back
-to a page you visited is instant.
+Numbered pagination is one piece of state, the current page, and a request that depends on it. This guide builds it with
+[`useFetch`](/docs/react/hooks/use-fetch): the page goes into the query params, each page gets its own cache entry, and
+the old page stays on screen while the next one loads. For a list that grows while scrolling, see
+[infinite scroll](/docs/guides/react/basics/infinite-scroll).
 
 :::secondary What you'll learn
 
-1.  How to implement **pagination** using the `useFetch` hook.
-2.  How to manage the **current page state** in a React component.
-3.  How to create **"Next"** and **"Previous"** buttons to navigate through pages.
-4.  How HyperFetch's **automatic re-fetching** and **caching** simplify pagination logic.
-5.  How to keep the **previous page visible** and **prefetch** the next one.
+1.  How to build **Next** and **Previous** buttons with the page in query params.
+2.  How to keep the **previous page visible** instead of flashing a spinner.
+3.  How to **prefetch** the next page so the click renders at once.
+4.  When to pick **numbered pages** or **infinite scroll**.
 
 :::
 
 ---
 
-## Numbered pages or infinite scroll
+## Page buttons with query params
 
-Two UI patterns sit on top of the same API:
+Put `page` and `limit` on the request with `setQueryParams`. When `page` changes, the request has a new cache key and
+`useFetch` sends it. Pages already visited render from the cache.
 
-- **Numbered pages** (this guide): the user moves between pages and sees one at a time. Good for tables, admin panels
-  and search results people want to link to.
-- **Infinite scroll**: pages are appended to one growing list. Good for feeds. See
-  [infinite scroll in React](./infinite-scroll.mdx), which uses `useInfiniteFetch`.
+```tsx title="components/paginated-posts.tsx"
+import { useState } from "react";
+import { useFetch } from "@hyper-fetch/react";
+import { getPosts } from "../api/posts"; // queryParams: { page?: number; limit?: number }
 
-For numbered pages the API usually takes `page` and `limit` (or `offset` and `limit`) as query params. If the server
-also returns a total count, you can show "Page 3 of 12" and disable "Next" on the last page. Without it, the common trick
-is the one used below: a page shorter than `limit` is the last one.
+const LIMIT = 10;
 
-## Example
+export function PaginatedPosts() {
+  const [page, setPage] = useState(1);
+  // highlight-next-line
+  const { data: posts, loading, error } = useFetch(getPosts.setQueryParams({ page, limit: LIMIT }));
 
-Let's build a component that displays a paginated list of posts. We'll add buttons to navigate back and forth between
-pages.
+  if (error) return <p className="p-4 text-red-500">{error.message}</p>;
 
-```tsx
-function PaginatedPosts() {
-  const [page, setPage] = React.useState(1);
-
-  // highlight-start
-  const { data: posts, loading, error } = useFetch(getPosts.setQueryParams({ page, limit: 5 }));
-  // highlight-end
-
-  const goToNextPage = () => {
-    setPage((p) => p + 1);
-  };
-
-  const goToPrevPage = () => {
-    setPage((p) => Math.max(1, p - 1));
-  };
-
-  if (error) {
-    return <p className="p-4 text-red-500">Failed to load posts.</p>;
-  }
+  // A page shorter than the limit is the last one
+  const isLastPage = !posts || posts.length < LIMIT;
 
   return (
     <div className="border rounded-md">
-      <h2 className="text-xl font-bold p-4 border-b">Posts (Page {page})</h2>
-      {loading ? (
-        <p className="p-4">Loading...</p>
-      ) : (
-        <ul className="divide-y divide-gray-200">
-          {posts?.map((post) => (
-            <li key={post.id} className="p-4">
-              <p className="font-semibold">{post.title}</p>
-            </li>
-          ))}
-        </ul>
-      )}
+      <h2 className="text-xl font-bold p-4 border-b">Posts, page {page}</h2>
+      <ul className={loading ? "divide-y opacity-50" : "divide-y"}>
+        {posts?.map((post) => (
+          <li key={post.id} className="p-4">
+            {post.title}
+          </li>
+        ))}
+      </ul>
       <div className="p-4 border-t flex justify-between">
-        <button
-          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-          onClick={goToPrevPage}
-          disabled={page === 1 || loading}
-        >
+        <button onClick={() => setPage((p) => p - 1)} disabled={page === 1}>
           Previous
         </button>
-        <button
-          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-          onClick={goToNextPage}
-          disabled={!posts || posts.length < 5 || loading}
-        >
+        <button onClick={() => setPage((p) => p + 1)} disabled={isLastPage || loading}>
           Next
         </button>
       </div>
@@ -97,61 +67,82 @@ function PaginatedPosts() {
 }
 ```
 
-### How It Works
-
-1.  We use a React state variable, `page`, to keep track of the current page number.
-2.  The `useFetch` hook is given a request that includes the `page` in its query parameters:
-    `getPosts.setQueryParams({ page, limit: 5 })`.
-3.  Whenever `page` changes (by clicking the "Next" or "Previous" buttons), the component re-renders.
-4.  HyperFetch detects that a dependency of the request (`page`) has changed and automatically triggers a new fetch for
-    the new page's data.
-5.  The `loading` state from `useFetch` is used to give feedback to the user while the new page is being loaded.
-6.  The "Next" button is disabled if the current page has fewer items than the limit, indicating we've reached the end.
-
-This declarative approach keeps the pagination logic in one line.
+When the API returns a total count, such as `{ data: Post[]; total: number }`, compute the last page from it and show
+"Page 3 of 12" instead of guessing from a short page.
 
 ---
 
 ## Keep the old page on screen
 
-By default `useFetch` uses `keepPreviousData: "auto"`. When only the query params change, which is the pagination case,
-the previous page stays in `data` until the new one arrives. So instead of swapping the list for a spinner, you can dim
-it while `loading`:
+The example dims the list instead of replacing it with a spinner. This works because only query params change between
+pages, and `keepPreviousData` defaults to `"auto"`: `data` keeps the previous page until the next one arrives. Change it
+with `keepPreviousData`:
 
-```tsx
-<ul className={loading ? "opacity-50" : ""}>
-  {posts?.map((post) => (
-    <li key={post.id}>{post.title}</li>
-  ))}
-</ul>
-```
+| Value              | While the next page loads                                         |
+| ------------------ | ----------------------------------------------------------------- |
+| `"auto"` (default) | Keeps the old page when only query params change                  |
+| `"preserve"`       | Always keeps the old data, also when URL params change            |
+| `"clean"`          | Clears `data`, so you can show a spinner                          |
 
-Set `keepPreviousData: "clean"` if you'd rather reset to empty on every page change.
+---
 
 ## Prefetch the next page
 
-Every page has its own cache entry, keyed by its query params. Sending the next page's request ahead of time puts it in
-the cache, so the "Next" click renders without waiting:
+Send the next page ahead of time and it lands in the cache, so the Next click renders without waiting.
+`cachePolicy: "cache-first"` skips the request when that page is already cached.
 
-```tsx
-React.useEffect(() => {
-  getPosts.setQueryParams({ page: page + 1, limit: 5 }).send();
-}, [page]);
+```tsx title="Prefetch on page change"
+useEffect(() => {
+  if (!isLastPage) {
+    getPosts.setQueryParams({ page: page + 1, limit: LIMIT }).send({ cachePolicy: "cache-first" });
+  }
+}, [page, isLastPage]);
 ```
 
-More patterns in [prefetching](../../core/02-advanced/prefetching.mdx), and the cache rules in
-[cache invalidation](../../core/02-advanced/cache-revalidation.mdx). If you keep the page in the URL, read it from your
-router instead of `useState`, and the same code works with shareable links.
+The [prefetching guide](/docs/guides/core/advanced/prefetching) shows prefetching on hover and on route changes.
+
+---
+
+## Numbered pages or infinite scroll
+
+| Pattern                                         | Good for                                                   | Hook               |
+| ----------------------------------------------- | ---------------------------------------------------------- | ------------------ |
+| Numbered pages, one page on screen              | Tables, admin panels, search results people link to        | `useFetch`         |
+| One growing list, a Load More button or scroll  | Feeds, chats, product grids                                | `useInfiniteFetch` |
+
+Keep the page in the URL when people share links to it: read it from your router instead of `useState`, and the same
+request works unchanged.
 
 ---
 
 :::success Congratulations!
 
-You've learned how to implement pagination in your React applications with HyperFetch!
+You can now paginate data in React with `useFetch`.
 
-- You can create a **paginated list** controlled by React state.
-- You can use **automatic re-fetching** when request parameters change.
-- You can build a **user-friendly navigation** for large datasets.
-- You understand how HyperFetch's **caching** makes navigating between pages fast.
+- You can change pages by putting **`page` in the query params**.
+- You can keep the **old page visible** while the next one loads.
+- You can **prefetch** the next page into the cache.
+- You know when to switch to **infinite scroll**.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Infinite scroll"
+  description="Load a growing list with useInfiniteFetch and page, offset or cursor pagination."
+  to="/docs/guides/react/basics/infinite-scroll"
+/>
+
+<LinkCard
+  type="docs"
+  title="Keep previous data"
+  description="How useFetch decides what to show when the cache key changes."
+  to="/docs/react/hooks/use-fetch#keep-previous-data"
+/>
+
+- Runnable examples: [pagination](/examples/data-fetching/pagination), [data table](/examples/data-fetching/data-table),
+  [filters in the URL](/examples/data-fetching/url-filters), [dashboard](/examples/apps/dashboard).
+- Guides: [prefetching](/docs/guides/core/advanced/prefetching),
+  [cache revalidation](/docs/guides/core/advanced/cache-revalidation).

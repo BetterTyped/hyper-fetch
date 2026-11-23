@@ -5,85 +5,103 @@ description: "Get typed URL parameters inferred from endpoint strings like /user
 sidebar_label: Url Parameters
 ---
 
-# URL Parameters
+# URL parameters type
 
-Many API endpoints use dynamic URL segments to identify resources, like `/users/:userId`. HyperFetch automatically
-infers these **URL parameters** from the endpoint string, providing full type safety. This means you'll get compile-time
-errors if you forget to provide a required parameter or use the wrong type, making your requests much safer.
+HyperFetch reads URL parameters such as `:userId` from the endpoint string, so they need no generic. TypeScript then
+requires each one before the request can be sent. This guide covers how the types are inferred and what they catch. For
+sending params, see the [parameters guide](/docs/guides/core/basics/parameters).
 
 :::secondary What you'll learn
 
-1.  How HyperFetch **infers URL parameters** from the endpoint string.
-2.  The two ways to provide parameters: via `.setParams()` or in the `.send()` method.
-3.  How to work with **multiple URL parameters** in a single request.
+1. How params are **inferred** from the endpoint string.
+2. What TypeScript **catches**: missing and already set params.
+3. Why the endpoint must stay a **string literal**.
+4. How to **reuse** the params type with `ExtractParamsType`.
 
 :::
 
-### Why is it helpful?
-
-- **Route Correctness**: Guarantees that dynamic URL segments are always provided, preventing 404 errors from malformed
-  URLs.
-- **Type Safety**: Ensures that parameters are provided, catching potential issues at compile-time.
-- **Compile-Time Checks**: Catches missing or misspelled parameters during development, not in production.
-- **Improved Readability**: The request definition clearly shows which parameters are required for the endpoint to
-  function.
-
 ---
 
-### Example
+## Params come from the endpoint
 
-HyperFetch parses the `endpoint` string to automatically infer the required URL parameters, making them type-safe.
+Each `:name` segment becomes a required key of type `string | number`. A name starts with a letter or `_`, so a port
+(`localhost:3000`) is not a param.
 
-```ts
-// import { createClient } from '@hyper-fetch/core';
-
-export const client = createClient({
-  url: "https://api.example.com",
-});
-
-// 1. Define the response type
-type User = { id: number; name: string };
-type ResponseType = User;
-
-// 2. Create a request with a dynamic URL parameter
-// HyperFetch infers that `userId` is a required parameter.
-// highlight-start
-const getUser = client.createRequest<{ response: ResponseType }>()({
-  endpoint: "/users/:userId",
-});
-// highlight-end
-
-// 3. Provide the parameter using the `.send()` method
-// The `params` object is strongly typed. Try renaming `userId` to see an error.
-const { data: user1 } = await getUser.send({
-  params: { userId: 1 },
-});
-
-// 4. Alternatively, provide the parameter using `.setParams()` for reusability
-const getUser1 = getUser.setParams({ userId: 1 });
-const { data: user1Again } = await getUser1.send();
-
-// 5. Example with multiple parameters
-const getComment = client.createRequest()({
+```ts title="src/api/comments.ts"
+export const getComment = client.createRequest<{ response: Comment }>()({
   endpoint: "/posts/:postId/comments/:commentId",
 });
 
-const { data: comment } = await getComment.send({
-  params: {
-    postId: 10,
-    commentId: 2,
-  },
-});
+// params: { postId: string | number; commentId: string | number }
+await getComment.send({ params: { postId: 10, commentId: 2 } });
+```
+
+---
+
+## What TypeScript catches
+
+```ts title="src/app.ts"
+// error-next-line
+await getComment.send(); // Expected 1 arguments, but got 0
+
+// error-next-line
+await getComment.send({ params: { postId: 10 } }); // commentId is missing
+
+const prepared = getComment.setParams({ postId: 10, commentId: 2 });
+await prepared.send(); // params are set, send() takes no params
+```
+
+`setParams` returns a request whose type records that params are set. Discarding the result keeps the original
+requirement, which is the most common cause of an unexpected `Expected 1 arguments` error.
+
+---
+
+## Keep the endpoint a literal
+
+Inference needs the literal string. An endpoint typed as `string`, for example built with a template string or read from
+a variable typed `string`, turns the checks off: any params are accepted, including none.
+
+```ts title="src/api/users.ts"
+const base: string = "/users";
+
+// Params unchecked
+// diff-remove-next-line
+const getUserLoose = client.createRequest<{ response: User }>()({ endpoint: `${base}/:userId` });
+// Params checked
+// diff-add-next-line
+const getUserStrict = client.createRequest<{ response: User }>()({ endpoint: "/users/:userId" });
+```
+
+Write the endpoint inline, or as a `const` without a `string` annotation.
+
+---
+
+## Reuse the params type
+
+`ExtractParamsType` reads the params type from a request, for helpers or route components:
+
+```ts title="src/routes.ts"
+import type { ExtractParamsType } from "@hyper-fetch/core";
+
+type CommentParams = ExtractParamsType<typeof getComment>;
+// { postId: string | number; commentId: string | number }
+
+export const openComment = (params: CommentParams) => getComment.send({ params });
 ```
 
 ---
 
 :::success Congratulations!
 
-You're now an expert in URL parameters!
+You've learned how URL parameters are typed.
 
-- You can let HyperFetch **automatically infer path parameters** from your endpoint.
-- You know how to provide parameters either by **chaining `.setParams()`** or **passing them to `.send()`**.
-- You can confidently work with endpoints that require **multiple URL parameters**.
+- You know that params are **inferred** from `:name` segments of the endpoint.
+- You can rely on TypeScript to catch **missing** params.
+- You keep the endpoint a **string literal** so the checks stay on.
+- You can **reuse** the params type with `ExtractParamsType`.
 
 :::
+
+<LinkCard type="guides" title="Parameters" description="Set params with setParams or send()." to="/docs/guides/core/basics/parameters" />
+
+<LinkCard type="guides" title="Request extractors" description="Read every part of a request's type." to="/docs/guides/typescript/request-extractors" />

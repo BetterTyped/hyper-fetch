@@ -5,48 +5,198 @@ description: "The Client holds your base URL, adapter, cache, dispatchers and in
 sidebar_label: Client
 ---
 
-[Read the API Reference »](/docs/api/core/Classes/Client.mdx)
+[Read the API Reference »](/docs/api/core/Classes/Client)
 
-**`Client`** is the central class for configuring your server connection in HyperFetch. It initializes all core
-subsystems—such as queues, cache, and interceptors—and provides a unified way to create and manage requests based on its
-configuration. By keeping all data and logic encapsulated within a single client instance, you ensure that each client
-remains isolated and independent from others.
-
----
+The **Client** is the central configuration object for one backend. It owns the base URL, the
+[adapter](/docs/core/adapter), the [cache](/docs/core/cache), the two [dispatchers](/docs/core/dispatcher) and the
+[managers](/docs/core/managers), and it creates every request. Each client is isolated, so two clients never share
+cache, queues or interceptors.
 
 :::tip Purpose
 
-1. **Builder for all of the requests**
-2. Central place for all the default **settings**
-3. Handles **authentication** and **interceptors**
-4. Place where all sub-modules are initialized
+1. **Builds requests** with `createRequest`, which inherit its configuration.
+2. **Holds global behavior**: auth, interceptors, request defaults and plugins.
+3. **Owns the modules**: adapter, cache, dispatchers and managers.
 
 :::
 
----
-
-## Initialization
-
-The client is initialized with the `createClient` function.
-
-```tsx
+```ts title="api/client.ts"
 import { createClient } from "@hyper-fetch/core";
 
-// highlight-start
-export const client = createClient({ url: "http://localhost:3000" });
-// highlight-end
+type ApiError = { message: string; code: number };
+
+// Keep Error in the union: timeouts, aborts and network failures arrive as Error instances
+export const client = createClient<{ error: ApiError | Error }>({ url: "https://api.example.com" });
+
+export const getUser = client.createRequest<{ response: { id: number; name: string } }>()({
+  endpoint: "/users/:userId",
+});
 ```
 
-<LinkCard
-  type="guides"
-  title="More about setup"
-  description="Learn different ways and options to initialize the client"
-  to="/docs/guides/core/basics/setup"
-/>
+Create the client once and export it. The `error` generic is the global error type, merged with each request's own
+`error` type. See [global error](/docs/guides/typescript/global-error) for the patterns.
 
 ---
 
-## Available methods
+## Add authentication
+
+`onAuth` runs before every request with `auth: true`, which is the default. Return the request with the headers it
+needs. Mark public endpoints `auth: false` to skip it.
+
+```ts title="api/client.ts"
+client.onAuth((request) => {
+  const token = localStorage.getItem("token");
+  return token ? request.setHeaders({ ...request.headers, Authorization: `Bearer ${token}` }) : request;
+});
+
+const getHealth = client.createRequest()({ endpoint: "/health", auth: false });
+```
+
+The [authentication guide](/docs/guides/core/basics/authentication) covers token refresh on `401`.
+
+---
+
+## Intercept requests and responses
+
+Interceptors run in this order: `onRequest`, `onAuth` (only when `auth` is on), the adapter, then `onResponse`, and
+`onSuccess` or `onError`. Request interceptors return a request, response interceptors return a response.
+
+| Method       | Runs on                                   | Remove with                    |
+| ------------ | ----------------------------------------- | ------------------------------ |
+| `onRequest`  | Every request before it is sent           | `removeOnRequestInterceptors`  |
+| `onAuth`     | Requests with `auth: true`                | `removeOnAuthInterceptors`     |
+| `onResponse` | Every response                            | `removeOnResponseInterceptors` |
+| `onSuccess`  | Successful responses                      | `removeOnSuccessInterceptors`  |
+| `onError`    | Failed responses                          | `removeOnErrorInterceptors`    |
+
+```ts title="api/client.ts"
+client.onError(async (response, request) => {
+  // `used` stops a resent request from refreshing again
+  if (response.status !== 401 || request.used) return response;
+  await refreshToken();
+  return request.setUsed(true).send();
+});
+```
+
+A request can skip them with `disableRequestInterceptors` or `disableResponseInterceptors`. The
+[interceptors guide](/docs/guides/core/advanced/intercepting) has more patterns.
+
+---
+
+## Set defaults for every request
+
+Request defaults live on the adapter. `setRequestDefaults` takes a callback with the options of each new request and
+returns the defaults to apply. Options set on a request always win.
+
+```ts title="api/client.ts"
+client.adapter
+  .setRequestDefaults((options) => {
+    const method = options.method ?? "GET";
+    // The callback replaces the built-in default, so keep deduplication for reads
+    if (method === "GET" || method === "QUERY") return { deduplicate: true, retry: 2 };
+    return { retry: 0 };
+  })
+  .setAdapterDefaults(() => ({ timeout: 10_000 })); // fetch options, the timeout is 5000 ms by default
+```
+
+Call both before you create requests: defaults are read when a request is created. See
+[global defaults](/docs/guides/core/basics/global-defaults).
+
+---
+
+## Change the base URL
+
+`setUrl` points the client at another server, for example when switching tenants or regions. Cache keys do not include
+the base URL, so data of the old server stays until you invalidate it.
+
+```ts
+client.setUrl("https://us.example.com", { abort: true, invalidate: true });
+```
+
+| Option       | Default | Description                                                                  |
+| ------------ | ------- | ---------------------------------------------------------------------------- |
+| `abort`      | `false` | Abort requests still in progress for the old URL.                             |
+| `invalidate` | `false` | Invalidate the whole cache, so mounted hooks refetch from the new URL.       |
+
+---
+
+## Cache safely on the server
+
+The `mode` option decides how the cache behaves. Default `"auto"`: `"client"` in the browser, `"server"` everywhere
+else. Change it with `mode: "client"` or `mode: "server"`.
+
+In `"server"` mode nothing is cached unless the request has a scope, so one user's data never reaches another. Read
+`client.mode` for the resolved value.
+
+```ts title="server.ts"
+// Cached for this session only
+const { data } = await getUser.setParams({ userId: 1 }).setScope(session.id).send();
+```
+
+See [Cache](/docs/core/cache#scope-the-cache-on-the-server) for scopes.
+
+---
+
+## Hydrate data from the server
+
+`request.dehydrate()` packs a response for the browser, and `client.hydrate()` writes it into the cache there.
+
+```ts title="Server and browser"
+// On the server
+const response = await getUser.setParams({ userId: 1 }).send();
+const state = [getUser.setParams({ userId: 1 }).dehydrate({ response })];
+
+// In the browser, before the components read the cache
+client.hydrate(state);
+```
+
+In React, render the [`Hydrate`](/docs/react/hydrate) component instead. It writes the data before the hooks mount and
+never replaces newer cache data with an older snapshot.
+
+---
+
+## Add plugins
+
+Plugins observe the request, cache and dispatcher lifecycle. `addPlugin` mounts one, `removePlugin` unmounts it.
+
+```ts title="api/client.ts"
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+
+client.addPlugin(DevtoolsPlugin({ appName: "My App" }));
+```
+
+See [Plugin](/docs/core/plugin) to write your own.
+
+---
+
+## Reset the client
+
+`clear()` aborts every request, empties both dispatchers and the cache (including `lazyStorage`), and creates the modules
+again from the client options. Call it on logout and between tests.
+
+```ts
+client.clear();
+```
+
+---
+
+## Options
+
+| Option             | Default             | Description                                                     |
+| ------------------ | ------------------- | --------------------------------------------------------------- |
+| `url`              | required            | Base URL of every request.                                       |
+| `mode`             | `"auto"`            | Cache mode: `"auto"`, `"client"` or `"server"`.                  |
+| `cache`            | `() => new Cache()` | Factory of the cache, for example with `lazyStorage`.            |
+| `appManager`       | `() => new AppManager()` | Factory of the focus and online state manager.              |
+| `fetchDispatcher`  | `() => new Dispatcher()` | Factory of the dispatcher for GET and QUERY requests.       |
+| `submitDispatcher` | `() => new Dispatcher()` | Factory of the dispatcher for every other method.           |
+
+The other settings have setters: `setAdapter`, `setDebug`, `setLogLevel`, `setEnableGlobalMocking`, and
+`setCacheKeyMapper`, `setQueryKeyMapper`, `setAbortKeyMapper` to change how [keys](/docs/core/request#keys) are built.
+
+---
+
+## Methods
 
 <ShowMore>
 
@@ -54,567 +204,33 @@ export const client = createClient({ url: "http://localhost:3000" });
 
 </ShowMore>
 
+---
+
+:::secondary Summary
+
+- Create **one client per backend** with `createClient` and type its global `error`.
+- Put **auth, interceptors and defaults** on the client, so every request gets them.
+- Use **`setScope`** on the server, **`hydrate`** to pass data to the browser and **`clear()`** on logout.
+
+:::
+
+## Next steps
+
+Runnable examples: [Authentication](/examples/request-control/authentication),
+[Retry-After](/examples/request-control/retry-after) (a client interceptor) and [Plugins](/examples/request-control/plugins).
+
+<LinkCard
+  type="guides"
+  title="Client setup"
+  description="Ways to create and configure the client."
+  to="/docs/guides/core/basics/setup"
+/>
+
+<LinkCard type="docs" title="Request" description="Define endpoints and send them." to="/docs/core/request" />
+
 <LinkCard
   type="api"
-  title="Detailed methods docs"
-  description="Check all available methods and their descriptions"
-  to="/docs/api/core/Classes/Client#methods"
+  title="Client API reference"
+  description="Every method of the Client class with its signature."
+  to="/docs/api/core/Classes/Client"
 />
-
----
-
-## Features
-
-Here are some of the most important features available in the Client class.
-
-:::note Builder approach
-
-The `Client` is designed to be used as a builder of requests, serving as the global entry point for server communication
-throughout your application. This approach prevents duplicated logic, promotes a consistent architecture, and makes it
-easier to maintain and test your code by centralizing configuration and types.
-
-:::
-
-1. ### createRequest()
-
-The `createRequest` method is the main method for creating templates for the API connectivity. We use the builder
-pattern to create a request object which contain crucial information about the request - endpoint, method, etc.
-
-Each request keep the reference to the client, so it can access the global settings.
-
-```tsx
-import { createClient } from "@hyper-fetch/core";
-
-const client = createClient({ url: "http://localhost:3000" });
-
-// highlight-next-line
-const getUser = client.createRequest<{ response: User }>()({ endpoint: "/users/1" });
-
-console.log(getUser);
-```
-
-<LinkCard type="docs" title="Request" description="More about the request and how to use it" to="/docs/core/request" />
-
----
-
-2. ### Authentication
-
-To send authenticated requests, set up the `onAuth` interceptor. Set up the request with the `auth` option set to
-**true**.
-
-```tsx
-import { createClient } from "@hyper-fetch/core";
-import { store } from "./store"; // Your state management store
-
-export const client = createClient({ url: "http://localhost:3000" }).onAuth((request) => {
-  // Get the auth token from your store
-  const state = store.getState();
-  const authToken = state.auth.token;
-
-  // Add the token to the request headers
-  // highlight-start
-  return request.setHeaders({
-    ...request.headers,
-    Authorization: `Bearer ${authToken}`,
-  });
-  // highlight-end
-});
-
-// Create an authenticated request
-export const getUsers = client.createRequest()({
-  endpoint: "/users",
-  // highlight-next-line
-  auth: true, // This enables the onAuth interceptor
-});
-```
-
-<LinkCard
-  type="guides"
-  title="Authentication guide"
-  description="Learn how to set up authentication for your application"
-  to="/docs/guides/core/basics/authentication"
-/>
-
----
-
-3. ### Interceptors
-
-Interceptors are a powerful feature that allows you to modify requests before they're sent or responses before they are
-processed within other core modules.
-
-They can modify the request before it's sent or the response after it's received, depending on the type of interceptor.
-
-#### Request Interceptor
-
-- `onRequest()` - allows to modify the request before it's sent giving ability to modify its data
-- `onAuth()` - allows to modify the request with `auth: true` before it's sent, giving ability to pass custom auth
-  headers or other any options
-
-#### Response Interceptor
-
-There are several methods for intercepting a response from a request:
-
-- `onResponse()` - intercepts any response after it's received to modify it's body
-- `onError()` - intercepts the error response after it's received to modify it's body
-- `onSuccess()` - intercepts the success response after it's received to modify it's body
-
-We can modify received data with these interceptors before it will be emitted to other sub-systems.
-
-```tsx
-import { createClient } from "@hyper-fetch/core";
-
-export const client = createClient({ url: "http://localhost:3000" })
-  // Add request interceptor
-  .onRequest((request) => {
-    // Add custom headers to all requests
-    // highlight-start
-    return request.setHeaders({
-      ...request.headers,
-      "x-custom-header": "custom-value",
-    });
-    // highlight-end
-  })
-  // Add response interceptor
-  .onResponse(async (response, request) => {
-    // Log all responses
-    console.log(`Response for ${request.endpoint}:`, response);
-    // highlight-start
-    return response;
-    // highlight-end
-  })
-  // Add error interceptor
-  .onError(async (errorResponse, request) => {
-    // Handle specific error responses
-    if (errorResponse.status === 401 && !request.used) {
-      // Implement token refresh logic
-      // Set Used allows you to prevent infinite loops of retries
-      // highlight-start
-      return request.setUsed(true).send();
-      // highlight-end
-    }
-    return errorResponse;
-  });
-```
-
-<LinkCard
-  type="guides"
-  title="Interceptors guide"
-  description="Learn how to set up interceptors for your application and when they can be used"
-  to="/docs/guides/core/advanced/intercepting"
-/>
-
----
-
-4. ### Global settings
-
-Every module is initialized inside of the `Client` class. This is a perfect place to store and control global settings
-for the adapter, cache, requests or other modules.
-
-```tsx
-import { createClient } from "@hyper-fetch/core";
-
-export const client = createClient({
-  url: "http://localhost:3000",
-});
-
-// highlight-start
-client.adapter.setRequestDefaults({
-  retries: 3, // Retry failed requests 3 times
-  cacheTime: 5 * 60 * 1000, // Cache data for 5 minutes
-  staleTime: 60 * 1000, // Data becomes stale after 1 minute
-
-  // Adapter options
-  options: {
-    timeout: 10000, // 10 seconds timeout for all requests
-  },
-});
-// highlight-end
-
-// These global settings can be overridden for specific requests
-export const getUser = client.createRequest()({
-  endpoint: "/users/:id",
-  method: "GET",
-  // highlight-next-line
-  timeout: 5000, // Override the global timeout of 10000 for this request
-});
-```
-
-<LinkCard
-  type="guides"
-  title="Global defaults guide"
-  description="Learn how to set global defaults for the client and requests"
-  to="/docs/guides/core/basics/global-defaults"
-/>
-
----
-
-5. ### Cache modes (`auto` / `client` / `server`)
-
-`createClient` accepts an optional `mode`:
-
-- **`"auto"`** (default when omitted) — resolves to **`"client"`** in the browser and **`"server"`** in Node.js.
-- **`"client"`** or **`"server"`** — forces that **effective** mode regardless of environment.
-
-`client.mode` is always the resolved value: **`"client"`** or **`"server"`**. Cache behavior follows that resolved mode
-(on the server, caching is **disabled by default** unless you use `setScope`).
-
-```tsx
-import { createClient } from "@hyper-fetch/core";
-
-const client = createClient({ url: "http://localhost:3000" });
-// Same as { mode: "auto" } — client.mode is "client" in browser, "server" in Node.js
-
-// Override when needed (e.g. tests or forcing server rules in the browser)
-createClient({ url: "http://localhost:3000", mode: "server" });
-createClient({ url: "http://localhost:3000", mode: "client" });
-```
-
-On the server, use `setScope` to explicitly opt in to caching with per-user/session isolation:
-
-```tsx
-const getUser = client.createRequest<{ response: User }>()({
-  endpoint: "/users/:userId",
-  method: "GET",
-});
-
-// Server-side: NOT cached (safe by default)
-getUser.setParams({ userId: 1 }).send();
-
-// Server-side: CACHED — scoped to this user's session
-getUser
-  .setParams({ userId: 1 })
-  .setScope(req.session.id)
-  .send();
-```
-
-:::warning Server-Side Safety
-
-Without `setScope`, responses are never cached on the server. This prevents user A from seeing user B's data.
-Always scope to the current user/session context in server environments.
-
-:::
-
-<LinkCard
-  type="docs"
-  title="Cache"
-  description="Learn more about cache modes, scoping, and persistence."
-  to="/docs/core/cache"
-/>
-
----
-
-6. ### Plugins
-
-Plugins are a powerful feature that allows you to extend the functionality of the client. They can be used to listen to
-the events happening inside of the HyperFetch.
-
-:::caution Debug mode required for logging
-
-`client.setDebug(true)` must be called for any logger output to appear. Without it, the `LoggerManager` silently
-discards all log messages regardless of log level. Enable it during development or when using the devtools plugin.
-
-```ts
-const client = createClient({ url: "http://localhost:3000" }).setDebug(true);
-```
-
-:::
-
-```tsx
-import { createClient } from "@hyper-fetch/core";
-import { Plugin } from "@hyper-fetch/core";
-import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
-
-// Add the official devtools plugin
-export const client = createClient({ url: "http://localhost:3000" })
-  .setDebug(true)
-  // highlight-start
-  .addPlugin(
-    DevtoolsPlugin({
-      appName: "My Application",
-    }),
-  );
-// highlight-end
-
-// Create a custom plugin
-const loggingPlugin = new Plugin({
-  name: "logging-plugin",
-})
-  .onRequestStart(({ request }) => {
-    console.log(`Request started: ${request.method} ${request.endpoint}`);
-  })
-  .onRequestSuccess(({ response, request }) => {
-    console.log(`Request succeeded: ${request.method} ${request.endpoint}`, response.data);
-  })
-  .onRequestError(({ response, request }) => {
-    console.error(`Request failed: ${request.method} ${request.endpoint}`, response.error);
-  });
-
-// Add the custom plugin to the client
-// highlight-next-line
-client.addPlugin(loggingPlugin);
-```
-
-#### Removing Plugins
-
-Plugins can be removed at runtime. When a plugin is removed, its `onUnmount` hook is called automatically.
-
-```tsx
-// highlight-next-line
-client.removePlugin(loggingPlugin);
-```
-
----
-
-7. ### Clearing the Client
-
-The `clear()` method aborts all in-flight requests, clears both dispatchers and the cache, then recreates all
-subsystems from the original factory options. This is important for testing teardown and SSR cleanup to prevent state
-leaking between requests.
-
-```ts
-// Abort everything, clear cache and queues, reinitialize subsystems
-// highlight-next-line
-client.clear();
-```
-
----
-
-8. ### Restoring Requests from JSON
-
-The `fromJSON` method restores a `Request` instance from its serialized JSON representation. This is essential for
-persistence and offline scenarios where requests are stored (e.g. in `localStorage`) and need to be recreated later.
-
-```ts
-// Serialize a request
-const json = getUser.toJSON();
-
-// Later, restore it
-// highlight-next-line
-const restored = client.fromJSON(json);
-await restored.send();
-```
-
-You can also use the static method directly: `Request.fromJSON(client, json)`.
-
----
-
-9. ### Interceptor Removal
-
-Each `onAuth`, `onRequest`, `onResponse`, `onError`, and `onSuccess` call stores the callback. You can remove
-specific interceptors later for cleanup or dynamic reconfiguration.
-
-```ts
-const authInterceptor = (request) => {
-  return request.setHeaders({ Authorization: `Bearer ${token}` });
-};
-
-// Register
-client.onAuth(authInterceptor);
-
-// Remove later
-// highlight-next-line
-client.removeOnAuthInterceptors([authInterceptor]);
-```
-
-Available removal methods:
-
-| Method | Removes interceptors from |
-| --- | --- |
-| `removeOnAuthInterceptors` | `onAuth` |
-| `removeOnRequestInterceptors` | `onRequest` |
-| `removeOnResponseInterceptors` | `onResponse` |
-| `removeOnErrorInterceptors` | `onError` |
-| `removeOnSuccessInterceptors` | `onSuccess` |
-
----
-
-10. ### Changing the base URL
-
-Use `setUrl` to point the client at a different server at runtime - for example when switching tenants, regions or
-environments. Every request sent afterwards uses the new base URL.
-
-```tsx
-import { createClient } from "@hyper-fetch/core";
-
-export const client = createClient({ url: "https://eu.example.com" });
-
-// highlight-next-line
-client.setUrl("https://us.example.com", { abort: true, invalidate: true });
-```
-
-Cache keys don't include the base URL, so data cached for the previous server stays in place by default. Pass the
-options when the data of both servers should not mix:
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `abort` | `false` | Abort all requests that are still in progress for the previous URL. |
-| `invalidate` | `false` | Invalidate the whole cache (and the requests aborted by `abort`), so mounted hooks refetch from the new URL. |
-
----
-
-6. ### Hydration
-
-We can hydrate the client with the data from the server. This is a powerful feature that allows us to pass the data from
-the server to the client for the SSR use cases.
-
-```tsx
-// Server-side code
-import { createClient } from "@hyper-fetch/core";
-
-export const client = createClient({ url: "http://localhost:3000" });
-const userRequest = client.createRequest()({ endpoint: "/users/1" });
-
-// Fetch data on the server
-const response = await userRequest.send();
-
-// Dehydrate the response for client hydration
-// highlight-start
-const dehydratedData = userRequest.dehydrate({ response });
-// highlight-end
-
-// Pass dehydratedData to the client (e.g., as props or through a global state)
-
-//  *****************************************************
-//  *****************************************************
-//  Client-side code
-//  *****************************************************
-//  *****************************************************
-
-import { createClient } from "@hyper-fetch/core";
-import { useFetch } from "@hyper-fetch/react";
-
-export const client = createClient({ url: "http://localhost:3000" });
-
-// Hydrate the client with server data
-// highlight-start
-client.hydrate([dehydratedData]);
-// highlight-end
-
-// In your React component
-function UserProfile() {
-  // Data will be available immediately from cache, no loading state needed
-  const { data } = useFetch(client.createRequest()({ endpoint: "/users/1" }), {
-    // highlight-next-line
-    revalidate: false, // Prevent automatic refetching
-  });
-
-  return <div>{data?.name}</div>;
-}
-```
-
-:::tip React
-
-In React, render the [`Hydrate`](/react/06-hydrate.mdx) component instead of calling `client.hydrate()` during render.
-It also renders the data during server rendering, writes it before the hooks mount, never replaces newer cache data with
-an older snapshot, and works with several clients.
-
-:::
-
----
-
-## TypeScript
-
-Most important type passed to the `createClient` is the error type. It is a global error type, being used like a default
-for any request errors. It is later combined with the "local error" type of the requests creating the union. This way we
-handle generic errors from the server (global) as well as some validation/business (local) errors for given endpoint.
-
-:::warning Enhancing TypeScript DX
-
-It is important to use the [eslint plugin](/docs/integrations/plugin-eslint/index.mdx) to get the best typescript
-experience. We enhance the abilities of the object generics to provide you with the best possible DX.
-
-:::
-
-```tsx
-import { createClient, AdapterType } from "@hyper-fetch/core";
-
-// highlight-start
-// Define your global error type
-interface ClientErrorType {
-  message: string;
-  code: number;
-}
-
-const client = createClient<{ error: ClientErrorType }>();
-// highlight-end
-```
-
-- `error` defines the global/default error type used in all the requests. It should consist of an `Error` type and your
-  default `ServerErrorType`. It is propagated down to the `createRequest` method, serving as a default for the
-  `globalError` type.
-
-- `adapter` is the generic responsible for shaping options passed to the adapter. Most likely you will change it only
-  when you provide [your custom adapter](/docs/guides/core/02-advanced/custom-adapter.mdx).
-
-## Modules
-
-Client is a place where all the subsystems are initialized. Here is a diagram of the client and its subsystems:
-
-```mermaid
-mindmap
-  root)Client(
-    )Requests(
-      {{Query Params}}
-      {{Payload}}
-      {{Headers}}
-      {{Body}}
-      {{Method}}
-      {{URL}}
-    )Dispatchers(
-      {{Queues}}
-      {{Cancellation}}
-      {{Deduplication}}
-    )Cache(
-      {{Storages}}
-      {{Garbage Collection}}
-    )Adapter(
-      {{HTTP}}
-      {{GraphQL}}
-      {{Firebase}}
-      {{Axios}}
-    )Managers(
-      {{Request Lifecycle}}
-      {{Window Focus}}
-      {{Network Status}}
-      {{Abort Controllers}}
-      {{Logger}}
-    )Plugins(
-      {{Devtools}}
-      {{Observers}}
-```
-
----
-
-## See Also
-
-<LinkCard
-  type="docs"
-  title="Request"
-  description="Handles request template creation and execution."
-  to="/docs/core/request"
-/>
-
-<LinkCard type="docs" title="Cache" description="Handles data storages and persistence." to="/docs/core/cache" />
-
-<LinkCard
-  type="docs"
-  title="Adapter"
-  description="Handles all requests within Client. Can be replaced with setAdapter method."
-  to="/docs/core/adapter"
-/>
-
-<LinkCard
-  type="docs"
-  title="Dispatcher"
-  description="Handles the requests deduplication and queueing."
-  to="/docs/core/dispatcher"
-/>
-
-<LinkCard
-  type="docs"
-  title="Managers"
-  description="Handles the logging systems, app focus and online state, additional events and cancellation of requests."
-  to="/docs/core/managers"
-/>
-
----

@@ -7,93 +7,81 @@ sidebar_label: Overview
 
 # Firebase React hooks for Firestore and Realtime Database
 
-[Read the API Reference »](/api/adapter-firebase/Functions/FirebaseAdapter.mdx)
-
-The Firebase JavaScript SDK has no React bindings, so firebase react hooks are something you write yourself or get from
-a library. `@hyper-fetch/firebase` is one way to get them. It runs Firestore and Realtime Database operations through
-HyperFetch requests: you create requests with `createRequest`, send them with `send()` or `useFetch`, and get the same
-typed responses, caching, deduplication and loading state you use for HTTP. Live data comes through
-`@hyper-fetch/sockets` listeners and the `useListener` hook.
-
----
+`@hyper-fetch/firebase` runs Firestore and Realtime Database operations of the Firebase web SDK as HyperFetch requests.
+You send them with `send()` or [`useFetch`](/docs/react/hooks/use-fetch) and get typed responses, caching and loading
+state, while live data comes through [listeners](/docs/sockets/listener) and `useListener`. Server code with the Admin
+SDK uses [`@hyper-fetch/firebase-admin`](/docs/integrations/adapter-firebase-admin/overview) instead.
 
 :::tip Purpose
 
-1.  **One request API for Firebase**: Firestore and Realtime Database operations are regular HyperFetch requests.
-2.  **Typed results**: `data`, `payload`, `params` and the raw Firebase `extra` are typed per request.
-3.  **Typed queries**: `queryParams: (c) => c.where(...)` checks fields and values, and is part of the cache key.
-4.  **Live data**: `FirebaseSocketsAdapter` turns `onSnapshot` and `onValue` into socket listeners.
-5.  **No rejected promises**: Firebase errors come back in `response.error`, never as a thrown exception.
+1. **One request API for Firebase**: Firestore and Realtime Database operations are regular requests.
+2. **Typed queries**: `queryParams: (c) => c.where(...)` checks fields and values and is part of the cache key.
+3. **Live data**: `FirebaseSocketsAdapter` turns `onSnapshot` and `onValue` into socket listeners.
+4. **No rejected promises**: Firebase errors come back in `response.error`.
 
 :::
 
 ---
 
-## Firebase in React without a library
+## Install
 
-Without a helper, reading Firestore in a component looks like this:
+`firebase` is a peer dependency. Add `@hyper-fetch/sockets` for live listeners and `@hyper-fetch/react` for hooks.
 
-```tsx
-import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { useEffect, useState } from "react";
-
-function GreenTeas() {
-  const [teas, setTeas] = useState<Tea[]>([]);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    const q = query(collection(db, "teas"), where("type", "==", "Green"));
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => setTeas(snapshot.docs.map((doc) => ({ __key: doc.id, ...doc.data() }) as Tea)),
-      setError,
-    );
-    return unsubscribe;
-  }, []);
-
-  // ...
-}
-```
-
-It works, and for one screen it is fine. The cost shows up when it repeats: every component writes its own loading and error
-state, one-off reads with `getDocs` have no cache between pages, and the data is only typed if you cast it or add a
-converter. The [React](#react) section below is the same component with this package.
-
----
-
-## Installation
-
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/firebase firebase
 ```
-
-Add `@hyper-fetch/sockets` for live listeners and `@hyper-fetch/react` for hooks. Server code that uses the Admin SDK
-needs [`@hyper-fetch/firebase-admin`](/docs/integrations/adapter-firebase-admin/overview) instead.
 
 ---
 
 ## Setup
 
-Pass an initialized database to `FirebaseAdapter`. The instance decides which methods the client accepts.
+1. Pass an initialized database to `FirebaseAdapter`. The instance decides which methods the client accepts.
 
-```tsx
-import { Client } from "@hyper-fetch/core";
+```ts title="api/firebase.ts"
+import { createClient } from "@hyper-fetch/core";
 import { FirebaseAdapter } from "@hyper-fetch/firebase";
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const app = initializeApp({ projectId: "my-project" });
+export const db = getFirestore(app);
 
-export const client = new Client({ url: "" }).setAdapter(FirebaseAdapter(getFirestore(app)));
+export const client = createClient({ url: "" }).setAdapter(FirebaseAdapter(db));
+```
 
-type Tea = { __key: string; name: string; type: "Green" | "Black"; year: number };
+2. Create a request. The `endpoint` is the Firebase path and the `method` the SDK operation.
 
-const getTeas = client.createRequest<{ response: Tea[] }>()({
+```ts title="api/teas.ts"
+import type { FirestoreQueryParams } from "@hyper-fetch/firebase";
+
+import { client } from "./firebase";
+
+export type Tea = { name: string; type: "Green" | "Black"; year: number };
+
+export const getTeas = client.createRequest<{
+  response: (Tea & { __key: string })[];
+  queryParams?: FirestoreQueryParams<Tea>;
+}>()({
   endpoint: "teas",
   method: "getDocs",
 });
+```
 
-const { data, status, error, extra } = await getTeas.send();
+3. Send it, or read it in a component.
+
+```tsx title="GreenTeas.tsx"
+import { useFetch } from "@hyper-fetch/react";
+
+import { getTeas } from "./api/teas";
+
+export const GreenTeas = () => {
+  const { data, loading, error } = useFetch(getTeas.setQueryParams((c) => c.where("type", "==", "Green")));
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error.message}</p>;
+
+  return data?.map((tea) => <p key={tea.__key}>{tea.name}</p>);
+};
 ```
 
 | Database instance | Methods                                                           | Default method |
@@ -101,8 +89,23 @@ const { data, status, error, extra } = await getTeas.send();
 | `getFirestore()`  | `getDoc`, `getDocs`, `addDoc`, `setDoc`, `updateDoc`, `deleteDoc` | `getDoc`       |
 | `getDatabase()`   | `get`, `set`, `push`, `update`, `remove`                          | `get`          |
 
-A method that the database does not have, such as `getDocs` on a Realtime Database client, resolves with
-`status: "error"`.
+---
+
+## How it maps
+
+| Firebase                                              | HyperFetch                                                                |
+| ----------------------------------------------------- | ------------------------------------------------------------------------- |
+| Database instance                                     | `FirebaseAdapter(db)` on the client                                       |
+| Path (`doc(db, "teas/1")`, `ref(db, "rooms")`)        | `client.url + endpoint`, with `:params`                                   |
+| SDK function (`getDocs`, `setDoc`, `push`, ...)       | request `method`                                                          |
+| Data you write                                        | `payload`                                                                 |
+| `setDoc(ref, data, { merge: true })`                  | request `options: { merge: true }`                                        |
+| Query constraints (`where`, `orderBy`, `limit`, ...)  | `queryParams` callback or `$`-helper array, part of the cache key         |
+| Document data and id                                  | `data`, with the id as `__key`                                            |
+| Missing document, empty collection                    | `status: "emptyResource"`, `data` `null` or `[]`                          |
+| Thrown `FirebaseError`                                | `error`, with `status: "error"`                                           |
+| References and snapshots                              | `extra.ref`, `extra.snapshot`                                             |
+| `onSnapshot`, `onValue`                               | a `Listener` on a `Socket` with `FirebaseSocketsAdapter`, path in `topic` |
 
 ---
 
@@ -110,149 +113,129 @@ A method that the database does not have, such as `getDocs` on a Realtime Databa
 
 The adapter reads the path as `client.url + endpoint`, so `url: "teas/"` with `endpoint: ":teaId"` targets `teas/1`.
 
-:::caution Document or collection is decided by the path
-
-1.  A path with an **odd** number of segments (`teas`, `teas/1/reviews`) is a collection or list.
-2.  A path with an **even** number of segments (`teas/1`) is a single document or value.
-3.  Mind the slash when you split a path between `url` and `endpoint`: `url: "teas"` with `endpoint: ":teaId"` gives
-    `teas1`. Use `url: "teas/"` or a leading slash in the endpoint.
-
-:::
+- An **odd** number of segments (`teas`, `teas/1/reviews`) is a collection or list.
+- An **even** number of segments (`teas/1`) is a single document or value.
+- Mind the slash when you split a path: `url: "teas"` with `endpoint: ":teaId"` gives `teas1`.
 
 ---
 
 ## Responses
 
-Every request resolves with the standard HyperFetch response.
+`send()` resolves with the standard [response](/docs/core/request) and never rejects.
 
 | Field     | Content                                                                                            |
 | --------- | -------------------------------------------------------------------------------------------------- |
 | `data`    | The document or list. Firestore documents and the items of every list get a `__key` with their id. |
 | `status`  | `"success"`, `"emptyResource"` when nothing was found, or `"error"`.                               |
 | `success` | `true` for `"success"` and `"emptyResource"`, `false` for `"error"`.                               |
-| `error`   | The Firebase error (permission denied, missing index, updating a missing document...) or `null`.   |
-| `extra`   | Raw Firebase objects: `ref`, and `snapshot` for reads. `{}` when the request failed.               |
-
-`emptyResource` comes with `data: null` for a missing document and `data: []` for an empty Firestore collection.
-
-```tsx
-const { data, status, error } = await getTea.setParams({ teaId: "missing" }).send();
-
-if (error) showError(error.message);
-else if (status === "emptyResource") showNotFound();
-else render(data);
-```
+| `error`   | The Firebase error (permission denied, missing index, updating a missing document) or `null`.     |
+| `extra`   | `ref`, plus `snapshot` for reads. `{}` when the request failed.                                     |
 
 ---
 
-## Querying data
+## Querying
 
-Pass `queryParams` a callback. It receives a constraints chain, and the adapter stores the constraints it collected, so
-they apply in order and are part of the cache key: two requests with different constraints never share a cached
-response.
+Pass `queryParams` a callback. It receives a constraints chain, and the constraints it collected apply in order and are
+part of the cache key, so two queries never share a cached response.
 
-```tsx
+```ts title="api/teas.ts"
 const { data } = await getTeas.send({
   queryParams: (c) => c.where("type", "==", "Green").orderBy("year", "desc").limit(20),
 });
 ```
 
-Type the request's query params with the document type, and field names and values are checked:
+| Database          | Chain methods                                                                                               |
+| ----------------- | ----------------------------------------------------------------------------------------------------------- |
+| Firestore         | `where`, `orderBy`, `limit`, and the cursors `startAt`, `startAfter`, `endAt`, `endBefore`                  |
+| Realtime Database | `orderByChild`, `orderByKey`, `orderByValue`, `limitToFirst`, `limitToLast`, then `equalTo` and the cursors |
 
-```tsx
-import type { FirestoreQueryParams } from "@hyper-fetch/firebase";
-
-const getTeas = client.createRequest<{ response: Tea[]; queryParams?: FirestoreQueryParams<Tea> }>()({
-  endpoint: "teas",
-  method: "getDocs",
-});
-
-getTeas.setQueryParams((c) => c.where("year", ">=", 2020)); // ✓
-getTeas.setQueryParams((c) => c.where("yaer", ">=", "2020")); // ✗ unknown field, and year is a number
-```
-
-| Database          | Chain methods                                                                                                  |
-| ----------------- | -------------------------------------------------------------------------------------------------------------- |
-| Firestore         | `where`, `orderBy`, `limit`, and the cursors `startAt`, `startAfter`, `endAt`, `endBefore`                     |
-| Realtime Database | `orderByChild`, `orderByKey`, `orderByValue`, `limitToFirst`, `limitToLast`, then `equalTo` and the cursors    |
-
-The chain follows Firebase's rules in its types: Firestore cursors take one value per `orderBy`, and a Realtime Database
-query has one `orderBy*`. Rules the types cannot see, such as Firestore composite indexes, come back in
-`response.error`.
-
-:::info Constraints as data
-
-`queryParams` also takes the constraints array the callback resolves to, built with the `$`-helpers
-(`[$where("type", "==", "Green"), $limit(20)]`). The `{ constraints: [...] }` object of earlier versions still works and
-is deprecated.
-
-:::
+With the document type in `FirestoreQueryParams<Tea>` or `RealtimeDBQueryParams<Message>`, field names and values are
+checked. `queryParams` also takes the array the callback resolves to, built with `$where`, `$limit` and the other
+`$`-helpers. Rules the types cannot see, such as Firestore composite indexes, come back in `response.error`.
 
 ---
 
 ## Live data
 
 Requests read once. For updates as they happen, create a listener on a socket with `FirebaseSocketsAdapter`, described
-in [Realtime listening](/docs/integrations/adapter-firebase/realtime-queries).
+in [realtime listening](/docs/integrations/adapter-firebase/realtime-queries).
 
-```tsx
+```ts title="api/live.ts"
 import { Socket } from "@hyper-fetch/sockets";
 import { FirebaseSocketsAdapter } from "@hyper-fetch/firebase";
 
-const socket = new Socket({ url: "", adapter: FirebaseSocketsAdapter(getFirestore(app)) });
+import { db } from "./firebase";
+import type { Tea } from "./teas";
 
-const onTeas = socket.createListener<Tea[]>()({ topic: "teas" });
-const stop = onTeas.listen(({ data }) => render(data));
+export const socket = new Socket({ url: "", adapter: FirebaseSocketsAdapter(db) });
+
+export const onTeas = socket.createListener<(Tea & { __key: string })[]>()({ topic: "teas" });
+// const stop = onTeas.listen(({ data }) => render(data));
 ```
+
+For Firestore data that several views read and that must stay live, `firestoreCollection` from
+`@hyper-fetch/firebase/db` declares a [`@hyper-fetch/db`](/docs/db/overview) collection, see
+[DB with Firestore](/docs/db/firestore).
 
 ---
 
-## Collections
+## Web and admin differences
 
-For Firestore data that several views read and that has to stay live, `firestoreCollection` declares a
-[`@hyper-fetch/db`](/docs/db/overview) collection in one call. Queries become Firestore constraints and snapshots keep
-them current, as described in [DB with Firestore](/docs/db/firestore).
+The two packages share methods, paths, responses and constraints. These are the differences:
 
-```tsx
-import { firestoreCollection } from "@hyper-fetch/firebase/db";
-
-const Tea = firestoreCollection(TeaSchema, { client, socket, path: "teas", key: "id" });
-```
-
----
-
-## React
-
-Firebase requests and listeners work with the regular hooks.
-
-```tsx
-import { useFetch, useListener } from "@hyper-fetch/react";
-
-function GreenTeas() {
-  const { data, loading, error } = useFetch(getTeas.setQueryParams((c) => c.where("type", "==", "Green")));
-  const live = useListener(onTeas);
-
-  // ...
-}
-```
-
-:::note When to use it
-
-- Your app already reads and writes Firebase and you want caching, deduplication and loading state without wiring them
-  by hand.
-- You want Firebase calls and HTTP calls to look and behave the same in your codebase.
-- You want typed `data` and `payload` on every Firebase operation and errors handled through the response.
-
-:::
+| Topic                                        | `@hyper-fetch/firebase` (web)                | `@hyper-fetch/firebase-admin` (server)         |
+| -------------------------------------------- | -------------------------------------------- | ---------------------------------------------- |
+| Runs                                         | in browsers and React Native, as the user    | on servers, with a service account             |
+| Request adapter                              | `FirebaseAdapter`                            | `FirebaseAdminAdapter`                         |
+| Socket adapter                               | `FirebaseSocketsAdapter`                     | `FirebaseSocketsAdminAdapter`                  |
+| Security rules                               | enforced for the signed-in user              | bypassed                                       |
+| Firestore `setDoc` `data`                    | the payload                                  | the Admin SDK `WriteResult`                    |
+| Firestore socket `connect()`, `disconnect()` | toggle the network of the instance           | throw, stop listeners with their stop function |
+| Realtime document listener `data`            | the value                                    | the value plus `__key`                         |
+| Firestore listener `extra`                   | `ref`, `snapshot`, `status`, `groupedResult` | the same, plus `unsubscribe`                   |
+| Documents in `groupedResult`                 | with `__key`                                 | without `__key`                                |
+| `@hyper-fetch/db` collections                | `firestoreCollection`                        | not available                                  |
 
 ---
 
 :::secondary Summary
 
-1.  Pass `getFirestore()` or `getDatabase()` to `FirebaseAdapter`; the instance decides the available methods.
-2.  `client.url + endpoint` is the Firebase path, and its segment count decides document or collection.
-3.  Queries are a `queryParams` callback, `(c) => c.where(...)`, applied in order and part of the cache key.
-4.  Errors resolve the request with `status: "error"`; missing data is `status: "emptyResource"`.
-5.  Live data goes through `FirebaseSocketsAdapter` listeners.
+- Pass `getFirestore()` or `getDatabase()` to `FirebaseAdapter`. The instance decides the methods.
+- `client.url + endpoint` is the Firebase path, and its segment count decides document or collection.
+- Queries are a `queryParams` callback, applied in order and part of the cache key.
+- Errors resolve with `status: "error"`, missing data with `status: "emptyResource"`.
 
 :::
+
+## Next steps
+
+Runnable example: [Firebase](/examples/integrations/firebase), a Firestore guestbook with typed reads, writes and
+constraints. Building a mobile app? See [React Native](/docs/integrations/adapter-firebase/react-native).
+
+<LinkCard
+  type="docs"
+  title="Firestore"
+  description="Every Firestore method, typed queries and cursor pagination."
+  to="/docs/integrations/adapter-firebase/firestore"
+/>
+
+<LinkCard
+  type="docs"
+  title="Realtime Database"
+  description="Read and write values and lists, and query them."
+  to="/docs/integrations/adapter-firebase/realtime"
+/>
+
+<LinkCard
+  type="docs"
+  title="Realtime listening"
+  description="Live onSnapshot and onValue data with typed listeners."
+  to="/docs/integrations/adapter-firebase/realtime-queries"
+/>
+
+<LinkCard
+  type="api"
+  title="FirebaseAdapter API reference"
+  description="The adapter factory and its method, status and extra types."
+  to="/docs/api/adapter-firebase/Functions/FirebaseAdapter"
+/>

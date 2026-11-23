@@ -1,13 +1,16 @@
 ---
 sidebar_position: 2
 title: Infinite lists
+description: "useLiveInfiniteQuery shows an ordered @hyper-fetch/db query page by page. Pages show at once from held rows and stay live as rows change."
 sidebar_label: useLiveInfiniteQuery
 ---
 
 # useLiveInfiniteQuery
 
-> `useLiveInfiniteQuery` reads an ordered [`@hyper-fetch/db`](/docs/db/overview) query page by page. Each page shows
-> at once when the db already holds its rows, and the query's loader loads more only when the window runs past them.
+`useLiveInfiniteQuery` shows an ordered [`@hyper-fetch/db`](/docs/db/overview) query page by page, for feeds and long
+tables that grow as the user scrolls. Pages show at once when the db already holds their rows, and the query's loader
+loads more only when the window runs past them. For a whole query at once, use
+[`useLiveQuery`](/docs/react/db/use-live-query).
 
 :::tip Purpose
 
@@ -21,41 +24,96 @@ sidebar_label: useLiveInfiniteQuery
 
 ## Usage
 
-```tsx
+```tsx title="components/feed.tsx"
 import { eq } from "@hyper-fetch/db";
 import { useLiveInfiniteQuery } from "@hyper-fetch/react";
+import { db } from "./db";
 
-const { pages, data, hasNextPage, fetchNextPage, isFetchingNextPage, status } = useLiveInfiniteQuery(
-  db.post.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
-  { pageSize: 20 },
-);
+function Feed({ teamId }: { teamId: number }) {
+  const { data, hasNextPage, fetchNextPage, isFetchingNextPage } = useLiveInfiniteQuery(
+    db.post.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+    { pageSize: 20 },
+  );
+
+  return (
+    <div>
+      {data?.map((post) => (
+        <p key={post.id}>{post.title}</p>
+      ))}
+      {hasNextPage && (
+        <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+          Load more
+        </button>
+      )}
+    </div>
+  );
+}
 ```
 
-- The query must have `orderBy`, so a page never shifts between renders. Without it, the hook does not compile.
-- `data` holds the rows of every loaded page, and `pages` splits them into pages of `pageSize`.
-- `fetchNextPage()` widens the window by one page. Two calls at once load one page.
-- A cursor loader loads its next backend pages until the db holds one row past the window. A loader with `limit` and
-  no cursor is sent the window size plus one, and keeps showing the last window while the wider one loads. A loader
-  that is not paginated has loaded every row already.
+The query must have `orderBy`, so a page never shifts between renders. Without it, the hook does not compile.
+
+---
+
+## Options
+
+| Option     | Type     | Default  | Description                                                         |
+| ---------- | -------- | -------- | ------------------------------------------------------------------- |
+| `pageSize` | `number` | required | Rows per page. Independent of the backend's page size.              |
+
+---
+
+## Returns
+
+Everything [`useLiveQuery`](/docs/react/db/use-live-query#returns) returns, plus:
+
+| Field                | Type                  | Description                                                                 |
+| -------------------- | --------------------- | --------------------------------------------------------------------------- |
+| `data`               | rows or `undefined`   | Rows of every loaded page.                                                  |
+| `pages`              | `Row[][]`             | `data` split into pages of `pageSize`.                                      |
+| `isFetchingNextPage` | `boolean`             | More rows are loading to fill the window after `fetchNextPage`.            |
+| `fetchNextPage`      | `() => Promise<void>` | Widen the window by one page. Two calls at once load one page.              |
+| `refetch`            | `() => Promise<void>` | Load the query again from its first page.                                   |
+
+---
+
+## How pages load
+
+- A cursor loader loads its next backend pages until the db holds one row past the window.
+- A loader with `limit` and no cursor is sent the window size plus one, and keeps showing the last window while the
+  wider one loads.
+- A loader that is not paginated has loaded every row already.
 - A page that fails to load keeps the pages shown so far and sets `error`, and the next call tries again.
 - The same query keeps its loaded pages across renders. A different query or `pageSize` starts again from the first
   page.
-- Outside React, `query.infinite({ pageSize })` returns the same window with `subscribe`, `getSnapshot` and
-  `fetchNextPage`.
 
-:::note When to use it
-
-- Feeds and long tables that grow as the user scrolls.
-- Lists that must stay live while pages are loaded.
-
-:::
+Outside React, `query.infinite({ pageSize })` returns the same window with `subscribe`, `getSnapshot` and
+`fetchNextPage`.
 
 ---
 
 :::secondary Summary
 
-- `useLiveInfiniteQuery(query, { pageSize })` shows an ordered query page by page.
-- Pages show at once from rows the db holds, and load from the backend only when needed.
-- The window stays live as rows are inserted and deleted.
+1. `useLiveInfiniteQuery(query, { pageSize })` shows an ordered query page by page.
+2. Pages show at once from rows the db holds, and load from the backend only when needed.
+3. The window stays live as rows are inserted and deleted.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Pagination and infinite scroll"
+  description="Page through collections with live queries."
+  to="/docs/guides/db/basics/infinite-scroll"
+/>
+
+<LinkCard
+  type="api"
+  title="useLiveInfiniteQuery API reference"
+  description="Generated types for the hook and its return value."
+  to="/docs/api/react/Hooks/useLiveInfiniteQuery"
+/>
+
+- Related: [`useInfiniteFetch`](/docs/react/hooks/use-infinite-fetch) pages through a request without the db,
+  [`UseLiveInfiniteQueryReturnType`](/docs/api/react/Types/UseLiveInfiniteQueryReturnType).
