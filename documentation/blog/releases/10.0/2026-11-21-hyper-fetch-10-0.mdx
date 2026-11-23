@@ -4,7 +4,7 @@ title: HyperFetch 10
 authors: [maciej]
 tags: [Release]
 date: 2026-11-21T18:00:00
-description: "HyperFetch 10 types your client from tRPC, oRPC, Hono and Elysia, unifies socket reconnection, and adds persisted queries and graphql-ws to GraphQL."
+description: "HyperFetch 10 adds @hyper-fetch/db, a normalized cache that stays live, types your client from tRPC, oRPC, Hono and Elysia, and unifies socket reconnection."
 ---
 
 import { BlogPostImage, Screenshot } from "@site/src/components";
@@ -17,10 +17,12 @@ import { BlogPostImage, Screenshot } from "@site/src/components";
   pattern="paths"
 />
 
-HyperFetch 10 is out, and this one is about your backend. The client now takes its types straight from tRPC, oRPC,
-Hono and Elysia, sockets recover from a lost connection the same way on every transport, and GraphQL gets persisted
-queries and `graphql-ws`. Before tagging it we audited every package and landed more than 80 fixes, each with a
-regression test. Core, React and Firebase upgrade with no code changes.
+HyperFetch 10 is out, and this one is about your backend. Its biggest addition is `@hyper-fetch/db`, a normalized
+cache that stays live: each record is stored once and every view of it updates when a write or a socket event changes
+it. The client now takes its types straight from tRPC, oRPC, Hono and Elysia, sockets recover from a lost connection
+the same way on every transport, and GraphQL gets persisted queries and `graphql-ws`. Before tagging it we audited
+every package and landed more than 80 fixes, each with a regression test. Core, React and Firebase upgrade with no code
+changes.
 
 {/* truncate */}
 
@@ -33,6 +35,8 @@ and GraphQL have a few breaking changes, listed in [Upgrading from 9](#upgrading
 
 ## Highlights
 
+- **[HyperFetch DB](#hyperfetch-db)**: a normalized cache that stays live, with live queries, optimistic writes and an
+  offline outbox. _Beta._
 - **[Typed clients from your backend](#typed-clients-from-your-backend)**: tRPC, oRPC, Hono and Elysia types go
   straight into `createSdk`, with no schema to write.
 - **[Optimistic updates](#optimistic-updates)**: describe the change, and core applies it, rolls it back on failure
@@ -45,6 +49,32 @@ and GraphQL have a few breaking changes, listed in [Upgrading from 9](#upgrading
 - **[Typed Firebase queries](#typed-firebase-queries)**: constraints are checked against the fields of your documents.
 - **[Devtools for sockets](#devtools-for-sockets)**: HyperFlow shows your sockets, also from Node.js servers.
 - **[Hardened everywhere](#hardened-everywhere)**: an audit of every package, with a failing test before each fix.
+
+---
+
+## HyperFetch DB
+
+The same record usually sits in several cached responses, and keeping every copy current with a socket is code each
+app writes by hand. `@hyper-fetch/db` stores each record once, in a typed collection that your requests and socket
+listeners fill, and components query the collection instead of an endpoint:
+
+```tsx title="posts.tsx"
+const Post = collection(PostSchema, { key: "id", version: "updatedAt" })
+  .load(getTeamPosts, {
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
+  })
+  .sync(onPostChanged, { type: "update" });
+
+const db = createDb({ post: Post });
+// highlight-next-line
+const { data } = useLiveQuery(db.post.where((p) => eq(p.teamId, 1)));
+```
+
+A write shows at once in every view and reverts on failure, and a slow response cannot overwrite a newer socket event.
+Writes made offline replay in order after a restart. The [HyperFetch DB post](/blog/hyper-fetch-db) explains how the
+live part works and how we tested it.
 
 ---
 
