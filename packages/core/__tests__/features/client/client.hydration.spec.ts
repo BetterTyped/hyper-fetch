@@ -1,6 +1,6 @@
 import type { CacheValueType } from "cache";
 import { Client } from "client";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 import { scopeKey } from "request";
 
 describe("Client [ Hydration ]", () => {
@@ -200,7 +200,7 @@ describe("Client [ Hydration ]", () => {
           status: 200,
           success: true,
           error: null,
-          extra: xhrExtra,
+          extra: httpExtra,
           requestTimestamp: ts,
           responseTimestamp: ts,
         },
@@ -217,7 +217,7 @@ describe("Client [ Hydration ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: xhrExtra,
+        extra: httpExtra,
         retries: 0,
         requestTimestamp: Date.now(),
         responseTimestamp: Date.now(),

@@ -1,7 +1,7 @@
 import { sleep } from "@hyper-fetch/testing";
 import type { CacheAsyncStorageType, CacheValueType } from "cache";
 import { Client } from "client";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 
 import { createCache, createLazyCacheAdapter } from "../../utils";
 
@@ -14,7 +14,7 @@ describe("Cache [ Lazy Storage ]", () => {
     error: null,
     status: 200,
     success: true,
-    extra: xhrExtra,
+    extra: httpExtra,
     retries: 0,
     addedTimestamp: Date.now(),
     requestTimestamp: Date.now(),

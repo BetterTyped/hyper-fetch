@@ -284,7 +284,8 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
    */
   disableRequestInterceptors?: boolean;
   /**
-   * Additional options for your adapter, by default XHR options
+   * Options passed to the adapter. For the default `HttpAdapter` these are `fetch` options such as `timeout`,
+   * `responseType` and `streaming`.
    */
   options?: AdapterOptions;
   /**

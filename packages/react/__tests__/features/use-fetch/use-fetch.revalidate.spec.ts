@@ -1,4 +1,4 @@
-import { xhrExtra } from "@hyper-fetch/core";
+import { httpExtra } from "@hyper-fetch/core";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 import { act, waitFor } from "@testing-library/react";
 
@@ -88,7 +88,7 @@ describe("useFetch [ refetch ]", () => {
       error: null,
       status: 200,
       success: true,
-      extra: xhrExtra,
+      extra: httpExtra,
       retries: 0,
       addedTimestamp: Date.now(),
       triggerTimestamp: Date.now(),

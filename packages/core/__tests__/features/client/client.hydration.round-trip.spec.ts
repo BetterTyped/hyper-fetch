@@ -1,7 +1,7 @@
 import type { ResponseType } from "adapter";
 import { Client } from "client";
 import type { HttpAdapterType } from "http-adapter";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 import { scopeKey } from "request";
 import type { HydrateDataType } from "types";
 
@@ -15,7 +15,7 @@ const createResponse = <Data>(
   error: null,
   status: 200,
   success: true,
-  extra: xhrExtra,
+  extra: httpExtra,
   requestTimestamp: Date.now(),
   responseTimestamp: Date.now(),
   ...overrides,

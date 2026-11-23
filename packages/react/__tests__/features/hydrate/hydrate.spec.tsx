@@ -1,5 +1,5 @@
 import type { HydrateDataType, ResponseType } from "@hyper-fetch/core";
-import { Client, Time, xhrExtra } from "@hyper-fetch/core";
+import { Client, Time, httpExtra } from "@hyper-fetch/core";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { useCache } from "hooks/use-cache";
@@ -23,7 +23,7 @@ const createResponse = (data: User, responseTimestamp = Date.now()): ResponseTyp
   error: null,
   status: 200,
   success: true,
-  extra: xhrExtra,
+  extra: httpExtra,
   requestTimestamp: responseTimestamp,
   responseTimestamp,
 });

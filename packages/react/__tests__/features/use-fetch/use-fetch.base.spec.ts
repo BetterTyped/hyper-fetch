@@ -1,5 +1,5 @@
 import type { AdapterInstance, ResponseType } from "@hyper-fetch/core";
-import { xhrExtra } from "@hyper-fetch/core";
+import { httpExtra } from "@hyper-fetch/core";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 import { act, waitFor } from "@testing-library/react";
 
@@ -46,7 +46,7 @@ describe("useFetch [ Base ]", () => {
           error: null,
           status: 200,
           success: true,
-          extra: xhrExtra,
+          extra: httpExtra,
           responseTimestamp: Date.now(),
           requestTimestamp: Date.now(),
         },
@@ -68,7 +68,7 @@ describe("useFetch [ Base ]", () => {
             error: null,
             status: 200,
             success: true,
-            extra: xhrExtra,
+            extra: httpExtra,
             responseTimestamp: timestamp,
             requestTimestamp: timestamp,
           },
@@ -89,7 +89,7 @@ describe("useFetch [ Base ]", () => {
           error: null,
           status: 200,
           success: true,
-          extra: xhrExtra,
+          extra: httpExtra,
           responseTimestamp: timestamp,
           requestTimestamp: timestamp,
         },

@@ -2,7 +2,7 @@ import { sleep } from "@hyper-fetch/testing";
 import type { ResponseType } from "adapter";
 import type { ClientInstance, ResponseInterceptorType } from "client";
 import type { HttpAdapterType } from "http-adapter";
-import { xhrExtra } from "http-adapter";
+import { httpExtra } from "http-adapter";
 import type { RequestInstance } from "request";
 
 export const interceptorCallback = (props?: {
@@ -25,7 +25,7 @@ export const interceptorCallback = (props?: {
         error: null,
         success: true,
         status: 200,
-        extra: xhrExtra,
+        extra: httpExtra,
         requestTimestamp: 0,
         responseTimestamp: 0,
       }
