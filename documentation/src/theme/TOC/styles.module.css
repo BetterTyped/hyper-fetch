@@ -4,9 +4,27 @@
   height: 100%;
 }
 
+/*
+ * The column fills the window below its sticky offset. The sponsor button, the heading and the partners keep their
+ * height, and the headings get whatever is left, so they scroll only when they do not fit. On a short window the
+ * column stops shrinking at a floor that still leaves the headings about 130px, and runs past the bottom instead.
+ */
 .tocContent {
   position: sticky;
   top: 100px;
+  display: flex;
+  flex-direction: column;
+  max-height: max(calc(100vh - 100px - 24px), 460px);
+}
+
+.tocContent > * {
+  flex: none;
+}
+
+/* Two partner cards or a row of logo tiles make the partners block taller, so the floor is higher. */
+.tocContent:has(:global(.bt-sp-card ~ .bt-sp-card)),
+.tocContent:has(:global(.bt-sp-tiles)) {
+  max-height: max(calc(100vh - 100px - 24px), 580px);
 }
 
 /* A quiet sentence-case heading, lined up with the links below it */
@@ -26,16 +44,11 @@
   border-left: 0px !important;
 }
 
-.tableOfContents {
+/* Takes its own height, and shrinks to what the column has left when the headings are longer */
+.tocContent > .tableOfContents {
+  flex: 0 1 auto;
+  min-height: 0;
   overflow-y: auto;
-  /* What is left of the window after the buttons above and the partners and sponsors below. */
-  max-height: max(132px, calc(100vh - 420px - 300px));
-}
-
-/* Two partner cards or a row of logo tiles make the partners block taller, so the headings get less room. */
-.tocContent:has(:global(.bt-sp-card ~ .bt-sp-card)) .tableOfContents,
-.tocContent:has(:global(.bt-sp-tiles)) .tableOfContents {
-  max-height: max(132px, calc(100vh - 420px - 400px));
 }
 
 .tableOfContents :global(.table-of-contents__link--active) {
