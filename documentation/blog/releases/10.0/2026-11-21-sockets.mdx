@@ -7,7 +7,7 @@ date: 2026-11-21T15:00:00
 description: "HyperFetch 10 sockets: one reconnection engine for every adapter, typed subscription payloads, throttling, and connections that recover on their own."
 ---
 
-import { BlogPostImage, LinkCard } from "@site/src/components";
+import { BlogPostImage } from "@site/src/components";
 
 <BlogPostImage
   title="Sockets in HyperFetch 10"
@@ -43,32 +43,16 @@ Written for **HyperFetch 10**. The [release overview](/blog/hyper-fetch-10-0) li
 
 :::
 
-<Highlights>
-  <Highlight title="Delivery strategies" to="#delivery-strategies">
-    `latest` samples and `batch` groups busy streams before they reach a render.
-  </Highlight>
-  <Highlight title="Subscription payloads" to="#subscription-payloads">
-    Listeners send typed input that starts a subscription on the server.
-  </Highlight>
-  <Highlight title="Listener lifecycle" to="#listener-lifecycle">
-    `onStart`, `onEnd` and a `status` in `useListener` show where a subscription is.
-  </Highlight>
-  <Highlight title="Reconnection engine" to="#one-reconnection-engine">
-    Jittered backoff that reacts to the network and the tab, for every adapter.
-  </Highlight>
-  <Highlight title="Any runtime" to="#nodejs-bun-and-deno">
-    The built-in adapters run in Node.js, Bun and Deno without a `window` shim.
-  </Highlight>
-  <Highlight title="SSE named events" to="#sse-named-events">
-    `event: tick` reaches the listeners of the `tick` topic.
-  </Highlight>
-  <Highlight title="Listener query params" to="#listener-query-params">
-    Filters and ordering on listeners, for adapters that support them.
-  </Highlight>
-  <Highlight title="Typed documents" to="#typed-documents-on-listeners">
-    A GraphQL document types a listener without generics.
-  </Highlight>
-</Highlights>
+## Highlights
+
+- **[Delivery strategies](#delivery-strategies)**: `latest` samples and `batch` groups busy streams before they reach a render.
+- **[Subscription payloads](#subscription-payloads)**: Listeners send typed input that starts a subscription on the server.
+- **[Listener lifecycle](#listener-lifecycle)**: `onStart`, `onEnd` and a `status` in `useListener` show where a subscription is.
+- **[Reconnection engine](#one-reconnection-engine)**: Jittered backoff that reacts to the network and the tab, for every adapter.
+- **[Any runtime](#nodejs-bun-and-deno)**: The built-in adapters run in Node.js, Bun and Deno without a `window` shim.
+- **[SSE named events](#sse-named-events)**: `event: tick` reaches the listeners of the `tick` topic.
+- **[Listener query params](#listener-query-params)**: Filters and ordering on listeners, for adapters that support them.
+- **[Typed documents](#typed-documents-on-listeners)**: A GraphQL document types a listener without generics.
 
 ---
 
@@ -463,39 +447,9 @@ type PriceListener = Listener<
 
 ## Learn more
 
-<LinkCard
-  type="docs"
-  title="Throttling & Batching"
-  description="Timelines, semantics and custom delivery strategies."
-  href="/docs/guides/sockets/throttling"
-/>
-<LinkCard
-  type="docs"
-  title="React Throttling & Batching"
-  description="Delivery strategies with useListener."
-  href="/docs/guides/react/sockets/throttling"
-/>
-<LinkCard
-  type="docs"
-  title="Listener"
-  description="Payloads, lifecycle, query params and delivery on the Listener."
-  href="/docs/sockets/listener"
-/>
-<LinkCard
-  type="docs"
-  title="Connection"
-  description="Reconnection rules, options and a custom retry policy."
-  href="/docs/guides/sockets/connection"
-/>
-<LinkCard
-  type="docs"
-  title="useListener"
-  description="Status, error and lifecycle callbacks in React."
-  href="/docs/react/sockets/use-listener"
-/>
-<LinkCard
-  type="docs"
-  title="Socket Adapters"
-  description="The built-in adapters and custom adapters on the reconnection engine."
-  href="/docs/sockets/adapter"
-/>
+- [Throttling & Batching](/docs/guides/sockets/throttling): Timelines, semantics and custom delivery strategies.
+- [React Throttling & Batching](/docs/guides/react/sockets/throttling): Delivery strategies with useListener.
+- [Listener](/docs/sockets/listener): Payloads, lifecycle, query params and delivery on the Listener.
+- [Connection](/docs/guides/sockets/connection): Reconnection rules, options and a custom retry policy.
+- [useListener](/docs/react/sockets/use-listener): Status, error and lifecycle callbacks in React.
+- [Socket Adapters](/docs/sockets/adapter): The built-in adapters and custom adapters on the reconnection engine.

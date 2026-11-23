@@ -62,8 +62,9 @@ Vary masks across posts the same way you vary patterns - avoid repeating the sam
 ### Releases (`badge="release"`)
 
 - **Always use `pattern="paths"`** to match the hero section aesthetic.
-- **Do NOT include code as children.** Instead, the `BlogPostImage` for releases should visually communicate key
-  features. Use `<Highlights>` in the post body (not inside the image component) for the feature summary.
+- **Do NOT include code as children.** The post body carries the code, section by section.
+- Follow the `release-posts` skill (`.claude/skills/release-posts/SKILL.md`): it has the formula for major hub posts,
+  area deep dives and minor releases, and a script that checks the rendered posts.
 
 ```mdx
 <BlogPostImage
@@ -81,37 +82,20 @@ Vary masks across posts the same way you vary patterns - avoid repeating the sam
 
 ## Release and feature post structure
 
-Readers scan a release post for the one change they care about, then read its code. Every release and feature post
-follows this order:
+Readers scan a release post for the one change they care about, then read its code. The `release-posts` skill has the
+full formula, learned from the Docusaurus, Vite, Next.js, Astro, TanStack Query and React release posts. In short:
 
-1. **Intro**, 2-3 sentences before `{/* truncate */}`: what changed and why the reader cares. Name the upgrade cost if
-   there is one ("upgrading needs no code changes").
-2. **Version note**, optional, one line: `:::info Version` with "Written for **HyperFetch X**" and a link to the release
-   overview. Area posts of a release keep it; the overview itself does not need it.
-3. **`<Highlights>`**, never a `:::success What's new` or `:::success Key features` admonition with a numbered list.
+1. **Intro**, 2-5 sentences before `{/* truncate */}`: what changed, one concrete hook, and the upgrade cost
+   ("upgrading needs no code changes").
+2. **Version note**, area posts only, one line: `:::info Version` with "Written for **HyperFetch X**" and a link to the
+   release overview.
+3. **`## Highlights`** as a bullet list, never cards: `- **[Feature name](#section-anchor)**: one line on the gain.`
+   Anchors follow Docusaurus heading ids: lowercase, spaces become dashes, punctuation is dropped
+   (`## Node.js, Bun and Deno` is `#nodejs-bun-and-deno`). In a release overview, a highlight may point at an area post.
 4. **Sections**, one per change, split by `---`.
 5. **Reliability fixes**, grouped by `###` area when there are more than about eight.
-6. **Upgrading**, then **Learn more** with `LinkCard`s.
-
-### Highlights
-
-`<Highlights>` and `<Highlight>` are global MDX components (also exported from `@site/src/components`).
-
-```mdx
-<Highlights>
-  <Highlight title="Optimistic helpers" to="#optimistic-updates">
-    `optimistic(getTodos).patch()` describes the change. Core applies it, rolls it back and refetches.
-  </Highlight>
-</Highlights>
-```
-
-- 4-8 cards. An even number fills the two-column grid.
-- `title`: 1-3 words, the name of the change.
-- Children: one short sentence, at most about 14 words, saying what the reader gains.
-- `to`: the anchor of the section that explains it. Docusaurus heading ids are lowercase, spaces become dashes and
-  punctuation is dropped (`## Node.js, Bun and Deno` is `#nodejs-bun-and-deno`). Check every anchor against a heading
-  that exists. In a release overview, `to` points at the area post, for example
-  `/blog/hyper-fetch-10-core-react#infinite-lists-with-useinfinitefetch`.
+6. **Upgrading**, then **Learn more** as a plain list of links, one line each. No `LinkCard` and no `<Highlights>`
+   card grid in release or feature posts: a link costs one line at most.
 
 ### Sections
 

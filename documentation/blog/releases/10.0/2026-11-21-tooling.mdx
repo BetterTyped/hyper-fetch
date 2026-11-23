@@ -7,7 +7,7 @@ date: 2026-11-21T12:00:00
 description: "HyperFetch 10 tooling: socket traffic in HyperFlow devtools, an Oxlint plugin about 16x faster than the ESLint one, and 88 example apps to start from."
 ---
 
-import { BlogPostImage, LinkCard } from "@site/src/components";
+import { BlogPostImage } from "@site/src/components";
 
 <BlogPostImage
   title="HyperFlow, Linting and Examples"
@@ -41,32 +41,16 @@ Written for **HyperFetch 10**. The [release overview](/blog/hyper-fetch-10-0) li
 
 :::
 
-<Highlights>
-  <Highlight title="Socket Inspector" to="#socket-inspector">
-    HyperFlow shows the connection, messages and errors of every socket.
-  </Highlight>
-  <Highlight title="Server devtools" to="#devtools-on-the-server">
-    The devtools plugin reports from Node.js, Deno and Bun.
-  </Highlight>
-  <Highlight title="Live observers" to="#real-observer-counts">
-    HyperFlow shows how many subscriptions each cache key really has.
-  </Highlight>
-  <Highlight title="Tested compatibility" to="#a-tested-compatibility-table">
-    Every HyperFlow flow runs end to end against each adapter.
-  </Highlight>
-  <Highlight title="Oxlint plugin" to="#oxlint-plugin">
-    The HyperFetch lint rules for Oxlint, with the same rule ids and 16x faster.
-  </Highlight>
-  <Highlight title="ESLint fixes" to="#eslint-plugin-fixes">
-    The rules report again on typescript-eslint 8 and ship a flat config.
-  </Highlight>
-  <Highlight title="88 examples" to="#88-runnable-examples">
-    Runnable apps with StackBlitz and CodeSandbox previews, built in CI.
-  </Highlight>
-  <Highlight title="Agent skills" to="#agent-skills">
-    One skill per package teaches coding agents the current API.
-  </Highlight>
-</Highlights>
+## Highlights
+
+- **[Socket Inspector](#socket-inspector)**: HyperFlow shows the connection, messages and errors of every socket.
+- **[Server devtools](#devtools-on-the-server)**: The devtools plugin reports from Node.js, Deno and Bun.
+- **[Live observers](#real-observer-counts)**: HyperFlow shows how many subscriptions each cache key really has.
+- **[Tested compatibility](#a-tested-compatibility-table)**: Every HyperFlow flow runs end to end against each adapter.
+- **[Oxlint plugin](#oxlint-plugin)**: The HyperFetch lint rules for Oxlint, with the same rule ids and 16x faster.
+- **[ESLint fixes](#eslint-plugin-fixes)**: The rules report again on typescript-eslint 8 and ship a flat config.
+- **[88 examples](#88-runnable-examples)**: Runnable apps with StackBlitz and CodeSandbox previews, built in CI.
+- **[Agent skills](#agent-skills)**: One skill per package teaches coding agents the current API.
 
 ---
 
@@ -265,25 +249,8 @@ CLI, devtools, ESLint and Oxlint.
 
 ## Learn more
 
-<LinkCard
-  type="docs"
-  title="Socket Inspector"
-  description="Inspect connections, messages and errors of your sockets."
-  href="/docs/hyper-flow/features/sockets"
-/>
+- [Socket Inspector](/docs/hyper-flow/features/sockets): Inspect connections, messages and errors of your sockets.
+- [Devtools plugin](/docs/integrations/plugin-devtools): Connect browser apps and Node.js servers to HyperFlow.
 
-<LinkCard
-  type="docs"
-  title="Devtools plugin"
-  description="Connect browser apps and Node.js servers to HyperFlow."
-  href="/docs/integrations/plugin-devtools"
-/>
-
-<LinkCard
-  type="docs"
-  title="Oxlint plugin"
-  description="Install the rules and migrate from ESLint."
-  href="/docs/integrations/plugin-oxlint"
-/>
-
-<LinkCard type="docs" title="Examples" description="88 runnable HyperFetch apps." href="/examples" />
+- [Oxlint plugin](/docs/integrations/plugin-oxlint): Install the rules and migrate from ESLint.
+- [Examples](/examples): 88 runnable HyperFetch apps.
