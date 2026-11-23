@@ -104,11 +104,6 @@ html body .hs-ad.hs-ad:hover .hs-ad-go svg {
   transform: translateX(3px);
 }
 
-/* In the right column of a docs page, above the sponsors. */
-.hs-ad-rail {
-  margin: 18px 4px 20px;
-}
-
 /* The card in the corner of the window, on pages with no sidebar and on screens too narrow to show one. */
 .hs-ad-float {
   position: fixed;
@@ -125,9 +120,9 @@ html body .hs-ad.hs-ad:hover .hs-ad-go svg {
     transform: translateY(24px);
   }
 }
-/* With the right column on screen the card is already in it, so the one in the corner steps aside. */
+/* With the right column on screen its partners are already in view, so the card in the corner steps aside. */
 @media (min-width: 997px) {
-  body:has(.hs-ad-rail) .hs-ad-float {
+  body:has(.bt-sp-rail) .hs-ad-float {
     display: none;
   }
 }

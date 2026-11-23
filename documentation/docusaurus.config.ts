@@ -9,6 +9,7 @@ import path from "path";
 
 import examplesPlugin from "./plugins/examples";
 import hyperFlowReleasesPlugin from "./src/plugins/hyperflow-releases";
+import sponsorsPlugin from "./src/plugins/sponsors";
 import llmsTxtPlugin from "./src/plugins/llms-txt";
 import docsVersions from "./versions.json";
 
@@ -20,7 +21,10 @@ import docsVersions from "./versions.json";
 const getVersions = () => {
   const [newestFrozen = "v0.0.0"] = docsVersions;
   const currentMajor = Number(/^v(\d+)\./.exec(newestFrozen)?.[1] ?? 0) + 1;
-  const versions: Record<string, { label?: string; path?: string; noIndex?: boolean }> = {
+  const versions: Record<
+    string,
+    { label?: string; path?: string; noIndex?: boolean }
+  > = {
     current: { label: `v${currentMajor}.0.0`, path: "" },
   };
 
@@ -43,20 +47,22 @@ const getPackagesList = () => {
       return path.join(dirPath, filePath);
     });
 
-  return result
-    .filter((item) => !item.includes("tokens"))
-    // A folder left behind by another branch (only dist or node_modules) has no sources to document
-    .filter((item) => fs.existsSync(path.join(item, "src/index.ts")))
-    .map((dir) => {
-      const title = path.basename(dir);
+  return (
+    result
+      .filter((item) => !item.includes("tokens"))
+      // A folder left behind by another branch (only dist or node_modules) has no sources to document
+      .filter((item) => fs.existsSync(path.join(item, "src/index.ts")))
+      .map((dir) => {
+        const title = path.basename(dir);
 
-      return {
-        title,
-        dir,
-        entryPath: "src/index.ts",
-        tsconfigDir: dir,
-      };
-    });
+        return {
+          title,
+          dir,
+          entryPath: "src/index.ts",
+          tsconfigDir: dir,
+        };
+      })
+  );
 };
 
 /**
@@ -155,7 +161,8 @@ const config: Config = {
           sidebarCollapsible: false,
           sidebarCollapsed: false,
           sidebarPath: "./sidebars.ts",
-          editUrl: "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",
+          editUrl:
+            "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",
           remarkPlugins: [
             convertNpmToPackageManagers,
             importer({
@@ -166,7 +173,8 @@ const config: Config = {
         },
         blog: {
           showReadingTime: true,
-          editUrl: "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",
+          editUrl:
+            "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",
         },
         theme: {
           customCss: "./src/css/custom.css",
@@ -178,6 +186,7 @@ const config: Config = {
   plugins: [
     "@docsearch/docusaurus-adapter",
     hyperFlowReleasesPlugin,
+    sponsorsPlugin,
     llmsTxtPlugin,
     "docusaurus-plugin-sass",
     async function tailwindPlugin() {
@@ -330,28 +339,61 @@ const config: Config = {
             { label: "Getting started", to: "/docs/getting-started/" },
             { label: "React", to: "/docs/react/overview/" },
             { label: "WebSockets and SSE", to: "/docs/sockets/overview/" },
-            { label: "OpenAPI client", to: "/docs/cli/openapi-typescript-client/" },
-            { label: "Migrating from React Query", to: "/docs/guides/react/basics/migrating-from-react-query/" },
+            {
+              label: "OpenAPI client",
+              to: "/docs/cli/openapi-typescript-client/",
+            },
+            {
+              label: "Migrating from React Query",
+              to: "/docs/guides/react/basics/migrating-from-react-query/",
+            },
           ],
         },
         {
           title: "Compare",
           items: [
-            { label: "Data fetching libraries", to: "/docs/guides/comparisons/" },
-            { label: "vs TanStack Query", to: "/docs/guides/comparisons/tanstack-query/" },
+            {
+              label: "Data fetching libraries",
+              to: "/docs/guides/comparisons/",
+            },
+            {
+              label: "vs TanStack Query",
+              to: "/docs/guides/comparisons/tanstack-query/",
+            },
             { label: "vs SWR", to: "/docs/guides/comparisons/swr/" },
-            { label: "vs RTK Query", to: "/docs/guides/comparisons/rtk-query/" },
-            { label: "Axios vs fetch", to: "/docs/guides/comparisons/axios-vs-fetch/" },
+            {
+              label: "vs RTK Query",
+              to: "/docs/guides/comparisons/rtk-query/",
+            },
+            {
+              label: "Axios vs fetch",
+              to: "/docs/guides/comparisons/axios-vs-fetch/",
+            },
           ],
         },
         {
           title: "Guides",
           items: [
-            { label: "SSE vs WebSocket", to: "/docs/guides/sockets/sse-vs-websocket/" },
-            { label: "WebSockets in React", to: "/docs/guides/sockets/websockets-in-react/" },
-            { label: "File upload progress", to: "/docs/guides/react/basics/progress/" },
-            { label: "Next.js data fetching", to: "/docs/guides/react/basics/nextjs-data-fetching/" },
-            { label: "Optimistic updates", to: "/docs/guides/react/basics/optimistic-approach/" },
+            {
+              label: "SSE vs WebSocket",
+              to: "/docs/guides/sockets/sse-vs-websocket/",
+            },
+            {
+              label: "WebSockets in React",
+              to: "/docs/guides/sockets/websockets-in-react/",
+            },
+            {
+              label: "File upload progress",
+              to: "/docs/guides/react/basics/progress/",
+            },
+            {
+              label: "Next.js data fetching",
+              to: "/docs/guides/react/basics/nextjs-data-fetching/",
+            },
+            {
+              label: "Optimistic updates",
+              to: "/docs/guides/react/basics/optimistic-approach/",
+            },
           ],
         },
         {
