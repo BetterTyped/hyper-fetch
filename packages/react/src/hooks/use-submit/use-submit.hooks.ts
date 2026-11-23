@@ -310,6 +310,7 @@ export const useSubmit = <RequestType extends RequestInstance, TSelected = Extra
       onSubmitOfflineError: (callback: Parameters<typeof callbacks.onOfflineError>[0]) =>
         callbacks.onOfflineError(protect(callback)),
       onSubmitAbort: (callback: Parameters<typeof callbacks.onAbort>[0]) => callbacks.onAbort(protect(callback)),
+      onSubmitRetry: (callback: Parameters<typeof callbacks.onRetry>[0]) => callbacks.onRetry(protect(callback)),
     };
   }, [callbacks]);
 

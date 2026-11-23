@@ -158,6 +158,7 @@ const response = await updateUser.send({
   onRequestStart: () => setSaving(true),
   onUploadProgress: ({ progress, timeLeft }) => setProgress(progress),
   onDownloadProgress: ({ progress }) => setDownload(progress),
+  onRetry: ({ retry, delay }) => console.log(`retry ${retry} in ${delay} ms`), // failed attempts that will be retried
   onResponse: ({ response, details }) => console.log(response.success, details.retries, details.isCanceled),
   onRemove: () => console.log("removed from the queue before it finished"),
 });

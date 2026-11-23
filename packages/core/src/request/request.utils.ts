@@ -335,6 +335,13 @@ export const sendRequest = async <Request extends RequestInstance>(
       runUserCode(() => $hooks.__emit("onDownloadProgress", enriched));
     });
 
+    // Failed attempts which are retried do not reach `onResponse` - this is how they are announced
+    const unmountRetry = requestManager.events.onRetryById<Request>(requestId, (data) => {
+      const enriched = { ...data, mutationContext };
+      runUserCode(() => options?.onRetry?.(enriched));
+      runUserCode(() => $hooks.__emit("onRetry", enriched));
+    });
+
     // When resolved
     const unmountResponse = requestManager.events.onResponseById<Request>(requestId, (values) => {
       const { response } = values;
@@ -413,6 +420,7 @@ export const sendRequest = async <Request extends RequestInstance>(
       unmountResponseStart();
       unmountUpload();
       unmountDownload();
+      unmountRetry();
       unmountResponse();
       unmountRemoveQueueElement();
     }

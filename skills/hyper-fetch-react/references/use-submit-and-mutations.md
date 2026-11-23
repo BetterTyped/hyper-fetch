@@ -28,7 +28,8 @@ Actions (stable identity): `submit`, `abort`, `refetch`, `setData` and the other
 `bounce: { active, reset }`.
 
 Callback registrars: `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`, `onSubmitAbort`, `onSubmitOfflineError`,
-`onSubmitRequestStart`, `onSubmitResponseStart`, `onSubmitUploadProgress`, `onSubmitDownloadProgress`.
+`onSubmitRequestStart`, `onSubmitResponseStart`, `onSubmitUploadProgress`, `onSubmitDownloadProgress`,
+`onSubmitRetry` (`{ retry, delay, response }` when a failed attempt schedules a retry).
 
 ## submit()
 
@@ -50,7 +51,7 @@ if (response.success) {
 ```
 
 - Accepts `payload`, `params`, `queryParams` plus send options: `onBeforeSent`, `onRequestStart`, `onResponseStart`,
-  `onUploadProgress`, `onDownloadProgress`, `onResponse`, `onRemove`, `optimistic`, and request option overrides
+  `onUploadProgress`, `onDownloadProgress`, `onRetry`, `onResponse`, `onRemove`, `optimistic`, and request option overrides
   (`retry`, `headers`, ...). Required fields are enforced by the types when the request has no value set.
 - Values already set on the request (`updateUser.setParams({ userId })`) are used when `submit()` omits them and merged
   with the ones it passes. `submit({ payload: null })` sends no payload.

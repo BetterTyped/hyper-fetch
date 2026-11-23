@@ -44,7 +44,8 @@ Actions (stable identity): `refetch()`, `abort()`, `setData`, `setError`, `setLo
 `setExtra`, `setRetries`, `setResponseTimestamp`, `setRequestTimestamp`, `clearState()`, `bounce: { active, reset }`.
 
 Callback registrars: `onSuccess`, `onError`, `onAbort`, `onOfflineError`, `onFinished`, `onRequestStart`,
-`onResponseStart`, `onUploadProgress`, `onDownloadProgress`.
+`onResponseStart`, `onUploadProgress`, `onDownloadProgress`, `onRetry` (`{ retry, delay, response }` when a failed
+attempt schedules a retry).
 
 - `setX` setters change only this hook's local state (function updaters supported). Other components and the cache are
   untouched. Shared changes go through `client.cache.set(request, response)` / `client.cache.update(request, updater)`.

@@ -141,8 +141,10 @@ onError(({ response, details }) => {
 ```
 
 `useFetch` callbacks: `onSuccess`, `onError`, `onAbort`, `onOfflineError`, `onFinished`, `onRequestStart`,
-`onResponseStart`, `onUploadProgress`, `onDownloadProgress`. They fire for any request on that cache key, including one
-sent by another component, and fire for every failed attempt of a retried request (`details.willRetry`).
+`onResponseStart`, `onUploadProgress`, `onDownloadProgress`, `onRetry`. They fire for any request on that cache key,
+including one sent by another component, and fire for every failed attempt of a retried request (`details.willRetry`).
+`onRetry({ retry, delay, response })` fires when a failed attempt schedules the next one: `retry` counts from 1, `delay`
+is in milliseconds.
 
 ### Submit a form and refresh the list
 
@@ -168,7 +170,7 @@ function AddUser() {
 `submit({ payload, params, queryParams, ...sendOptions })` clones the request for that call only. `useSubmit` returns
 `submitting` (not `loading`) and `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`, `onSubmitAbort`,
 `onSubmitOfflineError`, `onSubmitRequestStart`, `onSubmitResponseStart`, `onSubmitUploadProgress`,
-`onSubmitDownloadProgress`. They fire only for submits of that hook instance.
+`onSubmitDownloadProgress`, `onSubmitRetry`. They fire only for submits of that hook instance.
 
 ### Optimistic update
 

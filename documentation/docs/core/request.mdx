@@ -1037,6 +1037,10 @@ const unsubscribe = getUser.$hooks.onResponse(({ response }) => {
   analytics.track("api_call", { endpoint: "/users/:userId", status: response.status });
 });
 
+getUser.$hooks.onRetry(({ retry, response }) => {
+  analytics.track("api_retry", { endpoint: "/users/:userId", status: response.status, retry });
+});
+
 // Hooks fire on every send
 await getUser.setParams({ userId: 1 }).send();
 await getUser.setParams({ userId: 2 }).send();
@@ -1060,8 +1064,9 @@ The `$` prefix convention indicates runtime-only properties throughout HyperFetc
 
 The `send()` method accepts an options object where you can define lifecycle callback functions. These callbacks allow
 you to hook into various stages of the request's lifecycle—`onBeforeSent` (right before the request is sent),
-`onRequestStart`, `onResponseStart`, `onUploadProgress`, `onDownloadProgress`, `onResponse` (the final response,
-successful or not) and `onRemove`—to perform actions based on the request's progress and outcome.
+`onRequestStart`, `onResponseStart`, `onUploadProgress`, `onDownloadProgress`, `onRetry` (a failed attempt scheduled
+a retry), `onResponse` (the final response, successful or not) and `onRemove`—to perform actions based on the
+request's progress and outcome.
 
 ```tsx
 await someRequest.send({
@@ -1080,6 +1085,10 @@ await someRequest.send({
   onDownloadProgress: ({ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, request, requestId }) => {
     console.log(`Request ${requestId} download progress:`, progress);
     // Called when the download progress is updated—useful for showing a progress bar
+  },
+  onRetry: ({ retry, delay, response, requestId }) => {
+    console.log(`Request ${requestId} failed with ${response.status}, retry ${retry} in ${delay} ms`);
+    // Called for every failed attempt which schedules a retry—these attempts don't reach onResponse
   },
   onResponse: ({ response, requestId }) => {
     console.log(`Request ${requestId} finished:`, response.success ? response.data : response.error);

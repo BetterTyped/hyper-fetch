@@ -9,6 +9,7 @@ import type {
   ExtractAdapterType,
   RequestProgressEventType,
   RequestResponseEventType,
+  RequestRetryEventType,
   ResponseType,
   OptimisticCallbackResult,
 } from "@hyper-fetch/core";
@@ -19,6 +20,7 @@ import type {
   OnSuccessCallbackType,
   OnProgressCallbackType,
   OnFinishedCallbackType,
+  OnRetryCallbackType,
   UseRequestEventsDataMap,
   UseRequestEventsReturnType,
   UseRequestEventsPropsType,
@@ -63,6 +65,7 @@ export const useRequestEvents = <R extends RequestInstance>({
   const onResponseStartCallback = useRef<null | OnStartCallbackType<R>>(null);
   const onDownloadProgressCallback = useRef<null | OnProgressCallbackType>(null);
   const onUploadProgressCallback = useRef<null | OnProgressCallbackType>(null);
+  const onRetryCallback = useRef<null | OnRetryCallbackType<R>>(null);
 
   // ******************
   // Listeners unmounting
@@ -197,6 +200,15 @@ export const useRequestEvents = <R extends RequestInstance>({
         return;
       }
       onResponseStartCallback.current?.(details);
+    };
+  };
+
+  const handleRetry = (req: R) => {
+    return (data: RequestRetryEventType<R>) => {
+      if (!isSameScope(data.request?.scope, req.scope)) {
+        return;
+      }
+      onRetryCallback.current?.(data);
     };
   };
 
@@ -350,8 +362,10 @@ export const useRequestEvents = <R extends RequestInstance>({
       const uploadUnmount = requestManager.events.onUploadProgressByQueue(queryKey, handleUploadProgress(req));
       const downloadUnmount = requestManager.events.onDownloadProgressByQueue(queryKey, handleDownloadProgress(req));
       const responseUnmount = requestManager.events.onResponseByCache(cacheKey, handleResponse(req));
+      const retryUnmount = requestManager.events.onRetryByQueue(queryKey, handleRetry(req));
 
       const unmount = () => {
+        retryUnmount();
         downloadUnmount();
         uploadUnmount();
         requestStartUnmount();
@@ -381,9 +395,11 @@ export const useRequestEvents = <R extends RequestInstance>({
     const responseUnmount = requestManager.events.onResponseById(requestId, handleResponse(req));
     const uploadUnmount = requestManager.events.onUploadProgressById(requestId, handleUploadProgress(req));
     const downloadUnmount = requestManager.events.onDownloadProgressById(requestId, handleDownloadProgress(req));
+    const retryUnmount = requestManager.events.onRetryById(requestId, handleRetry(req));
 
     const unmount = () => {
       requestRemove();
+      retryUnmount();
       downloadUnmount();
       uploadUnmount();
       requestStartUnmount();
@@ -473,6 +489,9 @@ export const useRequestEvents = <R extends RequestInstance>({
       },
       onUploadProgress: (callback: OnProgressCallbackType) => {
         onUploadProgressCallback.current = callback;
+      },
+      onRetry: (callback: OnRetryCallbackType<R>) => {
+        onRetryCallback.current = callback;
       },
     };
   }

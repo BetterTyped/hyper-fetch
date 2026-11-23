@@ -21,6 +21,7 @@ what a good retry policy looks like, how people do it with `fetch` and Axios, an
 3.  How to **enable and configure retries** for a request in HyperFetch.
 4.  How to set a **custom delay** and a **retry condition**.
 5.  How to add **exponential backoff** with `exponentialBackoff` or your own delay function.
+6.  How to **watch retry attempts** with `onRetry`.
 
 :::
 
@@ -185,18 +186,34 @@ how you avoid retrying a `400 Bad Request` or `404 Not Found`, and it's the Hype
 
 ## Watching retry attempts
 
-Each response carries `details`, which tells you which attempt it was and whether another one is coming:
+`send()` resolves once, with the last response, and `onResponse` fires only for that one. The failed attempts in
+between are announced by `onRetry`. It fires when a failed attempt schedules a retry, right before the request starts
+waiting, so you can tell the user what is going on:
 
 ```ts
 await getUsers.send({
+  onRetry: ({ retry, delay, response }) => {
+    console.log(`Attempt failed with ${response.status}, retry ${retry} of ${getUsers.retry} in ${delay} ms`);
+  },
   onResponse: ({ response, details }) => {
-    console.log(response.status, `attempts: ${details.retries}`);
+    console.log(response.status, `retries used: ${details.retries}`);
   },
 });
 ```
 
-In React, `useFetch` returns a `retries` counter next to `data` and `error`, so you can show "Retrying (2 of 3)..."
-while the request is still going. See [useFetch](../../../react/04-hooks/use-fetch.mdx).
+| Field      | Description                                                                         |
+| ---------- | ----------------------------------------------------------------------------------- |
+| `retry`    | Number of the scheduled retry, counted from `1`, up to the `retry` option            |
+| `delay`    | Milliseconds before the next attempt, as returned by `retryTime`                    |
+| `response` | The failed response of the attempt, after `retryOnError` allowed the retry          |
+| `details`  | The same details as in `onResponse`, with `willRetry: true`                         |
+
+`onRetry` does not fire when the request succeeds, runs out of retries, is aborted or fails offline. It is also
+available on the request with `request.$hooks.onRetry()`, and on the client for every request with
+`client.requestManager.events.onRetry()` (or `onRetryById` and `onRetryByQueue`).
+
+In React, `useFetch` returns an `onRetry` callback and a `retries` counter, and `useSubmit` returns `onSubmitRetry`, so
+you can show "Retrying (2 of 3)..." while the request waits. See [useFetch](../../../react/04-hooks/use-fetch.mdx).
 
 ---
 
@@ -219,6 +236,7 @@ You've learned how to retry failed requests with HyperFetch.
 - You know which failures are **worth retrying** and which are not.
 - You can set **retry attempts** and **delay** with `retry` and `retryTime`, or `.setRetry()` and `.setRetryTime()`.
 - You can limit retries to specific errors with **`setRetryOnError`**.
+- You can show each scheduled retry with **`onRetry`**.
 - You can add **exponential backoff** with `exponentialBackoff`, or honor `Retry-After` with your own delay function.
 
 :::

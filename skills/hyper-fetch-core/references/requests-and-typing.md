@@ -133,8 +133,10 @@ Generated keys are recomputed on every clone (so `setParams` gives a new `cacheK
 - Callbacks: `onBeforeSent({ request, requestId })` (synchronously, after the request is queued), `onRequestStart`,
   `onResponseStart`, `onUploadProgress` / `onDownloadProgress`
   (`{ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, request, requestId }`),
-  `onResponse({ response, details, request, requestId })` once with the final response, `onRemove` when the request is
-  removed from the queue before finishing. Every callback also receives `mutationContext` from `setOptimistic`.
+  `onRetry({ retry, delay, response, details, request, requestId })` for every failed attempt that schedules a retry
+  (`retry` from 1, `delay` in ms; these attempts never reach `onResponse`), `onResponse({ response, details, request,
+requestId })` once with the final response, `onRemove` when the request is removed from the queue before finishing.
+  Every callback also receives `mutationContext` from `setOptimistic`.
 
 `details` (`ResponseDetailsType`): `retries`, `isCanceled`, `isOffline`, `willRetry`, `addedTimestamp`,
 `triggerTimestamp`, `requestTimestamp`, `responseTimestamp`.
@@ -178,8 +180,8 @@ or `"arrayBuffer"` for files, the default text decoding corrupts binary data. Er
 const unsubscribe = getUser.$hooks.onResponse(({ response }) => analytics.track("user", response.status));
 ```
 
-Available: `onBeforeSent`, `onRequestStart`, `onResponseStart`, `onUploadProgress`, `onDownloadProgress`, `onResponse`,
-`onRemove`. They fire for every `send()` of the instance and of clones created **after** registration (clones take a
+Available: `onBeforeSent`, `onRequestStart`, `onResponseStart`, `onUploadProgress`, `onDownloadProgress`, `onRetry`,
+`onResponse`, `onRemove`. They fire for every `send()` of the instance and of clones created **after** registration (clones take a
 copy). Register once on the module-level request, never inside a render or a loop, and keep the unsubscribe function.
 Not serialized by `toJSON`.
 

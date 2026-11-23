@@ -25,6 +25,9 @@ export const getUploadProgressByIdKey = (id: string) => `${id}-request-progress-
 export const getDownloadProgressKey = () => `response-progress-any`;
 export const getDownloadProgressByQueryKey = (queryKey: string) => `${queryKey}-response-progress`;
 export const getDownloadProgressByIdKey = (id: string) => `${id}-response-progress-by-id`;
+export const getRetryKey = () => `request-retry-any`;
+export const getRetryByQueryKey = (queryKey: string) => `${queryKey}-request-retry`;
+export const getRetryByIdKey = (id: string) => `${id}-request-retry-by-id`;
 export const getRequestDeduplicatedKey = () => `request-deduplicated-any`;
 export const getRequestDeduplicatedByQueryKey = (queryKey: string) => `${queryKey}-query-request-deduplicated`;
 export const getRequestDeduplicatedByCacheKey = (cacheKey: string) => `${cacheKey}-cache-request-deduplicated`;

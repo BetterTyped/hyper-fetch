@@ -10,6 +10,7 @@ import type {
   RequestInstance,
   RequestProgressEventType,
   RequestResponseEventType,
+  RequestRetryEventType,
   ResponseErrorType,
   ExtractAdapterType,
   ResponseType,
@@ -67,6 +68,11 @@ export type UseRequestEventsActionsType<T extends RequestInstance> = {
    */
   onResponseStart: (callback: OnStartCallbackType<T>) => void;
   /**
+   * Helper hook listening on a failed attempt scheduling a retry. Receives the failed `response`, the `retry` number
+   * (from 1) and the `delay` in milliseconds before the next attempt.
+   */
+  onRetry: (callback: OnRetryCallbackType<T>) => void;
+  /**
    * Helper hook listening on download progress ETA.
    */
   onDownloadProgress: (callback: OnProgressCallbackType) => void;
@@ -116,4 +122,7 @@ export type OnStartCallbackType<Request extends RequestInstance> = (
 ) => void | Promise<void>;
 export type OnProgressCallbackType = <Request extends RequestInstance>(
   data: RequestProgressEventType<Request>,
+) => void | Promise<void>;
+export type OnRetryCallbackType<Request extends RequestInstance> = (
+  data: RequestRetryEventType<Request>,
 ) => void | Promise<void>;

@@ -140,6 +140,21 @@ const config: Config = {
     [
       "classic",
       {
+        // SVGO shortens every id to a, b, c, so two inline SVGs on one page point at each other's gradients and masks.
+        // Prefixing the ids with the file name keeps them unique (facebook/docusaurus#8297).
+        svgr: {
+          svgrConfig: {
+            svgoConfig: {
+              plugins: [
+                {
+                  name: "preset-default",
+                  params: { overrides: { removeTitle: false, removeViewBox: false } },
+                },
+                "prefixIds",
+              ],
+            },
+          },
+        },
         docs: {
           lastVersion: "current",
           versions: getVersions(),
