@@ -5,6 +5,7 @@ authors: [maciej]
 tags: [Migration]
 image: ./img/migrate.png
 date: 2025-06-28
+description: "Upgrade to HyperFetch 7: the move to ESM only and the changes in the core, React and sockets packages, step by step."
 ---
 
 # Migration Guide: HyperFetch v7

@@ -1074,6 +1074,20 @@ body .theme-code-block pre *,
   background: linear-gradient(90deg, rgba(251, 198, 70, 0.13), rgba(251, 198, 70, 0.04)) !important;
 }
 
+/* Blog lists keep their markers: the list rules above only reach the docs layout, so posts showed bare lines */
+.blog-layout__main .markdown ul > li {
+  list-style: disc;
+}
+.blog-layout__main .markdown ol > li {
+  list-style: decimal;
+}
+.blog-layout__main .markdown :is(ul, ol) {
+  padding-left: 1.4rem;
+}
+.blog-layout__main .markdown li::marker {
+  color: rgb(113 113 122);
+}
+
 /*
  * In blog posts a block that marks lines dims the rest, so the change stands out from the setup around it.
  * Hovering the block brings every line back for the reader who wants the whole snippet.
@@ -1818,6 +1832,11 @@ html[data-theme="dark"] .navbar-sidebar .github {
 .pagination-nav__link {
   color: inherit !important;
   @apply shiny-btn;
+}
+
+/* The blog list pager sits right under the cards: give it room so it does not touch them */
+.blog-layout__main .pagination-nav {
+  margin-top: 2rem;
 }
 
 .pagination-nav__sublabel {

@@ -7,7 +7,7 @@ date: 2026-11-21T13:00:00
 description: "HyperFetch 10 checks Firebase query constraints against your document types, so a typo in a where clause fails to compile instead of matching nothing."
 ---
 
-import { BlogPostImage, LinkCard } from "@site/src/components";
+import { BlogPostImage } from "@site/src/components";
 
 <BlogPostImage
   title="Typed Firebase Queries"
@@ -40,26 +40,14 @@ Written for **HyperFetch 10**. The [release overview](/blog/hyper-fetch-10-0) li
 
 :::
 
-<Highlights>
-  <Highlight title="Typed constraints" to="#typed-constraints">
-    A `queryParams` callback checks fields, values and cursors against the document type.
-  </Highlight>
-  <Highlight title="Constraints array" to="#constraints-as-an-array">
-    `queryParams` takes the constraints directly, without the `{ constraints }` wrapper.
-  </Highlight>
-  <Highlight title="Listener query params" to="#listeners-use-the-same-query-params">
-    Listeners filter with the same callback as requests.
-  </Highlight>
-  <Highlight title="Reliable writes" to="#writes">
-    Every write method sends its payload again, in both packages.
-  </Highlight>
-  <Highlight title="Reliable listeners" to="#listeners">
-    Each snapshot arrives once, and stopping one listener leaves the others running.
-  </Highlight>
-  <Highlight title="Tested in CI" to="#reliability-fixes">
-    The emulator suites of both packages run on every change.
-  </Highlight>
-</Highlights>
+## Highlights
+
+- **[Typed constraints](#typed-constraints)**: A `queryParams` callback checks fields, values and cursors against the document type.
+- **[Constraints array](#constraints-as-an-array)**: `queryParams` takes the constraints directly, without the `{ constraints }` wrapper.
+- **[Listener query params](#listeners-use-the-same-query-params)**: Listeners filter with the same callback as requests.
+- **[Reliable writes](#writes)**: Every write method sends its payload again, in both packages.
+- **[Reliable listeners](#listeners)**: Each snapshot arrives once, and stopping one listener leaves the others running.
+- **[Tested in CI](#reliability-fixes)**: The emulator suites of both packages run on every change.
 
 ---
 
@@ -249,29 +237,9 @@ The docs were rewritten alongside the fixes, with every example checked against 
 
 ## Learn more
 
-<LinkCard
-  type="integrations"
-  title="Firebase"
-  description="Setup, paths, responses and typed queries for the web SDK."
-  href="/docs/integrations/adapter-firebase/overview"
-/>
-<LinkCard
-  type="docs"
-  title="Firestore"
-  description="Every Firestore method, typed constraints and cursor pagination."
-  href="/docs/integrations/adapter-firebase/firestore"
-/>
-<LinkCard
-  type="docs"
-  title="Realtime listening"
-  description="Listeners with query params, grouped changes and React."
-  href="/docs/integrations/adapter-firebase/realtime-queries"
-/>
-<LinkCard
-  type="integrations"
-  title="Firebase Admin"
-  description="The same requests and listeners on the server, with the Admin SDK."
-  href="/docs/integrations/adapter-firebase-admin/overview"
-/>
+- [Firebase](/docs/integrations/adapter-firebase/overview): Setup, paths, responses and typed queries for the web SDK.
+- [Firestore](/docs/integrations/adapter-firebase/firestore): Every Firestore method, typed constraints and cursor pagination.
+- [Realtime listening](/docs/integrations/adapter-firebase/realtime-queries): Listeners with query params, grouped changes and React.
+- [Firebase Admin](/docs/integrations/adapter-firebase-admin/overview): The same requests and listeners on the server, with the Admin SDK.
 
 Try it in the [Firebase example](/examples/integrations/firebase).

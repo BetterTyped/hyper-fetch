@@ -7,7 +7,7 @@ date: 2026-11-21T16:00:00
 description: "HyperFetch 10 core and React: optimistic update helpers, infinite lists and server rendering with hydration, plus a hardened request core."
 ---
 
-import { BlogPostImage, LinkCard } from "@site/src/components";
+import { BlogPostImage } from "@site/src/components";
 
 <BlogPostImage
   title="Core and React in v10"
@@ -40,32 +40,16 @@ Written for **HyperFetch 10**. The [release overview](/blog/hyper-fetch-10-0) li
 
 :::
 
-<Highlights>
-  <Highlight title="Optimistic helpers" to="#optimistic-updates">
-    `optimistic(getTodos).patch()` describes the change. Core applies it, rolls it back and refetches.
-  </Highlight>
-  <Highlight title="Infinite lists" to="#infinite-lists-with-useinfinitefetch">
-    `useInfiniteFetch` pages by page number, offset or cursor, typed against the request.
-  </Highlight>
-  <Highlight title="Hydrate" to="#server-rendering-with-hydrate">
-    Server data renders on the first paint and is not fetched again in the browser.
-  </Highlight>
-  <Highlight title="Retry backoff" to="#retry-backoff">
-    `retryTime` takes a function, and `exponentialBackoff()` builds one with jitter.
-  </Highlight>
-  <Highlight title="Persistent queues" to="#offline-queues-that-survive-a-reload">
-    Mutations queued offline are kept in IndexedDB or AsyncStorage and sent after a reload.
-  </Highlight>
-  <Highlight title="Binary downloads" to="#binary-downloads">
-    `responseType` returns a `Blob` or an `ArrayBuffer` instead of corrupted text.
-  </Highlight>
-  <Highlight title="Failures resolve" to="#failures-in-the-response">
-    Throwing mappers and callbacks can no longer leave `send()` pending.
-  </Highlight>
-  <Highlight title="Sharper types" to="#sharper-types">
-    Typed endpoints, `pathSegments` and compile errors for reserved SDK keys.
-  </Highlight>
-</Highlights>
+## Highlights
+
+- **[Optimistic helpers](#optimistic-updates)**: `optimistic(getTodos).patch()` describes the change. Core applies it, rolls it back and refetches.
+- **[Infinite lists](#infinite-lists-with-useinfinitefetch)**: `useInfiniteFetch` pages by page number, offset or cursor, typed against the request.
+- **[Hydrate](#server-rendering-with-hydrate)**: Server data renders on the first paint and is not fetched again in the browser.
+- **[Retry backoff](#retry-backoff)**: `retryTime` takes a function, and `exponentialBackoff()` builds one with jitter.
+- **[Persistent queues](#offline-queues-that-survive-a-reload)**: Mutations queued offline are kept in IndexedDB or AsyncStorage and sent after a reload.
+- **[Binary downloads](#binary-downloads)**: `responseType` returns a `Blob` or an `ArrayBuffer` instead of corrupted text.
+- **[Failures resolve](#failures-in-the-response)**: Throwing mappers and callbacks can no longer leave `send()` pending.
+- **[Sharper types](#sharper-types)**: Typed endpoints, `pathSegments` and compile errors for reserved SDK keys.
 
 ---
 
@@ -453,33 +437,11 @@ The breaking changes of v10 are in `@hyper-fetch/sockets`, covered in the
 
 ## Learn more
 
-<LinkCard
-  type="docs"
-  title="Optimistic Updates"
-  description="Helpers, rollback, commit and what happens when a mutation settles."
-  href="/docs/guides/react/basics/optimistic-approach"
-/>
+- [Optimistic Updates](/docs/guides/react/basics/optimistic-approach): Helpers, rollback, commit and what happens when a mutation settles.
+- [useInfiniteFetch](/docs/react/hooks/use-infinite-fetch): Page numbers, offsets and cursors, typed against your requests.
 
-<LinkCard
-  type="docs"
-  title="useInfiniteFetch"
-  description="Page numbers, offsets and cursors, typed against your requests."
-  href="/docs/react/hooks/use-infinite-fetch"
-/>
-
-<LinkCard
-  type="docs"
-  title="Hydrate"
-  description="Pass server data to the hooks without a second fetch."
-  href="/docs/react/hydrate"
-/>
-
-<LinkCard
-  type="docs"
-  title="Persistence"
-  description="Persist the cache and the dispatcher queues in an async storage."
-  href="/docs/guides/core/advanced/persistence"
-/>
+- [Hydrate](/docs/react/hydrate): Pass server data to the hooks without a second fetch.
+- [Persistence](/docs/guides/core/advanced/persistence): Persist the cache and the dispatcher queues in an async storage.
 
 - [Retries and backoff](/docs/guides/core/basics/retries)
 - [Adapter options and `responseType`](/docs/core/adapter)

@@ -116,6 +116,8 @@ Workflows in `.claude/skills/`:
 
 - `fix-bug`: reproduce a bug with a failing test, fix it, keep the test.
 - `fix-flaky-tests`: root-cause intermittent failures and prove the fix by repeated runs.
+- `release-posts`: write major, area and minor release blog posts to the formula of the best release posts, and
+  check them rendered.
 - `docs-quality`: write, review or redesign docs pages, then prove them with the audit, a production build, render
   checks at desktop and phone width and a look at every page.
 - `ship-change`: verify, pick the commit type by release impact, open the PR and merge it.

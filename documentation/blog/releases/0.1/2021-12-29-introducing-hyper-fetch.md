@@ -4,6 +4,7 @@ title: Introducing HyperFetch
 authors: [maciej]
 tags: [Release]
 date: 2021-12-29
+description: "The first alpha of HyperFetch: one tool for fetching, request queues, persistence, offline support and caching on the frontend."
 ---
 
 ## Welcome! 👋

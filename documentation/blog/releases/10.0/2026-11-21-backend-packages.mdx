@@ -7,7 +7,7 @@ date: 2026-11-21T17:00:00
 description: "HyperFetch 10 reads route types straight from tRPC, oRPC, Hono and Elysia into createSdk, so the client never restates the shape of your backend."
 ---
 
-import { BlogPostImage, LinkCard } from "@site/src/components";
+import { BlogPostImage } from "@site/src/components";
 
 <BlogPostImage
   title="Typed Clients From Your Backend"
@@ -44,32 +44,16 @@ Written for **HyperFetch 10**. The [release overview](/blog/hyper-fetch-10-0) li
 
 :::
 
-<Highlights>
-  <Highlight title="tRPC" to="#trpc">
-    `@hyper-fetch/trpc` calls queries and mutations through the HyperFetch cache and queue.
-  </Highlight>
-  <Highlight title="tRPC subscriptions" to="#subscriptions">
-    Subscriptions over WebSocket or SSE become typed listeners that resume after a reconnect.
-  </Highlight>
-  <Highlight title="oRPC" to="#orpc">
-    `@hyper-fetch/orpc` keeps `Date`, `BigInt`, `Map` and files intact, with typed errors.
-  </Highlight>
-  <Highlight title="Event iterators" to="#event-iterators">
-    oRPC event iterators become typed listeners over HTTP or WebSocket.
-  </Highlight>
-  <Highlight title="Hono" to="#hono">
-    `@hyper-fetch/hono` types an SDK from a Hono app and adds no runtime code.
-  </Highlight>
-  <Highlight title="Elysia" to="#elysia">
-    `@hyper-fetch/elysia` types an SDK from an Elysia app, with errors typed per status.
-  </Highlight>
-  <Highlight title="Shared reconnection" to="#reconnects-you-do-not-have-to-write">
-    The new socket adapters reconnect on the engine every socket adapter shares.
-  </Highlight>
-  <Highlight title="One request type" to="#the-same-request-whichever-backend">
-    Every route is a regular `Request`, so hooks, caching and devtools work unchanged.
-  </Highlight>
-</Highlights>
+## Highlights
+
+- **[tRPC](#trpc)**: `@hyper-fetch/trpc` calls queries and mutations through the HyperFetch cache and queue.
+- **[tRPC subscriptions](#subscriptions)**: Subscriptions over WebSocket or SSE become typed listeners that resume after a reconnect.
+- **[oRPC](#orpc)**: `@hyper-fetch/orpc` keeps `Date`, `BigInt`, `Map` and files intact, with typed errors.
+- **[Event iterators](#event-iterators)**: oRPC event iterators become typed listeners over HTTP or WebSocket.
+- **[Hono](#hono)**: `@hyper-fetch/hono` types an SDK from a Hono app and adds no runtime code.
+- **[Elysia](#elysia)**: `@hyper-fetch/elysia` types an SDK from an Elysia app, with errors typed per status.
+- **[Shared reconnection](#reconnects-you-do-not-have-to-write)**: The new socket adapters reconnect on the engine every socket adapter shares.
+- **[One request type](#the-same-request-whichever-backend)**: Every route is a regular `Request`, so hooks, caching and devtools work unchanged.
 
 ---
 
@@ -465,30 +449,10 @@ all four packages. You can move one endpoint at a time, and the rest of the app 
 
 ## Learn more
 
-<LinkCard
-  type="integrations"
-  title="tRPC"
-  description="Queries, mutations, transformers and the WebSocket and SSE subscription adapters."
-  href="/docs/integrations/adapter-trpc/overview"
-/>
-<LinkCard
-  type="integrations"
-  title="oRPC"
-  description="Procedures with rich types, GET queries, typed errors and event iterators."
-  href="/docs/integrations/adapter-orpc/overview"
-/>
-<LinkCard
-  type="integrations"
-  title="Hono"
-  description="Type an SDK from a Hono app, and connect sockets to its realtime routes."
-  href="/docs/integrations/hono/overview"
-/>
-<LinkCard
-  type="integrations"
-  title="Elysia"
-  description="Type an SDK from an Elysia app, with errors typed per status."
-  href="/docs/integrations/elysia/overview"
-/>
+- [tRPC](/docs/integrations/adapter-trpc/overview): Queries, mutations, transformers and the WebSocket and SSE subscription adapters.
+- [oRPC](/docs/integrations/adapter-orpc/overview): Procedures with rich types, GET queries, typed errors and event iterators.
+- [Hono](/docs/integrations/hono/overview): Type an SDK from a Hono app, and connect sockets to its realtime routes.
+- [Elysia](/docs/integrations/elysia/overview): Type an SDK from an Elysia app, with errors typed per status.
 
 Runnable examples: [tRPC](/examples/integrations/trpc), [tRPC subscriptions](/examples/integrations/trpc-subscriptions),
 [oRPC](/examples/integrations/orpc), [oRPC event iterator](/examples/integrations/orpc-event-iterator),

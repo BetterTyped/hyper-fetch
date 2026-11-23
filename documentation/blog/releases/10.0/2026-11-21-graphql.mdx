@@ -7,7 +7,7 @@ date: 2026-11-21T14:00:00
 description: "HyperFetch 10 infers GraphQL result and variable types from typed documents, and adds automatic persisted queries and graphql-ws subscriptions."
 ---
 
-import { BlogPostImage, LinkCard } from "@site/src/components";
+import { BlogPostImage } from "@site/src/components";
 
 <BlogPostImage
   title="GraphQL in HyperFetch 10"
@@ -42,26 +42,14 @@ Written for **HyperFetch 10**. The [release overview](/blog/hyper-fetch-10-0) li
 
 :::
 
-<Highlights>
-  <Highlight title="Typed documents" to="#typed-documents">
-    A `TypedDocumentNode` or gql.tada document types the request without generics.
-  </Highlight>
-  <Highlight title="Error policy" to="#error-policy">
-    `errorPolicy: "all"` keeps partial data as a success, with the errors beside it.
-  </Highlight>
-  <Highlight title="Persisted queries" to="#automatic-persisted-queries">
-    Requests send the SHA-256 hash of the query, so CDNs can cache `GET` responses.
-  </Highlight>
-  <Highlight title="Operation refetch" to="#refetch-every-variant-of-an-operation">
-    `matchGqlOperation` invalidates every cached variant of an operation at once.
-  </Highlight>
-  <Highlight title="Subscriptions" to="#subscriptions-over-graphql-ws">
-    `GraphqlWsAdapter` speaks `graphql-transport-ws` on the shared reconnection engine.
-  </Highlight>
-  <Highlight title="Spec alignment" to="#what-goes-over-the-wire">
-    `operationName`, the GraphQL over HTTP `Accept` header and the right content type.
-  </Highlight>
-</Highlights>
+## Highlights
+
+- **[Typed documents](#typed-documents)**: A `TypedDocumentNode` or gql.tada document types the request without generics.
+- **[Error policy](#error-policy)**: `errorPolicy: "all"` keeps partial data as a success, with the errors beside it.
+- **[Persisted queries](#automatic-persisted-queries)**: Requests send the SHA-256 hash of the query, so CDNs can cache `GET` responses.
+- **[Operation refetch](#refetch-every-variant-of-an-operation)**: `matchGqlOperation` invalidates every cached variant of an operation at once.
+- **[Subscriptions](#subscriptions-over-graphql-ws)**: `GraphqlWsAdapter` speaks `graphql-transport-ws` on the shared reconnection engine.
+- **[Spec alignment](#what-goes-over-the-wire)**: `operationName`, the GraphQL over HTTP `Accept` header and the right content type.
 
 ---
 
@@ -269,27 +257,7 @@ npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/graphql graphql
 
 ## Learn more
 
-<LinkCard
-  type="integrations"
-  title="GraphQL Adapter"
-  description="Typed documents, persisted queries, error policy and URL paths per operation."
-  href="/docs/integrations/adapter-graphql/overview"
-/>
-<LinkCard
-  type="integrations"
-  title="GraphQL Subscriptions"
-  description="GraphqlWsAdapter, connection params, errors and reconnecting."
-  href="/docs/integrations/adapter-graphql/subscriptions"
-/>
-<LinkCard
-  type="integrations"
-  title="Mutations"
-  description="Refetch the queries a mutation changed with matchGqlOperation."
-  href="/docs/integrations/adapter-graphql/mutations"
-/>
-<LinkCard
-  type="integrations"
-  title="Queries"
-  description="Fetch data with GraphQL queries and variables."
-  href="/docs/integrations/adapter-graphql/queries"
-/>
+- [GraphQL Adapter](/docs/integrations/adapter-graphql/overview): Typed documents, persisted queries, error policy and URL paths per operation.
+- [GraphQL Subscriptions](/docs/integrations/adapter-graphql/subscriptions): GraphqlWsAdapter, connection params, errors and reconnecting.
+- [Mutations](/docs/integrations/adapter-graphql/mutations): Refetch the queries a mutation changed with matchGqlOperation.
+- [Queries](/docs/integrations/adapter-graphql/queries): Fetch data with GraphQL queries and variables.
