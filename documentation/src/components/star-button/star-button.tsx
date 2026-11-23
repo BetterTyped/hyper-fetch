@@ -251,7 +251,7 @@ export function GitHubStarButton({
         className={cn(
           "relative inline-flex animate-pulse items-center rounded-xl border",
           isNavbar
-            ? "h-9 gap-2 border-white/10 bg-[#141415] px-3 py-0"
+            ? "navbar-star box-border h-9 gap-2 border-solid border-white/10 bg-[#141415] px-3 py-0"
             : "gap-3 border-border bg-card px-4 py-2.5",
           className,
         )}
@@ -273,7 +273,7 @@ export function GitHubStarButton({
         "relative inline-flex items-center rounded-xl border",
         "group cursor-pointer !no-underline transition-all duration-300",
         isNavbar
-          ? "h-9 gap-2 border-white/10 bg-[#141415] px-3 py-0 text-zinc-100 shadow-none hover:border-white/20 hover:bg-[#19191b] hover:shadow-none"
+          ? "navbar-star box-border h-9 gap-2 border-solid border-white/10 bg-[#141415] px-3 py-0 text-zinc-100 shadow-none hover:border-white/20 hover:bg-[#19191b] hover:shadow-none"
           : "gap-3 border-border bg-card px-4 py-2.5 shadow-sm hover:shadow-lg",
         className,
       )}

@@ -2,7 +2,6 @@ import { cn } from "@site/src/lib/utils";
 import {
   Boxes,
   Check,
-  Code2,
   Database,
   FileCode2,
   MousePointerClick,
@@ -16,7 +15,12 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { AnimatePresence, motion, useInView } from "motion/react";
+import {
+  AnimatePresence,
+  motion,
+  useInView,
+  useReducedMotion,
+} from "motion/react";
 import React, { useEffect, useRef, useState } from "react";
 
 import { BentoCard, BentoGrid } from "../shared/bento-card";
@@ -248,6 +252,116 @@ const Flow = ({
   </div>
 );
 
+/*
+ * One field renamed on the backend. The request and the screen that still read the old name stop compiling,
+ * with the red squiggle under it, then follow the rename. It flips the name back and forth while on screen,
+ * so every pass is a real rename. Reduced motion shows the broken state, which is the point.
+ */
+const RENAME_PHASES = [
+  { name: 0, broken: false, ms: 1500 },
+  { name: 1, broken: true, ms: 2300 },
+  { name: 1, broken: false, ms: 1500 },
+  { name: 0, broken: true, ms: 2300 },
+] as const;
+const FIELD_NAMES = ["name", "fullName"] as const;
+const CHAIN = [
+  { layer: "Backend", before: "", after: ": string", source: true },
+  { layer: "Request", before: "data.", after: "", source: false },
+  { layer: "Screen", before: "<p>{user.", after: "}</p>", source: false },
+] as const;
+
+const TypeChain = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { margin: "0px 0px -80px 0px" });
+  const reduceMotion = useReducedMotion();
+  const [phase, setPhase] = useState(0);
+
+  useEffect(() => {
+    if (!inView || reduceMotion) return undefined;
+    const id = setTimeout(
+      () => setPhase((p) => (p + 1) % RENAME_PHASES.length),
+      RENAME_PHASES[phase].ms,
+    );
+    return () => clearTimeout(id);
+  }, [inView, reduceMotion, phase]);
+
+  const current = reduceMotion ? RENAME_PHASES[1] : RENAME_PHASES[phase];
+  const renamed = FIELD_NAMES[current.name];
+  const stale = FIELD_NAMES[1 - current.name];
+
+  return (
+    <div ref={ref} className="flex h-full flex-col justify-end gap-1.5">
+      {CHAIN.map((link, i) => {
+        const broken = current.broken && !link.source;
+        const field = broken ? stale : renamed;
+        return (
+          <motion.div
+            key={link.layer}
+            {...enter(i)}
+            className={cn(
+              raised,
+              "flex items-center gap-3 rounded-xl px-3 py-2 transition-shadow duration-300",
+              broken &&
+                "shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_0_24px_-10px_rgba(244,63,94,0.55)]",
+            )}
+            style={{ transitionDelay: `${i * 90}ms` }}
+          >
+            <span className="w-[58px] shrink-0 text-[11px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
+              {link.layer}
+            </span>
+            <code className="min-w-0 flex-1 truncate !border-0 !bg-transparent !p-0 font-mono !text-[13px] !text-zinc-400">
+              {link.before}
+              <span
+                className={cn(
+                  "rounded px-1 py-px transition-colors duration-300",
+                  broken
+                    ? "bg-rose-500/15 !text-rose-300 underline decoration-[#f43f5e] decoration-wavy underline-offset-[3px]"
+                    : "bg-[#fbc646]/10 !text-[#fbc646]",
+                )}
+                style={{ transitionDelay: `${i * 90}ms` }}
+              >
+                <AnimatePresence mode="popLayout" initial={false}>
+                  <motion.span
+                    key={field}
+                    className="inline-block"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.25, delay: i * 0.09, ease }}
+                  >
+                    {field}
+                  </motion.span>
+                </AnimatePresence>
+              </span>
+              {link.after}
+            </code>
+            <span
+              className={cn(
+                "flex size-6 shrink-0 items-center justify-center rounded-full transition-colors duration-300",
+                broken
+                  ? "bg-rose-500/15 text-rose-400"
+                  : "bg-emerald-400/10 text-emerald-400",
+              )}
+              style={{ transitionDelay: `${i * 90}ms` }}
+              aria-label={
+                broken
+                  ? `${link.layer} stops compiling`
+                  : `${link.layer} compiles`
+              }
+            >
+              {broken ? (
+                <X className="size-3.5" strokeWidth={2.75} />
+              ) : (
+                <Check className="size-3.5" strokeWidth={2.75} />
+              )}
+            </span>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+};
+
 /* ── Tabs: Core, Sockets, DB ──────────────────────────────────────────────────────────── */
 const tabs = [
   { key: "core", icon: Boxes, name: "Core" },
@@ -332,11 +446,7 @@ const CoreCards = () => (
       line="Not in production."
       visualClassName="h-[150px]"
     >
-      <Flow
-        from={{ icon: Code2, label: "Editor" }}
-        to={{ icon: Server, label: "Production" }}
-        mark={{ tone: "rose", icon: X, label: "Caught" }}
-      />
+      <TypeChain />
     </BentoCard>
   </>
 );

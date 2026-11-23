@@ -1,8 +1,9 @@
 import BrowserOnly from "@docusaurus/BrowserOnly";
+import useBaseUrl from "@docusaurus/useBaseUrl";
 import { Particles } from "@site/src/components/particles";
 import { DotPattern } from "@site/src/components/ui/dot-pattern";
 import { cn } from "@site/src/lib/utils";
-import { Zap, Rocket, BookOpen, Sparkles } from "lucide-react";
+import { Rocket, BookOpen, Sparkles } from "lucide-react";
 import React from "react";
 
 import {
@@ -82,17 +83,17 @@ function Badge({ type }: { type: BadgeType }) {
   const Icon = config.icon;
 
   return (
-    <div className="absolute top-1.5 right-1.5 z-20">
+    <div className="absolute left-4 top-4 z-20">
       <div
         className={cn(
-          "inline-flex items-center gap-1.5 px-2 py-1 rounded-full",
-          "font-medium tracking-wider uppercase",
-          "border bg-white/[0.03] backdrop-blur-sm",
+          "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1",
+          "font-semibold uppercase tracking-[0.12em]",
+          "border border-solid bg-white/[0.03]",
           config.classes,
         )}
       >
         <Icon className="size-3 opacity-60" />
-        <span className="text-[12px]">{config.label}</span>
+        <span className="text-[10.5px]">{config.label}</span>
       </div>
     </div>
   );
@@ -179,6 +180,11 @@ function BackgroundPattern({
   return content;
 }
 
+/*
+ * The post hero in the style of the README banner: flat dark, one soft gold glow from the top, the pattern at a
+ * whisper, the HyperFetch lockup, then the title in big type. No border gradient, no spotlight, no hover glow:
+ * it is a cover, not a button.
+ */
 export function BlogPostImage({
   title,
   description,
@@ -193,79 +199,52 @@ export function BlogPostImage({
 }: BlogPostImageProps) {
   const resolvedPattern = pattern ?? (badge === "release" ? "paths" : "dots");
   const resolvedMask = resolvePatternMask(resolvedPattern, patternMask);
+  const logo = useBaseUrl("/img/brand/HF.svg");
   return (
-    <div
-      className={cn(
-        "relative max-w-4xl mx-auto rounded-3xl mb-3 p-px bg-gradient-to-br from-transparent via-zinc-300/20 to-transparent",
-        "transition-all duration-300 ease-out",
-        "hover:brightness-110 hover:shadow-[0_0_40px_-8px_rgba(251,198,70,0.15)]",
-      )}
-    >
-      {/* Link overlay */}
-      {href && <a href={href} className="absolute inset-0 z-30 rounded-3xl" aria-label={title} />}
+    <div className="relative mx-auto mb-3 max-w-4xl">
+      {href && <a href={href} className="absolute inset-0 z-30 rounded-[22px]" aria-label={title} />}
       <section
         className={cn(
-          "relative w-full overflow-hidden rounded-[23px]",
-          "bg-gradient-to-b from-[#1c1917] to-[#111113]",
-          "min-h-[280px] py-8",
-          "flex flex-col items-center justify-center",
+          "relative flex w-full flex-col items-center justify-center overflow-hidden rounded-[22px]",
+          "bg-[#1d1d1f] ring-1 ring-inset ring-white/[0.06]",
+          children ? "min-h-[300px] pb-0 pt-10" : "min-h-[280px] py-12",
           className,
         )}
       >
-        {/* Badge - floating at top */}
-        {badge && <Badge type={badge} />}
-
-        {/* Subtle top glow */}
+        {/* One soft glow, off centre, like the README banner */}
         <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          className="pointer-events-none absolute -top-40 left-[58%] h-80 w-[36rem] -translate-x-1/2 rounded-full bg-[#f5a623]/[0.16] blur-[90px]"
           aria-hidden="true"
-        >
-          <div className="w-[400px] h-[300px] rounded-full bg-amber-500/15 blur-[100px]" />
-        </div>
-        <div className="absolute top-[10%] left-1/2 -translate-x-1/2 pointer-events-none" aria-hidden="true">
-          <div className="w-40 h-40 rounded-full bg-amber-400/20 blur-[60px]" />
-        </div>
+        />
 
-        {/* Page illustration - subtle arcs */}
-        <div className="absolute left-1/2 -translate-x-1/2 -top-4 pointer-events-none opacity-20" aria-hidden="true">
-          <img
-            src="/img/page-illustration.svg"
-            className="max-w-none min-w-[900px] text-amber-500"
-            width={1100}
-            alt=""
-          />
-        </div>
-
-        {/* Background pattern */}
-        <div className="absolute inset-0 z-[1]" aria-hidden="true">
+        {/* The pattern is texture, not a feature */}
+        <div className="absolute inset-0 z-[1] opacity-60" aria-hidden="true">
           <BackgroundPattern pattern={resolvedPattern} focus={patternFocus} mask={resolvedMask} />
         </div>
 
-        {/* Particles */}
         <BrowserOnly>
           {() => (
-            <Particles className="absolute inset-0 z-[2]" quantity={30} color="#fbc646" size={0.4} staticity={50} />
+            <Particles className="absolute inset-0 z-[2]" quantity={18} color="#fbc646" size={0.35} staticity={60} />
           )}
         </BrowserOnly>
 
-        {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center w-full h-full px-6 py-4">
-          {/* Lightning bolt */}
-          <div className="mb-3" style={{ filter: "drop-shadow(0 0 20px rgba(251, 198, 70, 0.5))" }}>
-            <Zap className="w-10 h-10 text-[#fbc646] fill-[#fbc646]" />
-          </div>
+        {badge && <Badge type={badge} />}
 
-          {/* Title */}
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-center tracking-tight mb-1 !text-transparent bg-clip-text bg-gradient-to-b from-zinc-200/60 via-zinc-200 to-zinc-200/60">
+        <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-6">
+          <img src={logo} alt="" className="mb-5 h-6 w-auto opacity-95 md:h-7" />
+
+          <h2 className="!m-0 max-w-[16ch] text-center text-[2rem] font-extrabold leading-[1.02] tracking-[-0.045em] !text-zinc-50 [font-family:Figtree] md:text-5xl lg:text-[3.5rem]">
             {title}
           </h2>
 
-          {/* Description */}
-          {description && <p className="text-base md:text-lg text-zinc-400 text-center mb-4 max-w-md">{description}</p>}
+          {description && (
+            <p className="!mb-0 mt-4 max-w-md text-center text-base leading-relaxed !text-zinc-400 md:text-lg">
+              {description}
+            </p>
+          )}
 
-          {/* Terminal window with children */}
           {children && (
-            <TerminalWindow file={file} className="-mb-5">
+            <TerminalWindow file={file} className="-mb-6 mt-8">
               {children}
             </TerminalWindow>
           )}

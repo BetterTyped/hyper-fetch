@@ -15,7 +15,7 @@ export const VersionTag = ({ to, label, className }: VersionTagProps) => (
   <Link
     to={to}
     className={cn(
-      "inline-flex h-9 items-center gap-1.5 rounded-xl border border-solid border-[#fbc646]/25 bg-[#fbc646]/[0.07] px-3 font-mono text-sm font-semibold !no-underline transition-colors duration-200 hover:border-[#fbc646]/45 hover:bg-[#fbc646]/[0.12]",
+      "navbar-version-tag box-border inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-solid border-[#fbc646]/25 bg-[#fbc646]/[0.07] px-3 font-mono text-sm font-semibold leading-none !no-underline transition-colors duration-200 hover:border-[#fbc646]/45 hover:bg-[#fbc646]/[0.12]",
       className,
     )}
   >

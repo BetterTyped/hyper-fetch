@@ -23,18 +23,18 @@
 
 .tableOfContents {
   overflow-y: auto;
-  /* What is left of the window after the buttons above, the Hype Stack card and the sponsors below. */
-  max-height: max(132px, calc(100vh - 420px - 292px));
+  /* What is left of the window after the sponsor button above, the Hype Stack card and the sponsors below. */
+  max-height: max(132px, calc(100vh - 420px - 368px));
 }
 
 /* A shrunk card, or one without its picture on a short window, gives the room back to the headings. */
 .tocContent:has(:global(.hs-ad-rail[data-small])) .tableOfContents {
-  max-height: max(132px, calc(100vh - 420px - 96px));
+  max-height: max(132px, calc(100vh - 420px - 172px));
 }
 
 @media (max-height: 880px) {
   .tocContent:not(:has(:global(.hs-ad-rail[data-small]))) .tableOfContents {
-    max-height: max(132px, calc(100vh - 420px - 172px));
+    max-height: max(132px, calc(100vh - 420px - 248px));
   }
 }
 
@@ -48,54 +48,6 @@
 
 .tableOfContents :global(a:not(.table-of-contents__link--active)) {
   @apply !text-zinc-400;
-}
-
-/* Star button — override `main a`, `main a > span`, `main a > div`, `main a > p` from custom.css */
-:global(html body main) .starButton,
-:global(html body main) .starButton:hover,
-:global(html body main) .starButton:active,
-:global(html body main) .starButton:focus,
-:global(html body main) .starButton:visited,
-:global(html body main) .starButton > span,
-:global(html body main) .starButton > div,
-:global(html body main) .starButton > p,
-:global(html body main) .starButton > svg {
-  color: #1a1a1a !important;
-  text-decoration: none !important;
-  -webkit-text-fill-color: #1a1a1a !important;
-}
-
-.starButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 7px 16px;
-  width: 100%;
-  margin: 0 4px 6px;
-  border-radius: 10px;
-  background: #fff;
-  font-weight: 600;
-  font-size: 13px;
-  transition:
-    box-shadow 0.2s ease,
-    transform 0.15s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  filter: none !important;
-}
-
-.starButton:hover {
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px);
-  filter: none !important;
-}
-
-.starButton:active {
-  transform: translateY(0);
-}
-
-.starButton svg {
-  flex-shrink: 0;
 }
 
 /* Sponsors section */
@@ -199,16 +151,28 @@
   text-decoration: none !important;
 }
 
+/* Shows the middle 758px of the 1667px canvas, where sponsorkit centres the logos, at the full sidebar width */
 .sponsorsImage {
+  position: relative;
   display: block;
   width: 100%;
-  padding: 0 4px;
+  aspect-ratio: 758 / 646;
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+}
+
+.sponsorsImage:hover {
+  opacity: 0.85;
 }
 
 .sponsorsImage img {
-  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 220%;
+  max-width: none;
   height: auto;
-  border-radius: 6px;
+  transform: translateX(-50%);
 }
 
 /* Enable if you want to hide empty sidebar */
