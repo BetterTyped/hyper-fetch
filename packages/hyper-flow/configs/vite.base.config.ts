@@ -4,10 +4,15 @@ import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import path from "node:path";
 import { loadEnv } from "vite";
-import type { UserConfigFnObject } from "vite";
+import type { ConfigEnv, UserConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-export const config: UserConfigFnObject = ({ mode }) => {
+type ConfigOptions = {
+  /** `electron` for the main and preload bundles, which Electron loads with `require()`, `renderer` for the page */
+  target: "electron" | "renderer";
+};
+
+export const config = ({ mode }: ConfigEnv, { target }: ConfigOptions): UserConfig => {
   const env = loadEnv(mode, path.resolve(__dirname, "../"));
 
   return {
@@ -21,6 +26,12 @@ export const config: UserConfigFnObject = ({ mode }) => {
         org: "better-typed",
         project: "hyper-flow",
         telemetry: false,
+        release: {
+          // Sentry adds the release as a module imported before the entry. In a CommonJS bundle Rolldown then emits the
+          // entry's `require()` interop above its own helpers, so the main process crashed on launch with
+          // "M is not a function". The Electron SDK names the release from the app version on its own.
+          inject: target === "renderer",
+        },
       }),
       // Finds the nearest tsconfig of every file, so the sibling packages built from source resolve their own paths
       tsconfigPaths(),
@@ -33,7 +44,6 @@ export const config: UserConfigFnObject = ({ mode }) => {
       }),
     ],
     resolve: {
-      preserveSymlinks: true,
       alias: {
         "@": path.resolve(__dirname, "../src/frontend"),
         "@app": path.resolve(__dirname, "../src/app"),
