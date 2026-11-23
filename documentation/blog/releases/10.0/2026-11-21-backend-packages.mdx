@@ -32,44 +32,80 @@ createSdk<typeof client, ElysiaSchema<typeof app>>(client);
 
 </BlogPostImage>
 
-Your backend already knows the shape of every route: its input, its output and its errors. Writing that shape a second
-time on the frontend is busywork, and it drifts the moment someone renames a field. HyperFetch 10 adds four packages
-that read the types of a tRPC router, an oRPC router, a Hono app or an Elysia app, and hand them to `createSdk`.
+Your backend already knows the input, output and errors of every route. Writing them again on the frontend is busywork
+that drifts the moment someone renames a field. HyperFetch 10 adds four packages that read the types of a tRPC router,
+an oRPC router, a Hono app or an Elysia app and hand them to `createSdk`.
 
 {/* truncate */}
 
 :::info Version
 
-This post covers **HyperFetch 10**. Read the [release overview](/blog/hyper-fetch-10-0) for the rest of the series.
+Written for **HyperFetch 10**. The [release overview](/blog/hyper-fetch-10-0) links the rest of the series.
 
 :::
 
-:::success What's new
-
-1. **tRPC**: `@hyper-fetch/trpc` calls queries and mutations, and listens to subscriptions over WebSocket or SSE.
-2. **oRPC**: `@hyper-fetch/orpc` calls procedures with rich types and listens to event iterators.
-3. **Hono**: `@hyper-fetch/hono` types an SDK from a Hono app, WebSocket routes included.
-4. **Elysia**: `@hyper-fetch/elysia` types an SDK from an Elysia app, with typed errors per status.
-5. **Shared reconnection**: every new socket adapter reconnects with the engine the rest of the sockets package uses.
-
-:::
+<Highlights>
+  <Highlight title="tRPC" to="#trpc">
+    `@hyper-fetch/trpc` calls queries and mutations through the HyperFetch cache and queue.
+  </Highlight>
+  <Highlight title="tRPC subscriptions" to="#subscriptions">
+    Subscriptions over WebSocket or SSE become typed listeners that resume after a reconnect.
+  </Highlight>
+  <Highlight title="oRPC" to="#orpc">
+    `@hyper-fetch/orpc` keeps `Date`, `BigInt`, `Map` and files intact, with typed errors.
+  </Highlight>
+  <Highlight title="Event iterators" to="#event-iterators">
+    oRPC event iterators become typed listeners over HTTP or WebSocket.
+  </Highlight>
+  <Highlight title="Hono" to="#hono">
+    `@hyper-fetch/hono` types an SDK from a Hono app and adds no runtime code.
+  </Highlight>
+  <Highlight title="Elysia" to="#elysia">
+    `@hyper-fetch/elysia` types an SDK from an Elysia app, with errors typed per status.
+  </Highlight>
+  <Highlight title="Shared reconnection" to="#reconnects-you-do-not-have-to-write">
+    The new socket adapters reconnect on the engine every socket adapter shares.
+  </Highlight>
+  <Highlight title="One request type" to="#the-same-request-whichever-backend">
+    Every route is a regular `Request`, so hooks, caching and devtools work unchanged.
+  </Highlight>
+</Highlights>
 
 ---
 
 ## tRPC
 
-tRPC gives you end-to-end types, but its client comes with its own caching story. If the rest of your app already runs on
-HyperFetch, a second data layer means two caches, two sets of loading states and two ways to retry.
+`@hyper-fetch/trpc` runs tRPC procedures through the same cache, loading states and retries as the rest of your app, so
+you do not keep a second data layer next to HyperFetch.
 
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/trpc
 ```
 
-The server stays a regular tRPC router. HyperFetch only needs its type.
+<Tabs>
+<TabItem value="client" label="Client">
+
+```ts title="api.ts"
+import { TrpcAdapter, type TrpcSchema } from "@hyper-fetch/trpc";
+import type { AppRouter } from "./server";
+
+const client = createClient({ url: "http://localhost:3000/trpc" }).setAdapter(
+  TrpcAdapter(),
+);
+
+// highlight-next-line
+const api = createSdk<typeof client, TrpcSchema<AppRouter>>(client, {
+  camelCaseToKebabCase: false, // keep procedure names as written: byId, not by-id
+});
+
+// highlight-next-line
+const { data, error } = await api.user.byId.$query.setPayload({ id: 1 }).send();
+```
+
+</TabItem>
+<TabItem value="server" label="Server">
 
 ```ts title="server.ts"
-import { initTRPC, tracked } from "@trpc/server";
-
 const t = initTRPC.create();
 
 export const appRouter = t.router({
@@ -81,126 +117,96 @@ export const appRouter = t.router({
       .input((value) => value as { name: string })
       .mutation(({ input }) => createUser(input)),
   }),
-  chat: t.router({
-    onMessage: t.procedure
-      .input((value) => value as { room: string; lastEventId?: string })
-      .subscription(async function* ({ input, signal }) {
-        for await (const message of messages(input.room, {
-          after: input.lastEventId,
-          signal,
-        })) {
-          yield tracked(message.id, message);
-        }
-      }),
-  }),
 });
 
+// highlight-next-line
 export type AppRouter = typeof appRouter;
 ```
 
-```ts title="api.ts"
-import { createClient, createSdk } from "@hyper-fetch/core";
-import { TrpcAdapter } from "@hyper-fetch/trpc";
-import type { TrpcSchema } from "@hyper-fetch/trpc";
+</TabItem>
+</Tabs>
 
-import type { AppRouter } from "./server";
-
-const client = createClient({ url: "http://localhost:3000/trpc" }).setAdapter(
-  TrpcAdapter(),
-);
-
-// Keep procedure names as written in the router (byId, not by-id)
-// highlight-next-line
-const api = createSdk<typeof client, TrpcSchema<AppRouter>>(client, {
-  camelCaseToKebabCase: false,
-});
-
-const { data, error } = await api.user.byId.$query.setPayload({ id: 1 }).send();
-```
-
-Queries live under `$query` and go out as `GET` with the encoded input. Mutations live under `$mutation` and go out as
-`POST` with a JSON body. The input is part of the cache and query keys, so `{ id: 1 }` and `{ id: 2 }` are cached,
-deduplicated and queued separately. Errors keep the shape your router sends, including a custom `errorFormatter`. Pass
-`TrpcAdapter({ transformer: superjson })` when the server uses one.
+- Queries live under `$query` and go out as `GET` with the encoded input. Mutations live under `$mutation` and go out as
+  `POST` with a JSON body.
+- The input is part of the cache and query keys, so `{ id: 1 }` and `{ id: 2 }` are cached, deduplicated and queued
+  separately.
+- Errors keep the shape your router sends, including a custom `errorFormatter`.
+- Pass `TrpcAdapter({ transformer: superjson })` when the server uses one.
 
 ### Subscriptions
 
-Subscriptions are not requests, so they live on a `Socket`. `TrpcWebsocketAdapter` speaks the `wsLink` protocol and
-`TrpcSseAdapter` the `httpSubscriptionLink` protocol. Both share one schema type.
+Subscriptions live on a `Socket`. `TrpcWebsocketAdapter` speaks the `wsLink` protocol and `TrpcSseAdapter` the
+`httpSubscriptionLink` protocol, and both share one schema type.
+
+<Tabs>
+<TabItem value="client" label="Client">
 
 ```ts title="socket.ts"
-import { Socket, createSocketSdk } from "@hyper-fetch/sockets";
-import { TrpcWebsocketAdapter } from "@hyper-fetch/trpc";
-import type { TrpcSocketSchema } from "@hyper-fetch/trpc";
-
 const socket = new Socket({
   url: "ws://localhost:3001",
   adapter: TrpcWebsocketAdapter(),
 });
 
+// highlight-next-line
 const realtime = createSocketSdk<typeof socket, TrpcSocketSchema<AppRouter>>(
   socket,
-  {
-    camelCaseToKebabCase: false,
-  },
+  { camelCaseToKebabCase: false },
 );
 
 realtime.chat.onMessage.$listener
   .setPayload({ room: "general" })
-  .listen(({ data, extra }) => {
-    // extra.eventId holds the id of events yielded with tracked()
-    console.log(data.text, extra.eventId);
-  });
+  // extra.eventId is the id of events yielded with tracked()
+  .listen(({ data, extra }) => console.log(data.text, extra.eventId));
 ```
 
-- The procedure input is the listener payload. Listeners with the same input share one server subscription.
-- After a reconnect, every subscription restarts with the last `tracked()` id as `lastEventId`, so the procedure can
-  send what the client missed.
-- `onStart` and `onEnd` follow the server's confirmation and end of the subscription, and `useListener` exposes the
-  same lifecycle as `status`.
-- Errors reach `socket.onError` as a `TrpcSocketError` with the topic and the input that failed.
+</TabItem>
+<TabItem value="server" label="Server">
 
-Switching from WebSocket to SSE changes only the adapter and the URL. Swap in
-`new Socket({ url: "http://localhost:3000/trpc", adapter: TrpcSseAdapter() })` and the listeners stay the same.
+```ts title="server.ts"
+export const appRouter = t.router({
+  chat: t.router({
+    onMessage: t.procedure
+      .input((value) => value as { room: string; lastEventId?: string })
+      .subscription(async function* ({ input, signal }) {
+        const after = input.lastEventId;
+        for await (const message of messages(input.room, { after, signal })) {
+          // highlight-next-line
+          yield tracked(message.id, message);
+        }
+      }),
+  }),
+});
+```
+
+</TabItem>
+</Tabs>
+
+- The procedure input is the listener payload. Listeners with the same input share one server subscription.
+- After a reconnect, every subscription restarts with the last `tracked()` id as `lastEventId`, so the procedure can send
+  what the client missed.
+- `onStart` and `onEnd` follow the server's confirmation and end of the subscription, and `useListener` exposes them as
+  `status`.
+- Errors reach `socket.onError` as a `TrpcSocketError` with the topic and the input that failed.
+- Switching to SSE changes only the adapter and the URL:
+  `new Socket({ url: "http://localhost:3000/trpc", adapter: TrpcSseAdapter() })`.
 
 ---
 
 ## oRPC
 
-oRPC sends `Date`, `BigInt`, `Map` and files over the wire with its own serializer. A generic HTTP client flattens them
-to JSON and you are back to parsing dates by hand.
+oRPC sends `Date`, `BigInt`, `Map` and files with its own serializer, which a generic HTTP client flattens to JSON.
+`@hyper-fetch/orpc` encodes inputs and outputs with the serializer from `@orpc/client`, so the client and the server
+always agree.
 
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/orpc @orpc/client
 ```
 
-```ts title="server.ts"
-import { os, withEventMeta } from "@orpc/server";
-import { z } from "zod";
-
-export const router = {
-  planet: {
-    find: os
-      .input(z.object({ id: z.number() }))
-      .handler(({ input }) => findPlanet(input.id)),
-    // An event iterator procedure, see below
-    onUpdate: os.input(z.object({ id: z.number() })).handler(async function* ({
-      input,
-      signal,
-    }) {
-      for await (const planet of planetUpdates(input.id, { signal })) {
-        yield withEventMeta(planet, { id: String(planet.version) });
-      }
-    }),
-  },
-};
-```
+<Tabs>
+<TabItem value="client" label="Client">
 
 ```ts title="api.ts"
-import { createClient, createSdk } from "@hyper-fetch/core";
-import { OrpcAdapter } from "@hyper-fetch/orpc";
-import type { OrpcSchema } from "@hyper-fetch/orpc";
-
+import { OrpcAdapter, type OrpcSchema } from "@hyper-fetch/orpc";
 import type { router } from "./server";
 
 const client = createClient({ url: "http://localhost:3000/rpc" }).setAdapter(
@@ -212,25 +218,44 @@ const api = createSdk<typeof client, OrpcSchema<typeof router>>(client, {
   camelCaseToKebabCase: false,
 });
 
-const { data, error } = await api.planet.find.$query
-  .setPayload({ id: 1 })
-  .send();
+const { error } = await api.planet.find.$query.setPayload({ id: 1 }).send();
 
-// `error` also includes the global error of the client, so check for the oRPC shape first
-if (
-  error &&
-  "defined" in error &&
-  error.defined &&
-  error.code === "NOT_FOUND"
-) {
+// `error` also holds the client's global error, so check the oRPC shape first
+// highlight-start
+if (error && "defined" in error && error.defined && error.code === "NOT_FOUND") {
   error.data; // typed from the .errors() map of the procedure
 }
+// highlight-end
 ```
 
-The adapter encodes inputs and outputs with the serializer from `@orpc/client`, so the client and the server always
-agree on the format. oRPC procedures have no kind, so every procedure is available as both `$query` and `$mutation`.
-Queries are sent as `POST` by default, and `OrpcAdapter({ queryMethod: "GET" })` lets browsers and CDNs cache them. For
-contract-first APIs, pass `ContractRouterClient<typeof contract>` instead of the router type.
+</TabItem>
+<TabItem value="server" label="Server">
+
+```ts title="server.ts"
+export const router = {
+  planet: {
+    find: os
+      .input(z.object({ id: z.number() }))
+      .handler(({ input }) => findPlanet(input.id)),
+    // An event iterator procedure
+    onUpdate: os
+      .input(z.object({ id: z.number() }))
+      .handler(async function* ({ input, signal }) {
+        for await (const planet of planetUpdates(input.id, { signal })) {
+          // highlight-next-line
+          yield withEventMeta(planet, { id: String(planet.version) });
+        }
+      }),
+  },
+};
+```
+
+</TabItem>
+</Tabs>
+
+- oRPC procedures have no kind, so every procedure is available as both `$query` and `$mutation`.
+- Queries are sent as `POST` by default. `OrpcAdapter({ queryMethod: "GET" })` lets browsers and CDNs cache them.
+- For contract-first APIs, pass `ContractRouterClient<typeof contract>` instead of the router type.
 
 ### Event iterators
 
@@ -238,70 +263,45 @@ Procedures that return an event iterator become typed listeners. `OrpcStreamAdap
 `RPCHandler` that serves your queries, and `OrpcWebsocketAdapter` speaks the protocol of `@orpc/server/ws`.
 
 ```ts title="socket.ts"
-import { Socket, createSocketSdk } from "@hyper-fetch/sockets";
-import { OrpcStreamAdapter } from "@hyper-fetch/orpc";
-import type { OrpcSocketSchema } from "@hyper-fetch/orpc";
-
 const socket = new Socket({
   url: "http://localhost:3000/rpc",
   adapter: OrpcStreamAdapter(),
 });
 
+// highlight-next-line
 const events = createSocketSdk<typeof socket, OrpcSocketSchema<typeof router>>(
   socket,
-  {
-    camelCaseToKebabCase: false,
-  },
+  { camelCaseToKebabCase: false },
 );
 
 events.planet.onUpdate.$listener
   .setPayload({ id: 1 })
-  .listen(({ data, extra }) => {
-    // extra.id is the id set with withEventMeta() on the server
-    console.log(data.name, extra.id);
-  });
+  // extra.id is the id set with withEventMeta() on the server
+  .listen(({ data, extra }) => console.log(data.name, extra.id));
 ```
 
-Like the tRPC adapters, listeners with the same input share one subscription, and a restarted subscription resumes from
-the id of its last event. Rich types survive in every event, not only in the input.
+As with tRPC, listeners with the same input share one subscription, and a restarted subscription resumes from the id of
+its last event. Rich types survive in every event as well as in the input.
 
 ---
 
 ## Hono
 
-Hono's own RPC client reads your app type, but it returns raw `Response` objects. You still write the caching,
-deduplication and loading state yourself.
+Hono's own RPC client reads your app type but returns raw `Response` objects. `@hyper-fetch/hono` types a full SDK from
+the same app type and adds no code to your bundle, since it exports types only.
 
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/hono
 ```
 
-`@hyper-fetch/hono` exports types only and adds no code to your bundle. Export one type from the backend:
-
-```ts title="backend/src/app.ts"
-import { Hono } from "hono";
-import { validator } from "hono/validator";
-import type { HonoSchema } from "@hyper-fetch/hono";
-
-const users = new Hono()
-  .get("/:userId", (c) => c.json({ id: c.req.param("userId"), name: "Ann" }))
-  .post(
-    "/",
-    validator("json", (value: { name: string }) => value),
-    (c) => c.json({ id: "2", name: c.req.valid("json").name }, 201),
-  );
-
-export const app = new Hono().route("/users", users);
-
-// highlight-next-line
-export type AppSchema = HonoSchema<typeof app>;
-```
+<Tabs>
+<TabItem value="frontend" label="Frontend">
 
 ```ts title="frontend/src/api.ts"
-import { createClient, createSdk } from "@hyper-fetch/core";
 import type { AppSchema } from "@my-app/backend";
 
 const client = createClient({ url: "https://api.example.com" });
+// highlight-next-line
 const sdk = createSdk<typeof client, AppSchema>(client);
 
 const { data: user } = await sdk.users.$userId.$get
@@ -312,21 +312,40 @@ const { data: created } = await sdk.users.$post
   .send();
 ```
 
-Paths become nested properties, `:param` segments become `$param` keys, and the `json` and `query` validators type the
-payload and the query params. Optional params (`/files/:fileId?`) become two routes, regex params
-(`/posts/:postId{[0-9]+}`) become a plain `$postId`, and `.all()` routes get every standard method.
+</TabItem>
+<TabItem value="backend" label="Backend">
+
+```ts title="backend/src/app.ts"
+const users = new Hono()
+  .get("/:userId", (c) => c.json({ id: c.req.param("userId"), name: "Ann" }))
+  .post("/", validator("json", (value: { name: string }) => value), (c) =>
+    c.json({ id: "2", name: c.req.valid("json").name }, 201),
+  );
+
+export const app = new Hono().route("/users", users);
+
+// highlight-next-line
+export type AppSchema = HonoSchema<typeof app>;
+```
+
+</TabItem>
+</Tabs>
+
+| Hono route                         | SDK                                   |
+| ---------------------------------- | ------------------------------------- |
+| `/users/:userId`                   | `sdk.users.$userId`                   |
+| `json` and `query` validators      | typed payload and query params        |
+| `/files/:fileId?` (optional param) | two routes, with and without `$fileId` |
+| `/posts/:postId{[0-9]+}` (regex)   | a plain `$postId`                     |
+| `.all()`                           | every standard method                 |
 
 ### Realtime routes
 
-Hono has no realtime protocol of its own, so `upgradeWebSocket()` routes work with the built-in `WebsocketAdapter` when
-they send `{ topic, data }` messages. They are left out of `HonoSchema`, so nobody calls `send()` on them.
-`HonoSocketPath` checks the address a socket connects to instead.
+`upgradeWebSocket()` routes work with the built-in `WebsocketAdapter` when they send `{ topic, data }` messages. They are
+left out of `HonoSchema`, so nobody calls `send()` on them, and `HonoSocketPath` checks the address a socket connects to
+instead.
 
 ```ts title="frontend/src/socket.ts"
-import { createSocketSdk, Socket } from "@hyper-fetch/sockets";
-import type { HonoSocketPath } from "@hyper-fetch/hono";
-import type { AppType, ChatSchema } from "@my-app/backend";
-
 // highlight-next-line
 const path: HonoSocketPath<AppType> = "/ws"; // a typo is a type error
 
@@ -345,17 +364,30 @@ Hono does not type WebSocket messages, so `ChatSchema` is a socket SDK schema yo
 
 ## Elysia
 
-Elysia's Eden client types what a handler returns. Over HTTP, though, a `Date` arrives as a string and `null` arrives
-as an empty body, and those differences show up at runtime instead of in the editor.
+Elysia's Eden client types what a handler returns, but over HTTP a `Date` arrives as a string and `null` as an empty
+body. `@hyper-fetch/elysia` types responses as they arrive, and types errors per status.
 
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/elysia
 ```
 
-```ts title="backend/src/app.ts"
-import { Elysia, t } from "elysia";
-import type { ElysiaSchema } from "@hyper-fetch/elysia";
+<Tabs>
+<TabItem value="frontend" label="Frontend">
 
+```ts title="frontend/src/api.ts"
+// highlight-next-line
+const sdk = createSdk<typeof client, AppSchema>(client);
+
+const { data, error } = await sdk.users.$userId.$get
+  .setParams({ userId: "1" })
+  .send();
+// data is the 2xx body, error the 404 body
+```
+
+</TabItem>
+<TabItem value="backend" label="Backend">
+
+```ts title="backend/src/app.ts"
 export const app = new Elysia({ prefix: "/users" })
   .get("/:userId", ({ params, status }) =>
     params.userId === "1"
@@ -370,72 +402,58 @@ export const app = new Elysia({ prefix: "/users" })
 export type AppSchema = ElysiaSchema<typeof app>;
 ```
 
-```ts title="frontend/src/api.ts"
-const sdk = createSdk<typeof client, AppSchema>(client);
-
-const { data, error } = await sdk.users.$userId.$get
-  .setParams({ userId: "1" })
-  .send();
-
-if (error) {
-  // the 404 body
-} else {
-  // the 2xx body
-}
-```
+</TabItem>
+</Tabs>
 
 Bodies returned with a 2xx status type `data`, and every other status types `error`, including the `422` Elysia sends
-when a `body` or `query` schema rejects the input. Those schemas also type the payload and the query params. Responses are typed as they arrive over HTTP:
+when a `body` or `query` schema rejects the input. Those schemas also type the payload and the query params.
 
-| Handler returns                           | Typed as  |
-| ----------------------------------------- | --------- |
-| A `Date`, also inside objects and arrays  | `string`  |
-| `null` or `undefined`                     | `""`      |
-| A generator, a stream or a raw `Response` | `unknown` |
+| Handler returns                           | Typed as   |
+| ----------------------------------------- | ---------- |
+| A `Date`, also inside objects and arrays  | `string`   |
+| `null` or `undefined`                     | `""`       |
+| A generator, a stream or a raw `Response` | `unknown`  |
+| A `body` schema with `t.File()` or `t.Files()` | `FormData` payload |
 
-A `body` schema with a `t.File()` or `t.Files()` field types the payload as `FormData`, because files can only travel as
-multipart form data.
-
-The package ships one type and no runtime code. Its specs run against Elysia on both Node and Bun. WebSocket routes
+The package ships one type and no runtime code, and its specs run against Elysia on Node and Bun. WebSocket routes
 registered with `.ws()` are left out of the schema; connect them with [`@hyper-fetch/sockets`](/docs/sockets/overview).
 
 ---
 
 ## Reconnects you do not have to write
 
-Each realtime protocol had its own reconnection rules, so every adapter carried its own copy of backoff, timeouts and
-offline handling. The tRPC WebSocket and SSE adapters and the oRPC WebSocket and stream adapters now reconnect with
+The tRPC WebSocket and SSE adapters and the oRPC WebSocket and stream adapters reconnect with
 `createReconnectingConnection`, the engine every socket adapter shares.
 
 - A lost connection comes back after a backoff with jitter, bounded by `reconnectTime` and `maxReconnectTime`.
 - Going offline drops the connection and pauses without counting attempts. Coming back online connects at once, and
   focusing the tab skips a pending delay.
 - Every running subscription restarts with the id of its last event.
-- A refused WebSocket handshake on Node.js 22 now fails the attempt right away instead of waiting for
-  `connectionTimeout`.
+- A refused WebSocket handshake on Node.js 22 fails the attempt right away instead of waiting for `connectionTimeout`.
 
-The [sockets post](/blog/hyper-fetch-10-sockets) explains the engine in detail.
+The [sockets post](/blog/hyper-fetch-10-sockets#one-reconnection-engine) explains the engine.
 
 ---
 
 ## The same request, whichever backend
 
-Every route these packages type is a regular HyperFetch `Request`, and every subscription a regular `Listener`. That is
-the point of the whole release: the backend picks the types, HyperFetch keeps the behavior.
+Every route these packages type is a regular HyperFetch `Request`, and every subscription a regular `Listener`. The
+backend decides the types, and HyperFetch keeps the behavior.
 
 ```tsx
-import { useFetch, useSubmit, useListener } from "@hyper-fetch/react";
-
 // A tRPC query, cached for 30 seconds and retried twice
-const { data, loading } = useFetch(
+const { data } = useFetch(
+  // highlight-next-line
   api.user.byId.$query.setPayload({ id: 1 }).setCacheTime(30000).setRetry(2),
 );
 
 // A Hono route, queued so submissions run one at a time
+// highlight-next-line
 const { submit } = useSubmit(sdk.users.$post.setQueued(true));
 
 // A tRPC subscription, shared by every component with the same input
 const { data: message, status } = useListener(
+  // highlight-next-line
   realtime.chat.onMessage.$listener.setPayload({ room: "general" }),
 );
 ```

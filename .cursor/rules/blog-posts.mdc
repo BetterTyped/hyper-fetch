@@ -63,9 +63,7 @@ Vary masks across posts the same way you vary patterns - avoid repeating the sam
 
 - **Always use `pattern="paths"`** to match the hero section aesthetic.
 - **Do NOT include code as children.** Instead, the `BlogPostImage` for releases should visually communicate key
-  features. Use a concise feature list inside the post body (not inside the image component).
-- The release post body should open with a feature summary using a `:::success Key features` admonition containing a
-  numbered list. Each item should be bold feature name (1-2 words) followed by a short description.
+  features. Use `<Highlights>` in the post body (not inside the image component) for the feature summary.
 
 ```mdx
 <BlogPostImage
@@ -80,3 +78,71 @@ Vary masks across posts the same way you vary patterns - avoid repeating the sam
 
 - Pick any pattern except `paths`. Vary the choice.
 - Can optionally include code children if a short snippet captures the feature.
+
+## Release and feature post structure
+
+Readers scan a release post for the one change they care about, then read its code. Every release and feature post
+follows this order:
+
+1. **Intro**, 2-3 sentences before `{/* truncate */}`: what changed and why the reader cares. Name the upgrade cost if
+   there is one ("upgrading needs no code changes").
+2. **Version note**, optional, one line: `:::info Version` with "Written for **HyperFetch X**" and a link to the release
+   overview. Area posts of a release keep it; the overview itself does not need it.
+3. **`<Highlights>`**, never a `:::success What's new` or `:::success Key features` admonition with a numbered list.
+4. **Sections**, one per change, split by `---`.
+5. **Reliability fixes**, grouped by `###` area when there are more than about eight.
+6. **Upgrading**, then **Learn more** with `LinkCard`s.
+
+### Highlights
+
+`<Highlights>` and `<Highlight>` are global MDX components (also exported from `@site/src/components`).
+
+```mdx
+<Highlights>
+  <Highlight title="Optimistic helpers" to="#optimistic-updates">
+    `optimistic(getTodos).patch()` describes the change. Core applies it, rolls it back and refetches.
+  </Highlight>
+</Highlights>
+```
+
+- 4-8 cards. An even number fills the two-column grid.
+- `title`: 1-3 words, the name of the change.
+- Children: one short sentence, at most about 14 words, saying what the reader gains.
+- `to`: the anchor of the section that explains it. Docusaurus heading ids are lowercase, spaces become dashes and
+  punctuation is dropped (`## Node.js, Bun and Deno` is `#nodejs-bun-and-deno`). Check every anchor against a heading
+  that exists. In a release overview, `to` points at the area post, for example
+  `/blog/hyper-fetch-10-core-react#infinite-lists-with-useinfinitefetch`.
+
+### Sections
+
+- Open with one sentence that states the gain. Put the problem in the same sentence or the next, not in a paragraph
+  of its own.
+- Then the shortest code that shows the change, at most about 15 lines. Cut imports, client setup and types the reader
+  can infer. Split a long block into two focused ones, or use `<Tabs>` (client and server, React and core, two
+  options).
+- Then at most a short paragraph, or a bullet list or a small table for options, defaults and behavior rules.
+- Headings are noun phrases in sentence case. No question headings.
+- `:::tip` and `:::warning` only for a real gotcha, never for a summary.
+
+### Code blocks
+
+- Blog CSS tints highlighted lines gold and dims the rest until hover, so **every code block that shows a feature marks
+  the lines that are the point** with `// highlight-next-line`, `// highlight-start` / `// highlight-end`, or a `{3-5}`
+  metastring (use the metastring for JSON, which has no comments). Setup and boilerplate stay unmarked. Never highlight
+  a whole block.
+- Add `title="file.ts"` when a filename helps orientation.
+- Keep code lines within about 80 characters, so blocks do not scroll sideways.
+
+### Breaking changes and upgrading
+
+- Open with a table when there are several changes: `Change | Before | After`, or `Change | What to do`.
+- Show each change as a `Before` / `After` `<Tabs>` pair, with the new line highlighted in `After`. A `diff-add` /
+  `diff-remove` block also works for a one-line change.
+- Say who is affected and when nothing needs to change.
+
+### Writing
+
+Load the `technical-writing`, `copy-editing` and `humanizer` skills from `.claude/skills/` before writing or editing a
+post. In short: conclusion first, short sentences, active voice, no em dashes, no "it's not X, it's Y", no "no X, no
+Y, no Z" triads, no staged openers ("Here's the thing"), no filler adverbs ("seamlessly"), and no closer that repeats
+the section. Verify every API name, option and default against `packages/*/src`.

@@ -1,0 +1,283 @@
+---
+sidebar_position: 3
+title: Common Mistakes with HyperFetch DB - Wrong and Right Patterns
+description:
+  The mistakes people make most with collections and live queries, each as a short wrong and right pair, from partial
+  rows, shared server dbs, writes in try/catch, filters inside or, offline inserts without keys and more.
+sidebar_label: Common Mistakes
+---
+
+# Common Mistakes
+
+Most problems with the db come from a handful of patterns that look right but fight its model. Each one below is a short
+pair: the code that causes trouble, the code that works, and one line on why. Skim the headings: if you recognize your
+code, read that pair.
+
+:::secondary What you'll learn
+
+1.  Which **modeling** mistakes break the "complete rows" rule.
+2.  Which **query** mistakes stop a query from compiling or from loading.
+3.  Which **write** mistakes lose changes or show them twice.
+4.  Which **app setup** mistakes leak data between users.
+
+:::
+
+---
+
+## Modeling
+
+### Loading summaries into the full collection
+
+```ts
+// ❌ The list has no `body`, so these rows are not complete posts
+const Post = collection(PostSchema, { key: "id" }).load(getTeamPosts, {
+  rows: (response) => response.items.map((post) => ({ ...post, body: "" })),
+});
+
+// ✅ Summaries are their own collection, linked to the full one
+const PostSummary = collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
+  rows: (response) => response.items,
+  where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+});
+const db = createDb({ post: Post, postSummary: PostSummary }, { links: [["post", "postSummary"]] });
+```
+
+Filling missing fields with placeholders makes the types lie: every component would trust an empty `body`. See
+[List and Detail Views](../02-patterns/list-and-detail.mdx).
+
+### Passing the row type as a type argument
+
+```ts
+// ❌ TypeScript cannot infer the key field next to an explicit type argument
+collection<Draft>(/* ... */);
+
+// ✅ Without a schema, use rowType
+collection(rowType<Draft>(), { key: "id" });
+```
+
+`rowType` gives the row type without a schema, so writes are not validated. Prefer a schema when you have one.
+
+### Expecting a link to create rows
+
+```ts
+// ❌ Expecting the new post to appear in summary lists through the link
+await db.post.insert(newPost);
+
+// ✅ Summaries come from the lists that load them, or from a sync or ingest of the summary collection
+collection(PostSummarySchema, { key: "id" }).sync(onPostCreated, {
+  type: "insert",
+  row: ({ body, ...summary }) => summary,
+});
+```
+
+A link only changes fields of rows both collections already hold. Rows of a summary list belong to that list.
+
+---
+
+## Queries
+
+### Putting a required filter inside `or`
+
+```ts
+// ❌ Does not compile: no loader can serve it, because teamId is not a top-level eq
+db.postSummary.where((post) => or(eq(post.teamId, "t1"), eq(post.teamId, "t2")));
+
+// ✅ One query per value of a required filter
+db.postSummary.where((post) => eq(post.teamId, "t1"));
+```
+
+### Expecting `.local()` to load
+
+```ts
+// ❌ Shows nothing until another query loads posts of this team
+useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)).local());
+
+// ✅ Leave out .local() to load through a loader
+useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+```
+
+`.local()` never sends a request and never starts syncs. Use it for views over rows other queries load.
+
+### Memoizing queries
+
+```tsx
+// ❌ Unnecessary: the query is identified by its structure
+const query = useMemo(() => db.postSummary.where((post) => eq(post.teamId, teamId)), [teamId]);
+const { data } = useLiveQuery(query);
+
+// ✅ Build it inline
+const { data } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+```
+
+### A paginated list without an order
+
+```ts
+// ❌ New rows cannot be placed in the loaded pages, and pages can shift
+useLiveInfiniteQuery(
+  db.feed.where((post) => eq(post.teamId, teamId)),
+  { pageSize: 20 },
+);
+
+// ✅ Order by a field the loader can send
+useLiveInfiniteQuery(
+  db.feed.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+  { pageSize: 20 },
+);
+```
+
+`useLiveInfiniteQuery` needs `orderBy`, so the first version does not compile. Plain paginated queries compile without
+one, but new rows only join them once the backend has no more pages.
+
+### Reading the same data through `useFetch` and the db
+
+```tsx
+// ❌ Two copies: a write through the db never reaches the useFetch cache
+const { data } = useFetch(getTeamPosts.setParams({ teamId }));
+
+// ✅ Read records through the db everywhere
+const { data } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+```
+
+---
+
+## Writes
+
+### Wrapping writes in try/catch
+
+```ts
+// ❌ Writes never reject: the catch never runs, and a failure goes unnoticed
+try {
+  await db.post.update(postId, { title });
+} catch {
+  toast("Could not save");
+}
+
+// ✅ Check the result
+const result = await db.post.update(postId, { title });
+if (!result.success) toast("Could not save");
+```
+
+### Changing a row in place
+
+```ts
+// ❌ Rows are frozen and shared by every query: this throws
+post.title = "Renamed";
+
+// ✅ Write through the collection
+db.post.update(post.id, { title: "Renamed" });
+```
+
+### Clearing a field with `undefined`
+
+For a nullable field, such as `archivedAt: z.string().nullable()`:
+
+```ts
+// ❌ undefined means "no value": the field stays as it is
+db.post.update(postId, { archivedAt: undefined });
+
+// ✅ null clears it
+db.post.update(postId, { archivedAt: null });
+```
+
+### Keying React elements by a key that can change
+
+```tsx
+// ❌ A row inserted without a key remounts when the server's key replaces the temporary one
+data?.map((post) => <PostCard key={post.id} post={post} />);
+
+// ✅ The render key stays the same
+data?.map((post) => <PostCard key={db.postSummary.renderKey(post.id)} post={post} />);
+```
+
+Only needed when the server assigns keys. With client keys, `post.id` never changes.
+
+### Offline inserts without a key
+
+```ts
+// ❌ Resolves with an error while offline: the server cannot assign a key it never sees
+db.post.insert(draftWithoutId);
+
+// ✅ Generate keys on the client
+db.post.insert({ ...draft, id: crypto.randomUUID() });
+```
+
+### Replaying offline writes without an idempotency key
+
+```ts
+// ❌ A write sent just before the app closed is sent again on restart, and may apply twice
+insert: { request: createPost, map: (row) => ({ payload: row }) },
+
+// ✅ Send the write's id, which stays the same across replays
+insert: { request: createPost, map: (row, { id }) => ({ payload: { ...row, idempotencyKey: id } }) },
+```
+
+### Patching other collections by hand after a write
+
+```ts
+// ❌ Fighting the db: the next refetch or event overwrites this, and failures are not reverted
+await db.post.update(postId, { title });
+await db.postSummary.update(postId, { title });
+
+// ✅ Declare the relation once
+createDb(collections, { links: [["post", "postSummary"]] });
+```
+
+---
+
+## App setup
+
+### One db for every request on the server
+
+```ts
+// ❌ A module-level db on the server shares one user's rows with the next user's render
+export const db = createDb(collections);
+
+// ✅ A db per request on the server, from shared collections
+export const createAppDb = (options?: DbOptions) => createDb(collections, options);
+```
+
+A client-only app may keep a module-level db. See [Server Rendering](../02-patterns/server-rendering.mdx).
+
+### Keeping data after sign-out
+
+```ts
+// ❌ The next user sees the previous user's rows and pending writes
+await signOut();
+
+// ✅ Clear the db, in every tab, and persist each user under their own scope
+await db.clear();
+await signOut();
+```
+
+### Swallowing failures
+
+```ts
+// ❌ A rows mapping that breaks after an API change shows up as "missing data" weeks later
+
+// ✅ Report every failure
+db.onError(({ type, error, collection }) => reportError(error, { tags: { type, collection } }));
+```
+
+---
+
+:::success Mistakes avoided!
+
+You know the patterns that fight the db's model.
+
+- You can keep **rows complete**, with one collection per shape and links between them.
+- You can write queries that **compile and load**, without memoizing them.
+- You can write without **try/catch**, in-place changes or hand-patched copies.
+- You can keep **users apart** on the server and after sign-out.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Migrating from React Query"
+  description="Move a feature from useQuery and useMutation to collections and live queries, step by step."
+  to="/docs/guides/db/production/migrating-from-react-query"
+/>

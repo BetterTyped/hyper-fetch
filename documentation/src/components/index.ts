@@ -14,4 +14,5 @@ export * from "./link-card/link-card";
 export * from "./blog-post-image";
 export * from "./example";
 export * from "./hyper-flow-downloads/hyper-flow-downloads";
+export * from "./highlights/highlights";
 export * from "./screenshot/screenshot";

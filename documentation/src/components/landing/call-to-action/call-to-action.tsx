@@ -19,7 +19,7 @@ const LINE = "Every protocol. Every framework. Ready for your AI agent.";
 const useProof = () => {
   const downloads = useHfMonthlyDownloads();
   return [
-    { value: "MIT", label: "Open source" },
+    { value: "Apache 2.0", label: "Open source" },
     { value: "1.3k", label: "GitHub stars", star: true },
     { value: downloads, label: "Downloads a month" },
   ];
@@ -55,13 +55,13 @@ export const CallToAction = () => {
               {...fadeUp(4 + i)}
               className="flex flex-col items-center"
             >
-              <div className="flex items-center gap-2 bg-gradient-to-b from-[#ffe08a] to-[#f5a623] bg-clip-text text-4xl font-extrabold pb-[0.14em] leading-none tracking-[-0.04em] !text-transparent [font-family:Figtree] md:text-5xl">
+              <div className="flex items-center gap-2 bg-gradient-to-b from-[#ffe08a] to-[#f5a623] whitespace-nowrap bg-clip-text text-[1.65rem] font-extrabold pb-[0.14em] leading-none tracking-[-0.04em] !text-transparent [font-family:Figtree] sm:text-4xl md:text-5xl">
                 {p.star && (
-                  <Star className="size-6 fill-[#fbc646] text-[#fbc646] md:size-7" />
+                  <Star className="size-5 fill-[#fbc646] text-[#fbc646] sm:size-6 md:size-7" />
                 )}
                 {p.value}
               </div>
-              <div className="mt-3 text-[13px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+              <div className="mt-3 text-[11px] font-medium uppercase tracking-[0.14em] text-zinc-500 sm:text-[13px]">
                 {p.label}
               </div>
             </motion.div>

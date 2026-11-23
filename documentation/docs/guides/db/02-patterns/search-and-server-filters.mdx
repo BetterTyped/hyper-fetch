@@ -1,0 +1,222 @@
+---
+sidebar_position: 5
+title: Search and Server-side Filters in a Client-Side Database
+description:
+  Add full-text search to live queries with server-only operators, combine it with filters the client runs, debounce it
+  in React, and mark fields the backend compares differently so the db never answers them from the wrong rows.
+sidebar_label: Search and Server Filters
+---
+
+# Search and Server-side Filters
+
+Some filters only the server can run. Full-text search ranks, stems and ignores accents; a database collation compares
+`"Ada"` and `"ada"` as equal. The db evaluates its operators on the client, to answer queries from rows it holds and to
+place new rows in loaded lists, so it has to know which conditions it must **never** evaluate itself. This guide adds
+search to Teamboard and shows the two tools for that: **server-only operators** and **`serverOnly` fields**.
+
+:::secondary What you'll learn
+
+1.  How to declare a **server-only operator** such as `search`, and use it with `op()`.
+2.  How the db **picks the loader** for a search, and combines it with filters it runs itself.
+3.  How to **debounce** a search box in React.
+4.  Why search results **never answer** other queries, and why inserts mark them **stale**.
+5.  How **`serverOnly`** fields differ from server-only operators.
+6.  How to **ingest** results of a search you send yourself.
+
+:::
+
+---
+
+## A server-only operator
+
+Teamboard's API has a search endpoint. Declare it as a second loader of `postSummary`, with a `search` operator on
+`title`:
+
+```ts
+const searchPosts = client.createRequest<{
+  response: { results: PostSummary[] };
+  queryParams?: { q?: string; teamId?: string };
+}>()({ endpoint: "/search" });
+
+const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" })
+  .load(getTeamPosts, {
+    rows: (response) => response.items,
+    where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+  })
+  .load(searchPosts, {
+    rows: (response) => response.results,
+    where: {
+      teamId: { eq: (teamId) => ({ queryParams: { teamId } }) },
+      // highlight-next-line
+      title: { search: (text: string) => ({ queryParams: { q: text } }) },
+    },
+  });
+```
+
+Any name other than the built-in operators declares a server-only operator. Queries use it with `op()`:
+
+```ts
+import { and, eq, op } from "@hyper-fetch/db";
+
+db.postSummary.where((post) => and(eq(post.teamId, "t1"), op("search", post.title, "roadmap"))).explain();
+// { kind: "list", loader: 1, sent: [teamId = "t1", search(title, "roadmap")], local: [], answeredLocally: false, ... }
+```
+
+- The client cannot evaluate a server-only operator, so a loader that cannot send it is never picked. The team feed
+  loader is out, and the search loader sends both conditions.
+- A query that uses an operator **no loader maps** does not compile:
+
+```ts
+// error-next-line
+useLiveQuery(db.postSummary.where((post) => op("match", post.title, "roadmap")));
+// No loader of `postSummary` maps `match` on `title`
+```
+
+- A `.local()` query cannot use one either: it reports an error, because only the server knows which rows match.
+
+---
+
+## Search in React
+
+Each search text is its own loaded subset, so debounce the input to send one request per pause, not per keystroke:
+
+```tsx
+const useDebounced = <T,>(value: T, delay: number) => {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debounced;
+};
+
+const SearchResults = ({ teamId, text }: { teamId: string; text: string }) => {
+  const query = useDebounced(text, 300);
+  const { data, isFetching } = useLiveQuery(
+    db.postSummary.where((post) => and(eq(post.teamId, teamId), op("search", post.title, query))),
+  );
+
+  return (
+    <div className="flex flex-col gap-2">
+      {isFetching && <span className="text-sm text-gray-500">Searching...</span>}
+      {data?.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
+    </div>
+  );
+};
+```
+
+Render the team feed while the box is empty, and `SearchResults` once there is text.
+
+- Going back to an earlier text reuses its subset: it shows at once, and refetches only when stale. Subsets nobody uses
+  are released after `gcTime`.
+- Results are full rows of `postSummary`. Editing a post from the results updates the feed too, and socket events update
+  the results.
+- Filters the search endpoint cannot send run on the results, like any other query:
+
+```ts
+db.postSummary.where((post) => op("search", post.title, "roadmap")).where((post) => gt(post.likes, 10));
+// Shares the subset of the plain "roadmap" search, and filters `likes` locally
+```
+
+---
+
+## What search results never do
+
+The db cannot tell which rows match a search, so subsets loaded with a server-only operator follow stricter rules:
+
+- They **never answer other queries** from their rows, and a search is never answered from a fresh team feed, even one
+  that holds every matching post.
+- They show **exactly the rows the server returned**. A row loaded elsewhere never appears in them.
+- A **new row** never joins them. An insert into the collection marks them **stale** instead, and they refetch on the
+  next mount, focus or reconnect, or when you call `refetch()`.
+- A row they hold keeps showing its updates. Whether it still matches the search is known after the next refetch.
+
+These rules trade a request for correctness: the db never guesses what the server's ranking would do.
+
+---
+
+## Fields the backend compares differently
+
+Sometimes the operator is ordinary but the comparison is not. If the API matches `title=roadmap` case-insensitively,
+`eq(post.title, "roadmap")` on the server returns "Roadmap", while the same `eq` on the client does not. Mark the field
+`serverOnly` on the loader:
+
+```ts
+collection(PostSummarySchema, { key: "id" }).load(getTeamPosts, {
+  rows: (response) => response.items,
+  where: {
+    teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    title: { eq: (title) => ({ queryParams: { title } }) },
+  },
+  // highlight-next-line
+  serverOnly: ["title"],
+});
+```
+
+Queries that filter or sort by `title` through this loader are then never answered from rows the db holds, and their
+subsets never answer other queries.
+
+:::caution serverOnly is not search
+
+`serverOnly` only stops answers from held rows. Rows the db writes later, such as a socket insert, are still matched
+against the subset's conditions with exact comparisons, and the result is sorted on the client with exact comparisons.
+When the client cannot reproduce the server's matching at all, as with full-text search, use a server-only operator
+instead: its subsets hold exactly what the server returned.
+
+:::
+
+---
+
+## Ingesting a search you send yourself
+
+Sometimes a search is not a list the db should load: a command palette, an autocomplete, a request another library
+sends. Keep it a plain request, and **ingest** its results, so the posts it returns are stored and kept current:
+
+```ts
+const quickSearch = client.createRequest<{ response: { results: PostSummary[] }; queryParams?: { q?: string } }>()({
+  endpoint: "/quick-search",
+});
+
+collection(PostSummarySchema, { key: "id" }).ingest(quickSearch, { rows: (response) => response.results });
+```
+
+Every successful `quickSearch` response writes its posts into `postSummary`, so opening one shows its header at once,
+see [List and Detail Views](./list-and-detail.mdx). The request's own Cache entry is not updated by later changes, so
+render rows from the db when they must stay current.
+
+:::note Which tool do I need?
+
+- The backend **searches or ranks**: declare a **server-only operator** and query it with `op()`.
+- The backend compares a field **differently**, such as case-insensitively: mark it **`serverOnly`**.
+- The endpoint **filters on its own**, such as only published posts: declare it as **`fixed`**. See
+  [Loaders](../01-basics/loaders.mdx#conditions-the-endpoint-applies-on-its-own).
+- The search is **not a list the db loads**: keep the request and **ingest** its results.
+
+:::
+
+---
+
+:::success Found it!
+
+Teamboard has search that never shows the wrong posts.
+
+- You can declare **server-only operators** and query them with `op()`.
+- You can combine a search with **filters the client runs**, and debounce it in React.
+- You can explain why search subsets **never answer** other queries and turn **stale** on inserts.
+- You can mark fields the backend compares differently as **`serverOnly`**, and know its limits.
+- You can **ingest** results of searches you send yourself.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="DB Overview"
+  description="Collections, loaders, syncs, queries, writes and errors in one reference page."
+  to="/docs/db/overview"
+/>

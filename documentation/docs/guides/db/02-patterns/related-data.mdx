@@ -1,0 +1,230 @@
+---
+sidebar_position: 2
+title: Related Data and Joins - Normalize REST Responses on the Client
+description:
+  Normalize nested REST responses into their own collections, join authors and comments into query results, load the
+  related records of a whole list in one request, and keep every joined row live.
+sidebar_label: Related Data and Joins
+---
+
+# Related Data and Joins
+
+Records point at each other. A post has an author and comments, and the author shows up on dozens of posts. REST APIs
+either embed the related record, so the same author is copied into every post, or return only its id, so the client has
+to fetch it. GraphQL clients solved this years ago with a normalized cache. For REST, most apps still patch copies by
+hand. This guide shows both halves for REST: **normalize** embedded records into their own collection, and **join**
+related records into query results, loaded in batches and kept live.
+
+:::secondary What you'll learn
+
+1.  How **normalization** splits an embedded author out of every post, step by step.
+2.  How to **join** a related row into each result, and what a **left** and an **inner** join return.
+3.  How to load the **children** of a whole list, such as comments, in **one request**.
+4.  How joined rows are **batched**, kept **live** and **released**.
+5.  When to normalize, when to join, and when to do both.
+
+:::
+
+---
+
+## Normalizing embedded records
+
+Teamboard's feed endpoint embeds each post's author. Here is what normalization does with one response.
+
+**1. The response.** Two posts by the same author, each with its own copy:
+
+```json
+{
+  "items": [
+    {
+      "id": "p1",
+      "title": "Roadmap",
+      "authorId": "u1",
+      "author": { "id": "u1", "name": "Ada", "avatarUrl": "/ada.png" }
+    },
+    { "id": "p2", "title": "Retro", "authorId": "u1", "author": { "id": "u1", "name": "Ada", "avatarUrl": "/ada.png" } }
+  ]
+}
+```
+
+**2. The declaration.** The feed's rows keep the nested author, and `normalize` writes it into the `user` collection:
+
+```ts
+const FeedPostSchema = PostSummarySchema.extend({ author: UserSchema });
+
+const User = collection(UserSchema, { key: "id" }).load(getUsers, {
+  byKeys: (ids) => ({ queryParams: { ids } }),
+});
+
+const FeedPost = collection(FeedPostSchema, { key: "id" })
+  .load(getFeed, {
+    rows: (response) => response.items,
+    where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+  })
+  // highlight-next-line
+  .normalize(User, (post) => [post.author]);
+
+const db = createDb({ feedPost: FeedPost, user: User });
+```
+
+**3. The collections.** After the load, Ada is stored once, under her key:
+
+```text
+feedPost   p1 -> { id: "p1", title: "Roadmap", authorId: "u1", author: { ... } }
+           p2 -> { id: "p2", title: "Retro",   authorId: "u1", author: { ... } }
+
+user       u1 -> { id: "u1", name: "Ada", avatarUrl: "/ada.png" }
+```
+
+**4. The next response.** Any later load, insert, ingested response or mutation response that embeds Ada writes her row
+again, under the same ordering rules as every other write. Views that read `user` show the latest Ada.
+
+- `normalize` runs on every **complete write from the server**: loads, inserts, ingested responses and mutation
+  responses.
+- The nested rows must be **complete rows** of the target collection, or the collection does not compile. Return an
+  empty array when there is nothing nested, as in `(post) => (post.author ? [post.author] : [])`.
+- The target is the **collection itself**, not a name, so renaming or removing it breaks the build. `createDb` throws
+  when the db does not hold the target.
+- The nested `author` stays a field of the post, as the server sent it. To show the **current** author, read it through
+  `user` with a join.
+
+---
+
+## Joining a related row
+
+Most REST lists return only the id, as Teamboard's `postSummary` does with `authorId`. A join adds the row whose key
+that field holds:
+
+```tsx
+const Feed = ({ teamId }: { teamId: string }) => {
+  const { data } = useLiveQuery(
+    db.postSummary
+      .where((post) => eq(post.teamId, teamId))
+      .orderBy((post) => post.createdAt, "desc")
+      // highlight-next-line
+      .join("author", db.user, (post) => post.authorId),
+  );
+  // data: (PostSummary & { author: User | undefined })[] | undefined
+
+  return (
+    <div className="flex flex-col gap-2">
+      {data?.map((post) => (
+        <div key={post.id} className="flex items-center gap-2">
+          <span className="font-semibold">{post.title}</span>
+          <span className="text-sm text-gray-500">{post.author?.name ?? "..."}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+- It is a **left join**: `author` is `undefined` while the user loads, or when there is none, and the type says so.
+- The db loads joined rows through the joined collection's **key loader**. With `byKeys`, the authors of the whole list
+  arrive in **one request**. An author the db already holds shows at once, and the same request confirms it.
+- The field's type must fit the joined collection's key. Joining `post.likes`, a number, to a string key does not
+  compile.
+- A joined row stays loaded while a result points at it. A result that leaves the query releases its author.
+- A collection without a key loader joins only the rows it holds, and a `local()` query never loads joined rows.
+- `join` works after `select`, after `findOne`, and after other joins.
+
+### Inner joins
+
+When a result without its related row makes no sense, use an inner join. Options go in an object, with the field as
+`by`:
+
+```ts
+db.postSummary
+  .where((post) => eq(post.teamId, teamId))
+  .join("author", db.user, { by: (post) => post.authorId, type: "inner" });
+// data: (PostSummary & { author: User })[] | undefined
+```
+
+Results without an author are left out, also **while the author loads**, so a row appears once it is complete. The type
+drops `undefined`.
+
+---
+
+## One-to-many: comments for every post
+
+A join can also match a field of the **joined** collection instead of its key. Each result then holds an **array**:
+
+```ts
+const getComments = client.createRequest<{ response: Comment[]; queryParams?: { postIds?: string[] } }>()({
+  endpoint: "/comments",
+});
+
+const Comment = collection(CommentSchema, { key: "id" }).load(getComments, {
+  // highlight-next-line
+  where: { postId: { inArray: (postIds) => ({ queryParams: { postIds } }) } },
+});
+```
+
+```tsx
+const { data } = useLiveQuery(
+  db.postSummary
+    .where((post) => eq(post.teamId, teamId))
+    .orderBy((post) => post.createdAt, "desc")
+    .join("author", db.user, (post) => post.authorId)
+    .join("comments", db.comment, { by: (post) => post.id, on: "postId" }),
+);
+// data: (PostSummary & { author: User | undefined; comments: Comment[] })[] | undefined
+```
+
+- `on: "postId"` matches each comment's `postId` against each post's `id`.
+- The comments of the **whole result** load in **one request**, through a list loader of `comment` that can send
+  `inArray` on `postId`. Twenty posts, one `GET /comments`, not twenty.
+- A post without comments gets an empty array, never `undefined`.
+- Without such a loader, the join reads the comments the db holds.
+- A comment added, changed or removed re-renders only the post it belongs to. The other results keep their identity.
+
+The classic way to get this is the "N+1" request pattern, one comments request per post, or a custom endpoint for each
+screen. A join keeps the endpoints you have and batches the requests for you.
+
+---
+
+## Joined rows stay live
+
+A join is part of a live query, so every change reaches it:
+
+- Renaming a user re-renders every post that shows them, whether the change came from a load, a socket event, an
+  ingested response or an optimistic write.
+- When a result's foreign key changes, the join follows it and loads the new row if needed.
+- A row loaded for a join is a row read by key, so it joins the syncs its own fields select, the same way `findOne`
+  does. See [Real-time Sync](../01-basics/realtime-sync.mdx#scoping-a-sync).
+
+:::note Normalize, join, or both?
+
+- **Join** when the API returns an id, such as `authorId`. It is the default for REST.
+- **Normalize** when the API embeds the record. It fills the target collection from data you already received, so joins
+  and `findOne` on it show the record at once instead of waiting for a request.
+- **Both** when the API embeds a snapshot but the screen must show the current record: normalize the embedded author,
+  and join `user` by `authorId` to read it.
+- For the same record in two shapes, such as a post and its summary, use a **link** instead. See
+  [List and Detail Views](./list-and-detail.mdx).
+
+:::
+
+---
+
+:::success Fully related!
+
+Teamboard shows authors and comments without a single hand-written fetch.
+
+- You can **normalize** embedded records into their own collection.
+- You can add a related row with a **left** or an **inner** join, with types that say which one you used.
+- You can load the **children of a whole list** in one request with a one-to-many join.
+- You can rely on joined rows being **batched**, **live** and **released** when no result needs them.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="Related Data reference"
+  description="Links, normalize and joins, with every rule in one place."
+  to="/docs/db/related-data"
+/>

@@ -1029,8 +1029,23 @@ body .theme-code-block pre *,
   @apply rounded-none !py-4 !px-0 !bg-[#1c1c1d];
 }
 
+/* Marked lines (`// highlight-next-line`, `{3-5}`) carry a warm tint, so the line that matters is the first one read. */
 .theme-code-block-highlighted-line {
-  @apply !bg-zinc-700/30;
+  background: linear-gradient(90deg, rgba(251, 198, 70, 0.13), rgba(251, 198, 70, 0.04)) !important;
+}
+
+/*
+ * In blog posts a block that marks lines dims the rest, so the change stands out from the setup around it.
+ * Hovering the block brings every line back for the reader who wants the whole snippet.
+ */
+.blog-wrapper .theme-code-block:has(.theme-code-block-highlighted-line) .token-line {
+  transition: opacity 0.2s ease;
+}
+.blog-wrapper .theme-code-block:has(.theme-code-block-highlighted-line) .token-line:not(.theme-code-block-highlighted-line) {
+  opacity: 0.48;
+}
+.blog-wrapper .theme-code-block:has(.theme-code-block-highlighted-line):hover .token-line {
+  opacity: 1;
 }
 
 .code-block-code-editor-split {
@@ -1469,7 +1484,6 @@ body {
 
 @media (min-width: 996px) {
   .navbar {
-    @apply backdrop-blur-sm;
     box-shadow: none;
     border: 0;
     background: transparent !important;
@@ -1508,33 +1522,9 @@ body {
   }
 }
 @media (max-width: 997px) {
-  .navbar {
-    background: var(--background) !important;
-  }
-  .navbar-sidebar {
-    background: var(--background) !important;
-  }
-  .navbar__items {
-    flex-direction: row-reverse;
-  }
-  .navbar__items .navbar__brand {
-    margin-right: auto;
-  }
-  body .navbar__items--right > div > button.DocSearch-Button {
-    @apply !px-2;
-  }
-  body .navbar__items--right > div:last-child {
-    margin-right: 50px !important;
-  }
   .row.footer__links {
     display: grid;
     grid-template-columns: 1fr 1fr;
-  }
-  .navbar__items--right > a:last-of-type {
-    @apply hidden;
-  }
-  .navbar-sidebar__item.menu ul > a {
-    @apply mt-4;
   }
 }
 @media (max-width: 500px) {
@@ -1618,7 +1608,7 @@ html[data-theme="dark"] .navbar-sidebar .github {
 } */
 
 .navbar__items--right {
-  @apply !gap-0;
+  @apply !gap-2.5 items-center;
 }
 
 @media (max-width: 997px) {
@@ -2556,4 +2546,293 @@ input[type="search"]::-webkit-search-results-decoration {
 
 .bt-gold-icon {
   stroke: url(#bt-gold);
+}
+
+/* The examples index is a browser, not an article: it takes the full width beside the sidebar */
+@media (min-width: 996px) {
+  .docs-wrapper main > .container:has(.examples-catalog) {
+    max-width: none;
+    padding-right: 2.5rem;
+  }
+  .docs-wrapper main .row > .col:has(.examples-catalog) {
+    max-width: 100% !important;
+    padding-right: 0;
+  }
+}
+
+/*
+ * Navbar glass, the way Hype Stack does it. The bar never moves: once the page leaves the top
+ * (`html[data-nav-scrolled]`, set in theme/Root), a frosted pill fades in around the content that stays put.
+ * The pill is a pseudo element behind the bar, and nothing above it has a backdrop filter, so its blur works.
+ * Do not transition backdrop-filter: Safari leaves it stuck at none.
+ */
+.navbar {
+  backdrop-filter: none !important;
+  transition: padding 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.navbar__inner {
+  position: relative;
+  isolation: isolate;
+}
+.navbar__inner::before {
+  content: "";
+  position: absolute;
+  inset: -10px -14px;
+  z-index: -1;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  pointer-events: none;
+  transition:
+    background-color 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+    border-color 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+}
+html[data-nav-scrolled] .navbar__inner::before {
+  border-color: rgba(255, 255, 255, 0.07);
+  background-color: rgba(28, 28, 29, 0.62);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 24px 48px -26px rgba(0, 0, 0, 0.85);
+  -webkit-backdrop-filter: blur(22px) saturate(1.5);
+  backdrop-filter: blur(22px) saturate(1.5);
+}
+/* Scrolling tightens the bar a touch, so it reads as the same bar, now frosted */
+@media (min-width: 997px) {
+  html[data-nav-scrolled] .navbar--fixed-top {
+    padding-left: 3.5rem;
+    padding-right: 3.5rem;
+  }
+}
+
+/* The version tag and the star count share one height and sit on one line */
+.navbar__items--right > .navbar-version-tag,
+.navbar__items--right > .navbar-star {
+  align-self: center;
+}
+
+/* Phones: logo, the version tag beside it, the menu button on the right. Stars and search live in the sheet. */
+@media (max-width: 996px) {
+  .navbar {
+    background: transparent !important;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .navbar__inner::before {
+    inset: -6px -10px;
+  }
+  .navbar__inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .navbar__inner > .navbar__items {
+    display: contents;
+  }
+  .navbar__inner .navbar__brand {
+    order: 1;
+    margin-right: 0;
+  }
+  .navbar__inner .navbar-version-tag {
+    order: 2;
+    height: 24px;
+    padding: 0 8px;
+    gap: 5px;
+    border-radius: 8px;
+    font-size: 11.5px;
+  }
+  .navbar__inner .navbar-version-tag > span:first-child {
+    width: 5px;
+    height: 5px;
+  }
+  /* Infima gives the toggle `display: inherit`, which would inherit the `contents` above */
+  .navbar__inner .navbar__toggle {
+    display: flex;
+    order: 3;
+    margin-left: auto;
+    margin-right: 0;
+  }
+  .navbar__inner .navbar-star,
+  .navbar__inner .navbar__items--right > div {
+    display: none !important;
+  }
+  /* The stock drawer and its backdrop are replaced by the bottom sheet in theme/Navbar/MobileSidebar */
+  .navbar-sidebar__backdrop,
+  .navbar-sidebar {
+    display: none !important;
+  }
+}
+
+/* The bottom sheet. DocSearch opens above it. */
+.DocSearch-Container {
+  z-index: 500 !important;
+}
+
+/* Its search is a full field. Docusaurus pins the container absolutely on phones and DocSearch hides the label. */
+.mobile-nav-search > div,
+.mobile-nav-search .navbar__item {
+  position: static !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.mobile-nav-search button.DocSearch-Button {
+  display: flex !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: 48px !important;
+  margin: 0 !important;
+  padding: 0 16px !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  box-shadow: none !important;
+}
+.mobile-nav-search .DocSearch-Button-Container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mobile-nav-search .DocSearch-Search-Icon {
+  width: 18px;
+  height: 18px;
+  color: #a1a1aa !important;
+}
+.mobile-nav-search .DocSearch-Button-Placeholder {
+  display: block !important;
+  padding: 0 !important;
+  font-size: 16px !important;
+  font-weight: 500;
+  color: #a1a1aa !important;
+}
+.mobile-nav-search .DocSearch-Button-Keys {
+  display: none !important;
+}
+
+/* The docs tree in the sheet: its own search is the one above, so it goes; the lists get phone sizes */
+.mobile-nav-tree > div > .px-4,
+.mobile-nav-tree .docs_sidebar {
+  padding: 0 !important;
+  min-width: 0 !important;
+}
+.mobile-nav-tree .docs_sidebar > div:first-child {
+  display: none !important;
+}
+.mobile-nav-tree .docs_sidebar > div:nth-child(2) {
+  margin-top: 0 !important;
+  padding: 0 4px;
+}
+.mobile-nav-tree .docs_sidebar ul {
+  margin: 0;
+  padding: 0;
+}
+.mobile-nav-tree .docs_sidebar ul li a {
+  margin-bottom: 0 !important;
+  padding: 11px 4px;
+  font-size: 16px !important;
+}
+.mobile-nav-tree .docs_sidebar ul li a[class*="text-zinc-500"] {
+  color: #d4d4d8 !important;
+}
+.mobile-nav-tree .docs_sidebar hr {
+  margin: 12px 0 8px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+.mobile-nav-tree .menu__list {
+  padding-left: 0 !important;
+}
+.mobile-nav-tree .menu__link {
+  padding: 11px 12px !important;
+  border-radius: 12px;
+}
+.mobile-nav-tree .menu__link,
+.mobile-nav-tree .menu__link * {
+  font-size: 16px !important;
+}
+.mobile-nav-tree .menu__link:not(.menu__link--active),
+.mobile-nav-tree .menu__link:not(.menu__link--active) * {
+  color: #d4d4d8 !important;
+}
+.mobile-nav-tree .menu__link--active:not(.menu__link--sublist) {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+.mobile-nav-tree .menu__list-item-collapsible {
+  margin-top: 18px !important;
+}
+.mobile-nav-tree .menu__list-item-collapsible .menu__link,
+.mobile-nav-tree .menu__list-item-collapsible .menu__link * {
+  font-size: 12px !important;
+  color: #a1a1aa !important;
+}
+
+/*
+ * Blog layout, in the docs proportions: the docs sidebar width, the docs text width (the 1240px docs container
+ * less its table of contents) and a table of contents of the same width. Left-anchored like the docs.
+ */
+.blog-layout {
+  padding: 2rem 1.25rem 4rem;
+}
+@media (min-width: 997px) {
+  .blog-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 880px);
+    column-gap: 4rem;
+    padding: 2.5rem 2.5rem 5rem 1.5rem;
+  }
+  .blog-layout--sidebar {
+    grid-template-columns: var(--doc-sidebar-width) minmax(0, 880px);
+  }
+  .blog-layout--sidebar.blog-layout--toc {
+    grid-template-columns: var(--doc-sidebar-width) minmax(0, 880px) 250px;
+  }
+  .blog-layout:not(.blog-layout--sidebar) {
+    justify-content: center;
+  }
+  .blog-layout > aside {
+    max-width: none !important;
+    flex: none !important;
+    width: auto !important;
+    padding: 0 !important;
+  }
+}
+@media (min-width: 997px) and (max-width: 1200px) {
+  .blog-layout--sidebar.blog-layout--toc {
+    grid-template-columns: var(--doc-sidebar-width) minmax(0, 1fr);
+  }
+  .blog-layout__toc {
+    display: none;
+  }
+}
+
+/* The blog sidebar reads like the docs sidebar: a small section label, then roomy links */
+.blog-layout > aside nav {
+  top: calc(var(--ifm-navbar-height) + 1.5rem);
+}
+.blog-layout > aside nav > div:first-child {
+  @apply mb-3 px-3 text-[12px] font-bold uppercase tracking-[0.1em] text-zinc-500;
+}
+.blog-layout > aside nav h3,
+.blog-layout > aside nav [class*="yearGroupHeading"] {
+  @apply mb-1 mt-6 px-3 text-[12px] font-bold uppercase tracking-[0.1em] text-zinc-500;
+}
+.blog-layout > aside nav ul li {
+  margin-top: 2px;
+}
+.blog-layout > aside nav ul li a {
+  @apply block rounded-lg px-3 py-2 text-[14.5px] font-medium leading-snug !text-zinc-400 !no-underline transition-colors;
+}
+.blog-layout > aside nav ul li a:hover {
+  @apply bg-white/[0.04] !text-zinc-100;
+}
+.blog-layout > aside nav ul li a[aria-current="page"],
+.blog-layout > aside nav ul li a[class*="sidebarItemLinkActive"] {
+  @apply bg-zinc-800 !text-white;
+}
+
+/* Cards are articles too, so they drop the post separators */
+article.blog-card,
+article.blog-card:last-of-type {
+  margin: 0;
+  padding: 0;
+  border: 0;
 }

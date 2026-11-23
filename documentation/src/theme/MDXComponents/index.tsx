@@ -15,6 +15,10 @@ import TabItem from "@theme/TabItem";
 import Tabs from "@theme/Tabs";
 import { LinkCard } from "@site/src/components/link-card/link-card";
 import { ShowMore } from "@site/src/components/show-more/show-more";
+import {
+  Highlight,
+  Highlights,
+} from "@site/src/components/highlights/highlights";
 import { Screenshot } from "@site/src/components/screenshot/screenshot";
 
 /**
@@ -45,6 +49,8 @@ const MDXComponents: MDXComponentsObject = {
   // Custom components
   LinkCard,
   ShowMore,
+  Highlights,
+  Highlight,
   Screenshot,
 };
 
