@@ -24,7 +24,7 @@ alwaysApply: false
 8. **Production** (`production/`): "Ready for production" bento
 9. **Problems** (`problems/`): "Same bugs, different projects" issue tracker, loops
 10. **Sponsors** (`sponsors/`)
-11. **CallToAction** (`call-to-action/`): standard head, the hero actions, MIT / stars / live downloads
+11. **CallToAction** (`call-to-action/`): standard head, the hero actions, Apache 2.0 / stars / live downloads
 
 ## Hero Rules
 
