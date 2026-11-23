@@ -347,6 +347,9 @@ console.log(123);
 
 # Page formulas
 
+The `docs-quality` skill (`.claude/skills/docs-quality/SKILL.md`) has the workflow and scripts that prove a page is
+right: source audit, production build, render checks and review sheets. Entry pages use the overview kit it describes.
+
 Similar pages must read the same way. Pick the formula for the page type and follow its section order. These come from
 studying the best competitor docs (TanStack Query, SWR, tRPC, Apollo, RTK Query, Socket.IO, Hono, orval, Zod).
 
@@ -369,22 +372,25 @@ studying the best competitor docs (TanStack Query, SWR, tRPC, Apollo, RTK Query,
 - **Length**: counted in prose words, without code blocks, tables and cards: overview and quick start 300-900,
   concept and reference pages 500-1,500, guides up to 1,500. Split anything longer.
 
-## Overview (a package or product)
+## Overview and hub pages (a package, a product, a section index)
 
-1. What it is and why, 1-2 sentences.
-2. A minimal realistic example, 10-20 lines, on the first screen.
-3. What you get: 4-8 bullets, each linking to its page.
-4. Where to start: quick start, guides, examples.
-5. Next steps.
+Entry pages give the main idea and route the reader. They are not reference pages: no deep sections, no option
+tables, one to two screens before the next-step tiles.
+
+1. `<Lead>`: a bold one-clause promise and one sentence on what it does for you.
+2. One tiny example, 5-15 lines, titled.
+3. A `<Flow>` of the core idea when there is one: 3-5 steps, a few words each.
+4. What's inside as `<Tiles>`, each linking the concept to its reference page or guide.
+5. Next as `<Tiles>`: quick start, guides, examples. No Purpose or Summary admonitions on these pages.
 
 ## Quick start
 
-1. One sentence on what you will build.
+1. `<Lead>`: one sentence on what you will build.
 2. Requirements as one short list, only when there are any.
 3. Install, one command.
 4. Numbered steps (client, request, send or hook), each a titled block of 5-20 lines.
 5. What just happened: 3 bullets naming the concepts with links.
-6. Next steps.
+6. Next as `<Tiles>`.
 
 ## Concept page (Client, Request, Cache, Dispatcher, Socket, Collection)
 

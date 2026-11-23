@@ -5,47 +5,47 @@ import { cn } from "@site/src/lib/utils";
 const environments = [
   {
     name: "Web & PWA",
-    description: "Fully supported Web and PWA environments.",
+    description: "Browsers and PWAs, with focus, online state and persistent cache.",
     icon: "✅",
   },
   {
     name: "React",
-    description: "Fully supported React environments with hooks and integrations.",
+    description: "Hooks for fetching, mutations, sockets and live queries.",
     icon: "✅",
   },
   {
     name: "React Native",
-    description: "Fully supported React Native environments with hooks and integrations.",
+    description: "The same hooks, with AppState and NetInfo for focus and network.",
     icon: "✅",
   },
   {
     name: "Next.js",
-    description: "Fully supported Next.js environments with hooks, integrations, hydration and SSR.",
+    description: "Server components, route handlers and hydration of server data.",
     icon: "✅",
   },
   {
     name: "Electron",
-    description: "Fully supported Electron environments with hooks and integrations.",
+    description: "Renderer and main process, with IPC between them.",
     icon: "✅",
   },
   {
     name: "SSR",
-    description: "Fully supported SSR environments (Next.js, Astro, Tanstack Router) with hydration abilities.",
+    description: "Astro, TanStack Router and other SSR setups hydrate server data.",
     icon: "✅",
   },
   {
     name: "Node.js",
-    description: "Supporting Node.js environments with server integrations.",
+    description: "Scripts, servers and workers, with the cache scoped per request.",
     icon: "✅",
   },
   {
     name: "Svelte",
-    description: "HyperFetch is working with Svelte, but do not expose any hooks yet.",
+    description: "Core works in Svelte. There are no Svelte bindings yet.",
     icon: "⚙️",
   },
   {
     name: "Vue",
-    description: "HyperFetch is working with Vue, but do not expose any hooks yet.",
+    description: "Core works in Vue. There are no Vue bindings yet.",
     icon: "⚙️",
   },
 ];

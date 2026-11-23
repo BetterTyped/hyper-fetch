@@ -147,7 +147,7 @@ function App() {
     <div>
       <TextField
         label="Search"
-        placeholder="Type to search by name"
+        placeholder="Search by name"
         onChange={(e) =>
           setSearch(e.target.value)
         }
@@ -215,9 +215,10 @@ const UsersListPage = () => {
   } = useFetch(getUsers);
 
   onSuccess(({ response }) => {
+    const count = response.data.length;
     toast({
       title: "Success",
-      message: `${response.data.length} users`,
+      message: `${count} users`,
       type: "success",
     });
   });
