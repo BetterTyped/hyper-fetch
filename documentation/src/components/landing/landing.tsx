@@ -9,6 +9,7 @@ import { CallToAction } from "./call-to-action/call-to-action";
 import { Clients } from "./clients/clients";
 import { Hero } from "./hero/hero";
 import { Hub } from "./hub/hub";
+import { Persistence } from "./persistence/persistence";
 import { Platforms } from "./platforms/platforms";
 import { Problems } from "./problems/problems";
 import { Production } from "./production/production";
@@ -34,7 +35,8 @@ const structuredData = {
 
 /*
  * Section order: hero · clients · what HyperFetch is (Core / Sockets / DB) · platforms ·
- * SDK from your code · BetterTyped · one typed client · ready for production · same bugs ·
+ * SDK from your code · BetterTyped · one typed client · ready for production · persistence ·
+ * same bugs ·
  * sponsors · call to action.
  */
 export const Landing = () => {
@@ -63,6 +65,9 @@ export const Landing = () => {
         </div>
         <Hub />
         <Production />
+        <div className="landing-scope">
+          <Persistence />
+        </div>
         <div className="landing-scope">
           <Problems />
           <Sponsors />

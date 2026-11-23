@@ -23,16 +23,19 @@ alwaysApply: false
 6. **BetterTyped** (`bettertyped/`): "Built by BetterTyped" and the three numbers
 7. **Hub** (`hub/`): "One typed client for every API", photon beam, live typed feed
 8. **Production** (`production/`): "Ready for production" bento
-9. **Problems** (`problems/`): "Same bugs, different projects" issue tracker, loops
-10. **Sponsors** (`sponsors/`)
-11. **CallToAction** (`call-to-action/`): standard head, the hero actions, Apache 2.0 / stars / live downloads
+9. **Persistence** (`persistence/`): "Everything is JSON". Two cards run the same three steps side by side
+   (Offline: queued, app closed, lost. Persisted: queued, saved as JSON, synced), then one `@hyper-fetch/db` strip
+   (Soon). Keep it this simple: one idea, three icons per card, no extra cards
+10. **Problems** (`problems/`): "Same bugs, different projects" issue tracker, loops
+11. **Sponsors** (`sponsors/`)
+12. **CallToAction** (`call-to-action/`): standard head, the hero actions, Apache 2.0 / stars / live downloads
 
 ## Hero Rules
 
-- H1: "Fetch anything." / "Type everything.". Only "anything." uses the accent, "everything." is a shade under
-  white with the red type-error squiggle behind it.
-- Accent is solid honey `#f9b233`, shared by the title word and the Get Started button. No gradients on the
-  title or the button.
+- H1: "Fetch anything." / "Type everything.". "Fetch" uses the section-title zinc-200 gradient that fades at the top
+  and bottom of each word, "anything." the BetterTyped gold (`bt-gold-text`). The whole second line uses the same
+  fading gradient in zinc-300, one shade grayer. Only the squiggle under "everything." is red (`#f43f5e`)
+- The Get Started button stays solid honey `#f9b233`, no gradient.
 - Actions: the agent skills install command (click to copy) on the left, Get Started as the primary on the right.
 - Logo row: colour logos with names, no label and no divider. Logos live in `static/img/integration-*.svg`.
   Add one when a new adapter, transport or integration page ships (`hero/ecosystem.tsx`).

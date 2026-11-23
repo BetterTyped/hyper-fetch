@@ -49,6 +49,9 @@ const titleBase =
 /* The section title look: a zinc gradient that fades at the top and bottom of each word */
 const titleGradient =
   "bg-clip-text !text-transparent bg-gradient-to-b from-zinc-200/60 via-zinc-200 to-zinc-200/60";
+/* The second line: the same fading gradient one shade grayer, so the red squiggle carries the accent */
+const titleGradientMuted =
+  "bg-clip-text !text-transparent bg-gradient-to-b from-zinc-300/60 via-zinc-300 to-zinc-300/60";
 /* The accent, the gold of the BetterTyped numbers. The padding keeps the descenders inside the clipped gradient */
 const accent = "bt-gold-text pb-[0.08em]";
 
@@ -123,8 +126,8 @@ const HeroTitle = () => (
       <Word className={accent}>anything.</Word>
     </Line>
     <Line className="">
-      <Word className={titleGradient}>Type </Word>
-      <Squiggle>everything.</Squiggle>
+      <Word className={titleGradientMuted}>Type </Word>
+      <Squiggle className={titleGradientMuted}>everything.</Squiggle>
     </Line>
   </h1>
 );
