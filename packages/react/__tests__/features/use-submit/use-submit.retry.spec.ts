@@ -3,6 +3,7 @@ import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { act, waitFor } from "@testing-library/react";
 
 import { client, createRequest, renderUseSubmit } from "../../utils";
+import { advance, gateRequest, settle } from "../../utils/gate.utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -103,6 +104,59 @@ describe("useSubmit [ Retry ]", () => {
       });
 
       expect(startTimes[1] - finishTimes[0]).toBeGreaterThanOrEqual(retryTime);
+    });
+  });
+
+  describe("when a retry gets scheduled", () => {
+    const retryTime = 1000;
+
+    it("should call onSubmitRetry with the retry number and its delay for the submitted request", async () => {
+      vi.useFakeTimers();
+      const gatedRequest = createRequest<{ response: null; payload: null }>({ method: "POST", retry: 2, retryTime });
+      const calls = gateRequest(gatedRequest);
+      const onRetry = vi.fn();
+      const response = renderUseSubmit(gatedRequest);
+
+      act(() => {
+        response.result.current.onSubmitRetry(onRetry);
+        response.result.current.submit();
+      });
+      await advance();
+      calls[0].fail(new Error("Attempt 1 failed"));
+      await settle();
+
+      expect(onRetry).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({ retry: 1, delay: retryTime, requestId: calls[0].requestId }),
+      );
+
+      await advance(retryTime);
+      calls[1].fail(new Error("Attempt 2 failed"));
+      await settle();
+      await advance(retryTime);
+      calls[2].fail(new Error("Attempt 3 failed"));
+      await settle();
+
+      expect(calls).toHaveLength(3);
+      expect(onRetry.mock.calls.map(([event]) => event.retry)).toStrictEqual([1, 2]);
+    });
+    it("should not call onSubmitRetry for the retries of a request sent elsewhere", async () => {
+      vi.useFakeTimers();
+      const gatedRequest = createRequest<{ response: null; payload: null }>({ method: "POST", retry: 1, retryTime });
+      const calls = gateRequest(gatedRequest);
+      const onRetry = vi.fn();
+      const response = renderUseSubmit(gatedRequest);
+
+      act(() => {
+        response.result.current.onSubmitRetry(onRetry);
+      });
+      gatedRequest.send();
+      await advance();
+      calls[0].fail();
+      await settle();
+      await advance(retryTime);
+
+      expect(calls).toHaveLength(2);
+      expect(onRetry).not.toHaveBeenCalled();
     });
   });
 });
