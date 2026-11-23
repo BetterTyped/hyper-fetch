@@ -1,39 +1,37 @@
 ---
 sidebar_position: 5
 title: WebSocket and SSE Inspector in HyperFlow
-description: Inspect WebSocket and Server-Sent Events sockets in HyperFlow, with connection state, messages received and sent, and errors next to your requests.
-sidebar_label: Socket Inspector
+description: "Inspect WebSocket and Server-Sent Events sockets in HyperFlow, with connection state, messages received and sent, sizes, reconnection attempts and errors, next to the requests of the same app."
+sidebar_label: Sockets
 ---
 
-# WebSocket and SSE inspector in HyperFlow
+# Sockets
 
-The Socket Inspector shows the realtime side of your application: every socket's connection, the messages it receives
-and sends, and its errors. It works with the WebSocket and Server-Sent Events adapters of `@hyper-fetch/sockets`.
+The **Sockets** page shows the realtime side of your app: whether each socket is connected, every message it receives
+and sends, and its errors. It works with every adapter of [`@hyper-fetch/sockets`](/docs/sockets/overview.mdx), such as
+WebSocket and Server-Sent Events.
 
-:::tip Purpose
-
-1.  **See the connection**: know at a glance whether each socket is connected, reconnecting or gave up.
-2.  **Read the traffic**: follow every message in and out, with its topic, content and size.
-3.  **Find problems fast**: errors and failed sends are listed next to the messages around them.
-
-:::
+<Screenshot
+  src="/img/hyper-flow/sockets.webp"
+  alt="The Sockets page with a card for the ws://localhost:4545 socket showing it is connected with counts of received and sent messages, and a log of order-created and stock-changed messages."
+  caption="A connected socket and its latest messages."
+/>
 
 ---
 
-## Inspecting your sockets
+## Add your sockets
 
-Pass the sockets to the devtools plugin of your client. They show up under the same application as its requests.
+HyperFlow shows the sockets you pass to the devtools plugin. Until you do, the page says **No sockets inspected**.
 
-```tsx
-import { createClient } from "@hyper-fetch/core";
-import { Socket } from "@hyper-fetch/sockets";
+```ts title="api/client.ts"
+import { createSocketClient } from "@hyper-fetch/sockets";
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
-const socket = new Socket({ url: "ws://localhost:3000" });
+export const socket = createSocketClient({ url: "wss://api.example.com/ws" });
 
-const client = createClient({ url: "http://localhost:3000" }).addPlugin(
+client.addPlugin(
   DevtoolsPlugin({
-    appName: "My App",
+    appName: "Acme Store",
     // highlight-next-line
     sockets: [socket],
   }),
@@ -42,25 +40,46 @@ const client = createClient({ url: "http://localhost:3000" }).addPlugin(
 
 ---
 
-## Sockets
+## Socket cards
 
-Each socket gets a card with its URL, adapter and status: connecting, connected, reconnecting, disconnected or failed.
-The card counts the messages and bytes received and sent, the errors, failed sends, reconnection attempts and topics.
-Select a card to show only that socket's messages.
+Each socket gets a card with its URL, adapter and status: **connecting**, **connected**, **reconnecting**,
+**disconnected** or **failed**. The card counts messages and bytes received and sent, errors, failed sends,
+reconnection attempts and topics.
+
+Select a card to show only that socket's messages, and select it again to show all of them.
 
 ---
 
 ## Messages
 
-The log lists the newest messages first, up to the latest 1000:
+The log lists the newest messages first and keeps the latest 1,000.
 
-- **Received** messages with their topic and data.
-- **Sent** messages with their topic and payload.
-- **Connection** events: connecting, connected, disconnected and reconnection attempts.
-- **Errors** of the socket and messages that failed to send.
+| Filter         | Shows                                                                   |
+| -------------- | ----------------------------------------------------------------------- |
+| **All**        | Everything below                                                        |
+| **Received**   | Messages that arrived, with their topic and data                       |
+| **Sent**       | Messages your emitters sent, and the ones that failed to send          |
+| **Connection** | Connecting, connected, disconnected, reconnection attempts and errors  |
 
-Filter the log by direction, search it by topic or content, or clear it while the counters keep going. Select a
-message to see its data, the adapter's extra details and any error in full.
+Search the log with **Search by topic or content**. **Clear messages** empties the log while the counters on the cards
+keep going.
 
-When HyperFlow restarts, the plugin reports every socket and its current state again, so nothing is lost but the
-messages sent while HyperFlow was closed.
+<Screenshot
+  src="/img/hyper-flow/sockets-message.webp"
+  alt="A selected order-created message with its data: an order id, customer, item and total."
+  caption="Select a message to see its full data and the adapter's details."
+/>
+
+Select a message to see its data or payload, the adapter's extra details, such as the raw `MessageEvent`, and any error
+in full.
+
+:::tip Debug a message that never arrives
+
+If a listener never fires, look for the topic in **Received**. When the message is there under another topic, the
+listener's topic or params differ from what the server sends. When it is missing, check the socket's status and
+**Connection** events.
+
+:::
+
+When HyperFlow restarts, the plugin reports every socket and its current state again. Only messages sent while
+HyperFlow was closed are missing.

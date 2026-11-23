@@ -1,42 +1,45 @@
 ---
 sidebar_position: 2
-title: DB Quick Start
+title: "DB Quick Start: From a Request to a Live Query"
+description: "Define a collection from an existing HyperFetch request, create the db, render a live query with useLiveQuery and make an optimistic write, in four steps."
 sidebar_label: Quick Start
 ---
 
-# Quick Start
+# Quick start
 
-> From a request to a live query in four steps.
+You will turn a list request into a collection of posts, show the posts of one team with a live query, and rename a post
+with an optimistic write. The rename shows in the list at once and reverts if the server rejects it.
+
+:::tip What you'll learn
+
+1. **Define a collection** from a schema and the requests that load and change it.
+2. **Query it live** in a React component.
+3. **Write to it** optimistically.
+
+:::
 
 ---
 
 ## Install
 
-```bash
-npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/db
+```npm2yarn2pnpm
+npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/db @hyper-fetch/react zod
 ```
+
+Zod is used here for the schema. Any [Standard Schema](https://standardschema.dev) library works, such as Valibot or
+ArkType, and `rowType<Post>()` works without one.
 
 ---
 
 ## 1. Define a collection
 
-```ts
+A collection holds complete rows of one schema, identified by `key`. Its **loader** says which request returns rows and
+how a query condition maps to that request. Its **mutation** says which request saves a change.
+
+```ts title="db/posts.ts"
 import { createClient } from "@hyper-fetch/core";
 import { collection } from "@hyper-fetch/db";
 import { z } from "zod";
-
-const client = createClient({ url: "https://api.example.com" });
-
-const getTeamPosts = client.createRequest<{ response: Post[] }>()({
-  endpoint: "/teams/:teamId/posts",
-});
-const updatePost = client.createRequest<{
-  response: Post;
-  payload: Partial<Post>;
-}>()({
-  endpoint: "/posts/:postId",
-  method: "PATCH",
-});
 
 const PostSchema = z.object({
   id: z.number(),
@@ -46,56 +49,126 @@ const PostSchema = z.object({
 });
 type Post = z.infer<typeof PostSchema>;
 
-const Post = collection(PostSchema, { key: "id" })
+const client = createClient({ url: "https://api.example.com" });
+
+const getTeamPosts = client.createRequest<{ response: Post[] }>()({
+  endpoint: "/teams/:teamId/posts",
+});
+const updatePost = client.createRequest<{ response: Post; payload: Partial<Post> }>()({
+  endpoint: "/posts/:postId",
+  method: "PATCH",
+});
+
+export const Post = collection(PostSchema, { key: "id" })
   .load(getTeamPosts, {
     where: {
+      // A query for `teamId = 1` sends GET /teams/1/posts. The query must set it.
+      // highlight-next-line
       teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
     },
   })
   .mutate({
     update: {
       request: updatePost,
+      // highlight-next-line
       map: (key, changes) => ({ params: { postId: key }, payload: changes }),
     },
   });
 ```
 
+The rows a loader returns must match the schema exactly. If they do not, the types report a `RowMismatch` and the next
+step does not compile.
+
 ---
 
 ## 2. Create the db
 
-```ts
+```ts title="db/index.ts"
 import { createDb } from "@hyper-fetch/db";
 
+import { Post } from "./posts";
+
+// highlight-next-line
 export const db = createDb({ post: Post });
 ```
 
+Each key becomes a collection on the db: `db.post`.
+
 ---
 
-## 3. Query it
+## 3. Query it live
 
-```tsx
+A live query loads the rows it needs and keeps the component in sync with every later change. Queries are identified by
+their structure, so there is no dependency array.
+
+```tsx title="team-posts.tsx"
 import { eq } from "@hyper-fetch/db";
 import { useLiveQuery } from "@hyper-fetch/react";
 
-const Posts = ({ teamId }: { teamId: number }) => {
-  const { data, status } = useLiveQuery(
-    db.post
-      .where((post) => eq(post.teamId, teamId))
-      .orderBy((post) => post.createdAt, "desc"),
-  );
+import { db } from "./db";
 
-  if (status !== "ready") return null;
-  return data.map((post) => <PostRow key={post.id} post={post} />);
+export const TeamPosts = ({ teamId }: { teamId: number }) => {
+  // highlight-start
+  const { data, status } = useLiveQuery(
+    db.post.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+  );
+  // highlight-end
+
+  if (status !== "ready") return <p>Loading...</p>;
+
+  return data?.map((post) => <PostRow key={post.id} post={post} />);
 };
 ```
+
+`status` is `loading`, `ready`, or `error` when the first load failed.
 
 ---
 
 ## 4. Write to it
 
-```ts
-await db.post.update(1, { title: "Renamed" });
+```ts title="post-row.tsx"
+// highlight-next-line
+const { success } = await db.post.update(post.id, { title: "Renamed" });
 ```
 
-The change shows in every query at once and reverts if the request fails.
+The new title shows in every query that holds the post before the request finishes. If the request fails, the db
+reverts this change and keeps any other changes made since. The write resolves with the result and never throws.
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Overview"
+      description="Loaders, queries, syncs, writes and errors in depth."
+      to="/docs/db/overview"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Realtime syncs"
+      description="Keep loaded rows current with socket listeners."
+      to="/docs/db/overview#syncs-and-ingest"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Transactions"
+      description="Group writes that must succeed or revert together."
+      to="/docs/db/transactions"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Server rendering"
+      description="Load on the server and send the rows with the page."
+      to="/docs/db/server-rendering"
+    />
+  </div>
+</div>

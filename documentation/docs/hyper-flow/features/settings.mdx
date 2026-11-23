@@ -1,0 +1,98 @@
+---
+sidebar_position: 7
+title: HyperFlow Settings, Server Port and Simulated Errors
+description: "Configure HyperFlow. Change the port of its local server, limit the network history of an app, and define the errors you use to simulate failed responses in the cache."
+sidebar_label: Settings
+---
+
+# Settings
+
+HyperFlow has two settings pages. **Settings** on the home screen configures the local server that apps connect to.
+**Settings** inside an app configures how HyperFlow treats that app: how many requests it keeps and which errors you can
+simulate.
+
+---
+
+## Server port
+
+HyperFlow runs a local server on port `2137`, and the devtools plugin connects to it. Open **Settings** from the home
+screen sidebar to see the current port and whether the server runs.
+
+<Screenshot
+  src="/img/hyper-flow/settings.webp"
+  alt="The HyperFlow Settings page with the Server Configuration card showing the current port 2137, server status Running and a Change Port button."
+  caption="The server configuration on the home screen."
+/>
+
+To use another port, for example when `2137` is taken:
+
+1. Select **Change Port**, enter a port between 1 and 65535 and select **Save Changes**. HyperFlow restarts its server
+   on the new port and keeps the old one until the new one listens.
+2. Pass the same port to the plugin in every app:
+
+   ```ts
+   DevtoolsPlugin({
+     appName: "Acme Store",
+     // highlight-next-line
+     url: "ws://localhost:4000",
+   });
+   ```
+
+HyperFlow remembers the port after a restart.
+
+If the server stops, for example because another program took the port, HyperFlow shows **Server is not running** with
+a **Restart Server** button, and the **Settings** item in the sidebar shows **Fix server**.
+
+---
+
+## App settings
+
+Open an app and select **Settings** at the bottom of its sidebar.
+
+<Screenshot
+  src="/img/hyper-flow/app-settings.webp"
+  alt="The settings of the Acme Store app: client configuration with base URL, environment and adapter, the network history limit, and the list of simulated errors with the built-in Default error."
+  caption="Settings of one app. HyperFlow remembers them for the app's name."
+/>
+
+**Client Configuration** shows the base URL, environment and adapter the plugin reported.
+
+### Network history limit
+
+How many requests the [Network](/docs/hyper-flow/features/network.mdx) page keeps for this app. The default is 1,000.
+When the limit is reached, the oldest requests are dropped. Raise it to look further back, lower it if HyperFlow slows
+down with very busy apps.
+
+### Simulated errors
+
+The errors you can choose from when you use **Simulate Error** on a
+[cache entry](/docs/hyper-flow/features/cache.mdx#change-an-entry). The built-in **Default** error has status `400` and
+cannot be changed or removed.
+
+<Screenshot
+  src="/img/hyper-flow/add-error.webp"
+  alt="The Add Error Response dialog with fields for the error name, the status code and the error body as JSON."
+  caption="Add an error with the status and body your API returns."
+/>
+
+Select **Add Error Response** and fill in:
+
+- **Error Name**, shown in the Simulate Error list.
+- **Status Code**, such as `401` or `503`. Clear **Numeric Status** for adapters with text statuses, such as Firebase.
+- **Error Body (JSON)**, the error your API returns, such as `{ "message": "Session expired" }`.
+
+Hover an error to edit or remove it. Add the errors your UI handles differently, such as `401` for a sign-in redirect,
+`403` for a permission message and `503` for a retry screen, and you can check each state in seconds.
+
+---
+
+## What HyperFlow remembers
+
+| Kept after a restart                                   | Lost when HyperFlow closes                                     |
+| ------------------------------------------------------ | -------------------------------------------------------------- |
+| The server port                                        | Requests, cache entries, queues and statistics                 |
+| Every app that connected, with its URL and environment | Socket messages and db snapshots                               |
+| Each app's settings and simulated errors               |                                                                |
+
+Apps you no longer use can be removed from the home screen: open the **⋮** menu on an app's card and select **Remove
+Application**.

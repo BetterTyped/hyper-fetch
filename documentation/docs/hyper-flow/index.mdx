@@ -1,91 +1,159 @@
 ---
 sidebar_position: 1
 title: "HyperFlow: Devtools App for Requests, Cache and Queues"
-description: HyperFlow is a desktop devtools app for HyperFetch. Inspect requests, cache entries, queues and sockets of React and Node.js apps in real time.
+description: "HyperFlow is a desktop devtools app for HyperFetch on macOS, Windows and Linux. Inspect requests, cache entries, queues, sockets and db collections of browser and Node.js apps in real time."
 sidebar_label: Overview
 ---
 
-# HyperFlow, a devtools app for requests, cache and queues
+# HyperFlow
 
-HyperFlow is a desktop app for macOS, Windows and Linux that shows what the data layer of a HyperFetch app is doing. Your
-client connects to it through the [devtools plugin](../integrations/plugin-devtools/index.mdx), and HyperFlow lists every
-request with its payload, response, headers, status and timing, the cache with fresh and stale entries, the queues, and
-socket traffic. If you know react query devtools, it covers the same ground for HyperFetch, from a separate window
-instead of a panel inside the page.
+HyperFlow is a desktop app for macOS, Windows and Linux that shows what the data layer of your HyperFetch app is doing,
+while it runs. Add the [devtools plugin](/docs/integrations/plugin-devtools/index.mdx) to your client, and HyperFlow
+lists every request with its payload, response and timing, the cache with its fresh and stale entries, the queues,
+socket traffic and `@hyper-fetch/db` collections.
 
-HyperFlow is in alpha.
+<Screenshot
+  src="/img/hyper-flow/app-general.webp"
+  alt="HyperFlow showing the General tab of the Acme Store app: network overview with total and successful requests, and a list of recent requests with their status, cache state and response time."
+  caption="The start page of a connected app: request totals, success rate and the latest requests."
+/>
 
-- **Inspect** every request and filter by endpoint, method, key, success, failure, paused or canceled.
-- **Browse and edit the cache**, and watch hooks pick up the change.
-- **Control queues**: stop, start and clear them to test slow and offline paths.
-- **Read sockets**: connection state, messages in and out, and errors for WebSocket and SSE.
+:::caution Alpha
 
----
+HyperFlow is in alpha. Expect rough edges, and tell us what you miss on
+[GitHub Discussions](https://github.com/BetterTyped/hyper-fetch/discussions).
 
-## Why a desktop app and not a browser extension
-
-Browser devtools, including the Chrome React DevTools extension, only see what runs in that tab. React DevTools shows
-the component tree and the profiler. The Network tab shows HTTP traffic, but not which requests were served from
-cache, deduplicated or waiting in a queue.
-
-HyperFlow gets that from the client itself. The plugin sends events over a local WebSocket, so the app does not have to
-run in Chrome at all: a Node.js backend, a script or a browser tab all connect the same way, and each shows up as its
-own connection under its `appName`. The trade-off is one more app to start while you develop, and no inline panel in
-the page.
+:::
 
 ---
 
-![Performance Insights](@site/static/img/previews/app.png)
-
-## Key Features
-
-Each part of HyperFlow has its own page:
+## What you can do with it
 
 <div className="row">
-  <div className="col col--6" style={{ padding: "0.5rem" }}>
+  <div className="col col--6">
     <LinkCard
       type="docs"
-      title="Dashboard"
-      description="Get a high-level overview of your application's health, with visualizations for network and cache statistics."
-      to="/docs/hyper-flow/features/dashboard"
-    />
-  </div>
-  <div className="col col--6" style={{ padding: "0.5rem" }}>
-    <LinkCard
-      type="docs"
-      title="Network Inspector"
-      description="Monitor all network requests in real-time. Inspect payloads and responses to debug issues quickly."
+      title="Inspect every request"
+      description="Payload, response, headers, timing and retries. Filter by success, failure, paused or canceled."
       to="/docs/hyper-flow/features/network"
     />
   </div>
-  <div className="col col--6" style={{ padding: "0.5rem" }}>
+  <div className="col col--6">
     <LinkCard
       type="docs"
-      title="Cache Management"
-      description="Visualize and control your application's cache. Inspect entries, track changes, and debug caching issues."
+      title="Browse and edit the cache"
+      description="See fresh and stale entries and their observers. Edit, invalidate or remove an entry and watch your UI react."
       to="/docs/hyper-flow/features/cache"
     />
   </div>
-  <div className="col col--6" style={{ padding: "0.5rem" }}>
+  <div className="col col--6">
     <LinkCard
       type="docs"
-      title="Queue Management"
-      description="Oversee and manage request queues. Troubleshoot pending, ongoing, or stuck requests with ease."
+      title="Control queues"
+      description="Stop, start and clear queues, or force a loading state, to test slow and offline paths."
       to="/docs/hyper-flow/features/queues"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Find slow endpoints"
+      description="Success rate, p95 response times, traffic by endpoint and error summaries."
+      to="/docs/hyper-flow/features/dashboard"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Read socket traffic"
+      description="Connection state, every message in and out, and errors for WebSocket and SSE."
+      to="/docs/hyper-flow/features/sockets"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Look inside a db"
+      description="Collections, loaded subsets, live query plans and the outbox of @hyper-fetch/db."
+      to="/docs/hyper-flow/features/db"
     />
   </div>
 </div>
 
 ---
 
-## Getting Started
+## Get started in three steps
 
-Download the app, start it, then [connect your client](./connecting.mdx) with the devtools plugin. The
-[compatibility table](./compatibility.mdx) lists what works with each adapter.
+1. **[Download HyperFlow](/docs/hyper-flow/download.mdx)** for your system and open it.
+2. **Add the plugin** to your client:
 
-<LinkCard
-  type="promo"
-  title="Download HyperFlow"
-  description="Download the HyperFlow application and connect it to your project."
-  to="/docs/hyper-flow/download"
-/>
+   ```ts title="api/client.ts"
+   import { createClient } from "@hyper-fetch/core";
+   import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+
+   export const client = createClient({ url: "https://api.example.com" }).addPlugin(
+     // highlight-next-line
+     DevtoolsPlugin({ appName: "My App" }),
+   );
+   ```
+
+3. **Run your app.** It shows up on the HyperFlow home screen as soon as the plugin connects.
+
+[Connect your app](/docs/hyper-flow/connecting.mdx) covers installation, development-only setup, Node.js backends,
+sockets and dbs.
+
+---
+
+## How it works
+
+```mermaid
+flowchart LR
+  subgraph app [Your app]
+    C["HyperFetch client"] --> P["DevtoolsPlugin"]
+    S["Sockets and dbs"] --> P
+  end
+  P -- "events over WebSocket<br/>ws://localhost:2137" --> H["HyperFlow<br/>local server"]
+  H --> UI["HyperFlow window"]
+  UI -- "cache edits, queue controls" --> H
+  H --> P
+```
+
+The plugin listens to the client's events and sends them to a small server that HyperFlow runs on your machine, on port
+`2137` by default. HyperFlow keeps what it receives in memory and shows it live. The connection also works the other
+way: when you edit a cache entry or stop a queue in HyperFlow, the plugin applies the change in your app.
+
+Your requests and responses travel only between your app and HyperFlow on your machine.
+
+---
+
+## Why a desktop app
+
+Browser devtools only see what runs in their tab. The Network tab shows HTTP traffic, but not which requests were
+answered from cache, joined an identical request or waited in a queue, and React DevTools shows components, not data.
+
+HyperFlow gets this from the client itself, so it works wherever the client runs. A browser tab, a Next.js server, a
+Node.js worker and a React Native app all connect the same way, and each appears as its own application in one window.
+The trade-off is one more app to start while you develop.
+
+---
+
+## Where to go next
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="promo"
+      title="Download HyperFlow"
+      description="Builds for macOS, Windows and Linux."
+      to="/docs/hyper-flow/download"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Tour the interface"
+      description="What every part of the window does, in one annotated screenshot."
+      to="/docs/hyper-flow/interface"
+    />
+  </div>
+</div>
