@@ -237,6 +237,7 @@ export const integrations: Section[] = [
     borderHover: "hover:border-sky-500 hover:dark:border-sky-400",
     category: "Plugin",
     package: "plugin-oxlint",
+    isNew: true,
   },
   {
     label: "Devtools",
@@ -295,6 +296,7 @@ export const integrations: Section[] = [
     borderHover: "hover:border-orange-500 hover:dark:border-orange-400",
     category: "Service",
     package: "hono",
+    isNew: true,
   },
   {
     label: "Elysia",
@@ -315,6 +317,7 @@ export const integrations: Section[] = [
     borderHover: "hover:border-violet-500 hover:dark:border-violet-400",
     category: "Service",
     package: "elysia",
+    isNew: true,
   },
   {
     label: "Graphql",
@@ -352,6 +355,7 @@ export const integrations: Section[] = [
     borderHover: "hover:border-teal-500 hover:dark:border-teal-400",
     category: "Adapter",
     package: "orpc",
+    isNew: true,
   },
   {
     label: "tRPC",
@@ -370,6 +374,7 @@ export const integrations: Section[] = [
     borderHover: "hover:border-blue-500 hover:dark:border-blue-400",
     category: "Adapter",
     package: "trpc",
+    isNew: true,
   },
   {
     label: "Firebase",

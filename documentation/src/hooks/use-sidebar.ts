@@ -1,14 +1,14 @@
-import type React from "react";
-import { useMemo } from "react";
 import { useLocation } from "@docusaurus/router";
 import useGlobalData from "@docusaurus/useGlobalData";
+import type React from "react";
+import { useMemo } from "react";
 
-import { useVersion } from "./use-version";
+import { apiOverviewSection } from "../apis";
+import { guides } from "../guides";
+import { integrations } from "../integrations";
 import type { Section } from "../modules";
 import { modules } from "../modules";
-import { integrations } from "../integrations";
-import { guides } from "../guides";
-import { apiOverviewSection } from "../apis";
+import { useVersion } from "./use-version";
 
 const VERSION_SEGMENT = /^v\d+\.\d+\.\d+$/;
 
@@ -75,6 +75,7 @@ export type SidebarItem = {
   active: boolean;
   section: Section;
   isNew?: boolean;
+  isBeta?: boolean;
   isPro?: boolean;
 };
 
@@ -195,6 +196,7 @@ export const useSidebar = (options?: {
           active,
           section,
           isNew: section?.isNew,
+          isBeta: section?.isBeta,
           isPro: section?.isPro,
         } satisfies SidebarItem;
       })
