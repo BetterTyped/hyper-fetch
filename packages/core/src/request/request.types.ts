@@ -1,6 +1,11 @@
 import type { RequestResponseType, ResponseSuccessType, ResponseErrorType } from "adapter";
 import type { ClientInstance } from "client";
-import type { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
+import type {
+  RequestEventType,
+  RequestProgressEventType,
+  RequestResponseEventType,
+  RequestRetryEventType,
+} from "managers";
 import type { OptimisticFactoryType, OptimisticUpdatesType } from "optimistic";
 /* eslint-disable @typescript-eslint/no-shadow */
 import type {
@@ -457,6 +462,11 @@ export type RequestSendActionsType<Request extends RequestInstance> = {
   onUploadProgress?: (eventData: RequestProgressEventType<Request>) => void;
   onDownloadProgress?: (eventData: RequestProgressEventType<Request>) => void;
   onResponse?: (eventData: RequestResponseEventType<Request>) => void;
+  /**
+   * Called when a failed attempt schedules a retry, with the failed `response`, the `retry` number (from 1) and the
+   * `delay` in milliseconds before the next attempt. Those attempts do not call `onResponse` - only the last one does.
+   */
+  onRetry?: (eventData: RequestRetryEventType<Request>) => void;
   onRemove?: (eventData: RequestEventType<Request>) => void;
 };
 

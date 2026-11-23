@@ -9,6 +9,7 @@ import type {
   RequestResponseEventType,
   RequestRemovedEventType,
   RequestDeduplicatedEventType,
+  RequestRetryEventType,
 } from "managers";
 import {
   getRequestStarByQueryKey,
@@ -40,11 +41,14 @@ import {
   getRequestDeduplicatedByIdKey,
   getRequestDeduplicatedByCacheKey,
   getRequestDeduplicatedByQueryKey,
+  getRetryKey,
+  getRetryByIdKey,
+  getRetryByQueryKey,
 } from "managers";
 import type { RequestInstance } from "request";
 import type { ExtendRequest } from "types";
 
-/** Create event emitters and listeners for the request lifecycle: loading, progress, response, abort, deduplication, and removal. */
+/** Create event emitters and listeners for the request lifecycle: loading, progress, response, retry, abort, deduplication, and removal. */
 export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   /**
    * Emitters
@@ -100,6 +104,13 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     emitter.emit(getResponseKey(), data, isTriggeredExternally);
     emitter.emit(getResponseByIdKey(data.requestId), data, isTriggeredExternally);
     emitter.emit(getResponseByCacheKey(data.request.cacheKey), data, isTriggeredExternally);
+  },
+
+  /** Emit when a failed attempt schedules a retry - after its response, before the wait for the next attempt */
+  emitRetry: (data: RequestRetryEventType<RequestInstance>, isTriggeredExternally = false): void => {
+    emitter.emit(getRetryKey(), data, isTriggeredExternally);
+    emitter.emit(getRetryByIdKey(data.requestId), data, isTriggeredExternally);
+    emitter.emit(getRetryByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
 
   /** Emit when a request is aborted */
@@ -299,6 +310,31 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   ): VoidFunction => {
     emitter.on(getAbortByIdKey(requestId), callback);
     return () => emitter.removeListener(getAbortByIdKey(requestId), callback);
+  },
+
+  // Retry
+  /** Listen to every scheduled retry - the event carries the failed response, the retry number and its delay */
+  onRetry: <T extends RequestInstance = RequestInstance>(
+    callback: (data: RequestRetryEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getRetryKey(), callback);
+    return () => emitter.removeListener(getRetryKey(), callback);
+  },
+  /** Listen to the retries scheduled by the requests of the queue */
+  onRetryByQueue: <T extends RequestInstance = RequestInstance>(
+    queryKey: string,
+    callback: (data: RequestRetryEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getRetryByQueryKey(queryKey), callback);
+    return () => emitter.removeListener(getRetryByQueryKey(queryKey), callback);
+  },
+  /** Listen to the retries scheduled by one request */
+  onRetryById: <T extends RequestInstance = RequestInstance>(
+    requestId: string,
+    callback: (data: RequestRetryEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getRetryByIdKey(requestId), callback);
+    return () => emitter.removeListener(getRetryByIdKey(requestId), callback);
   },
 
   // Remove

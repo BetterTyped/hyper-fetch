@@ -33,6 +33,17 @@ export type RequestResponseEventType<T extends RequestInstance> = {
   mutationContext?: OptimisticCallbackResult<any>;
 };
 
+/**
+ * Event of a failed attempt which scheduled a retry. It comes after the response of that attempt and before the
+ * request waits `delay` milliseconds to be sent again.
+ */
+export type RequestRetryEventType<T extends RequestInstance> = RequestResponseEventType<T> & {
+  /** Number of the scheduled retry, counted from 1 - the request makes up to `request.retry` of them */
+  retry: number;
+  /** Time in milliseconds the request waits before it is sent again */
+  delay: number;
+};
+
 export type RequestDeduplicatedEventType<T extends RequestInstance> = RequestEventType<T> & {
   deduplicatedRequest: T;
 };
