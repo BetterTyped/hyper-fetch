@@ -7,53 +7,173 @@ sidebar_label: Overview
 
 # Guides overview
 
-Guides solve one task each, such as adding authentication or keeping requests while offline, with complete code you can
-copy. Use them when you know what you want to build. The [concept pages](/docs/core/overview) describe each building
-block, and the [examples](/examples/getting-started/basic) are runnable apps.
+<Lead>
 
-:::secondary What you'll learn
+**One task per guide, with complete code you can copy.** Use a guide when you know what you want to build. The
+[concept pages](/docs/core/overview) describe each building block, and the [examples](/examples) are runnable apps.
 
-1. How to **set up** a client and send typed requests.
-2. How to handle **authentication, errors, retries and caching** with the core package.
-3. How to fetch and submit data with **React hooks** and **sockets**.
-4. How to **type** responses, payloads and errors, and how to **test** requests with mocks.
+</Lead>
 
-:::
+New to HyperFetch? Start with [client setup](/docs/guides/core/basics/setup), then
+[fetching](/docs/guides/core/basics/fetching).
 
 ---
 
-## Where to start
+## Core
 
-| Section                                                     | Covers                                                                   |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------ |
-| [Core basics](/docs/guides/core/basics/setup)               | Client setup, fetching, params, query params, payload, headers, auth     |
-| [Core advanced](/docs/guides/core/advanced/cache-revalidation) | Cache revalidation, cancellation, deduplication, queues, offline, adapters |
-| [TypeScript](/docs/guides/typescript/response-type)         | Typing responses, payloads, params, query params and errors              |
-| [React](/docs/guides/react/basics/fetching)                 | `useFetch`, `useSubmit`, pagination, optimistic updates, queues          |
-| [Sockets](/docs/guides/sockets/setup)                       | Connecting, listening, emitting and reconnecting                         |
-| [Testing](/docs/guides/testing)                             | Mocking requests and isolating tests                                     |
-| [DB](/docs/guides/db/basics/thinking-in-collections)         | Collections, live queries, realtime sync, offline writes and testing     |
-| [Comparisons](/docs/guides/comparisons)                     | HyperFetch next to TanStack Query, SWR, RTK Query and Apollo Client      |
-
-New to HyperFetch? Start with [client setup](/docs/guides/core/basics/setup), then [fetching](/docs/guides/core/basics/fetching).
+<Tiles cols={3}>
+  <Tile title="Setup" icon="rocket" to="/docs/guides/core/basics/setup">
+    Create one client and share it across your app.
+  </Tile>
+  <Tile title="Fetching" icon="send" to="/docs/guides/core/basics/fetching">
+    Send requests with params, payload and query params.
+  </Tile>
+  <Tile title="Authentication" icon="shield" to="/docs/guides/core/basics/authentication">
+    Attach tokens and refresh them without loops.
+  </Tile>
+  <Tile title="Error handling" icon="wrench" to="/docs/guides/core/basics/error-handling">
+    Typed global and local errors, no try/catch.
+  </Tile>
+  <Tile title="Cache invalidation" icon="refresh" to="/docs/guides/core/advanced/cache-revalidation">
+    Refresh data after a mutation, by key or pattern.
+  </Tile>
+  <Tile title="Offline" icon="offline" to="/docs/guides/core/advanced/offline">
+    Requests that wait for the network instead of failing.
+  </Tile>
+</Tiles>
 
 ---
 
-## Integrations
+## React
 
-Guides for adapters and server frameworks, such as GraphQL, Firebase, Axios or Hono, live next to their integration
-docs.
+<Tiles cols={3}>
+  <Tile title="Fetching" icon="atom" meta="useFetch" to="/docs/guides/react/basics/fetching">
+    Loading, errors and caching without `useEffect`.
+  </Tile>
+  <Tile title="Submitting" icon="send" meta="useSubmit" to="/docs/guides/react/basics/submitting">
+    Create, update and delete, then refresh lists.
+  </Tile>
+  <Tile title="Pagination" icon="list" to="/docs/guides/react/basics/pagination">
+    Cached pages, old data on screen, next page prefetched.
+  </Tile>
+  <Tile title="Infinite scroll" icon="layers" to="/docs/guides/react/basics/infinite-scroll">
+    Page, offset or cursor pagination with Load More.
+  </Tile>
+  <Tile title="Optimistic updates" icon="zap" to="/docs/guides/react/basics/optimistic-approach">
+    Show a change at once, undo it on error.
+  </Tile>
+  <Tile title="Next.js" icon="server" to="/docs/guides/react/basics/nextjs-data-fetching">
+    Server components, SSR and the client cache.
+  </Tile>
+</Tiles>
 
-<LinkCard
-  type="integrations"
-  title="Integrations"
-  description="Setup and usage guides for each integration package."
-  href="/docs/integrations/getting-started"
-/>
+---
 
-<LinkCard
-  type="docs"
-  title="Examples"
-  description="Runnable apps for every common task, from fetching to offline queues."
-  href="/examples/getting-started/basic"
-/>
+## Sockets
+
+<Tiles cols={3}>
+  <Tile title="Setup" icon="radio" to="/docs/guides/sockets/setup">
+    A socket, a typed listener and an emitter.
+  </Tile>
+  <Tile title="Listening" icon="activity" to="/docs/guides/sockets/listening">
+    WebSocket and SSE events, filtered by topic params.
+  </Tile>
+  <Tile title="Emitting" icon="send" to="/docs/guides/sockets/emitting">
+    Send events, use params in topics and read replies.
+  </Tile>
+  <Tile title="Authentication" icon="shield" to="/docs/guides/sockets/authentication">
+    Tokens in query params, subprotocols or cookies.
+  </Tile>
+  <Tile title="WebSockets in React" icon="atom" meta="useListener" to="/docs/guides/sockets/websockets-in-react">
+    A typed hook that handles reconnects and StrictMode.
+  </Tile>
+  <Tile title="Errors and reconnection" icon="refresh" to="/docs/guides/sockets/websocket-reconnection-and-errors">
+    Close codes, heartbeats and backoff.
+  </Tile>
+</Tiles>
+
+---
+
+## DB
+
+<Tiles cols={3}>
+  <Tile title="Thinking in collections" icon="database" to="/docs/guides/db/basics/thinking-in-collections">
+    One copy of each record, shown live in every view.
+  </Tile>
+  <Tile title="Loaders" icon="send" to="/docs/guides/db/basics/loaders">
+    Turn REST endpoints into typed collections.
+  </Tile>
+  <Tile title="Live queries" icon="layers" meta="useLiveQuery" to="/docs/guides/db/basics/live-queries">
+    Filter, sort and render collections.
+  </Tile>
+  <Tile title="Optimistic writes" icon="zap" to="/docs/guides/db/basics/optimistic-writes">
+    Insert, update and delete without rollback code.
+  </Tile>
+  <Tile title="Realtime sync" icon="radio" to="/docs/guides/db/basics/realtime-sync">
+    Keep collections live from WebSocket messages.
+  </Tile>
+  <Tile title="Offline-first" icon="offline" to="/docs/guides/db/patterns/offline-first">
+    Persisted rows and writes replayed in order.
+  </Tile>
+</Tiles>
+
+---
+
+## TypeScript
+
+<Tiles cols={3}>
+  <Tile title="Response type" icon="braces" to="/docs/guides/typescript/response-type">
+    Declare and reuse response types per request.
+  </Tile>
+  <Tile title="Global error" icon="shield" to="/docs/guides/typescript/global-error">
+    One typed error shape for every request.
+  </Tile>
+  <Tile title="Request extractors" icon="code" to="/docs/guides/typescript/request-extractors">
+    Pull response, payload and error types out.
+  </Tile>
+</Tiles>
+
+---
+
+## Testing
+
+<Tiles cols={3}>
+  <Tile title="Testing overview" icon="flask" to="/docs/guides/testing">
+    Mock requests and inject a mocked SDK.
+  </Tile>
+  <Tile title="Mocking" icon="play" meta="setMock" to="/docs/guides/testing/mocking">
+    Simulate responses, errors and delays.
+  </Tile>
+  <Tile title="Isolation" icon="boxes" to="/docs/guides/testing/isolation">
+    Keep cache and queues from leaking between tests.
+  </Tile>
+</Tiles>
+
+---
+
+## Comparisons
+
+<Tiles cols={3}>
+  <Tile title="All comparisons" icon="compass" to="/docs/guides/comparisons">
+    HyperFetch, TanStack Query, SWR, RTK Query, Apollo.
+  </Tile>
+  <Tile title="vs TanStack Query" icon="compass" to="/docs/guides/comparisons/tanstack-query">
+    Requests, caching, mutations, realtime, offline.
+  </Tile>
+  <Tile title="vs SWR" icon="compass" to="/docs/guides/comparisons/swr">
+    Fetchers, revalidation, subscriptions, devtools.
+  </Tile>
+</Tiles>
+
+---
+
+## More
+
+<Tiles>
+  <Tile title="Integrations" icon="puzzle" to="/docs/integrations/getting-started">
+    GraphQL, Firebase, Axios and server framework guides.
+  </Tile>
+  <Tile title="Examples" icon="play" to="/examples">
+    Runnable apps for every common task.
+  </Tile>
+</Tiles>

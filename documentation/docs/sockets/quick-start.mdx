@@ -7,16 +7,12 @@ sidebar_label: Quick Start
 
 # Quick start
 
-In this guide you connect to a public echo server, which sends back every message it receives. You send a typed chat
-message and receive it again through a listener, so you see both directions working in under 20 lines.
+<Lead>
 
-:::tip What you'll learn
+**Send a typed chat message to a public echo server and receive it back through a listener.** You see both
+directions working in under 20 lines.
 
-1. **Create a socket** for one server.
-2. **Define a listener and an emitter** with typed data.
-3. **Receive and send** messages, and react to the connection state.
-
-:::
+</Lead>
 
 ---
 
@@ -134,42 +130,25 @@ sendRoomMessage.emit({
 
 ---
 
-## Next steps
+## Next
 
-See the same echo server in a React chat in the runnable [WebSocket chat](/examples/realtime/websocket-chat) example,
-or a receive-only feed in the [Server-Sent Events](/examples/realtime/server-sent-events) example.
-
-<div className="row">
-  <div className="col col--6">
-    <LinkCard
-      type="guides"
-      title="Socket authentication"
-      description="Send a fresh token on every connection attempt with onConnect."
-      to="/docs/guides/sockets/authentication"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Adapters"
-      description="Switch to Server-Sent Events or map your server's message format."
-      to="/docs/sockets/adapter"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="useListener"
-      description="Show realtime data in React components."
-      to="/docs/react/sockets/use-listener"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="promo"
-      title="Inspect sockets in HyperFlow"
-      description="See every message in and out, the connection state and errors."
-      to="/docs/hyper-flow/features/sockets"
-    />
-  </div>
-</div>
+<Tiles>
+  <Tile title="WebSocket chat" icon="play" meta="example" to="/examples/realtime/websocket-chat">
+    The same echo server in a React chat.
+  </Tile>
+  <Tile title="Socket authentication" icon="shield" to="/docs/guides/sockets/authentication">
+    Send a fresh token on every connection attempt.
+  </Tile>
+  <Tile title="Adapters" icon="plug" to="/docs/sockets/adapter">
+    Switch to Server-Sent Events or map your message format.
+  </Tile>
+  <Tile title="useListener" icon="atom" to="/docs/react/sockets/use-listener">
+    Show realtime data in React components.
+  </Tile>
+  <Tile title="Server-Sent Events" icon="play" meta="example" to="/examples/realtime/server-sent-events">
+    A receive-only feed with the SSE adapter.
+  </Tile>
+  <Tile title="Inspect in HyperFlow" icon="activity" to="/docs/hyper-flow/features/sockets">
+    Every message in and out, connection state and errors.
+  </Tile>
+</Tiles>

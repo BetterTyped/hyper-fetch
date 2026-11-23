@@ -5,69 +5,62 @@ description: "Pick the HyperFetch quick start for your stack: plain TypeScript, 
 sidebar_label: Quick Start
 ---
 
-# HyperFetch quick start
+# Quick start
 
-Each package has its own quick start. Pick the one for your stack. All of them start from the same client and request,
+<Lead>
+
+**Pick your stack and send a typed request in five minutes.** Every path starts from the same client and requests,
 so you can add the others later without rewriting anything.
 
-```ts title="api.ts"
-import { createClient } from "@hyper-fetch/core";
-
-export const client = createClient({ url: "https://api.example.com" });
-
-export const getUsers = client.createRequest<{
-  response: { id: number; name: string }[];
-}>()({
-  endpoint: "/users",
-});
-```
+</Lead>
 
 ---
 
-## Core
+## Pick your stack
 
-Plain TypeScript in the browser, Node.js, Bun or Deno: create a client, define typed requests and send them.
-
-<LinkCard
-  title="Core quick start"
-  description="Client, typed requests and send() without a framework."
-  to="/docs/core/quick-start"
-/>
-
----
-
-## React
-
-Hooks on top of the same requests: `useFetch` for reading, `useSubmit` for writing, with loading and error state.
-
-<LinkCard
-  title="React quick start"
-  description="Fetch and submit data in components with useFetch and useSubmit."
-  to="/docs/react/quick-start"
-/>
+<Tiles>
+  <Tile title="React app" icon="atom" meta="5 min" to="/docs/react/quick-start">
+    A user list and a form with useFetch and useSubmit.
+  </Tile>
+  <Tile title="Any TypeScript runtime" icon="code" meta="5 min" to="/docs/core/quick-start">
+    Client, typed requests and send() with no framework.
+  </Tile>
+  <Tile title="Realtime" icon="radio" meta="5 min" to="/docs/sockets/quick-start">
+    Listen to a topic and send messages over WebSocket.
+  </Tile>
+  <Tile title="Live local data" icon="database" meta="beta" to="/docs/db/quick-start">
+    Collections synced from your API, read with live queries.
+  </Tile>
+</Tiles>
 
 ---
 
-## Sockets
+## Start from code
 
-Realtime listeners and emitters over WebSocket or server-sent events, typed like HTTP requests.
-
-<LinkCard
-  title="Sockets quick start"
-  description="Listen to and emit realtime events with typed topics."
-  to="/docs/sockets/quick-start"
-/>
+<Tiles cols={3}>
+  <Tile title="Basic data fetching" icon="play" meta="React" to="/examples/getting-started/basic">
+    A list and its details with useFetch and one cache.
+  </Tile>
+  <Tile title="Vanilla TypeScript" icon="play" meta="core" to="/examples/getting-started/vanilla">
+    Core in the browser, without a framework.
+  </Tile>
+  <Tile title="Typed SDK" icon="play" meta="React" to="/examples/getting-started/sdk">
+    Every endpoint in one typed tree with createSdk.
+  </Tile>
+</Tiles>
 
 ---
 
-## Runnable examples
+## Bring an existing API
 
-Prefer to start from code? Open [Basic data fetching](/examples/getting-started/basic) for React or
-[Vanilla TypeScript](/examples/getting-started/vanilla) for core alone. Both run in StackBlitz and CodeSandbox.
-
-<LinkCard
-  type="guides"
-  title="Guides"
-  description="Task-by-task guides for every package."
-  to="/docs/guides/getting-started"
-/>
+<Tiles cols={3}>
+  <Tile title="Install" icon="boxes" to="/docs/getting-started/installation">
+    Every package, and what each one adds.
+  </Tile>
+  <Tile title="Generate from OpenAPI" icon="terminal" meta="cli" to="/docs/cli/overview">
+    A typed SDK for your API in one command.
+  </Tile>
+  <Tile title="Move from React Query" icon="refresh" to="/docs/guides/react/basics/migrating-from-react-query">
+    Map queries, mutations and keys to HyperFetch.
+  </Tile>
+</Tiles>

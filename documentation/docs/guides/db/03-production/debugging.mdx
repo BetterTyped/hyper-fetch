@@ -83,6 +83,18 @@ db.onError(({ type, error, collection }) => {
 Wire it to your error reporting early. A `load` or `sync` error usually means a `rows` or `row` mapping met a response
 it did not expect, which stays invisible in the UI until rows go missing.
 
+| `type`        | What failed                                                                     |
+| ------------- | ------------------------------------------------------------------------------- |
+| `mutation`    | A write the server rejected, or one dropped because a write it depends on was   |
+| `validation`  | A row or write the collection's schema rejected                                 |
+| `load`        | A load whose mapping threw, such as `rows` reading a response it did not expect |
+| `sync`        | A sync event whose mapping threw. The next events still apply.                  |
+| `outbox`      | A stored write this db cannot replay, or an outbox of another format            |
+| `persistence` | Storage that failed or holds data this version cannot read                      |
+| `subscriber`  | A query listener that threw. The other listeners are still notified.            |
+
+A failed load keeps the rows the query showed and sets `error` on it, and the next refetch tries again.
+
 ---
 
 ## Compile errors
@@ -281,6 +293,6 @@ You've learned where to look when the db surprises you.
   to="/docs/hyper-flow/features/db"
 />
 
-- Reference: [DB overview: errors](/docs/db/overview#errors).
+- Reference: [DB overview](/docs/db/overview).
 - API reference: [`QueryExplanation`](/docs/api/db/Types/QueryExplanation), [`DbInspection`](/docs/api/db/Types/DbInspection),
   [`DbErrorEvent`](/docs/api/db/Types/DbErrorEvent).

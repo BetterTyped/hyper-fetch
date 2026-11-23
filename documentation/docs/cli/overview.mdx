@@ -5,11 +5,16 @@ description: The HyperFetch CLI generates a typed SDK from your OpenAPI or Swagg
 sidebar_label: Overview
 ---
 
-`@hyper-fetch/cli` generates a typed HyperFetch [SDK](/docs/core/sdk) from an OpenAPI 3 or Swagger JSON schema. You
-get one TypeScript file with every model and operation type and a `createSdk` factory, and you keep your own client for
-the base URL, auth and plugins.
+# HyperFetch CLI
 
-```bash
+<Lead>
+
+**Turn your OpenAPI schema into a typed SDK with one command.** `@hyper-fetch/cli` writes one TypeScript file with
+every model and operation, and you keep your own client for the base URL, auth and plugins.
+
+</Lead>
+
+```bash title="terminal"
 npx @hyper-fetch/cli@latest generate --template openapi --url ./openapi.json \
   --fileName api.sdk.ts
 ```
@@ -22,76 +27,76 @@ export const client = createClient({ url: "https://api.example.com" });
 export const sdk = createSdk(client);
 
 // GET /pet/:petId, typed from the schema
-const { data, error } = await sdk.pet.$petId.$get.send({ params: { petId: 1 } });
+const { data, error } = await sdk.pet.$petId.$get.send({
+  params: { petId: 1 },
+});
 ```
 
-:::tip Purpose
-
-1.  **Generate** typed requests and models from your OpenAPI or Swagger schema.
-2.  **Configure once** with an `api.json` file that decides where generated files go.
-3.  **Regenerate** in scripts and CI, so types follow the API.
-
-:::
+<Flow caption="Regenerate when the API changes, and the compiler shows every call that broke.">
+  <FlowStep title="Schema" icon="file">
+    OpenAPI 3 or Swagger JSON
+  </FlowStep>
+  <FlowStep title="generate" icon="terminal" active>
+    Reads it once
+  </FlowStep>
+  <FlowStep title="api.sdk.ts" icon="code">
+    Models, operations, `createSdk`
+  </FlowStep>
+  <FlowStep title="Your client" icon="plug">
+    Base URL, auth, plugins
+  </FlowStep>
+  <FlowStep title="Typed requests" icon="send">
+    `sdk.pet.$petId.$get`
+  </FlowStep>
+</Flow>
 
 ---
 
 ## Commands
 
-| Command                                     | What it does                                                         |
-| ------------------------------------------- | -------------------------------------------------------------------- |
-| [`init`](/docs/cli/commands/init)           | Creates `api.json` and the API folder                                |
-| [`generate`](/docs/cli/commands/generate)   | Writes the SDK file from a schema URL or a local JSON file           |
+<Tiles>
+  <Tile title="generate" icon="terminal" meta="command" to="/docs/cli/commands/generate">
+    Writes the SDK file from a schema URL or a local JSON file.
+  </Tile>
+  <Tile title="init" icon="wrench" meta="command" to="/docs/cli/commands/init">
+    Creates `api.json` and the folder generated files go to.
+  </Tile>
+</Tiles>
 
-Run `npx @hyper-fetch/cli@latest` without a command to pick one from a menu. Every value you leave out is asked for
-interactively, so pass all flags in scripts. The binary is called `hyper-fetch` when the package is installed:
-
-```bash npm2yarn2pnpm
-npm install --save-dev @hyper-fetch/cli
-```
-
-Pin the version in your project, so regenerated output does not change between CLI releases.
+`generate` runs `init` with its defaults when `api.json` is missing, so one command is enough to start. Run the CLI
+without a command to pick one from a menu. Every flag you leave out is asked for in a prompt, so pass all of them in
+scripts and CI.
 
 ---
 
-## Requirements
+## Before you start
 
 - A `package.json` and a `tsconfig.json` in the working directory (`--cwd`).
 - A schema in JSON. Convert YAML before generating.
 - `@hyper-fetch/core` in your dependencies, since the generated file imports it.
 
+Install the CLI as a dev dependency to pin its version, so regenerated output does not change between releases. The
+binary is then called `hyper-fetch`.
+
+```bash npm2yarn2pnpm
+npm install --save-dev @hyper-fetch/cli
+```
+
 ---
 
-## Automatic setup
+## Next
 
-When `api.json` is missing, `generate` runs `init` with its defaults first: it creates `api.json` and a `src/api` folder,
-then writes the SDK there. Run [`init`](/docs/cli/commands/init) yourself to pick another folder.
-
----
-
-:::secondary Summary
-
-- `generate` turns an OpenAPI or Swagger JSON schema into one typed SDK file.
-- `init` writes `api.json`, which decides the output folder. `generate` creates it when missing.
-- Call the generated `createSdk(client)` with your own client.
-
-:::
-
-## Next steps
-
-See the [OpenAPI codegen example](/examples/integrations/openapi-codegen) for a runnable project.
-
-<LinkCard
-  type="docs"
-  title="Generate an SDK"
-  description="Flags, generated output and CI recipes for the generate command."
-  to="/docs/cli/commands/generate"
-/>
-
-<LinkCard
-  type="guides"
-  title="OpenAPI to TypeScript"
-  description="Compare OpenAPI generators and walk from a schema to a React component."
-  to="/docs/cli/openapi-typescript-client"
-/>
-
-<LinkCard type="api" title="CLI API reference" description="Exported generator types." to="/docs/api/cli/Classes/OpenapiRequestGenerator" />
+<Tiles>
+  <Tile title="Generate an SDK" icon="terminal" to="/docs/cli/commands/generate">
+    Flags, generated output and CI recipes.
+  </Tile>
+  <Tile title="OpenAPI to TypeScript" icon="learn" to="/docs/cli/openapi-typescript-client">
+    Compare generators, then go from a schema to a component.
+  </Tile>
+  <Tile title="OpenAPI codegen example" icon="play" to="/examples/integrations/openapi-codegen">
+    A runnable project with a generated SDK.
+  </Tile>
+  <Tile title="SDK" icon="braces" meta="createSdk" to="/docs/core/sdk">
+    How SDK requests are built, configured and extended.
+  </Tile>
+</Tiles>

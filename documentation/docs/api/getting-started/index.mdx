@@ -1,23 +1,93 @@
 # API reference
 
-The API reference lists every class, function, type and variable each HyperFetch package exports, with signatures,
-parameters and return types. It is generated from the TypeScript source and its TSDoc comments on every docs build, so
-it always matches the published code.
+<Lead>
 
-Use it to look up an exact signature. For how and when to use something, start from the docs and guides instead.
+**Every export of every package, with its exact signature.** The reference is generated from the TypeScript source
+and its TSDoc on every docs build, so it matches the published code. For how and when to use something, start from the
+[docs](/docs/core/overview) and [guides](/docs/guides/getting-started).
+
+</Lead>
 
 ---
 
-## Where to start
+## Core packages
 
-| Package                 | Start with                                                                                                  |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `@hyper-fetch/core`     | [`Client`](/docs/api/core/Classes/Client), [`Request`](/docs/api/core/Classes/Request), [`Cache`](/docs/api/core/Classes/Cache), [`createSdk`](/docs/api/core/Functions/createSdk) |
-| `@hyper-fetch/react`    | [`useFetch`](/docs/api/react/Hooks/useFetch), [`useSubmit`](/docs/api/react/Hooks/useSubmit), [`Hydrate`](/docs/api/react/Components/Hydrate) |
-| `@hyper-fetch/sockets`  | [`Socket`](/docs/api/sockets/Classes/Socket), [`Listener`](/docs/api/sockets/Classes/Listener), [`Emitter`](/docs/api/sockets/Classes/Emitter) |
+<Tiles>
+  <Tile title="Core" icon="code" meta="@hyper-fetch/core" to="/docs/api/core/Classes/Client">
+    `Client`, `Request`, `Cache`, `Dispatcher` and `createSdk`.
+  </Tile>
+  <Tile title="React" icon="atom" meta="@hyper-fetch/react" to="/docs/api/react/Hooks/useFetch">
+    `useFetch`, `useSubmit`, `useListener` and the other hooks.
+  </Tile>
+  <Tile title="Sockets" icon="radio" meta="@hyper-fetch/sockets" to="/docs/api/sockets/Classes/Socket">
+    `Socket`, `Listener`, `Emitter` and the socket adapters.
+  </Tile>
+  <Tile title="DB" icon="database" meta="@hyper-fetch/db" to="/docs/api/db/Functions/collection">
+    `collection`, `createDb`, operators and query types.
+  </Tile>
+</Tiles>
 
-Every package has its own section in the sidebar, grouped by kind, such as classes, functions, hooks, types and
-variables.
+---
+
+## Adapters
+
+<Tiles cols={3}>
+  <Tile title="Axios" icon="plug" meta="@hyper-fetch/axios" to="/docs/api/adapter-axios/Variables/AxiosAdapter">
+    `AxiosAdapter` and its option types.
+  </Tile>
+  <Tile title="GraphQL" icon="plug" meta="@hyper-fetch/graphql" to="/docs/api/adapter-graphql/Functions/GraphqlAdapter">
+    `GraphqlAdapter` and `GraphqlWsAdapter`.
+  </Tile>
+  <Tile title="Firebase" icon="plug" meta="@hyper-fetch/firebase" to="/docs/api/adapter-firebase/Functions/FirebaseAdapter">
+    Firestore and Realtime Database adapters.
+  </Tile>
+  <Tile
+    title="Firebase Admin"
+    icon="plug"
+    meta="@hyper-fetch/firebase-admin"
+    to="/docs/api/adapter-firebase-admin/Functions/FirebaseAdminAdapter"
+  >
+    The same adapters for the Admin SDK.
+  </Tile>
+  <Tile title="oRPC" icon="plug" meta="@hyper-fetch/orpc" to="/docs/api/adapter-orpc/Functions/OrpcAdapter">
+    HTTP, stream and WebSocket adapters.
+  </Tile>
+  <Tile title="tRPC" icon="plug" meta="@hyper-fetch/trpc" to="/docs/api/adapter-trpc/Functions/TrpcAdapter">
+    HTTP, SSE and WebSocket adapters.
+  </Tile>
+</Tiles>
+
+---
+
+## Server frameworks
+
+<Tiles>
+  <Tile title="Hono" icon="server" meta="@hyper-fetch/hono" to="/docs/api/hono/Types/HonoSchema">
+    Types that turn a Hono app into a typed SDK.
+  </Tile>
+  <Tile title="Elysia" icon="server" meta="@hyper-fetch/elysia" to="/docs/api/elysia/Types/ElysiaSchema">
+    Types that turn an Elysia app into a typed SDK.
+  </Tile>
+</Tiles>
+
+---
+
+## Tooling
+
+<Tiles>
+  <Tile title="Devtools plugin" icon="activity" meta="@hyper-fetch/plugin-devtools" to="/docs/api/plugin-devtools/Functions/DevtoolsPlugin">
+    `DevtoolsPlugin` and the events it sends to HyperFlow.
+  </Tile>
+  <Tile title="CLI" icon="terminal" meta="@hyper-fetch/cli" to="/docs/api/cli/Classes/OpenapiRequestGenerator">
+    The OpenAPI generator behind `generate`.
+  </Tile>
+  <Tile title="ESLint plugin" icon="shield" meta="eslint-plugin-hyper-fetch" to="/docs/api/plugin-eslint/Variables/rules">
+    Rules and configs.
+  </Tile>
+  <Tile title="Oxlint plugin" icon="shield" meta="oxlint-plugin-hyper-fetch" to="/docs/api/plugin-oxlint/Variables/default">
+    The plugin and its two generic-type rules.
+  </Tile>
+</Tiles>
 
 ---
 
@@ -26,6 +96,3 @@ variables.
 - **Classes** list their constructor, properties and methods. Setters on `Request` return a new request.
 - **Functions** list their parameters and return type.
 - **Types** show the full definition, with a description of each property where the source has one.
-
-For concepts and examples, see the [core overview](/docs/core/overview) and the
-[guides](/docs/guides/getting-started).

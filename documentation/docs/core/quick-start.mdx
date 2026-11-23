@@ -7,16 +7,12 @@ sidebar_label: Quick Start
 
 # Quick start
 
-In this guide you create a client for a public test API, define three typed requests and send them. Every snippet runs
-as is in a browser, Node.js 18+, Bun or Deno.
+<Lead>
 
-:::tip What you'll learn
+**Create a client, define three typed requests and send them.** Every snippet runs as is in a browser, Node.js 18+,
+Bun or Deno, against a public test API.
 
-1. **Create a client** that holds the base URL and the cache.
-2. **Define typed requests** for reading and writing data.
-3. **Send them** and handle success and errors without `try/catch`.
-
-:::
+</Lead>
 
 ---
 
@@ -145,41 +141,19 @@ with `setScope(id)` to cache it per user, see [Cache](/docs/core/cache).
 
 ---
 
-## Next steps
+## Next
 
-Run the same flow in the browser with the [Vanilla TypeScript example](/examples/getting-started/vanilla).
-
-<div className="row">
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Requests in depth"
-      description="Params, query params, keys, retries, cancelation and every request option."
-      to="/docs/core/request"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Client"
-      description="Interceptors for auth and errors, request defaults and plugins."
-      to="/docs/core/client"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="React quick start"
-      description="Use the same requests in components with useFetch and useSubmit."
-      to="/docs/react/quick-start"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="promo"
-      title="See it in HyperFlow"
-      description="Inspect every request, cache entry and queue in the devtools app."
-      to="/docs/hyper-flow"
-    />
-  </div>
-</div>
+<Tiles>
+  <Tile title="Requests in depth" icon="send" to="/docs/core/request">
+    Params, query params, keys, retries and every option.
+  </Tile>
+  <Tile title="Client" icon="server" to="/docs/core/client">
+    Interceptors for auth and errors, defaults and plugins.
+  </Tile>
+  <Tile title="React quick start" icon="atom" meta="5 min" to="/docs/react/quick-start">
+    The same requests in components with useFetch.
+  </Tile>
+  <Tile title="Vanilla TypeScript" icon="play" meta="example" to="/examples/getting-started/vanilla">
+    Run the same flow in the browser.
+  </Tile>
+</Tiles>

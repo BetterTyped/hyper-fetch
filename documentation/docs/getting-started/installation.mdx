@@ -5,7 +5,14 @@ description: "Install HyperFetch with npm, yarn, pnpm or bun. Add @hyper-fetch/c
 sidebar_label: Installation
 ---
 
-Every setup starts with `@hyper-fetch/core`. Add the packages for your framework, transport and tooling on top of it.
+# Installation
+
+<Lead>
+
+**Every setup starts with `@hyper-fetch/core`.** Add the packages for your framework, transport and tooling on top
+of it.
+
+</Lead>
 
 ```bash npm2yarn2pnpm
 npm install @hyper-fetch/core
@@ -22,7 +29,7 @@ without an error. The lint plugin reports misspelled or unknown generic keys, so
 npm install --save-dev eslint-plugin-hyper-fetch
 ```
 
-Using Oxlint? Install [`oxlint-plugin-hyper-fetch`](/docs/integrations/plugin-oxlint) instead, it has the same rules.
+Using Oxlint? Install [`oxlint-plugin-hyper-fetch`](/docs/integrations/plugin-oxlint) instead. It has the same rules.
 Setup for both is on the [ESLint plugin page](/docs/integrations/plugin-eslint).
 
 ---
@@ -66,18 +73,19 @@ npm install @hyper-fetch/sockets
 
 ---
 
-## Next steps
+## Next
 
-<LinkCard
-  type="docs"
-  title="Quick start"
-  description="Create a client and send your first typed request."
-  to="/docs/getting-started/quick-start"
-/>
-
-<LinkCard
-  type="integrations"
-  title="Integrations"
-  description="Set up an adapter or a server framework integration."
-  to="/docs/integrations/getting-started"
-/>
+<Tiles>
+  <Tile title="Quick start" icon="rocket" meta="5 min" to="/docs/getting-started/quick-start">
+    Pick your stack and send your first typed request.
+  </Tile>
+  <Tile title="Integrations" icon="puzzle" to="/docs/integrations/getting-started">
+    Set up an adapter or a server framework.
+  </Tile>
+  <Tile title="Lint plugin" icon="shield" meta="eslint" to="/docs/integrations/plugin-eslint">
+    Rules and setup for ESLint and Oxlint.
+  </Tile>
+  <Tile title="Generate from OpenAPI" icon="terminal" meta="cli" to="/docs/cli/overview">
+    A typed SDK for your API in one command.
+  </Tile>
+</Tiles>
