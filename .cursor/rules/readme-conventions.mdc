@@ -112,6 +112,9 @@ Key capabilities are the MOST IMPORTANT part of the README. They sell the packag
 
 - Opens with the banner (`.github/assets/readme.png`). It carries the tagline "Fetch anything. Type everything." and
   the logos of every supported backend, so the text below must not repeat it. Keep its alt text in sync
+- Render that banner with `node scripts/readme-banners/root.mjs`. It mirrors the hero title and reads the logos from
+  `hero/ecosystem.tsx` and the request lines from `hero/hero-paths.tsx`. Never screenshot the landing or the dev
+  server for it: the video, badges and toasts end up in the image
 - Under the banner: a links row, then the badge block
 - "Why HyperFetch?" goes after Quick Start: a short intro, a "you usually combine" table, then grouped bullets
 - "Works with" logo grid right after "Why HyperFetch?", linking each backend to its docs. Add a cell when a new
