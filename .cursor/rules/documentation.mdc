@@ -366,8 +366,8 @@ studying the best competitor docs (TanStack Query, SWR, tRPC, Apollo, RTK Query,
   deprecations.
 - **Links**: link a concept at its first mention. Every page ends with next steps: the matching guide, the matching
   runnable example from `/examples/...`, and the API reference. 2-4 of them as `LinkCard`.
-- **Length**: overview and quick start 300-900 words, concept and reference pages 500-1,500, guides up to 1,500. Split
-  anything longer.
+- **Length**: counted in prose words, without code blocks, tables and cards: overview and quick start 300-900,
+  concept and reference pages 500-1,500, guides up to 1,500. Split anything longer.
 
 ## Overview (a package or product)
 
