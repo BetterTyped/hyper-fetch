@@ -27,7 +27,8 @@
   max-height: max(132px, calc(100vh - 420px - 300px));
 }
 
-/* Paid partners with logo tiles make the partners block taller, so the headings get less room. */
+/* Two partner cards or a row of logo tiles make the partners block taller, so the headings get less room. */
+.tocContent:has(:global(.bt-sp-card ~ .bt-sp-card)) .tableOfContents,
 .tocContent:has(:global(.bt-sp-tiles)) .tableOfContents {
   max-height: max(132px, calc(100vh - 420px - 400px));
 }
@@ -44,88 +45,220 @@
   @apply !text-zinc-400;
 }
 
-/* Sponsor button — override `main a`, `main a > span`, `main a > div`, `main a > p` from custom.css */
-:global(html body main) .sponsorButton,
-:global(html body main) .sponsorButton:hover,
-:global(html body main) .sponsorButton:active,
-:global(html body main) .sponsorButton:focus,
-:global(html body main) .sponsorButton:visited,
-:global(html body main) .sponsorButton > span,
-:global(html body main) .sponsorButton > div,
-:global(html body main) .sponsorButton > p,
-:global(html body main) .sponsorButton > svg {
-  color: #fff !important;
-  text-decoration: none !important;
-  -webkit-text-fill-color: #fff !important;
+/*
+ * Sponsor button: a dark field with a slowly turning pink and gold edge, a heart that beats now and then and an
+ * arrow that leans out on hover. custom.css colors links and their direct spans gold (`main a > span`), so the
+ * colors here go through `html body main` to win.
+ */
+@property --sponsor-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
 }
 
-.sponsorButton {
+:global(html body main) .sponsorButton {
   position: relative;
-  display: inline-flex;
+  isolation: isolate;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  margin: 0 4px 14px;
-  padding: 7px 16px;
-  border: 0;
-  border-radius: 10px;
-  background: linear-gradient(
-    160deg,
-    #bf4b8e 0%,
-    #ea4aaa 40%,
-    #f472b6 70%,
-    #c9508e 100%
-  );
-  font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.25s ease,
-    filter 0.2s ease;
+  gap: 10px;
+  box-sizing: border-box;
+  width: calc(100% - 8px);
+  height: 44px;
+  margin: 0 4px 18px;
+  padding: 0 12px 0 6px;
+  border-radius: 12px;
+  background:
+    radial-gradient(
+      70% 160% at 0% 50%,
+      rgba(236, 72, 153, 0.16),
+      transparent 70%
+    ),
+    linear-gradient(to bottom, #222225, #19191b);
   box-shadow:
-    0 2px 8px rgba(219, 97, 162, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
-    0 1px 0 rgba(255, 255, 255, 0.18) inset;
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 28px -16px rgba(236, 72, 153, 0.55);
+  color: #f4f4f5 !important;
+  -webkit-text-fill-color: currentColor;
+  text-decoration: none !important;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.3s ease;
 }
 
+/* The turning edge */
 .sponsorButton::before {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: -1;
+  padding: 1px;
   border-radius: inherit;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.18) 0%,
-    transparent 50%
+  background: conic-gradient(
+    from var(--sponsor-angle),
+    rgba(244, 114, 182, 0.9),
+    rgba(168, 85, 247, 0.5) 25%,
+    rgba(255, 255, 255, 0.08) 45%,
+    rgba(251, 198, 70, 0.7) 70%,
+    rgba(244, 114, 182, 0.9)
   );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.55;
+  animation: sponsor-turn 6s linear infinite;
+  transition: opacity 0.3s ease;
   pointer-events: none;
 }
 
-.sponsorButton:hover {
+:global(html body main) .sponsorButton:hover {
   transform: translateY(-1px);
-  filter: brightness(1.08);
   box-shadow:
-    0 6px 24px rgba(234, 74, 170, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.12) inset,
-    0 1px 0 rgba(255, 255, 255, 0.22) inset;
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 16px 36px -14px rgba(236, 72, 153, 0.75);
 }
 
-.sponsorButton:active {
+.sponsorButton:hover::before {
+  opacity: 1;
+  animation-duration: 2.5s;
+}
+
+:global(html body main) .sponsorButton:active {
   transform: translateY(0);
-  filter: brightness(0.96);
 }
 
-.sponsorButton svg {
+:global(html body main) .sponsorButton:focus-visible {
+  outline: 2px solid rgba(244, 114, 182, 0.6);
+  outline-offset: 2px;
+}
+
+:global(html body main) .sponsorButton > span {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor;
+  text-decoration: none !important;
+}
+
+.sponsorHeart {
+  position: relative;
+  display: flex;
   flex-shrink: 0;
-  color: #fff !important;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, #f472b6, #db2777 55%, #9d174d);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+    0 6px 16px -4px rgba(236, 72, 153, 0.7);
 }
 
-.sponsorButton span {
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12));
+.sponsorHeart svg {
+  width: 15px;
+  height: 15px;
+  color: #fff;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25));
+  animation: sponsor-beat 2.8s ease-in-out infinite;
+}
+
+/* A ring leaves the heart on hover */
+.sponsorHeart::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 rgba(244, 114, 182, 0.6);
+  opacity: 0;
+}
+
+.sponsorButton:hover .sponsorHeart::after {
+  animation: sponsor-ring 1.2s ease-out infinite;
+}
+
+:global(html body main) .sponsorButton .sponsorLabel {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+
+:global(html body main) .sponsorButton .sponsorLabel b {
+  font-weight: 700;
+  background: linear-gradient(to right, #fbcfe8, #f9a8d4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+:global(html body main) .sponsorButton .sponsorArrow {
+  display: flex;
+  flex-shrink: 0;
+  color: #71717a !important;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.sponsorArrow svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+:global(html body main) .sponsorButton:hover .sponsorArrow {
+  color: #f9a8d4 !important;
+  transform: translate(2px, -2px);
+}
+
+@keyframes sponsor-turn {
+  to {
+    --sponsor-angle: 360deg;
+  }
+}
+
+/* Two quick beats, then rest */
+@keyframes sponsor-beat {
+  0%,
+  28%,
+  100% {
+    transform: scale(1);
+  }
+  8% {
+    transform: scale(1.22);
+  }
+  14% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.16);
+  }
+}
+
+@keyframes sponsor-ring {
+  0% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(244, 114, 182, 0.55);
+  }
+  100% {
+    opacity: 0;
+    box-shadow: 0 0 0 10px rgba(244, 114, 182, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sponsorButton::before,
+  .sponsorHeart svg {
+    animation: none;
+  }
 }
 
 /* Enable if you want to hide empty sidebar */

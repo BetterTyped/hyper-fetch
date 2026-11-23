@@ -14,7 +14,7 @@ alwaysApply: false
    product video, HyperFlow download
 2. **Clients** (`clients/`): eyebrow line, company logo carousel
 3. **What is HyperFetch** (`what-is/`): "One framework, three parts", title left, Core / Sockets / DB tabs right,
-   bento cards per tab (DB is "Soon")
+   bento cards per tab
 4. **Platforms** (`platforms/`): "Runs on every platform", technical card titles (Frontend, Native, Runtime,
    Realtime, Protocols, AI agents, TypeScript backends, Any backend, Tooling), logos only, no descriptions. Third-party
    logos with a dark mark use their `-dark` variant from `static/img`
@@ -23,9 +23,11 @@ alwaysApply: false
 6. **BetterTyped** (`bettertyped/`): "Built by BetterTyped" and the three numbers
 7. **Hub** (`hub/`): "One typed client for every API", photon beam, live typed feed
 8. **Production** (`production/`): "Ready for production" bento
-9. **Persistence** (`persistence/`): "Everything is JSON". Two cards run the same three steps side by side
-   (Offline: queued, app closed, lost. Persisted: queued, saved as JSON, synced), then one `@hyper-fetch/db` strip
-   (Soon). Keep it this simple: one idea, three icons per card, no extra cards
+9. **Persistence** (`persistence/`): "Everything is JSON", in two numbered parts. Each part is a pair of cards
+   running three steps side by side. 01 Requests: Offline (queued, app closed, lost) and Persisted (queued, saved as
+   JSON, synced). 02 Cache and DB: Cache (fetched, saved as JSON, instant reload) and DB (offline write, outbox as
+   JSON, replayed). Then one `@hyper-fetch/db` strip (New) that links its docs. Keep it this simple: three icons per
+   card, no extra cards
 10. **Problems** (`problems/`): "Same bugs, different projects" issue tracker, loops
 11. **Sponsors** (`sponsors/`)
 12. **CallToAction** (`call-to-action/`): standard head, the hero actions, Apache 2.0 / stars / live downloads

@@ -120,10 +120,13 @@ const reader = data?.getReader();
 | Method                       | Called with                         | Default                                        |
 | ---------------------------- | ----------------------------------- | ---------------------------------------------- |
 | `setHeaderMapper`            | The request                         | Adds `Content-Type: application/json` for JSON |
-| `setPayloadMapper`           | The payload                         | JSON as a string, `FormData` and binary as is   |
+| `setPayloadMapper`           | The raw payload and its config      | JSON as a string, `FormData` and binary as is   |
 | `setEndpointMapper`          | The endpoint                        | Returns it unchanged                           |
 | `setQueryParamsMapper`       | The query params                    | Encodes them into a query string               |
 | `setQueryParamsMapperConfig` | Config for the query params mapper  | Encoding, array format, skipping empty values  |
+
+The payload mapper gets the raw payload, typed `unknown` because one adapter serves every request, and the value set
+with `setPayloadMapperConfig`. A request with its own `request.setPayloadMapper` skips the adapter's mapper.
 
 ```ts title="api/client.ts"
 // Send arrays as ids[]=1&ids[]=2

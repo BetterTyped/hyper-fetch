@@ -249,6 +249,9 @@ const config: Config = {
       contextualSearch: true,
     },
     colorMode: {
+      translations: {
+        button: { buttonText: "Search docs", buttonAriaLabel: "Search docs" },
+      },
       defaultMode: "dark",
       disableSwitch: true,
       respectPrefersColorScheme: false,
@@ -267,6 +270,13 @@ const config: Config = {
         src: "img/brand/HF.svg",
       },
       items: [
+        // Rendered right after the logo, so the version reads as part of the brand
+        {
+          type: "custom-versionTag",
+          position: "left",
+          to: "/blog/hyper-fetch-10-0",
+          label: "v10",
+        },
         {
           position: "left",
           label: "Docs",
@@ -308,10 +318,9 @@ const config: Config = {
         //   className: "github",
         // },
         {
-          type: "custom-versionTag",
+          type: "search",
           position: "right",
-          to: "/blog/hyper-fetch-10-0",
-          label: "v10",
+          className: "navbar-search",
         },
         {
           type: "custom-githubStarButton",

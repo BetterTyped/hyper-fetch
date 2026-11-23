@@ -1679,8 +1679,12 @@ html[data-theme="dark"] .navbar-sidebar .github {
   font-size: 15px;
 }
 
-.navbar__items a:nth-child(3) {
-  @apply ml-10;
+/* The version tag sits against the logo, the links start a step further */
+.navbar__items .navbar-version-tag {
+  margin-left: -4px;
+}
+.navbar__items .navbar-version-tag + .navbar__link {
+  @apply ml-8;
 }
 
 .menu__list {
@@ -1698,8 +1702,8 @@ html[data-theme="dark"] .navbar-sidebar .github {
 }
 
 .menu__link {
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 6px;
+  padding-bottom: 6px;
   @apply !text-inherit;
 }
 
@@ -1783,17 +1787,6 @@ html[data-theme="dark"] .navbar-sidebar .github {
 }
 .navbar .clean-btn.navbar-sidebar__close svg {
   width: 18px;
-}
-
-nav button.DocSearch-Button {
-  @apply hidden;
-}
-
-button.DocSearch-Button {
-  @apply !pl-3 shiny-btn !rounded-md w-full;
-  height: 36px;
-  border: 1px solid transparent !important;
-  max-width: calc(100% - 22px) !important;
 }
 
 .pagination-nav__link {
@@ -2636,16 +2629,9 @@ html[data-nav-scrolled] .navbar__inner::before {
   -webkit-backdrop-filter: blur(22px) saturate(1.5);
   backdrop-filter: blur(22px) saturate(1.5);
 }
-/* Scrolling tightens the bar a touch, so it reads as the same bar, now frosted */
-@media (min-width: 997px) {
-  html[data-nav-scrolled] .navbar--fixed-top {
-    padding-left: 3.5rem;
-    padding-right: 3.5rem;
-  }
-}
 
-/* The version tag and the star count share one height and sit on one line */
-.navbar__items--right > .navbar-version-tag,
+/* The search and the star count share one height and sit on one line */
+.navbar__items--right > .navbar-search,
 .navbar__items--right > .navbar-star {
   align-self: center;
 }
@@ -2675,15 +2661,6 @@ html[data-nav-scrolled] .navbar__inner::before {
   }
   .navbar__inner .navbar-version-tag {
     order: 2;
-    height: 24px;
-    padding: 0 8px;
-    gap: 5px;
-    border-radius: 8px;
-    font-size: 11.5px;
-  }
-  .navbar__inner .navbar-version-tag > span:first-child {
-    width: 5px;
-    height: 5px;
   }
   /* Infima gives the toggle `display: inherit`, which would inherit the `contents` above */
   .navbar__inner .navbar__toggle {
@@ -2701,6 +2678,148 @@ html[data-nav-scrolled] .navbar__inner::before {
   .navbar .clean-btn.navbar__toggle svg {
     width: 24px !important;
     height: 24px !important;
+/*
+ * Navbar search: a field on the right of the bar, the height and surface of the star count beside it. A gold edge
+ * fades in on hover through a masked gradient border, and the shortcut sits in two keycaps.
+ */
+.navbar-search {
+  padding: 0 !important;
+}
+.navbar-search .DocSearch-SearchBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.navbar-search button.DocSearch-Button {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-sizing: border-box;
+  width: 264px;
+  height: 36px;
+  margin: 0;
+  padding: 0 6px 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background:
+    radial-gradient(
+      120% 140% at 0% 0%,
+      rgba(251, 198, 70, 0.07),
+      transparent 55%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.015)
+    ),
+    #141415;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 24px -14px rgba(0, 0, 0, 0.9);
+  color: #a1a1aa;
+  cursor: text;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.25s ease,
+    color 0.2s ease;
+}
+/* The gold edge */
+.navbar-search button.DocSearch-Button::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    110deg,
+    rgba(255, 224, 138, 0.7),
+    rgba(245, 166, 35, 0.25) 35%,
+    transparent 65%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.navbar-search button.DocSearch-Button:hover,
+.navbar-search button.DocSearch-Button:focus-visible {
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #e4e4e7;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 4px rgba(251, 198, 70, 0.06),
+    0 12px 28px -14px rgba(0, 0, 0, 0.9);
+  outline: none;
+}
+.navbar-search button.DocSearch-Button:hover::before,
+.navbar-search button.DocSearch-Button:focus-visible::before {
+  opacity: 1;
+}
+.navbar-search .DocSearch-Button-Container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.navbar-search .DocSearch-Search-Icon {
+  width: 16px !important;
+  height: 16px !important;
+  color: currentColor !important;
+  stroke-width: 2;
+  transition: color 0.2s ease;
+}
+.navbar-search button.DocSearch-Button:hover .DocSearch-Search-Icon {
+  color: #fbc646 !important;
+}
+.navbar-search .DocSearch-Button-Placeholder {
+  display: block !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+  font-weight: 500;
+  color: currentColor;
+  white-space: nowrap;
+}
+.navbar-search .DocSearch-Button-Keys {
+  display: flex !important;
+  gap: 3px;
+  min-width: 0;
+  margin: 0 !important;
+}
+.navbar-search .DocSearch-Button-Key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 22px;
+  height: 22px;
+  margin: 0;
+  padding: 0 5px;
+  top: 0;
+  transform: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  color: #a1a1aa;
+  font-family: Figtree, sans-serif;
+  font-size: 12px !important;
+  font-weight: 600;
+  line-height: 1;
+}
+@media (max-width: 1280px) {
+  .navbar-search button.DocSearch-Button {
+    width: 200px;
+  }
+}
+
   }
   .navbar__inner .navbar-star,
   .navbar__inner .navbar__items--right > div {
@@ -2766,12 +2885,8 @@ html[data-nav-scrolled] .navbar__inner::before {
   padding: 0 !important;
   min-width: 0 !important;
 }
-.mobile-nav-tree .docs_sidebar > div:first-child {
-  display: none !important;
-}
-.mobile-nav-tree .docs_sidebar > div:nth-child(2) {
+.mobile-nav-tree .docs_sidebar > div {
   margin-top: 0 !important;
-  padding: 0 4px;
 }
 .mobile-nav-tree .docs_sidebar ul {
   margin: 0;

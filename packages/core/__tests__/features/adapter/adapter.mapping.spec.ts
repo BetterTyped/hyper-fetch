@@ -1,4 +1,4 @@
-import { getAdapterHeaders, getAdapterPayload } from "adapter";
+import { getAdapterBindings, getAdapterHeaders, getAdapterPayload } from "adapter";
 import { Client } from "client";
 import { Plugin } from "plugin";
 
@@ -139,6 +139,34 @@ describe("Adapter [ Mapping ]", () => {
       expect(getAdapterPayload(circular)).toBe("");
       // oxlint-disable-next-line unicorn/no-useless-undefined
       expect(getAdapterPayload(undefined)).toBeUndefined();
+    });
+
+    it("should give the custom adapter mapper the raw payload and its config", async () => {
+      const mapperClient = new Client({ url: "http://mapping" });
+      const config = { prefix: "v1" };
+      const received: unknown[] = [];
+
+      mapperClient.adapter.setPayloadMapperConfig(config).setPayloadMapper((payload, mapperConfig) => {
+        // The adapter serves every request of the client, so the payload is not narrowed
+        expectTypeOf(payload).toEqualTypeOf<unknown>();
+        received.push(payload, mapperConfig);
+        return `${config.prefix}:${JSON.stringify(payload)}`;
+      });
+
+      const request = mapperClient
+        .createRequest<{ payload: { name: string } }>()({ endpoint: "/mapping", method: "POST" })
+        .setPayload({ name: "John" });
+
+      const { payload } = await getAdapterBindings({
+        request,
+        requestId: "mapping",
+        resolve: () => null,
+        onStartTime: () => null,
+        internalErrorMapping: (error) => error,
+      });
+
+      expect(received).toEqual([{ name: "John" }, config]);
+      expect(payload).toBe('v1:{"name":"John"}');
     });
   });
 

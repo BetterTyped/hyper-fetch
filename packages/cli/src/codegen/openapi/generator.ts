@@ -8,6 +8,7 @@ import * as fs from "fs-extra";
 import * as lodash from "lodash";
 import * as path from "node:path";
 import * as prettier from "prettier";
+import { getSdkFilePath } from "utils/get-sdk-file-path";
 
 import { HttpMethod } from "./http-methods.enum";
 import type { Document, Operation, GeneratedTypes } from "./openapi.types";
@@ -44,7 +45,6 @@ export class OpenapiRequestGenerator {
   }
 
   async generateFile({ config, fileName }: { config: Config; fileName: string }) {
-    const defaultFileName = "openapi.client";
     const { schemaTypes, generatedTypes, sdkSchema, createSdkFn } = await this.generateRequestsFromSchema();
     const contents = [
       `import { createSdk as coreCreateSdk } from "@hyper-fetch/core";`,
@@ -73,10 +73,7 @@ export class OpenapiRequestGenerator {
       parser: "typescript" as const,
     };
 
-    const fName = fileName || defaultFileName;
-    const extension = config.tsx ? ".ts" : ".js";
-    const hasExtension = [".ts", ".js", ".tsx", ".jsx"].some((ext) => fName.endsWith(ext));
-    const generatedPath = path.join(config.resolvedPaths.api, `${fName}${hasExtension ? "" : extension}`);
+    const generatedPath = getSdkFilePath({ config, fileName });
 
     const file = await prettier.format(contents, prettierOpts);
     await fs.mkdir(config.resolvedPaths.api, { recursive: true });

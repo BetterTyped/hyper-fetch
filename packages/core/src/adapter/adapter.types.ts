@@ -89,17 +89,19 @@ export type QueryParamsMapper<QueryParams, Config = never> = (
   queryParams: QueryParams | EmptyTypes,
   config?: Config,
 ) => any;
-export type AdapterPayloadMappingType<Config = never> = (
-  options: { request: RequestInstance; payload: unknown },
-  config?: Config,
-) => any;
+/**
+ * Adapter-level payload mapper. It receives the raw payload of the request (after the request mapper ran) and the
+ * value set with `setPayloadMapperConfig`, and returns the body handed to the adapter. It is skipped for requests with
+ * their own `request.setPayloadMapper`.
+ */
+export type AdapterPayloadMappingType<Config = never> = (payload: unknown, config?: Config) => any;
 
 export type DefaultEndpointMapper = (endpoint: string) => string;
 export type DefaultQueryParamsMapper = (
   queryParams: QueryParamsType | string | EmptyTypes,
 ) => QueryParamsType | string | EmptyTypes;
 export type DefaultHeaderMapper = (request: RequestInstance) => HeadersInit;
-export type DefaultPayloadMapper = (options: { request: RequestInstance; payload: unknown }) => string;
+export type DefaultPayloadMapper = (payload: unknown) => string | FormData;
 
 // QueryParams
 

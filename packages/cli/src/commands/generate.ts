@@ -3,8 +3,8 @@ import { OpenapiRequestGenerator } from "codegen/openapi/generator";
 /* eslint-disable no-param-reassign */
 import { Command } from "commander";
 import * as fs from "fs-extra";
-import * as path from "node:path";
 import { preFlightGenerate } from "preflights/preflight-generate";
+import { getSdkFilePath } from "utils/get-sdk-file-path";
 import { handleError } from "utils/handle-error";
 import { logger } from "utils/logger";
 import { showHelp } from "utils/show-help";
@@ -67,13 +67,14 @@ export const generate = new Command()
         });
       }
 
-      const fileExists = fs.existsSync(path.join(opts.cwd, opts.fileName));
+      const sdkFilePath = getSdkFilePath({ config, fileName: opts.fileName });
+      const fileExists = fs.existsSync(sdkFilePath);
       if (opts.overwrite === undefined && fileExists) {
         opts.overwrite = await confirm({ message: "Overwrite existing files?" });
       }
 
       if (opts.overwrite === false && fileExists) {
-        return logger.info(`File ${opts.fileName} already exists. Use --overwrite to overwrite.`);
+        return logger.info(`File ${sdkFilePath} already exists. Use --overwrite to overwrite.`);
       }
 
       const options = generateOptionsSchema.parse(opts);

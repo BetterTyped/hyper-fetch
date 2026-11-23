@@ -131,11 +131,17 @@ const OpenSlot = ({
           aria-hidden
           className="pointer-events-none absolute inset-3 rounded-[18px] [border:1px_dashed_rgba(255,255,255,0.12)]"
         />
-        <div className="relative flex h-full flex-col justify-between gap-8">
+        {/* Across the whole row it reads in one line: the plus, the pitch, the button on the right */}
+        <div
+          className={cn(
+            "relative flex h-full flex-col justify-between gap-8",
+            wide && "md:flex-row md:items-center md:gap-6",
+          )}
+        >
           <span className="grid size-16 place-items-center rounded-2xl bg-[#2a2a2d] text-[#f9b233] [&_svg]:size-6 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-[2.2]">
             <PlusIcon />
           </span>
-          <div>
+          <div className={cn(wide && "md:flex-1")}>
             <h3 className="!m-0 text-[22px] font-bold leading-[1.15] tracking-tight text-zinc-100">
               Your logo here
             </h3>
@@ -230,7 +236,7 @@ export const Sponsors = () => {
             <OpenSlot
               href={feed.links.partner}
               i={i++}
-              wide={featured.length === 0}
+              wide={featured.length !== 1}
             />
           )}
           {tiles.length > 0 && <PartnerTiles partners={tiles} i={i++} />}
