@@ -1,99 +1,31 @@
 import { integrations } from "@site/src/integrations";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
+import type { IntegrationGroup } from "@site/src/integration-groups";
+import {
+  groupOf,
+  integrationGroups,
+  moreGroup,
+} from "@site/src/integration-groups";
 import type { Section } from "@site/src/modules";
 import { cn } from "@site/src/lib/utils";
-import {
-  Cpu,
-  Database,
-  Layers,
-  LucideIcon,
-  Server,
-  Smartphone,
-  Sparkles,
-  Wrench,
-} from "lucide-react";
 
 import { IntegrationCard } from "../card/card";
 
 /*
- * Every integration, grouped by what the reader is connecting rather than by package type. A section joins the
- * first group that matches it; anything no group matches lands in "More", so a new integration is never dropped.
+ * Every integration, grouped by what the reader is connecting. The groups live in `src/integration-groups.ts`, which
+ * the integration picker in the sidebar shares.
  */
-
-type Group = {
-  id: string;
-  title: string;
-  line: string;
-  icon: LucideIcon;
-  match: (section: Section) => boolean;
-};
-
-const backends = ["tRPC", "oRPC", "Hono", "Elysia"];
-
-const groups: Group[] = [
-  {
-    id: "backends",
-    title: "Typed from your backend",
-    line: "The client reads its types from your server code. No schema to write, no code to generate.",
-    icon: Server,
-    match: (section) => backends.includes(section.label),
-  },
-  {
-    id: "apis",
-    title: "APIs and data",
-    line: "GraphQL, Firebase and Axios behind the same request API, cache and hooks.",
-    icon: Database,
-    match: (section) => section.category === "Adapter",
-  },
-  {
-    id: "frameworks",
-    title: "Server frameworks",
-    line: "Call a backend in any language through a typed SDK generated from its OpenAPI document.",
-    icon: Layers,
-    match: (section) => section.category === "Framework",
-  },
-  {
-    id: "runtimes",
-    title: "Runtimes",
-    line: "Run the same client on Node.js, Bun, Deno and the edge.",
-    icon: Cpu,
-    match: (section) => section.category === "Runtime",
-  },
-  {
-    id: "apps",
-    title: "Mobile and desktop",
-    line: "Use HyperFetch and its React hooks outside the browser.",
-    icon: Smartphone,
-    match: (section) => section.category === "Native",
-  },
-  {
-    id: "tooling",
-    title: "Tooling and monitoring",
-    line: "Lint rules, devtools and error reporting for your requests.",
-    icon: Wrench,
-    match: (section) =>
-      section.category === "Plugin" || section.category === "Monitoring",
-  },
-];
-
-const more: Group = {
-  id: "more",
-  title: "More",
-  line: "Other integrations.",
-  icon: Sparkles,
-  match: () => true,
-};
 
 const grouped = (() => {
   const sections = integrations.filter(
     (section) => section.category !== "docs",
   );
-  const result = new Map<Group, Section[]>();
+  const result = new Map<IntegrationGroup, Section[]>();
   sections.forEach((section) => {
-    const group = groups.find((g) => g.match(section)) ?? more;
+    const group = groupOf(section);
     result.set(group, [...(result.get(group) ?? []), section]);
   });
-  return [...groups, more]
+  return [...integrationGroups, moreGroup]
     .filter((group) => result.has(group))
     .map((group) => ({ group, items: result.get(group)! }));
 })();

@@ -1,11 +1,13 @@
 /* eslint-disable react/no-array-index-key */
 import Link from "@docusaurus/Link";
+import { useLocation } from "@docusaurus/router";
 import type { SidebarItem } from "@site/src/hooks/use-sidebar";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
 import { cn } from "@site/src/lib/utils";
 import Search from "@theme/NavbarItem/SearchNavbarItem";
 
 import { DocsVersionPicker } from "./docs-version-picker";
+import { IntegrationPicker } from "./integration-picker";
 
 const getColor = (item: SidebarItem) => {
   return item.active
@@ -22,6 +24,9 @@ const getColor = (item: SidebarItem) => {
 
 export const SidebarMenu = () => {
   const { sidebar, activeItem } = useSidebar();
+  // Too many integrations for a list, so their pages pick one from a dropdown
+  const { pathname } = useLocation();
+  const isIntegrations = pathname.includes("/integrations/");
 
   return (
     <div className="px-4 min-w-[250px]">
@@ -30,7 +35,13 @@ export const SidebarMenu = () => {
           <Search className="!px-0 !pt-0" />
         </div>
         <DocsVersionPicker />
-        {activeItem && (
+        {activeItem && isIntegrations && (
+          <div className="mt-4">
+            <IntegrationPicker items={sidebar} activeItem={activeItem} />
+            <hr className="h-px mt-1 mb-1 bg-gray-200 border-0 dark:bg-gray-700" />
+          </div>
+        )}
+        {activeItem && !isIntegrations && (
           <div className="mt-4">
             <ul>
               {sidebar.map((item, index) => {
