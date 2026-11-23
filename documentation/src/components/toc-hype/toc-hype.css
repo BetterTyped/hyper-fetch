@@ -1,8 +1,9 @@
 /*
  * The tagline card above "On this page", the size of the package card it replaces. custom.css colors every link and
- * its direct spans gold (`main a > span`), so the rules here carry `main` to win on specificity.
+ * its direct spans gold (`main a > span`), so the rules here carry the wrapper to win on specificity. The wrapper, not
+ * `main`, because the blog renders the table of contents beside `main`, not inside it.
  */
-main .toc-hype {
+.toc-hype-wrapper .toc-hype {
   position: relative;
   isolation: isolate;
   display: flex;
@@ -30,7 +31,7 @@ main .toc-hype {
 }
 
 /* A soft light crosses the card now and then */
-main .toc-hype::after {
+.toc-hype-wrapper .toc-hype::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -46,20 +47,20 @@ main .toc-hype::after {
   pointer-events: none;
 }
 
-main .toc-hype:hover {
+.toc-hype-wrapper .toc-hype:hover {
   border-color: rgba(251, 198, 70, 0.35);
   box-shadow: 0 0 0 3px rgba(251, 198, 70, 0.05);
 }
 
-main .toc-hype > span,
-main .toc-hype span {
+.toc-hype-wrapper .toc-hype > span,
+.toc-hype-wrapper .toc-hype span {
   color: inherit;
   font-size: inherit;
   font-weight: inherit;
   text-decoration: none;
 }
 
-main .toc-hype .toc-hype__tile {
+.toc-hype-wrapper .toc-hype .toc-hype__tile {
   position: relative;
   display: flex;
   flex-shrink: 0;
@@ -75,13 +76,13 @@ main .toc-hype .toc-hype__tile {
     0 0 22px -6px rgba(251, 198, 70, 0.55);
 }
 
-main .toc-hype .toc-hype__tile svg {
+.toc-hype-wrapper .toc-hype .toc-hype__tile svg {
   width: 20px;
   height: 20px;
   filter: drop-shadow(0 0 6px rgba(251, 198, 70, 0.45));
 }
 
-main .toc-hype .toc-hype__text {
+.toc-hype-wrapper .toc-hype .toc-hype__text {
   display: flex;
   min-width: 0;
   flex: 1;
@@ -89,7 +90,7 @@ main .toc-hype .toc-hype__text {
   gap: 1px;
 }
 
-main .toc-hype .toc-hype__line {
+.toc-hype-wrapper .toc-hype .toc-hype__line {
   display: flex;
   align-items: baseline;
   gap: 5px;
@@ -102,7 +103,7 @@ main .toc-hype .toc-hype__line {
 }
 
 /* The cycling word slides inside a clipped slot, so its neighbours never move */
-main .toc-hype .toc-hype__word {
+.toc-hype-wrapper .toc-hype .toc-hype__word {
   position: relative;
   display: inline-flex;
   overflow: hidden;
@@ -110,19 +111,19 @@ main .toc-hype .toc-hype__word {
   margin-bottom: -2px;
 }
 
-main .toc-hype .toc-hype__word > span {
+.toc-hype-wrapper .toc-hype .toc-hype__word > span {
   display: inline-block;
   color: transparent;
 }
 
-main .toc-hype .toc-hype__sub {
+.toc-hype-wrapper .toc-hype .toc-hype__sub {
   color: #a1a1aa;
   font-size: 12.5px;
   font-weight: 500;
   line-height: 1.3;
 }
 
-main .toc-hype .toc-hype__arrow {
+.toc-hype-wrapper .toc-hype .toc-hype__arrow {
   display: flex;
   flex-shrink: 0;
   align-self: flex-start;
@@ -132,7 +133,7 @@ main .toc-hype .toc-hype__arrow {
     transform 0.2s ease;
 }
 
-main .toc-hype .toc-hype__arrow svg {
+.toc-hype-wrapper .toc-hype .toc-hype__arrow svg {
   width: 14px;
   height: 14px;
   fill: none;
@@ -142,7 +143,7 @@ main .toc-hype .toc-hype__arrow svg {
   stroke-linejoin: round;
 }
 
-main .toc-hype:hover .toc-hype__arrow {
+.toc-hype-wrapper .toc-hype:hover .toc-hype__arrow {
   color: #fbc646;
   transform: translate(1px, -1px);
 }
@@ -158,7 +159,7 @@ main .toc-hype:hover .toc-hype__arrow {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  main .toc-hype::after {
+  .toc-hype-wrapper .toc-hype::after {
     animation: none;
   }
 }

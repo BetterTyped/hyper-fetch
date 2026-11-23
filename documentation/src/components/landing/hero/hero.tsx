@@ -30,7 +30,7 @@ const HeroBadge = ({ className }: { className?: string }) => (
   <Link
     to="/blog/hyper-fetch-10-0"
     className={cn(
-      "group inline-flex h-8 items-center gap-2.5 rounded-full bg-white/[0.04] pl-1 pr-3 !no-underline ring-1 ring-inset ring-white/10 backdrop-blur-md transition-colors duration-200 hover:bg-white/[0.07] hover:ring-white/20",
+      "group inline-flex h-8 items-center gap-2.5 rounded-full bg-white/[0.04] pl-2 pr-3 !no-underline ring-1 ring-inset ring-white/10 backdrop-blur-md transition-colors duration-200 hover:bg-white/[0.07] hover:ring-white/20",
       className,
     )}
   >

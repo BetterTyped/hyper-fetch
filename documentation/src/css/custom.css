@@ -1895,47 +1895,44 @@ html[data-theme="dark"] .navbar-sidebar .github {
   font-weight: 600;
 }
 
-.table-of-contents__link {
-  font-size: 15px !important;
-  line-height: 1.4 !important;
-  font-weight: 400 !important;
-  margin-bottom: 10px !important;
-}
-
-html body .table-of-contents__link:hover {
-  @apply !text-white;
+/*
+ * The table of contents: plain links on an even rhythm, the current heading marked by the section color alone and
+ * nested headings one step in. No fills, rails or left borders.
+ */
+.table-of-contents {
+  padding: 0 !important;
 }
 
 .table-of-contents li {
-  margin-left: 0px !important;
-  margin-right: 0px !important;
+  margin: 0 !important;
+}
+
+.table-of-contents ul {
+  margin: 0 !important;
+  padding-left: 12px !important;
+}
+
+.table-of-contents__link {
+  display: block;
+  margin: 0 !important;
+  padding: 4px 0;
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease;
+}
+
+.table-of-contents ul .table-of-contents__link {
+  font-size: 13.5px !important;
+}
+
+html body .table-of-contents__link:hover {
+  @apply !text-zinc-100;
 }
 
 .table-of-contents__link--active {
-  position: relative;
-}
-.table-of-contents__link--active::before {
-  position: absolute;
-  display: flex;
-  content: "";
-  left: -10px;
-  right: -10px;
-  top: -5px;
-  bottom: -5px;
-  width: calc(100% + 10px);
-  height: calc(100% + 10px);
-  background: #9f9f9f10;
-  padding: 5px 15px;
-  border-radius: 6px;
-}
-
-.table-of-contents {
-  padding: 10px 0 !important;
-}
-
-.table-of-contents > li {
-  margin-bottom: 12px !important;
-  margin-left: 25px !important;
+  font-weight: 500 !important;
 }
 
 aside {

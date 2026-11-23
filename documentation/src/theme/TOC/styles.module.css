@@ -9,12 +9,17 @@
   top: 100px;
 }
 
+/* A quiet sentence-case heading, lined up with the links below it */
 .tocWrapper h6 {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding-left: 20px;
+  margin: 0 0 8px;
+  padding-left: 0;
+  color: #d4d4d8;
+  font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .tocWrapper ul {
@@ -33,10 +38,6 @@
   max-height: max(132px, calc(100vh - 420px - 400px));
 }
 
-.tableOfContents a {
-  @apply text-base hover:dark:brightness-[120%] hover:brightness-[80%];
-}
-
 .tableOfContents :global(.table-of-contents__link--active) {
   color: inherit !important;
 }
@@ -48,7 +49,7 @@
 /*
  * Sponsor button: a dark field with a slowly turning pink and gold edge, a heart that beats now and then and an
  * arrow that leans out on hover. custom.css colors links and their direct spans gold (`main a > span`), so the
- * colors here go through `html body main` to win.
+ * colors here go through `html body .tocWrapper` to win. Not `main`: the blog renders the table of contents beside it.
  */
 @property --sponsor-angle {
   syntax: "<angle>";
@@ -56,7 +57,7 @@
   inherits: false;
 }
 
-:global(html body main) .sponsorButton {
+:global(html body) .tocWrapper .sponsorButton {
   position: relative;
   isolation: isolate;
   display: flex;
@@ -113,7 +114,7 @@
   pointer-events: none;
 }
 
-:global(html body main) .sponsorButton:hover {
+:global(html body) .tocWrapper .sponsorButton:hover {
   transform: translateY(-1px);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
@@ -125,16 +126,16 @@
   animation-duration: 2.5s;
 }
 
-:global(html body main) .sponsorButton:active {
+:global(html body) .tocWrapper .sponsorButton:active {
   transform: translateY(0);
 }
 
-:global(html body main) .sponsorButton:focus-visible {
+:global(html body) .tocWrapper .sponsorButton:focus-visible {
   outline: 2px solid rgba(244, 114, 182, 0.6);
   outline-offset: 2px;
 }
 
-:global(html body main) .sponsorButton > span {
+:global(html body) .tocWrapper .sponsorButton > span {
   color: inherit !important;
   -webkit-text-fill-color: currentColor;
   text-decoration: none !important;
@@ -178,7 +179,7 @@
   animation: sponsor-ring 1.2s ease-out infinite;
 }
 
-:global(html body main) .sponsorButton .sponsorLabel {
+:global(html body) .tocWrapper .sponsorButton .sponsorLabel {
   flex: 1;
   min-width: 0;
   font-size: 14px !important;
@@ -187,7 +188,7 @@
   white-space: nowrap;
 }
 
-:global(html body main) .sponsorButton .sponsorLabel b {
+:global(html body) .tocWrapper .sponsorButton .sponsorLabel b {
   font-weight: 700;
   background: linear-gradient(to right, #fbcfe8, #f9a8d4);
   -webkit-background-clip: text;
@@ -195,7 +196,7 @@
   -webkit-text-fill-color: transparent;
 }
 
-:global(html body main) .sponsorButton .sponsorArrow {
+:global(html body) .tocWrapper .sponsorButton .sponsorArrow {
   display: flex;
   flex-shrink: 0;
   color: #71717a !important;
@@ -214,7 +215,7 @@
   stroke-linejoin: round;
 }
 
-:global(html body main) .sponsorButton:hover .sponsorArrow {
+:global(html body) .tocWrapper .sponsorButton:hover .sponsorArrow {
   color: #f9a8d4 !important;
   transform: translate(2px, -2px);
 }
