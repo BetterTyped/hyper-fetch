@@ -8,6 +8,7 @@ import type {
 } from "@hyper-fetch/core";
 import type {
   OnProgressCallbackType,
+  OnRetryCallbackType,
   OnStartCallbackType,
   OnSuccessCallbackType,
   OnErrorCallbackType,
@@ -125,6 +126,11 @@ export type UseSubmitReturnType<
      * Helper hook listening on request going into offline awaiting for network connection to be restored. It will not trigger onError when 'offline' mode is set on request.
      */
     onSubmitOfflineError: (callback: OnErrorCallbackType<RequestType>) => void;
+    /**
+     * Helper hook listening on a failed attempt of a submitted request scheduling a retry. Receives the failed
+     * `response`, the `retry` number (from 1) and the `delay` in milliseconds before the next attempt.
+     */
+    onSubmitRetry: (callback: OnRetryCallbackType<RequestType>) => void;
     /**
      * Method responsible for triggering requests. It return Promise which will be resolved with the request.
      */

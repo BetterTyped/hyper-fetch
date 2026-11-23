@@ -160,6 +160,42 @@ const UsersListPage = () => {
 
 ---
 
+## Retries
+
+A request with `retry` sends again after a failed attempt. `onRetry` fires when such an attempt schedules the next one,
+with the `retry` number (from `1`), the `delay` in milliseconds and the failed `response`. `onError` still fires for
+every failed attempt, with `details.willRetry` telling whether another one is coming.
+
+```tsx
+import { useState } from "react";
+import { useFetch } from "@hyper-fetch/react";
+import { getUsers } from "./api/users";
+
+const getUsersWithRetries = getUsers.setRetry(3).setRetryTime(2000);
+
+const UsersListPage = () => {
+  const [message, setMessage] = useState("");
+  const { data, loading, onRetry, onFinished } = useFetch(getUsersWithRetries);
+
+  onRetry(({ request, retry, delay }) => {
+    setMessage(`Retrying (${retry} of ${request.retry}) in ${delay / 1000}s...`);
+  });
+
+  onFinished(({ details }) => {
+    if (!details.willRetry) setMessage("");
+  });
+
+  return (
+    <div>
+      {message && <p>{message}</p>}
+      <Table data={data} loading={loading} />
+    </div>
+  );
+};
+```
+
+---
+
 ## Download and Upload Progress
 
 `useFetch` provides two event handlers for tracking download and upload progress:

@@ -1040,6 +1040,17 @@ export class Dispatcher<Adapter extends AdapterInstance> {
           this.flushQueue(queryKey);
         }, retryDelay);
         this.retryTimers.set(requestId, retryTimer);
+        // Announced once the retry is scheduled - listeners see the request waiting for it
+        notify(() =>
+          requestManager.events.emitRetry({
+            request,
+            requestId,
+            response,
+            details: requestDetails,
+            retry: retries,
+            delay: retryDelay,
+          }),
+        );
       } else {
         if (request.retry) {
           this.logger.error({

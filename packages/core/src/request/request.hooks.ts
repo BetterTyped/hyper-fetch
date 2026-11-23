@@ -1,4 +1,9 @@
-import type { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
+import type {
+  RequestEventType,
+  RequestProgressEventType,
+  RequestResponseEventType,
+  RequestRetryEventType,
+} from "managers";
 
 import type { RequestInstance } from "./request.types";
 
@@ -9,6 +14,7 @@ type HookName =
   | "onUploadProgress"
   | "onDownloadProgress"
   | "onResponse"
+  | "onRetry"
   | "onRemove";
 
 export interface RequestHooks<R extends RequestInstance> {
@@ -18,6 +24,8 @@ export interface RequestHooks<R extends RequestInstance> {
   onUploadProgress: (cb: (eventData: RequestProgressEventType<R>) => void) => () => void;
   onDownloadProgress: (cb: (eventData: RequestProgressEventType<R>) => void) => () => void;
   onResponse: (cb: (eventData: RequestResponseEventType<R>) => void) => () => void;
+  /** Called when a failed attempt of a `send()` schedules a retry, with the `retry` number and its `delay` */
+  onRetry: (cb: (eventData: RequestRetryEventType<R>) => void) => () => void;
   onRemove: (cb: (eventData: RequestEventType<R>) => void) => () => void;
   /** @internal Invoke all registered listeners for a given hook */
   __emit: (name: HookName, data: any) => void;
@@ -32,6 +40,7 @@ const HOOK_NAMES: HookName[] = [
   "onUploadProgress",
   "onDownloadProgress",
   "onResponse",
+  "onRetry",
   "onRemove",
 ];
 
@@ -45,6 +54,7 @@ export function createRequestHooks<R extends RequestInstance>(
     onUploadProgress: [],
     onDownloadProgress: [],
     onResponse: [],
+    onRetry: [],
     onRemove: [],
   };
 
@@ -71,6 +81,7 @@ export function createRequestHooks<R extends RequestInstance>(
     onUploadProgress: subscribe("onUploadProgress"),
     onDownloadProgress: subscribe("onDownloadProgress"),
     onResponse: subscribe("onResponse"),
+    onRetry: subscribe("onRetry"),
     onRemove: subscribe("onRemove"),
     __emit(name: HookName, data: any) {
       listeners[name].forEach((cb) => {

@@ -1,4 +1,4 @@
-import type { RequestSendType, ExtractMutationContextType } from "@hyper-fetch/core";
+import type { RequestSendType, ExtractMutationContextType, RequestRetryEventType } from "@hyper-fetch/core";
 import { Client } from "@hyper-fetch/core";
 import {
   expectType,
@@ -320,6 +320,15 @@ describe("useSubmit [Types]", () => {
       });
       type Ctx = ExtractMutationContextType<typeof withTypedPayload>;
       expectType<{ saved: { name?: string | undefined } }>().assert({} as Ctx);
+    });
+  });
+
+  describe("onSubmitRetry", () => {
+    it("should give the retry event of the request", () => {
+      type RetryEvent = Parameters<Parameters<PostWithCustomErrorReturn["onSubmitRetry"]>[0]>[0];
+      expectType<RequestRetryEventType<typeof postWithCustomError>>().assert(null as unknown as RetryEvent);
+      expectType<number>().assert(null as unknown as RetryEvent["retry"]);
+      expectType<number>().assert(null as unknown as RetryEvent["delay"]);
     });
   });
 

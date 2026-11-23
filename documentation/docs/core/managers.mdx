@@ -78,13 +78,13 @@ client.appManager.setFocusEvents({
 [Read the API Reference »](/api/core/Classes/RequestManager.mdx)
 
 The **RequestManager** manages cancellation tokens for requests, emits events throughout the request lifecycle
-(including start, upload, download, response, and abort), and supports aborting requests by requestId or custom
+(including start, upload, download, retry, response, and abort), and supports aborting requests by requestId or custom
 abortKey. It enables granular progress tracking and advanced cancellation scenarios for robust request handling.
 
 :::tip Purpose
 
 1. Manage cancellation tokens for requests
-2. Emit events for request lifecycle (start, upload, download, response, abort)
+2. Emit events for request lifecycle (start, upload, download, retry, response, abort)
 3. Support aborting by requestId or abortKey
 
 :::
@@ -113,6 +113,15 @@ const unmountDownloadListener = client.requestManager.events.onDownloadProgressB
 // ... later, to clean up:
 unmountUploadListener();
 unmountDownloadListener();
+```
+
+```tsx title="Watching scheduled retries"
+// Every failed attempt which schedules a retry - also onRetryById(requestId) and onRetryByQueue(queryKey)
+// highlight-start
+const unmountRetryListener = client.requestManager.events.onRetry(({ request, retry, delay, response }) => {
+  console.log(`${request.endpoint} failed with ${response.status}, retry ${retry} of ${request.retry} in ${delay} ms`);
+});
+// highlight-end
 ```
 
 :::info

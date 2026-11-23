@@ -1,3 +1,4 @@
+import type { RequestRetryEventType } from "@hyper-fetch/core";
 import { Client } from "@hyper-fetch/core";
 import { expectType, expectNotType, expectFunctionParametersType } from "@hyper-fetch/testing";
 import type { UseFetchReturnType } from "hooks/use-fetch";
@@ -164,6 +165,16 @@ describe("useFetch [Types]", () => {
     it("should have onResponseStart callback", () => {
       const onResponseStart = (() => null) as unknown as GetUsersReturn["onResponseStart"];
       expectType<(callback: any) => void>().assert(onResponseStart);
+    });
+
+    it("should give the retry event of the request to onRetry", () => {
+      type RetryEvent = Parameters<Parameters<GetUserWithErrorReturn["onRetry"]>[0]>[0];
+      expectType<RequestRetryEventType<typeof getUserWithError>>().assert(null as unknown as RetryEvent);
+      expectType<number>().assert(null as unknown as RetryEvent["retry"]);
+      expectType<number>().assert(null as unknown as RetryEvent["delay"]);
+      expectType<{ code: number; message: string; details: string[] } | Error | null>().assert(
+        null as unknown as RetryEvent["response"]["error"],
+      );
     });
   });
 

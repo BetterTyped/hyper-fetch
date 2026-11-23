@@ -1,6 +1,8 @@
+import type { RequestInstance, RequestRetryEventType } from "@hyper-fetch/core";
 import { act, renderHook } from "@testing-library/react";
 import { useFetch } from "hooks/use-fetch";
 import { useIsFetching } from "hooks/use-is-fetching";
+import { StrictMode } from "react";
 
 import { client, createRequest } from "../../utils";
 import { advance, gateRequest, settle } from "../../utils/gate.utils";
@@ -261,6 +263,91 @@ describe("useFetch [ Retry ]", () => {
       await advance(retryTime * 3);
 
       expect(calls).toHaveLength(2);
+    });
+  });
+
+  describe("when a retry gets scheduled", () => {
+    /** The retry numbers and delays the callback received */
+    const summarize = (spy: ReturnType<typeof vi.fn>) =>
+      spy.mock.calls.map((args) => {
+        const event = args[0] as RequestRetryEventType<RequestInstance>;
+        return [event.retry, event.delay];
+      });
+
+    const renderOnRetry = (retry: number, wrapper?: typeof StrictMode) => {
+      const request = createRequest<Data>({ retry, retryTime });
+      calls = gateRequest(request);
+      const onRetry = vi.fn();
+      const view = renderHook(
+        ({ callback }: { callback: typeof onRetry }) => {
+          const state = useFetch(request);
+          state.onRetry(callback);
+          return state;
+        },
+        { initialProps: { callback: onRetry }, wrapper },
+      );
+      return { ...view, onRetry, request };
+    };
+
+    it("should call onRetry with the retry number and its delay before every next attempt", async () => {
+      const { onRetry } = renderOnRetry(2);
+      await advance();
+      await failAttempt(0);
+
+      expect(summarize(onRetry)).toStrictEqual([[1, retryTime]]);
+      expect(onRetry.mock.calls[0][0].response.error.message).toBe("Attempt 1 failed");
+      expect(calls).toHaveLength(1);
+
+      await advance(retryTime);
+      await failAttempt(1);
+      await advance(retryTime);
+      await failAttempt(2);
+      await advance(retryTime * 3);
+
+      expect(calls).toHaveLength(3);
+      expect(summarize(onRetry)).toStrictEqual([
+        [1, retryTime],
+        [2, retryTime],
+      ]);
+    });
+    it("should not call onRetry when the request has no retries", async () => {
+      const { onRetry } = renderOnRetry(0);
+      await advance();
+      await failAttempt(0);
+      await advance(retryTime * 3);
+
+      expect(onRetry).not.toHaveBeenCalled();
+    });
+    it("should call the onRetry callback of the latest render", async () => {
+      const { onRetry, rerender } = renderOnRetry(2);
+      const nextOnRetry = vi.fn();
+      await advance();
+      await failAttempt(0);
+
+      rerender({ callback: nextOnRetry });
+      await advance(retryTime);
+      await failAttempt(1);
+
+      expect(summarize(onRetry)).toStrictEqual([[1, retryTime]]);
+      expect(summarize(nextOnRetry)).toStrictEqual([[2, retryTime]]);
+    });
+    it("should not call onRetry after unmount", async () => {
+      const { onRetry, unmount } = renderOnRetry(2);
+      await advance();
+      unmount();
+      await failAttempt(0);
+      await advance(retryTime * 3);
+
+      // The retry was scheduled and sent - only the callback of the unmounted hook is gone
+      expect(calls).toHaveLength(2);
+      expect(onRetry).not.toHaveBeenCalled();
+    });
+    it("should call onRetry once per retry in StrictMode", async () => {
+      const { onRetry } = renderOnRetry(1, StrictMode);
+      await advance();
+      await failAttempt(0);
+
+      expect(summarize(onRetry)).toStrictEqual([[1, retryTime]]);
     });
   });
 });
