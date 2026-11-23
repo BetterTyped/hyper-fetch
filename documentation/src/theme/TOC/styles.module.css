@@ -27,7 +27,8 @@
   max-height: max(132px, calc(100vh - 420px - 300px));
 }
 
-/* Paid partners with logo tiles make the partners block taller, so the headings get less room. */
+/* Two partner cards or a row of logo tiles make the partners block taller, so the headings get less room. */
+.tocContent:has(:global(.bt-sp-card ~ .bt-sp-card)) .tableOfContents,
 .tocContent:has(:global(.bt-sp-tiles)) .tableOfContents {
   max-height: max(132px, calc(100vh - 420px - 400px));
 }
