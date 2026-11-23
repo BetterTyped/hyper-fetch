@@ -2548,7 +2548,7 @@ input[type="search"]::-webkit-search-results-decoration {
   stroke: url(#bt-gold);
 }
 
-/* The examples index is a browser, not an article: no sidebar, breadcrumbs or doc footer, and the catalog sets its own width */
+/* The examples index is a browser, not an article: no breadcrumbs or doc footer, and the catalog takes the full width beside the sidebar */
 .docs-wrapper main > .container:has(.examples-catalog) {
   max-width: none;
 }
