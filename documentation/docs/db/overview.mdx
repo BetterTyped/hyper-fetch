@@ -1,27 +1,160 @@
 ---
 sidebar_position: 1
-title: DB Overview
+title: "DB Overview: Live Collections for HyperFetch"
+description: "@hyper-fetch/db keeps server data in typed collections fed by your requests and sockets. Components run live queries, and writes show at once in every view, with offline support and transactions."
 sidebar_label: Overview
 ---
 
-# Overview
+# DB overview
 
-> `@hyper-fetch/db` keeps your data in typed collections, one row per record, fed by the requests and socket listeners
-> you already have. Components query collections instead of endpoints, and every write reaches every query that shows
-> the row.
+`@hyper-fetch/db` stores your server data as **collections** of typed rows, one row per record. The requests and socket
+listeners you already have fill them. Components run **live queries** against collections instead of calling
+endpoints, and a write to a row shows at once in every query that contains it.
+
+```tsx title="posts.tsx"
+import { collection, createDb, eq } from "@hyper-fetch/db";
+import { useLiveQuery } from "@hyper-fetch/react";
+
+// A collection: complete rows of one schema, loaded by an existing request
+// highlight-start
+const Post = collection(PostSchema, { key: "id" })
+  .load(getTeamPosts, { where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } } })
+  .mutate({ update: { request: updatePost, map: (id, changes) => ({ params: { postId: id }, payload: changes }) } });
+// highlight-end
+
+export const db = createDb({ post: Post });
+
+const TeamPosts = ({ teamId }: { teamId: number }) => {
+  // highlight-next-line
+  const { data } = useLiveQuery(db.post.where((post) => eq(post.teamId, teamId)));
+
+  return data?.map((post) => (
+    // Shows in this list, in every other query with this post, and reverts if the request fails
+    <p key={post.id} onClick={() => db.post.update(post.id, { title: "Renamed" })}>
+      {post.title}
+    </p>
+  ));
+};
+```
 
 ---
 
 ## When to use it
 
-Use the db when the same data shows in several views, changes from several places such as mutations, sockets and other
-users, or has to work offline. For screens that each show their own data, `useFetch` is simpler.
+| Your data                                                                         | Use                                            |
+| --------------------------------------------------------------------------------- | ---------------------------------------------- |
+| Each screen shows its own response, such as a settings page or a report          | [`useFetch`](/docs/react/hooks/use-fetch)  |
+| The same records show in several views, such as a list, a detail and a counter   | `@hyper-fetch/db`                              |
+| Records change from mutations, sockets and other users at the same time           | `@hyper-fetch/db`                              |
+| Writes must work offline and replay in order when the connection returns          | `@hyper-fetch/db`                              |
 
 A request used by both `useFetch` and a collection keeps two copies of its data, one in the Cache and one in the
-collection, and they do not update each other.
+collection, and they do not update each other. Pick one per request.
 
 ---
 
+## What you get
+
+<Tabs>
+<TabItem value="queries" label="Live queries">
+
+Queries filter, sort and shape rows. The db sends the conditions the loader can send to the backend and runs the rest
+on the returned rows. `explain()` shows the split.
+
+```ts
+import { and, eq, gt } from "@hyper-fetch/db";
+
+const popular = db.post
+  // highlight-next-line
+  .where((post) => and(eq(post.teamId, 1), gt(post.likes, 10)))
+  .orderBy((post) => post.createdAt, "desc")
+  .select((post) => ({ id: post.id, title: post.title }));
+
+popular.explain(); // the loader, what is sent, what runs locally, which syncs keep it live
+```
+
+</TabItem>
+<TabItem value="writes" label="Optimistic writes">
+
+A write shows at once as an optimistic layer. When the request fails, the db reverts exactly what the write changed.
+Like `send()`, a write never rejects.
+
+```ts
+// highlight-next-line
+const { success, error } = await db.post.update(1, { title: "Renamed" });
+
+// Several writes that belong together are kept or reverted as a whole
+await db.transaction((tx) => {
+  tx.post.update(1, { status: "published" });
+  tx.post.update(2, { status: "archived" });
+});
+```
+
+</TabItem>
+<TabItem value="syncs" label="Realtime syncs">
+
+Socket listeners keep loaded rows current. Insert, update and delete messages reach every query that holds the row,
+without a refetch.
+
+```ts
+const Post = collection(PostSchema, { key: "id" })
+  .load(getTeamPosts, { where: byTeam })
+  // highlight-start
+  .sync(onPostCreated, { type: "insert", where: byTeam })
+  .sync(onPostChanged, { type: "update", where: byTeam })
+  .sync(onPostDeleted, { type: "delete", where: byTeam });
+  // highlight-end
+```
+
+</TabItem>
+<TabItem value="related" label="Related data">
+
+Join related rows into query results. The joined rows load in one batched request.
+
+```ts
+db.post
+  .where((post) => eq(post.teamId, 1))
+  // highlight-next-line
+  .join("author", db.user, (post) => post.authorId); // each row gets `author: User | undefined`
+```
+
+</TabItem>
+<TabItem value="offline" label="Offline">
+
+With `offline`, writes go through a persisted outbox. One browser tab replays them in order when the connection
+returns, and each write's id can travel as an idempotency key.
+
+```ts
+const db = createDb(collections, {
+  // highlight-start
+  offline: { retryable: (response) => response.status !== 422 },
+  persistence: { storage: localStorage, scope: userId, version: 1 },
+  // highlight-end
+});
+```
+
+</TabItem>
+</Tabs>
+
+---
+
+## How data flows
+
+```mermaid
+flowchart LR
+  Req["Requests"] -- loaders --> C[("Collections<br/>typed rows by key")]
+  Sock["Socket listeners"] -- syncs --> C
+  C --> Q["Live queries<br/>where · orderBy · join"]
+  Q --> UI["Components<br/>useLiveQuery"]
+  UI -- "insert · update · delete" --> W["Optimistic layer<br/>and outbox"]
+  W --> C
+  W -- "mutation requests" --> Req
+```
+
+The pages below go through each part in detail. The [quick start](/docs/db/quick-start.mdx) builds the example above
+step by step.
+
+---
 ## Collections
 
 A collection is a typed set of **complete rows**, defined by a [Standard Schema](https://standardschema.dev) such as a
@@ -191,3 +324,42 @@ A failed load keeps the rows the query showed and sets `error` on it, and the ne
   they were. Other types need a codec in the `codecs` option of `createDb`.
 - `db.inspect()` describes what the db holds, and the devtools plugin's `dbs` option shows it in the
   [DB Inspector](/docs/hyper-flow/features/db) of HyperFlow.
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Quick start"
+      description="From a request to a live query and an optimistic write in four steps."
+      to="/docs/db/quick-start"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Related data"
+      description="Links, normalized nested records and joins."
+      to="/docs/db/related-data"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="useLiveQuery"
+      description="Run live queries in React components."
+      to="/docs/react/db/use-live-query"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="promo"
+      title="DB Inspector in HyperFlow"
+      description="See collections, loaded subsets, live query plans and the outbox."
+      to="/docs/hyper-flow/features/db"
+    />
+  </div>
+</div>

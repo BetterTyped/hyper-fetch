@@ -1,139 +1,192 @@
 ---
 sidebar_position: 2
 title: "React Quick Start with HyperFetch"
-description: "Install @hyper-fetch/react, create a client and a request, and fetch data in a component with useFetch. Loading, error and data are handled for you."
+description: "Install @hyper-fetch/react, define typed requests and build a user list with a form using useFetch and useSubmit. Loading, errors, caching and refetching included."
 sidebar_label: Quick Start
 ---
 
-> HyperFetch's React package provides a set of hooks that make it easy to fetch, cache, and manage data in your React
-> applications with minimal setup.
+# Quick start
 
-:::secondary What you'll learn
+You will build a user list with an "add user" form against a public test API. By the end, the list loads with typed
+data, shows loading and error states, and refreshes after the form saves.
 
-- How to initialize the HyperFetch client
-- How to create a request
-- How to fetch data using the `useFetch` hook
-- How to submit data using the `useSubmit` hook
+:::tip What you'll learn
+
+1. **Define requests** once and share them across components.
+2. **Read data** with `useFetch`.
+3. **Write data** with `useSubmit` and refresh the list after it succeeds.
 
 :::
 
 ---
 
-### 1. Initialize the Client
+## 1. Install
 
-First, you need to create a `Client` instance. This client will hold the configuration for all your requests, such as
-the base URL. It's best to create it in a separate file to easily share it across your application.
+```npm2yarn2pnpm
+npm install @hyper-fetch/core @hyper-fetch/react
+```
 
-```tsx title="client.ts"
-import { Client } from "@hyper-fetch/core";
+React 18 or later is required.
 
-export const client = new Client({
-  url: "https://jsonplaceholder.typicode.com",
+---
+
+## 2. Create the client and requests
+
+The client holds the base URL and the cache. Requests describe each endpoint with its types. Create both at module
+level, outside components, so every component shares the same cache.
+
+```ts title="api.ts"
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({ url: "https://jsonplaceholder.typicode.com" });
+
+export type User = { id: number; name: string; email: string };
+
+export const getUsers = client.createRequest<{ response: User[] }>()({
+  endpoint: "/users",
 });
+
+export const createUser = client.createRequest<{
+  response: User;
+  payload: { name: string; email: string };
+}>()({ endpoint: "/users", method: "POST" });
 ```
 
 ---
 
-### 2. Create a Request
+## 3. Show the list with `useFetch`
 
-Next, define your requests. A `request` holds all the information about an endpoint, its method, and other
-configurations. These request instances will be used by the hooks.
+`useFetch` sends the request when the component mounts and returns its state. If the response is already cached, it
+renders right away and refreshes in the background.
 
-```ts title="requests.ts"
-import { client } from "./client";
-
-// We can define a type for our user for better type-safety
-type UserType = {
-  id: number;
-  name: string;
-};
-
-// Request for fetching a list of users
-export const getUsers = client.createRequest<{ response: UserType[] }>()({
-  method: "GET",
-  endpoint: "/users",
-});
-
-// Request for creating a new user
-export const createUser = client.createRequest<{ response: UserType; payload: { name: string } }>()({
-  method: "POST",
-  endpoint: "/users",
-});
-```
-
----
-
-### 3. Fetch Data with `useFetch`
-
-The `useFetch` hook allows you to fetch data from an endpoint and manage the state of the request (loading, error,
-data). It automatically re-fetches data when the component mounts or dependencies change.
-
-Here's how to use it in a component:
-
-```tsx title="Users.tsx"
-import React from "react";
+```tsx title="users-list.tsx"
 import { useFetch } from "@hyper-fetch/react";
-import { getUsers } from "./requests";
 
-export const Users = () => {
+import { getUsers } from "./api";
+
+export const UsersList = () => {
   // highlight-next-line
-  const { data, loading, error } = useFetch(getUsers);
+  const { data, loading, error, refetch } = useFetch(getUsers);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // `loading` is also true while cached data refreshes, so show the spinner only without data
+  if (loading && !data) return <p>Loading users...</p>;
+  if (error && !data) return <button onClick={refetch}>Failed to load. Try again</button>;
 
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
-
-  return <ul>{data?.map((user) => <li key={user.id}>{user.name}</li>)}</ul>;
+  return (
+    <ul>
+      {data?.map((user) => (
+        <li key={user.id}>
+          {user.name} <small>{user.email}</small>
+        </li>
+      ))}
+    </ul>
+  );
 };
 ```
 
+Try mounting `<UsersList />` twice. Both lists render the same data from a single request.
+
 ---
 
-### 4. Submit Data with `useSubmit`
+## 4. Add a user with `useSubmit`
 
-The `useSubmit` hook is designed for mutations like creating, updating, or deleting data. It gives you a `submit`
-function to trigger the request manually.
+`useSubmit` sends nothing until you call `submit()`. It resolves with the response, so you can react to the result
+right where you call it.
 
-Here is an example of a form that creates a new user:
-
-```tsx title="AddUserForm.tsx"
-import React, { useState } from "react";
+```tsx title="add-user-form.tsx"
+import { useState } from "react";
 import { useSubmit } from "@hyper-fetch/react";
-import { createUser } from "./requests";
+
+import { client, createUser, getUsers } from "./api";
 
 export const AddUserForm = () => {
-  // highlight-next-line
-  const { submit, submitting, error, data } = useSubmit(createUser);
   const [name, setName] = useState("");
+  // highlight-next-line
+  const { submit, submitting, error } = useSubmit(createUser);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // highlight-next-line
-    submit({ payload: { name } });
+  const onSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    // highlight-start
+    const { success } = await submit({ payload: { name, email: `${name}@example.com` } });
+
+    if (success) {
+      setName("");
+      client.cache.invalidate(getUsers); // every mounted useFetch(getUsers) refetches
+    }
+    // highlight-end
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="User name" />
-      <button type="submit" disabled={submitting}>
-        {submitting ? "Adding..." : "Add User"}
-      </button>
-      {error && <div>Error: {error.message}</div>}
-      {data && <div>User created with ID: {data.id}</div>}
+    <form onSubmit={onSubmit}>
+      <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Name" />
+      <button disabled={submitting}>{submitting ? "Saving..." : "Add user"}</button>
+      {error && <p>{error.message}</p>}
     </form>
   );
 };
 ```
 
----
+:::info A real backend saves the user
 
-:::success That's it!
-
-You've learned the basics of using HyperFetch with React. You can now build powerful, type-safe data-driven
-applications.
+The test API answers `201` but does not store new users, so the refetched list looks the same. Against your own API,
+the new user appears in the list.
 
 :::
+
+---
+
+## 5. Put it together
+
+```tsx title="app.tsx"
+import { AddUserForm } from "./add-user-form";
+import { UsersList } from "./users-list";
+
+export const App = () => (
+  <main>
+    <AddUserForm />
+    <UsersList />
+  </main>
+);
+```
+
+You now have typed data in components, deduplicated requests, a cache that survives remounts and a list that refreshes
+after a mutation, with no state management code.
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="useFetch options"
+      description="Params, dependencies, polling, refetch on focus and suspense."
+      to="/docs/react/hooks/use-fetch"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="guides"
+      title="Optimistic updates"
+      description="Show the change before the server answers and roll it back on failure."
+      to="/docs/guides/react/basics/optimistic-approach"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="guides"
+      title="Next.js data fetching"
+      description="Fetch on the server and hydrate the first render."
+      to="/docs/guides/react/basics/nextjs-data-fetching"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="promo"
+      title="Connect HyperFlow"
+      description="See every request your hooks send, with payloads, cache entries and timings."
+      to="/docs/hyper-flow/connecting"
+    />
+  </div>
+</div>

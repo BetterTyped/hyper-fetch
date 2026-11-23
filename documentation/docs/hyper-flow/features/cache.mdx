@@ -1,54 +1,94 @@
 ---
 sidebar_position: 3
 title: Inspect and Edit the HyperFetch Cache in HyperFlow
-description: Browse the HyperFetch cache in HyperFlow. See fresh and stale entries, observers and data, and edit, invalidate or delete entries while the app runs.
-sidebar_label: Cache Management
+description: "Browse the HyperFetch cache in HyperFlow. See fresh and stale entries, observers and countdowns, and edit, invalidate, remove or fail an entry while the app runs to see how your UI reacts."
+sidebar_label: Cache
 ---
 
-# Inspect and edit the cache in HyperFlow
+# Cache
 
-Most data bugs are cache bugs: a stale entry, a key that differs by one param, a component that never re-renders.
-HyperFlow lists the cache of a connected app, shows each entry's data and observers, and lets you change an entry while
-the app runs to see how the UI reacts.
+The **Cache** page lists every entry in your client's cache with its freshness and the number of components that read
+it. Open an entry to see its data and timers, and change it while the app runs: edit a value, mark it stale, remove it
+or replace it with an error. Your hooks pick up each change at once, which makes the page a quick way to test empty,
+stale and error states without touching the server.
 
-![Cache Management](@site/static/img/previews/cache.png)
-
----
-
-## Cache Overview
-
-The cache dashboard gives you a high-level view of your cache's state, including metrics on hit rates, memory usage, and
-the number of stored items. This helps you understand how effectively your caching strategy is working.
-
-![Cache Dashboard](@site/static/img/previews/dashboard-cache.png)
+<Screenshot
+  src="/img/hyper-flow/cache.webp"
+  alt="The Cache page listing cache keys such as GET_/products_ with their status Fresh or Stale, observer counts and last update times."
+  caption="Each row is one cache key with its freshness, observers and last update."
+/>
 
 ---
 
-## Exploring Cached Data
+## Read the list
 
-You can browse a list of all items currently in the cache. Each entry shows the cache key, whether it is fresh or stale,
-how many observers it has, and when it was last updated. This allows you to:
+| Column           | Meaning                                                                                       |
+| ---------------- | --------------------------------------------------------------------------------------------- |
+| **Cache Key**    | The key the response is stored under, built from the method, endpoint, params and query params |
+| **Status**       | **Fresh** until `staleTime` passes, then **Stale**, with a live countdown                     |
+| **Observers**    | How many subscriptions in your app read this entry                                            |
+| **Last updated** | When the entry last changed                                                                   |
 
-- Verify that data is being cached as expected.
-- Identify and remove stale or unnecessary entries.
-- Find entries no component reads anymore.
-- Monitor the overall size and growth of your cache.
+Use **Search by cache key** to find an entry. Two entries that you expected to be one usually differ in a param or a
+query param, and the key shows the difference.
 
-### Observers
+:::info What counts as an observer
 
-Observers are the subscriptions of your application to the data of a cache key. Every mounted `useFetch`, `useSubmit`
-and `useCache` reading the key counts as one, and so does every `cache.events.onDataByKey` listener. The DevTools plugin
-reports the counts as components mount and unmount, and sends them all again each time HyperFlow connects.
+Every mounted `useFetch`, `useSubmit` and `useCache` that reads the key counts as one observer, and so does every
+`cache.events.onDataByKey` listener in your code. An entry with no observers is data no component shows right now.
+
+:::
 
 ---
 
-## Inspecting Cache Entries
+## Inspect an entry
 
-For deep debugging, you can drill down into individual cache entries. This detailed view shows you:
+Select a row to open the entry.
 
-- The cached data itself.
-- How many observers read the entry.
-- Metadata such as timestamps and expiration details.
-- The request that originally populated the cache entry.
+<Screenshot
+  src="/img/hyper-flow/cache-details.webp"
+  alt="Details of the GET_/products_ cache entry with its observers, last update, countdowns to stale and to garbage collection, and the cached data."
+  caption="An entry with its countdowns and data. The values are editable."
+/>
 
-Read [cache](../../core/cache.mdx) for how keys, `staleTime` and `cacheTime` work in the client.
+The overview shows the observers, the last update and two countdowns:
+
+- **Time left before stale** counts down `staleTime`. After it, the next `useFetch` that mounts with this key refetches.
+- **Time left for garbage collection** counts down `cacheTime`. When it ends, the entry is removed from the cache.
+
+A **Hydrated** badge marks entries that came from server rendering through `<Hydrate>`.
+
+The **Cache** tab holds the response: `data`, `error`, `status`, `success`, `extra` and the timestamps. The **Details**
+tab holds the rest of the entry, such as `staleTime` and `cacheTime`.
+
+---
+
+## Change an entry
+
+Changes apply to the cache in your app right away, and every hook that reads the entry re-renders with them.
+
+<Screenshot
+  src="/img/hyper-flow/cache-actions.webp"
+  alt="The Cache Actions menu of an entry, open, with the options Simulate Error, Invalidate Cache and Remove Cache Entry."
+  caption="The actions menu of a cache entry."
+/>
+
+| Action                 | What happens in your app                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------ |
+| Edit a value           | The entry is saved with the new value. Text, numbers, booleans and dates are editable inline. |
+| **Invalidate Cache**   | The entry becomes stale, and mounted hooks that read it refetch                            |
+| **Remove Cache Entry** | The entry is deleted, and mounted `useFetch` hooks that read it fetch it again             |
+| **Simulate Error**     | The entry is replaced with a failed response, so hooks render their error state            |
+
+**Simulate Error** asks which error to use. The list comes from **Simulated Errors** in the app's
+[settings](/docs/hyper-flow/features/settings.mdx#simulated-errors), where you can add errors with your own status code and
+body. The simulated error stays until the next successful request replaces it.
+
+:::tip Test your empty and error states
+
+Simulate an error to see your error UI, edit a name to check long text, or invalidate an entry to watch every
+component that reads it refetch. A refetch in your app brings the real data back.
+
+:::
+
+Read [Cache](/docs/core/cache.mdx) for how keys, `staleTime` and `cacheTime` work in the client.

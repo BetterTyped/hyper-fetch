@@ -1,45 +1,79 @@
 ---
 sidebar_position: 4
 title: Request Queue Inspector in HyperFlow
-description: Watch HyperFetch request queues in HyperFlow, see pending and in-flight requests with their history, and stop, start or clear a queue.
-sidebar_label: Queue Management
+description: "Watch HyperFetch request queues in HyperFlow. See pending and running requests per query key with their stats, and stop, start or clear a queue, or force its loading state, to test slow and offline paths."
+sidebar_label: Queues
 ---
 
-# Request queue inspector in HyperFlow
+# Queues
 
-HyperFlow's queue management tools allow you to monitor and control the request queues in your application. This is
-essential for managing offline support, request prioritization, and concurrency.
+HyperFetch sends requests through queues, one per query key. A queue decides when a request goes out: identical GET
+requests join one call, `queued` requests go one at a time, and `cancelable` requests replace each other. The
+**Queues** page shows each queue that has requests and lets you pause it from HyperFlow, which is the quickest way to
+see how your UI behaves while requests wait.
 
----
-
-## Monitoring Queues
-
-The queues dashboard provides a real-time list of all active request queues. You can see at a glance which queues are
-running, how many requests are in each queue, and their current status.
-
-### Key information includes:
-
-- **Queue Name**: The identifier for each queue.
-- **Request Count**: The number of pending and in-flight requests.
-- **Status**: Whether the queue is active, paused, or stopped.
-
-This overview is critical for understanding how your application handles concurrent and sequential data operations.
+<Screenshot
+  src="/img/hyper-flow/queues.webp"
+  alt="The Queues page with one card per query key, showing its status (Pending, Running or Stopped) and how many requests are active."
+  caption="One card per queue, with its status and active requests."
+/>
 
 ---
 
-## Inspecting Queue Details
+## Read the list
 
-For more granular control, you can inspect the details of any specific queue. This view provides a complete history of
-the requests that have passed through the queue, as well as those that are currently being processed or are pending.
+Each card shows a query key with its status and request counts. Search the list with **Search by query key**.
 
-It also shows the queue's observers: the subscriptions of your application to the loading state or the queue of its
-query key. Every mounted `useFetch`, `useSubmit` and `useQueue` using the key counts as one.
+| Status      | Meaning                                                              |
+| ----------- | -------------------------------------------------------------------- |
+| **Running** | The queue holds requests that are being sent or wait their turn      |
+| **Pending** | The queue is empty and waits for the next request                    |
+| **Stopped** | The queue was stopped. Its requests wait until you start it again    |
 
-### With this detailed view, you can:
+---
 
-- **Troubleshoot Stuck Requests**: Identify requests that are failing or taking too long to process.
-- **Analyze Queue Flow**: Understand the order of execution and how priorities are being handled.
-- **Optimize Concurrency**: Adjust your queueing strategy for better performance and reliability.
+## Inspect a queue
 
-Stopping a queue from HyperFlow is the quickest way to see how your UI behaves while requests wait, without throttling
-the network.
+Select a card to open the queue.
+
+<Screenshot
+  src="/img/hyper-flow/queue-details.webp"
+  alt="Details of the POST /invoices queue, stopped, with three pending requests and statistics about processed, successful and failed requests."
+  caption="A stopped queue holding three uploads."
+/>
+
+The overview counts the queue's observers and the requests it processed, with how many succeeded, failed or were
+canceled, and how many are pending. Below it are its response times, data transferred and processing times.
+
+Observers are the subscriptions in your app to the loading state or the queue of this key: every mounted `useFetch`,
+`useSubmit` and `useQueue` that uses it counts as one.
+
+---
+
+## Control a queue
+
+Open **Actions** in the queue's toolbar. Each action runs in your app.
+
+<Screenshot
+  src="/img/hyper-flow/queue-actions.webp"
+  alt="The Queue Actions menu of the POST_/invoices_ queue with the options Set loading, Start and Clear."
+  caption="The queue is stopped, so the menu offers Start."
+/>
+
+| Action                              | What happens in your app                                                               |
+| ----------------------------------- | -------------------------------------------------------------------------------------- |
+| **Stop**                            | The queue pauses. Running requests are aborted and stay queued, new ones wait          |
+| **Start**                           | The queue resumes and sends its waiting requests                                       |
+| **Clear**                           | Every request is removed from the queue                                                |
+| **Set loading** / **Restore loading** | Hooks that use this key show their loading state, without sending anything, until you restore it |
+
+While a queue is stopped, its requests show as **Paused** on the [Network](/docs/hyper-flow/features/network.mdx) page.
+
+:::tip Test slow and offline paths
+
+Stop the queue of a form's submit request, then submit the form. You can now check your spinner, a disabled button or
+an "unsaved changes" warning for as long as you need. Start the queue to let the request through.
+
+:::
+
+Read [Dispatcher](/docs/core/dispatcher.mdx) for how queues, deduplication and cancelation work in the client.
