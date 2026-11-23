@@ -252,7 +252,8 @@ export const getUser = client.createRequest()({
 
 `createClient` accepts an optional `mode`:
 
-- **`"auto"`** (default when omitted) — resolves to **`"client"`** in the browser and **`"server"`** in Node.js.
+- **`"auto"`** (default when omitted) — resolves to **`"client"`** in the browser, React Native and Electron (main
+  process included), because they serve one user. It resolves to **`"server"`** in Node.js, Deno, Bun and edge runtimes.
 - **`"client"`** or **`"server"`** — forces that **effective** mode regardless of environment.
 
 `client.mode` is always the resolved value: **`"client"`** or **`"server"`**. Cache behavior follows that resolved mode
@@ -262,7 +263,7 @@ export const getUser = client.createRequest()({
 import { createClient } from "@hyper-fetch/core";
 
 const client = createClient({ url: "http://localhost:3000" });
-// Same as { mode: "auto" } — client.mode is "client" in browser, "server" in Node.js
+// Same as { mode: "auto" } — client.mode is "client" in a browser or app, "server" in Node.js
 
 // Override when needed (e.g. tests or forcing server rules in the browser)
 createClient({ url: "http://localhost:3000", mode: "server" });

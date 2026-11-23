@@ -137,9 +137,10 @@ optimistic-updates) which handles rollback and refresh.
 
 ## Server mode and scopes
 
-`createClient({ url, mode })`: `"auto"` (default) resolves to `"client"` in a browser (`window` and `document` exist)
-and `"server"` elsewhere. In `"server"` mode a response is cached only when the request has a scope, which prevents
-sharing one user's data with another request on the same server process:
+`createClient({ url, mode })`: `"auto"` (default) resolves to `"client"` in a browser (`window` and `document` exist),
+in React Native (`navigator.product === "ReactNative"`) and in any Electron process (`process.versions.electron`), and
+to `"server"` elsewhere (Node.js, Deno, Bun, edge). In `"server"` mode a response is cached only when the request has a
+scope, which prevents sharing one user's data with another request on the same server process:
 
 ```ts
 await getProfile.setScope(sessionId).send(); // cached under `${sessionId}__GET_/me_`

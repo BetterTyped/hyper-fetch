@@ -29,6 +29,39 @@ describe("Cache [ Modes ]", () => {
     willRetry: false,
   };
 
+  describe("client mode (single-user runtimes without a document — auto-detected)", () => {
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      delete (process.versions as Partial<NodeJS.ProcessVersions>).electron;
+    });
+
+    const expectUnscopedResponseCached = () => {
+      const client = new Client({ url: "http://test.com" });
+      const request = client.createRequest<{ response: any }>()({ endpoint: "/users" });
+      const cache = createCache(client);
+
+      cache.set(request, { ...response, ...details });
+
+      expect(client.mode).toBe("client");
+      expect(cache.get(request.cacheKey)?.data).toStrictEqual({ id: 1 });
+    };
+
+    it("should cache unscoped responses in React Native", () => {
+      vi.stubGlobal("document", undefined);
+      vi.stubGlobal("navigator", { product: "ReactNative" });
+
+      expectUnscopedResponseCached();
+    });
+
+    it("should cache unscoped responses in the Electron main process", () => {
+      vi.stubGlobal("window", undefined);
+      vi.stubGlobal("document", undefined);
+      Object.assign(process.versions, { electron: "33.0.0" });
+
+      expectUnscopedResponseCached();
+    });
+  });
+
   describe("client mode (browser — auto-detected)", () => {
     it("should auto-detect client mode in browser environment", () => {
       const client = new Client({ url: "http://test.com" });
