@@ -8,7 +8,7 @@ import React, { lazy, Suspense, useState } from "react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { getCodesandboxUrl, getDownloadCommand, getGithubUrl, getLanguage, getStackblitzUrl } from "./example.utils";
-import { levelClassName, useExamples } from "./examples-catalog";
+import { useExamples } from "./examples-catalog";
 
 export type ExampleProps = {
   /**
@@ -70,22 +70,6 @@ export const Example = ({ files, path: pathProp, file, height = 560 }: ExamplePr
 
   return (
     <div className="my-6">
-      {meta && (
-        <div className="mb-2 flex flex-wrap items-center gap-1.5">
-          <span className={cn("rounded-full border px-2 py-0.5 text-[11px]", levelClassName[meta.level])}>
-            {meta.level}
-          </span>
-          {meta.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full border border-zinc-700 bg-zinc-900 px-2 py-0.5 text-[11px] text-zinc-300"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
-
       <div className="overflow-hidden rounded-xl border border-zinc-700 bg-zinc-950">
         <Tabs value={tab} onValueChange={setTab}>
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800 px-3 py-2">
@@ -129,7 +113,8 @@ export const Example = ({ files, path: pathProp, file, height = 560 }: ExamplePr
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 rounded-lg bg-yellow-500 px-5 py-2.5 text-sm font-semibold !text-zinc-950 !no-underline transition-colors hover:bg-yellow-400"
                 >
-                  <Play className="size-4" aria-hidden /> Run in StackBlitz <ExternalLink className="size-4" aria-hidden />
+                  <Play className="size-4" aria-hidden /> Run in StackBlitz{" "}
+                  <ExternalLink className="size-4" aria-hidden />
                 </a>
                 <p className="m-0 max-w-md text-sm text-zinc-400">
                   This example runs a server next to the app, so it needs Node. StackBlitz runs it in a new tab and the

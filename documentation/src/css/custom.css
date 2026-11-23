@@ -2548,16 +2548,16 @@ input[type="search"]::-webkit-search-results-decoration {
   stroke: url(#bt-gold);
 }
 
-/* The examples index is a browser, not an article: it takes the full width beside the sidebar */
-@media (min-width: 996px) {
-  .docs-wrapper main > .container:has(.examples-catalog) {
-    max-width: none;
-    padding-right: 2.5rem;
-  }
-  .docs-wrapper main .row > .col:has(.examples-catalog) {
-    max-width: 100% !important;
-    padding-right: 0;
-  }
+/* The examples index is a browser, not an article: no sidebar, breadcrumbs or doc footer, and the catalog sets its own width */
+.docs-wrapper main > .container:has(.examples-catalog) {
+  max-width: none;
+}
+.docs-wrapper main .row > .col:has(.examples-catalog) {
+  max-width: 100% !important;
+}
+.docs-wrapper article:has(.examples-catalog) .theme-doc-breadcrumbs,
+.docs-wrapper .col:has(.examples-catalog) .theme-doc-footer {
+  display: none;
 }
 
 /*
