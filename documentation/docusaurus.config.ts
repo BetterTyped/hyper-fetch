@@ -270,8 +270,6 @@ const config: Config = {
         src: "img/brand/HF.svg",
       },
       items: [
-        {
-          position: "left",
         // Rendered right after the logo, so the version reads as part of the brand
         {
           type: "custom-versionTag",
@@ -279,6 +277,8 @@ const config: Config = {
           to: "/blog/hyper-fetch-10-0",
           label: "v10",
         },
+        {
+          position: "left",
           label: "Docs",
           to: "/docs/getting-started",
           activeBaseRegex: `^/docs((?!examples|integrations|guides|api).)*$`,
