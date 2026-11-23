@@ -16,12 +16,20 @@ export default function sponsorsPlugin(_context: LoadContext): Plugin<unknown> {
   return {
     name: SPONSORS_PLUGIN,
     async loadContent(): Promise<SponsorsPluginData> {
+      if (!isSponsorsFeed(snapshot))
+        throw new Error(
+          `[${SPONSORS_PLUGIN}] sponsors.snapshot.json is not a v1 feed`,
+        );
       try {
         const response = await fetch(SPONSORS_FEED_URL, {
           signal: AbortSignal.timeout(10_000),
         });
         const body: unknown = response.ok ? await response.json() : null;
-        if (isSponsorsFeed(body)) return { feed: body };
+        // The CDN can lag a push by a few minutes; never build with a feed older than the snapshot in the repo
+        if (isSponsorsFeed(body))
+          return {
+            feed: body.generatedAt >= snapshot.generatedAt ? body : snapshot,
+          };
         console.warn(
           `[${SPONSORS_PLUGIN}] The feed answered ${response.status}, using the snapshot`,
         );
@@ -30,10 +38,6 @@ export default function sponsorsPlugin(_context: LoadContext): Plugin<unknown> {
           `[${SPONSORS_PLUGIN}] Could not load the feed, using the snapshot: ${String(error)}`,
         );
       }
-      if (!isSponsorsFeed(snapshot))
-        throw new Error(
-          `[${SPONSORS_PLUGIN}] sponsors.snapshot.json is not a v1 feed`,
-        );
       return { feed: snapshot };
     },
     async contentLoaded({ content, actions }) {
