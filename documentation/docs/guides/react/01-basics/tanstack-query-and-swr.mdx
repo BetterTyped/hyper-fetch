@@ -8,10 +8,9 @@ sidebar_label: TanStack Query and SWR
 
 # Use HyperFetch with TanStack Query and SWR
 
-TanStack Query and SWR cache the result of any async function. HyperFetch requests make good functions for them: they
-are typed, they carry the endpoint, auth, headers and mappers, and they work with every adapter. The one thing to settle
-is who owns the cache. When TanStack Query or SWR owns it, HyperFetch only sends the request - that is what `exec()` is
-for.
+TanStack Query and SWR cache the result of any async function, and a typed HyperFetch request is a good one to give
+them. Let the cache library own caching and retries, and let HyperFetch send the request with `exec()`. This guide
+covers queries, mutations, cancellation, errors and keys.
 
 :::secondary What you'll learn
 
@@ -113,7 +112,8 @@ const api = createSdk<typeof client, Schema>(client).$configure({
 
 // On every request of the client
 client.adapter.setRequestDefaults((options) => ({
-  // setRequestDefaults replaces the adapter's defaults - keep deduplication of the reads
+  // This replaces the adapter's defaults,
+  // so keep deduplication of the reads
   deduplicate: (options.method ?? "GET") === "GET",
   // highlight-next-line
   throwOnError: true,
@@ -149,7 +149,8 @@ export const useUpdateUser = (userId: number) => {
       const { data } = await updateUser.setParams({ userId }).exec({ payload });
       return data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users", userId] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["users", userId] }),
   });
 };
 ```
@@ -213,3 +214,26 @@ You can now use HyperFetch requests inside TanStack Query and SWR.
 - You know which HyperFetch features **stay** and which ones the cache library takes over.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="Request"
+  description="send(), exec(), signal and throwOnError in the reference."
+  to="/docs/core/request"
+/>
+
+<LinkCard
+  type="guides"
+  title="Cancellation"
+  description="Abort one call with a signal, or a group by abortKey."
+  to="/docs/guides/core/advanced/cancellation"
+/>
+
+<LinkCard
+  type="guides"
+  title="Error handling"
+  description="Kinds of errors, typing them and rejecting with throwOnError."
+  to="/docs/guides/core/basics/error-handling"
+/>
