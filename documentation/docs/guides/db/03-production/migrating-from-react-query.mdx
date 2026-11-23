@@ -1,0 +1,252 @@
+---
+sidebar_position: 4
+title: Migrating from React Query and Apollo to HyperFetch DB - Step by Step
+description:
+  Move one feature at a time from TanStack Query or Apollo Client to collections and live queries. A concept map, a
+  step-by-step migration of a list with mutations and socket updates, and what changes for Apollo's normalized cache.
+sidebar_label: Migrating from React Query
+---
+
+# Migrating from React Query and Apollo
+
+React Query caches **responses** by query key. Apollo caches **normalized objects** by type and id, but only for
+GraphQL. The db keeps **typed rows** per collection, fed by any backend, and reads them with live queries. Moving to it
+does not have to be a rewrite: the db works next to your existing hooks, so you can migrate one feature at a time,
+starting where keeping copies in sync hurts most.
+
+:::secondary What you'll learn
+
+1.  How React Query and Apollo concepts **map** to collections, loaders and live queries.
+2.  How to migrate one feature **step by step**: reads, socket updates, then writes.
+3.  Which code you can **delete** after migrating.
+4.  What changes for **Apollo's** normalized cache, type policies and `cache.modify`.
+5.  What to **keep** on request-level caching.
+
+:::
+
+---
+
+## Concept map
+
+| TanStack Query                                       | HyperFetch DB                                                         |
+| ---------------------------------------------------- | --------------------------------------------------------------------- |
+| `queryKey` + `queryFn`                               | A collection with a **loader**, and a query over it                   |
+| `useQuery`                                           | `useLiveQuery(db.post.where(...))`                                    |
+| `select`                                             | `.select(...)`, `.where(...)` and `.orderBy(...)` on the query        |
+| `useMutation` + `onMutate` / `onError` / `onSettled` | `.mutate()` on the collection, then `db.post.update(...)`             |
+| `setQueryData` in a socket handler                   | `.sync()` on the collection                                           |
+| `invalidateQueries` after a write                    | Nothing, or `onSuccess: "refetch"` when the server changes more       |
+| `useInfiniteQuery`                                   | A paginated loader and `useLiveInfiniteQuery`                         |
+| `staleTime` / `gcTime`                               | The request's `staleTime`, and `gcTime` in `createDb`                 |
+| `dehydrate` + `HydrationBoundary`                    | `db.dehydrate()`, `createDb(collections, { state })` and `DbProvider` |
+| `persistQueryClient`                                 | `persistence` in `createDb`, with the offline outbox                  |
+| Devtools                                             | HyperFlow's DB Inspector                                              |
+
+The biggest shift: a query key names a **request**, while a db query names **data**. The db decides which request
+answers it, and whether a request is needed at all.
+
+---
+
+## Migrating a feature, step by step
+
+Teamboard's feed, built with TanStack Query: a list, a socket handler that patches it, and an optimistic like.
+
+```tsx
+const useTeamPosts = (teamId: string) =>
+  useQuery({ queryKey: ["posts", teamId], queryFn: () => api.get(`/teams/${teamId}/posts`) });
+
+useEffect(() => {
+  return socket.on(`teams/${teamId}/posts/changed`, (changes) => {
+    queryClient.setQueryData(["posts", teamId], (old) =>
+      old?.map((post) => (post.id === changes.id ? { ...post, ...changes } : post)),
+    );
+    queryClient.setQueryData(["post", changes.id], (old) => old && { ...old, ...changes });
+  });
+}, [teamId]);
+
+const like = useMutation({
+  mutationFn: (post) => api.patch(`/posts/${post.id}`, { likes: post.likes + 1 }),
+  onMutate: async (post) => {
+    /* cancel, snapshot, setQueryData on every cached copy, return the snapshot */
+  },
+  onError: (error, post, context) => {
+    /* restore every snapshot */
+  },
+  onSettled: () => queryClient.invalidateQueries({ queryKey: ["posts"] }),
+});
+```
+
+### 1. Describe the requests
+
+The db loads through HyperFetch requests, so start by declaring the endpoints you already call. If you use the CLI or an
+SDK, you already have them.
+
+```ts
+const getTeamPosts = client.createRequest<{ response: { items: PostSummary[] } }>()({
+  endpoint: "/teams/:teamId/posts",
+});
+const updatePost = client.createRequest<{ response: Post; payload: Partial<Post> }>()({
+  endpoint: "/posts/:postId",
+  method: "PATCH",
+});
+```
+
+### 2. Define the collection and its loader
+
+The `queryFn` becomes a loader, and the variable part of the key, `teamId`, becomes a required filter:
+
+```ts
+const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" }).load(getTeamPosts, {
+  rows: (response) => response.items,
+  where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+});
+
+export const db = createDb({ postSummary: PostSummary });
+```
+
+### 3. Replace the reads
+
+```tsx
+// diff-remove-next-line
+const { data, isPending } = useTeamPosts(teamId);
+// diff-add-next-line
+const { data, status } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+```
+
+| React Query            | `useLiveQuery`                                            |
+| ---------------------- | --------------------------------------------------------- |
+| `isPending`            | `status === "loading"`                                    |
+| `isError` with no data | `status === "error"`                                      |
+| `isError` with data    | `status === "ready"` and `error` is set                   |
+| `isFetching`           | `isFetching`                                              |
+| `isStale`              | `stale`, which also turns on while syncs are disconnected |
+| `refetch()`            | `refetch()`                                               |
+
+### 4. Move the socket handler into a sync
+
+```ts
+const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" })
+  .load(getTeamPosts, {
+    rows: (response) => response.items,
+    where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+  })
+  // diff-add-start
+  .sync(onPostChanged, {
+    type: "update",
+    where: { teamId: { eq: (teamId) => ({ params: { teamId } }) } },
+    row: ({ body, ...changes }) => changes,
+  });
+// diff-add-end
+```
+
+Delete the `useEffect`. The sync subscribes while a query needs it, for the teams on screen, and every query showing a
+changed post updates. See [Real-time Sync](../01-basics/realtime-sync.mdx).
+
+### 5. Replace the mutation
+
+```ts
+collection(PostSchema, { key: "id", version: "updatedAt" }).mutate({
+  update: { request: updatePost, map: (key, changes) => ({ params: { postId: key }, payload: changes }) },
+});
+```
+
+```tsx
+// diff-remove-next-line
+like.mutate(post);
+// diff-add-next-line
+db.post.update(post.id, { likes: post.likes + 1 });
+```
+
+Delete `onMutate`, `onError` and `onSettled`. The change shows at once, reverts exactly on failure, and the response row
+is written back. Link `post` and `postSummary` so the feed shows it too. See
+[Optimistic Writes](../01-basics/optimistic-writes.mdx).
+
+### 6. Delete what is left
+
+- Query key factories for this feature.
+- `invalidateQueries` calls after writes to these records.
+- `setQueryData` calls that patched copies in other queries.
+- Prefetching of detail pages from list data: [List and Detail Views](../02-patterns/list-and-detail.mdx) shows the
+  header from the summary at once.
+
+:::tip Migrate by feature, not by hook
+
+Move a feature's reads, syncs and writes together. A feature that reads through the db while another part of the app
+writes the same records through React Query keeps two copies that do not update each other.
+
+:::
+
+---
+
+## Coming from Apollo Client
+
+Apollo's normalized cache is the closest relative of the db. The ideas carry over, and several hand-written parts go
+away:
+
+| Apollo Client                             | HyperFetch DB                                                                 |
+| ----------------------------------------- | ----------------------------------------------------------------------------- |
+| Normalized entities, `__typename:id`      | One collection per shape, with a `key`                                        |
+| `typePolicies.keyFields`                  | `collection(schema, { key: "id" })`                                           |
+| Fragments                                 | The collection's schema. Every document a loader uses spreads the same fields |
+| Nested objects stored by reference        | `.normalize()` into the related collection, read back with `join`             |
+| `cache.modify` to add a new item to lists | Nothing: a new row joins every loaded list whose filters it matches           |
+| `refetchQueries` after a mutation         | Nothing, or `onSuccess: "refetch"`                                            |
+| `relayStylePagination()`                  | `relayConnection()` on a paginated loader                                     |
+| `subscribeToMore` + `updateQuery`         | `.sync()` on the subscription's listener                                      |
+| `optimisticResponse`                      | Automatic optimistic layer for every write                                    |
+
+Two differences matter most:
+
+- **Rows are complete.** Apollo lets one entity hold the fields of whichever queries loaded it, so a field can be
+  missing at runtime while its type says otherwise. In the db, a summary and a full post are two collections, and each
+  query is typed by exactly the collection it reads. See [List and Detail Views](../02-patterns/list-and-detail.mdx).
+- **New items place themselves.** In Apollo, adding a created item to every list that should show it is hand-written
+  `cache.modify` code with field names as strings. The db evaluates each list's filters and order on the new row and
+  inserts it where it belongs. See [Related Data and Joins](../02-patterns/related-data.mdx) and
+  [Pagination](../01-basics/infinite-scroll.mdx).
+
+The db is not GraphQL-only, so the same collections can load from a REST endpoint and stay live from a GraphQL
+subscription, or the other way round.
+
+---
+
+## What to keep on request-level caching
+
+:::note Stay with `useFetch` or `useQuery` for
+
+- **Computed responses**: dashboards, reports, counts and sums. Queries return rows, not aggregates.
+- **Screens with their own data** that no other view shares, such as settings.
+- **Responses that are not records**: files, one-off RPC results, health checks.
+
+:::
+
+---
+
+:::success Migrated!
+
+You can move features to the db one at a time.
+
+- You can map **query keys, mutations, invalidation and hydration** to their db counterparts.
+- You can migrate a feature's **reads, socket updates and writes** in order, and delete the glue code.
+- You can carry **Apollo's** normalized-cache ideas over, without `cache.modify` and type policies.
+- You can tell which screens are better left on **request-level caching**.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Thinking in Collections"
+  description="The mental model behind collections, loaders, syncs and live queries."
+  to="/docs/guides/db/basics/thinking-in-collections"
+/>
+
+<LinkCard
+  type="guides"
+  title="HyperFetch vs TanStack Query"
+  description="How request-level caching in HyperFetch compares with TanStack Query."
+  to="/docs/guides/comparisons/tanstack-query"
+/>

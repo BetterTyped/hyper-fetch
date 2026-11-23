@@ -1,0 +1,207 @@
+---
+sidebar_position: 1
+title: List and Detail Views that Stay in Sync - Summaries and Full Records
+description:
+  Show summaries in lists and full records on detail pages without stale copies. Model each shape as its own collection,
+  link them, render the detail header at once from the list, and ingest action responses into both.
+sidebar_label: List and Detail Views
+---
+
+# List and Detail Views
+
+Most APIs return less in a list than on a detail page. Teamboard's feed returns post summaries without `body`, and
+`GET /posts/:postId` returns the full post. The classic trouble starts when the user renames a post on its detail page
+and goes back: the feed still shows the old title, because the two responses are separate copies. This guide models both
+shapes so that every view shows the same post, the detail header renders at once from the list, and edits reach both.
+
+:::secondary What you'll learn
+
+1.  Why a list shape and a detail shape are **two collections**, not one partial row.
+2.  How a **link** keeps both shapes in step, optimistic changes included.
+3.  How to render a detail **header at once** from the list, and the body when it loads.
+4.  How to handle a **deep link**, when the list never loaded the post.
+5.  How to **ingest** action responses, such as "publish" or "like", into the right collections.
+
+:::
+
+---
+
+## Two shapes, two collections
+
+It is tempting to store summaries and full posts in one collection, with `body` missing until the detail loads. Then
+every component that reads `body` has to guess whether it is really empty or just not loaded yet, and the types cannot
+tell. The db keeps rows **complete** instead: each shape is its own collection, and each is honest about its fields.
+
+```ts
+const byTeam = { teamId: { eq: (teamId: string) => ({ params: { teamId } }) } };
+
+// The feed's shape: every field except `body`
+const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" })
+  .load(getTeamPosts, {
+    rows: (response) => response.items,
+    where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+  })
+  .sync(onPostChanged, { type: "update", where: byTeam, row: ({ body, ...changes }) => changes });
+
+// The detail page's shape: the full post
+const Post = collection(PostSchema, { key: "id", version: "updatedAt" })
+  .load(getPost, { byKey: (id) => ({ params: { postId: id } }) })
+  .sync(onPostChanged, { type: "update", where: byTeam })
+  .mutate({
+    update: {
+      request: updatePost,
+      map: (key, changes) => ({ params: { postId: key }, payload: changes }),
+    },
+  });
+```
+
+- One socket topic keeps both current. `postSummary` drops `body` with its `row` mapping. `post` takes the message as it
+  is.
+- A full post read by key joins its team's topic on its own, because its `teamId` fills the sync's `where`.
+- Collections are per **shape**, never per filter, order or page. Team feeds, search results and "my drafts" all live in
+  `postSummary`.
+
+---
+
+## Linking the two shapes
+
+A **link** tells the db that two collections hold the same records:
+
+```ts
+export const db = createDb({ post: Post, postSummary: PostSummary }, { links: [["post", "postSummary"]] });
+
+// The feed shows the new title at once, and both revert if the request fails
+await db.post.update(postId, { title: "Renamed" });
+```
+
+- Every write to one collection changes the fields the other has, for the same key: loads, socket events, ingested
+  responses and **optimistic layers**. When a write fails, both collections revert together.
+- A delete in either removes the row from both.
+- A link **never creates rows**. Inserting into `post` adds no summary, because summaries belong to the lists that load
+  them.
+- Fields a collection lacks are never copied into it, so a summary never gains `body`.
+- Links name collections of the db, so a typo does not compile.
+
+`postSummary` declares no `mutate`. It does not need to: writes go through `post`, and the link carries them to the
+feed.
+
+---
+
+## The detail page
+
+When the user opens a post from the feed, its summary is already in the db. Render the header from it at once, and the
+body when the full post arrives:
+
+```tsx
+const PostPage = ({ postId }: { postId: string }) => {
+  // Only reads what the db holds: never sends a request
+  const summary = useLiveQuery(db.postSummary.findOne(postId).local());
+  // Loads the full post through its byKey loader
+  const post = useLiveQuery(db.post.findOne(postId));
+
+  const header = post.data ?? summary.data;
+
+  if (!header) {
+    return post.status === "loading" ? <p>Loading...</p> : <p>Post not found</p>;
+  }
+
+  return (
+    <article className="flex flex-col gap-2">
+      <h1 className="text-2xl font-bold">{header.title}</h1>
+      <span className="text-sm text-gray-500">{header.likes} likes</span>
+      {post.data ? <div className="prose">{post.data.body}</div> : <p>Loading post...</p>}
+    </article>
+  );
+};
+```
+
+- `.local()` is required here: `postSummary` has no key loader, so `db.postSummary.findOne(postId)` alone does not
+  compile.
+- Each query is typed by its own collection. `summary.data` has no `body`, so nothing pretends the body is there.
+- Both rows follow the same events and the link, so the header never disagrees with the body.
+
+### Deep links
+
+On a link opened directly, or after a reload, no list has loaded the post. `summary.data` is `undefined`, and the page
+renders from `post` alone once it loads. The component above already handles both paths, with no special case.
+
+---
+
+## Ingesting action responses
+
+Some requests are not loaders and not writes the db sends, yet their responses hold records. **Ingest** writes them into
+collections whenever they succeed, however they were sent: `useSubmit`, `useFetch` or `send()`.
+
+```ts
+const publishPost = client.createRequest<{ response: Post }>()({
+  endpoint: "/posts/:postId/publish",
+  method: "POST",
+});
+
+const likePost = client.createRequest<{ response: { id: string; likes: number } }>()({
+  endpoint: "/posts/:postId/like",
+  method: "POST",
+});
+
+// The response is a complete post: it replaces the stored row, and the link updates the summary
+collection(PostSchema, { key: "id", version: "updatedAt" }).ingest(publishPost);
+
+// The response carries a few fields: it changes rows the collection holds, and nothing else
+collection(PostSummarySchema, { key: "id", version: "updatedAt" }).ingest(likePost, {
+  type: "update",
+  rows: (response) => [response],
+});
+```
+
+```tsx
+const PublishButton = ({ postId }: { postId: string }) => {
+  const { submit, submitting } = useSubmit(publishPost.setParams({ postId }));
+
+  // No onSuccess handler: the feed and the detail page show the published post on their own
+  return (
+    <button disabled={submitting} onClick={() => submit()}>
+      Publish
+    </button>
+  );
+};
+```
+
+- By default an ingested response carries **complete rows**, like an `insert`. With `type: "update"`, it carries the key
+  and some fields, and changes only rows the collection holds.
+- `rows` reads rows from the response, as a loader's does. A response that does not fit does not compile.
+- Only successful responses of the same endpoint and method are ingested.
+- An ingested request never becomes a loader: queries never send it.
+- The request's own Cache entry is not updated by later changes. Read the data through the db, not through the request.
+
+:::note When to use what
+
+- Use **two collections** whenever a list and a detail return different fields.
+- Use a **link** when the two collections hold the same records, so optimistic edits reach both at once.
+- Use **`findOne(id).local()`** to show what a list already loaded, with no request.
+- Use **ingest** for action responses and other requests whose results should update what every view shows.
+
+:::
+
+---
+
+:::success In step everywhere!
+
+Teamboard's feed and detail page never disagree again.
+
+- You can model list and detail shapes as **two complete collections**.
+- You can **link** them, so writes and optimistic changes reach both.
+- You can render a detail **header at once** from the list, and handle **deep links** with the same code.
+- You can **ingest** action responses as complete rows or as updates.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Related Data and Joins"
+  description="Normalize nested REST responses into their own collections, and join authors and comments into results."
+  to="/docs/guides/db/patterns/related-data"
+/>

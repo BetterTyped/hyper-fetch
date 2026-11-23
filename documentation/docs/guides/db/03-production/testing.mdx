@@ -1,0 +1,235 @@
+---
+sidebar_position: 1
+title: Testing Collections and Live Queries - Mock Loaders, Writes and Socket Syncs
+description:
+  Test a client-side database with Vitest and Testing Library. Mock loaders with request.setMock(), assert optimistic
+  writes revert, check query plans without a network, and push socket events into live queries with MSW.
+sidebar_label: Testing
+---
+
+# Testing Collections and Live Queries
+
+Collections are built from plain HyperFetch requests and listeners, so they are tested the way you already test
+requests: mock what the backend answers, render, assert. The db adds a few things worth testing on their own: that a
+rejected write reverts, that a query sends what you expect, and that socket events reach the screen.
+
+All examples run with [Vitest](https://vitest.dev), [Testing Library](https://testing-library.com) and
+[MSW](https://mswjs.io).
+
+:::secondary What you'll learn
+
+1.  How to create a **fresh db per test**, so tests never share rows.
+2.  How to mock loaders with **`request.setMock()`**.
+3.  How to assert that a rejected write **reverts**.
+4.  How to check a **query plan** without a network.
+5.  How to push **socket events** into live queries with MSW.
+
+:::
+
+---
+
+## A fresh db per test
+
+A db holds rows, loaded subsets, timers and socket subscriptions. Sharing one between tests leaks rows from one test
+into the next. Export a factory instead of a module-level db:
+
+```ts title="src/db.ts"
+export const collections = { postSummary: PostSummary, post: Post };
+
+export const createAppDb = (options?: DbOptions) => createDb(collections, options);
+export type AppDb = ReturnType<typeof createAppDb>;
+```
+
+Collections are only definitions, so every db can share them. Components get the db from
+[`DbProvider`](../../../react/07-db/db-provider.mdx), which is the same setup
+[server rendering](../02-patterns/server-rendering.mdx) needs:
+
+```tsx title="test/render.tsx"
+import { DbProvider } from "@hyper-fetch/react";
+import { render } from "@testing-library/react";
+
+export const renderWithDb = (ui: React.ReactElement, db = createAppDb()) => {
+  return { db, ...render(<DbProvider db={db}>{ui}</DbProvider>) };
+};
+```
+
+Destroy each db after its test, so its timers and subscriptions stop:
+
+```ts
+afterEach(() => db.destroy());
+```
+
+---
+
+## Mocking loaders
+
+A loader is a request, so `setMock` on that request mocks every load that goes through it:
+
+```tsx
+it("renders the team feed", async () => {
+  getTeamPosts.setMock(() => ({
+    data: { items: [summary("p1"), summary("p2")] },
+    status: 200,
+  }));
+
+  renderWithDb(<TeamFeed teamId="t1" />);
+
+  expect(await screen.findByText("Post p1")).toBeInTheDocument();
+  expect(screen.getByText("Post p2")).toBeInTheDocument();
+});
+```
+
+The mock runs inside the request lifecycle, so retries, deduplication and the db's ordering rules behave as they do
+against a real server. Return an `error` and a status to test the error state:
+
+```ts
+getTeamPosts.setMock(() => ({ error: new Error("Server error"), status: 500 }));
+```
+
+A failed first load shows `status: "error"`. If your loader's request retries, the error appears after the last attempt,
+so keep retries off in tests or wait for it with `findBy...` queries. See [Mocking](../../testing/mocking.mdx) for
+timing options and per-test overrides.
+
+---
+
+## Asserting a write reverts
+
+The most valuable db test checks the unhappy path of an optimistic write: the change shows at once, the server rejects
+it, and the old value comes back.
+
+```ts
+it("reverts a rename the server rejects", async () => {
+  const db = createAppDb();
+  const errors: DbErrorEvent[] = [];
+  db.onError((event) => errors.push(event));
+
+  getPost.setMock(() => ({ data: post("p1"), status: 200 }));
+  updatePost.setMock(() => ({ error: new Error("Forbidden"), status: 403 }));
+
+  const query = db.post.findOne("p1");
+  const unsubscribe = query.subscribe(() => {});
+  await query.get();
+
+  const write = db.post.update("p1", { title: "Renamed" });
+  // highlight-next-line
+  expect(query.getSnapshot().data?.title).toBe("Renamed"); // shown at once
+
+  const result = await write;
+  expect(result.success).toBe(false);
+  // highlight-next-line
+  expect(query.getSnapshot().data?.title).toBe("Post p1"); // reverted
+  expect(errors.map((error) => error.type)).toContain("mutation");
+
+  unsubscribe();
+  db.destroy();
+});
+```
+
+- Subscribe before writing. A query nobody subscribes to does not load and is not kept current.
+- `await query.get()` resolves once the query has loaded.
+- Writes never reject, so assert on `result.success` instead of wrapping them in `try`.
+- `db.onError` is a good place to fail tests on errors you did not expect.
+
+---
+
+## Checking the plan
+
+Which loader serves a query, and what it sends, is part of your app's contract with the backend. `explain()` reads it
+without any network, so a plan test is fast and catches a new loader that silently changed an existing query:
+
+```ts
+it("sends the team filter and runs the rest locally", () => {
+  const db = createAppDb();
+  const plan = db.postSummary.where((post) => and(eq(post.teamId, "t1"), gt(post.likes, 10))).explain();
+
+  expect(plan.kind).toBe("list");
+  expect(plan.loader).toBe(0);
+  expect(plan.sent).toHaveLength(1); // teamId
+  expect(plan.local).toHaveLength(1); // likes > 10
+
+  db.destroy();
+});
+```
+
+Queries that should never compile are tested by the type checker. Put them in a type test with `@ts-expect-error`:
+
+```ts
+// @ts-expect-error a query without the required teamId has no loader
+db.postSummary.where((post) => gt(post.likes, 10)).get();
+```
+
+---
+
+## Pushing socket events
+
+Syncs listen on your Socket. With the WebSocket adapter, the server sends frames shaped `{ topic, data }`. MSW
+intercepts WebSockets too, so a test can broadcast an event to every connected client:
+
+```ts
+import { ws } from "msw";
+import { setupServer } from "msw/node";
+
+const live = ws.link("wss://api.example.com/live");
+const server = setupServer(live.addEventListener("connection", () => {}));
+
+beforeAll(() => server.listen());
+afterAll(() => server.close());
+
+it("shows a rename from another user", async () => {
+  const db = createAppDb();
+  getTeamPosts.setMock(() => ({ data: { items: [summary("p1")] }, status: 200 }));
+
+  const feed = db.postSummary.where((post) => eq(post.teamId, "t1"));
+  const unsubscribe = feed.subscribe(() => {});
+  await feed.get();
+
+  // highlight-start
+  live.broadcast(JSON.stringify({ topic: "teams/t1/posts/changed", data: { id: "p1", title: "From socket" } }));
+  // highlight-end
+
+  await waitFor(() => expect(feed.getSnapshot().data?.[0].title).toBe("From socket"));
+
+  unsubscribe();
+  db.destroy();
+  await socket.disconnect();
+});
+```
+
+- The topic is the listener's topic with its params filled in, the same string `explain().syncs` shows.
+- Disconnect the socket after the test, so the next test starts with a new connection.
+- If your server uses another frame format, the WebSocket adapter's `decode` option reads it, and your test sends that
+  format instead.
+
+:::note What to test, and what not
+
+- **Test** what your collection declares: rows mapping, filters a loader sends, writes that revert, syncs that land.
+- **Test** that components handle `loading`, `error` and stale states.
+- **Skip** testing the db's own guarantees, such as ordering between responses and events, or batching by key. They are
+  covered by the package's own tests.
+
+:::
+
+---
+
+:::success Tested!
+
+Teamboard's data layer is covered.
+
+- You can create a **fresh db per test** with a factory and `DbProvider`.
+- You can mock loaders and writes with **`request.setMock()`**.
+- You can assert that a rejected write **reverts** and reaches `db.onError`.
+- You can pin a query's **plan** with `explain()` and type tests.
+- You can push **socket events** into live queries with MSW.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Debugging the DB"
+  description="Find out why a query loads, does not update or shows the wrong rows: symptoms, causes and fixes."
+  to="/docs/guides/db/production/debugging"
+/>
