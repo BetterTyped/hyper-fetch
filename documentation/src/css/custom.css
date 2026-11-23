@@ -2851,5 +2851,5 @@ article.blog-card:last-of-type {
 
 /* The wordmark's ink sits high in its box, so it drops a few pixels to sit on the bar's centre line */
 .navbar__inner .navbar__brand {
-  margin-bottom: -6px;
+  margin-bottom: -3px;
 }
