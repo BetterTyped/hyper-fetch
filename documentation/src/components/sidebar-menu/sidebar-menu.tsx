@@ -73,6 +73,11 @@ export const SidebarMenu = () => {
                           New
                         </span>
                       )}
+                      {item.isBeta && (
+                        <span className="ml-2 rounded-md bg-amber-400 px-1.5 py-0.5 text-[11px] leading-none !text-black font-semibold no-underline group-hover:no-underline">
+                          Beta
+                        </span>
+                      )}
                     </Link>
                   </li>
                 );

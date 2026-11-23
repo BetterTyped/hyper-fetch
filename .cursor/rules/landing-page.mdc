@@ -15,8 +15,9 @@ alwaysApply: false
 2. **Clients** (`clients/`): eyebrow line, company logo carousel
 3. **What is HyperFetch** (`what-is/`): "One framework, three parts", title left, Core / Sockets / DB tabs right,
    bento cards per tab (DB is "Soon")
-4. **Platforms** (`platforms/`): "Runs on every platform", technical card titles (Frontend, Runtime, Realtime,
-   Mobile, AI agents, Backend), logos only, no descriptions
+4. **Platforms** (`platforms/`): "Runs on every platform", technical card titles (Frontend, Native, Runtime,
+   Realtime, Protocols, AI agents, TypeScript backends, Any backend, Tooling), logos only, no descriptions. Third-party
+   logos with a dark mark use their `-dark` variant from `static/img`
 5. **SDK** (`sdk/`): "Your backend, as a typed SDK", three story cards (Get your SDK, Plug in any protocol,
    Ship it), then the six features
 6. **BetterTyped** (`bettertyped/`): "Built by BetterTyped" and the three numbers
@@ -34,7 +35,7 @@ alwaysApply: false
   title or the button.
 - Actions: the agent skills install command (click to copy) on the left, Get Started as the primary on the right.
 - Logo row: colour logos with names, no label and no divider. Logos live in `static/img/integration-*.svg`.
-  Add one when a new adapter or transport ships (`hero/ecosystem.tsx`).
+  Add one when a new adapter, transport or integration page ships (`hero/ecosystem.tsx`).
 - Under the video: one line of text, then "Download for {platform}" (direct installer from the HyperFlow
   release data) and "Other platforms".
 - Background: the request paths at half strength, dots without labels. No particles.

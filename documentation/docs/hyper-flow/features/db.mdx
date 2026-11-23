@@ -1,56 +1,82 @@
 ---
 sidebar_position: 6
-title: DB Inspector
+title: DB Inspector for @hyper-fetch/db in HyperFlow
+description: "Inspect @hyper-fetch/db dbs in HyperFlow. See every collection with its rows, loaded subsets and pending writes, the plan of each live query, and the offline outbox."
+sidebar_label: DB
 ---
 
-# DB Inspector
+# DB
 
-The DB Inspector shows what a [`@hyper-fetch/db`](/docs/db/overview) db holds: its collections, the subsets they
-loaded, the live queries with their plans, the pending optimistic writes and the outbox.
+The **DB** page shows what a [`@hyper-fetch/db`](/docs/db/overview.mdx) db holds: its collections, the subsets of rows
+each loader fetched, every live query with its plan, and the writes waiting in the outbox. Use it to answer why a query
+sent a request, why it did not, or why a row has not reached the server yet.
 
-:::tip Purpose
-
-1.  **See the plan**: every live query shows which loader serves it, what it sends and what runs on the client.
-2.  **See freshness**: each loaded subset shows whether it is fresh, live through syncs, loading or failed.
-3.  **See pending writes**: optimistic writes and the offline outbox are listed until they settle.
-
-:::
+<Screenshot
+  src="/img/hyper-flow/db.webp"
+  alt="The DB page with the product collection expanded: its row count, loaded subsets with their loader and state, and a table of live queries with their plan."
+  caption="The product collection, its loaded subsets and the live queries that read it."
+/>
 
 ---
 
-## Inspecting your db
+## Add your db
 
-Pass the db to the devtools plugin of your client:
+Pass the db to the devtools plugin. Until you do, the page says **No dbs inspected**.
 
-```tsx
+```ts title="api/client.ts"
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+
+import { db } from "./db";
 
 client.addPlugin(
   DevtoolsPlugin({
-    appName: "My App",
+    appName: "Acme Store",
     // highlight-next-line
     dbs: [db],
   }),
 );
 ```
 
-The plugin sends a snapshot whenever the db changes, at most once per tick, and one whenever HyperFlow connects.
+The plugin sends a snapshot whenever the db changes, at most once per tick, and one whenever HyperFlow connects. With
+more than one db, a switcher at the top picks which one to show.
 
 ---
 
-## What it shows
+## Collections and subsets
 
-- **Collections** with their row count, loaded subsets and pending writes. Select a collection to list its subsets:
-  the loader that serves each, its rows, its state and how many queries read it.
-- **Live queries** with their status, row count, plan, the conditions sent and the ones run locally, the syncs that
-  keep them live, and their subscribers.
-- **Outbox** entries of an offline db, in replay order.
+The **Collections** table lists each collection with its rows, loaded subsets and pending writes. Select a collection
+to open its **Subsets**: the sets of rows a loader fetched for one combination of conditions.
 
-Several dbs show as buttons above the collections.
+| Subset column | Meaning                                                                         |
+| ------------- | ------------------------------------------------------------------------------- |
+| **Loader**    | Which of the collection's loaders fetched the rows, by its position in the chain |
+| **Rows**      | How many rows the subset holds                                                  |
+| **State**     | `loading`, `live` when syncs keep it current, `fresh` or `stale`, or `error`    |
+| **Queries**   | How many live queries read the subset                                           |
 
-:::secondary Summary
+---
 
-- Add `dbs: [db]` to the devtools plugin to inspect a db.
-- The DB page shows collections, subsets, live queries with their plans and the outbox.
+## Live queries
 
-:::
+The **Live queries** table shows every query that has subscribers.
+
+| Column          | Meaning                                                                 |
+| --------------- | ----------------------------------------------------------------------- |
+| **Status**      | `loading`, `ready` or `error`                                           |
+| **Rows**        | How many rows the query returns                                         |
+| **Plan**        | How the query is answered, such as `list · loader 0`, or `answered locally` from rows the db holds |
+| **Sent**        | The conditions sent to the backend                                      |
+| **Local**       | The conditions applied to the returned rows                             |
+| **Syncs**       | The socket syncs that keep the query live                               |
+| **Subscribers** | How many components or listeners read the query                         |
+
+This is the same plan `query.explain()` returns in code.
+
+---
+
+## Outbox
+
+With `offline` writes turned on, the **Outbox** lists writes waiting to reach the server in the order they will replay,
+with their collection, key and whether they were sent. An empty outbox shows **The outbox is empty.**
+
+The DB page is read-only. It updates every time the db changes.

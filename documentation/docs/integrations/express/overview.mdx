@@ -1,0 +1,171 @@
+---
+sidebar_position: 1
+title: Express with HyperFetch, a Typed SDK from OpenAPI
+description: Describe your Express routes as an OpenAPI document and call them from the frontend through a typed HyperFetch SDK.
+sidebar_label: Overview
+---
+
+# Express
+
+Express has no schema of its own, so you describe your routes once as an OpenAPI document. The HyperFetch CLI reads
+that document and writes a typed SDK, so your frontend calls every route with typed responses, payloads, params and query
+params. There is no Express package to install: the OpenAPI document is the contract.
+
+---
+
+:::tip Purpose
+
+1.  **No glue package**: Any tool that writes OpenAPI for Express works with the HyperFetch CLI.
+2.  **One source of truth**: The document that powers your API docs also types your client.
+3.  **One command to resync**: Change a route, regenerate, and the compiler shows every call to fix.
+
+:::
+
+---
+
+## How it fits together
+
+| Step | Where    | What happens                                                             |
+| ---- | -------- | ------------------------------------------------------------------------ |
+| 1    | Express  | `swagger-jsdoc` builds the OpenAPI document and a route serves it        |
+| 2    | Terminal | `@hyper-fetch/cli generate` reads it and writes `src/api/express.sdk.ts` |
+| 3    | Frontend | `createSdk(client)` gives you typed requests for every route             |
+
+---
+
+## 1. Serve the OpenAPI document
+
+Pick the tool that matches how you write routes. This example uses `swagger-jsdoc`, which reads `@openapi` comments
+above each route:
+
+```bash
+npm install swagger-jsdoc
+```
+
+```ts title="app.ts"
+import express from "express";
+import swaggerJsdoc from "swagger-jsdoc";
+
+const app = express();
+
+const openapi = swaggerJsdoc({
+  definition: {
+    openapi: "3.0.0",
+    info: { title: "Shop API", version: "1.0.0" },
+  },
+  apis: ["./src/routes/*.ts"],
+});
+
+// highlight-next-line
+app.get("/openapi.json", (_req, res) => res.json(openapi));
+
+app.listen(3000);
+```
+
+```ts title="src/routes/users.ts"
+/**
+ * @openapi
+ * /users/{id}:
+ *   get:
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id: { type: string }
+ *                 name: { type: string }
+ */
+router.get("/users/:id", getUser);
+```
+
+:::info Other ways to get the document
+
+- **tsoa** generates the routes and the OpenAPI document from typed controller classes (`tsoa spec`).
+- **@asteasolutions/zod-to-openapi** builds the document from the zod schemas you already validate with.
+
+Any of them works, as long as the result is an OpenAPI 3 JSON document.
+
+:::
+
+---
+
+## 2. Generate the SDK
+
+Run the CLI in your frontend project:
+
+```bash
+npx @hyper-fetch/cli@latest generate --template openapi --url http://localhost:3000/openapi.json --fileName express.sdk.ts
+```
+
+It writes `express.sdk.ts` to `src/api`. On the first run it also creates `api.json` with that location. Every path becomes a key
+and every method a `$`-prefixed key on it, so `GET /users/{id}` is `sdk.users.$id.$get`.
+
+---
+
+## 3. Call your API
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+
+import { createSdk } from "./api/express.sdk";
+
+export const client = createClient({ url: "http://localhost:3000" });
+export const sdk = createSdk(client);
+
+// code-editor-split
+
+import { sdk } from "./client";
+
+// Typed from the response schema of GET /users/{id}
+const { data, error } = await sdk.users.$id.$get.setParams({ id: "42" }).send();
+```
+
+The same requests work with `useFetch` and `useSubmit` from `@hyper-fetch/react`, with caching, retries and deduplication included.
+
+---
+
+## Keep the SDK in sync
+
+Install the CLI in the frontend project and add a script, so regenerating is one command locally and in CI:
+
+```json title="package.json"
+{
+  "scripts": {
+    "api:generate": "hyper-fetch generate -t openapi -u http://localhost:3000/openapi.json -f express.sdk.ts -o"
+  }
+}
+```
+
+`-o` overwrites the old file without asking. To generate without a running server, write `openapi` to a file in a small script
+(`writeFileSync("openapi.json", JSON.stringify(openapi))`) and pass that path to `--url` instead.
+
+:::note When it's helpful
+
+- Your Express API and your frontend live in different repositories.
+- You are documenting the API with Swagger anyway and want the client to follow it.
+- You want a changed response shape to break the frontend build, not production.
+
+:::
+
+<LinkCard
+  type="docs"
+  title="OpenAPI TypeScript client"
+  description="Everything the generated SDK can do, from React hooks to regenerating it in CI."
+  to="/docs/cli/openapi-typescript-client"
+/>
+
+:::secondary Summary
+
+- Express gets an OpenAPI document from `swagger-jsdoc`, tsoa or zod schemas.
+- `@hyper-fetch/cli generate` turns that document into a typed SDK.
+- `createSdk(client)` gives you typed requests for `send()`, `useFetch` and `useSubmit`.
+
+:::

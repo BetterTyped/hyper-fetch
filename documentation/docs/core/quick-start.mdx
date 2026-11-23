@@ -1,114 +1,174 @@
 ---
 sidebar_position: 2
 title: "Core Quick Start: Your First Typed Request"
-description: "Set up a HyperFetch client, create a typed request and send it in a few lines of TypeScript. No framework needed, it runs in the browser and Node.js."
+description: "Install @hyper-fetch/core, create a client, define typed requests and send them. Runs in the browser, Node.js, Bun and Deno, with no framework."
 sidebar_label: Quick Start
 ---
 
-HyperFetch's core is framework-agnostic, requiring no external libraries to function.
+# Quick start
 
-:::secondary What you'll learn
+In this guide you create a client for a public test API, define three typed requests and send them. Every snippet runs
+as is in a browser, Node.js 18+, Bun or Deno.
 
-- How to initialize the client
-- How to create requests
-- How to interact with the server
+:::tip What you'll learn
+
+1. **Create a client** that holds the base URL and the cache.
+2. **Define typed requests** for reading and writing data.
+3. **Send them** and handle success and errors without `try/catch`.
 
 :::
 
 ---
 
-### 1. Initialize the Client
+## 1. Install
 
-The first step is to initialize the **[Client](/core/client.mdx)**. It manages the basic server connection configuration
-and all of HyperFetch's essential elements, such as **dispatchers**, **cache**, and **app managers**. Begin by
-specifying the `url` of your server.
-
-```tsx title="client.ts"
-import { Client } from "@hyper-fetch/core";
-
-export const client = new Client({ url: "http://localhost:3000" });
+```npm2yarn2pnpm
+npm install @hyper-fetch/core
 ```
 
 ---
 
-### 2. Create Requests
+## 2. Create the client
 
-Once the client is set up, use its `createRequest` method to define **[requests](/core/request.mdx)** and their
-associated types.
+Create one client per backend and export it. It stores the base URL, the adapter (the built-in fetch adapter unless you
+pick another), the cache and the request queues.
 
-:::caution
+```ts title="api/client.ts"
+import { createClient } from "@hyper-fetch/core";
 
-We are using currying to achieve auto generated types for the endpoint string. <br /> This solution will be removed once
-[https://github.com/microsoft/TypeScript/issues/10571](https://github.com/microsoft/TypeScript/issues/10571) get
-resolved.
+type ApiError = { message: string };
 
-:::
-
-```tsx title="requests.ts"
-import { client } from "../client.ts";
-
-type ResponseType = { token: string; refreshToken: string };
-type PayloadType = { email: string; password: string };
-
-const login = client.createRequest<{
-  response: ResponseType;
-  payload: PayloadType;
-}>()({
-  method: "POST",
-  endpoint: "/auth/login",
+// highlight-next-line
+export const client = createClient<{ error: ApiError | Error }>({
+  url: "https://jsonplaceholder.typicode.com",
 });
+```
 
-const getUsers = client.createRequest<{
+The `error` generic types the error of every request. Keep `Error` in the union, because timeouts, aborts and network
+failures arrive as `Error` instances.
+
+---
+
+## 3. Define requests
+
+A request describes one endpoint. Pass its types in the first call and its options in the second. The split lets
+TypeScript read `:userId` from the endpoint string and require it when you send.
+
+```ts title="api/users.ts"
+import { client } from "./client";
+
+export type User = { id: number; name: string; email: string };
+
+export const getUsers = client.createRequest<{
   response: User[];
-  queryParams?: { page?: number; limit?: number; search?: string };
-}>()({
-  method: "GET",
-  endpoint: "/users",
+  queryParams?: { _limit?: number };
+}>()({ endpoint: "/users" });
+
+export const getUser = client.createRequest<{ response: User }>()({
+  // highlight-next-line
+  endpoint: "/users/:userId",
 });
+
+export const createUser = client.createRequest<{
+  response: User;
+  payload: Omit<User, "id">;
+}>()({ endpoint: "/users", method: "POST" });
+```
+
+Define requests once, at module level. They are templates: you reuse and derive them, you never recreate them.
+
+---
+
+## 4. Send them
+
+`send()` resolves with the data, the error and the status. It never rejects, so you branch on the result.
+
+```ts title="index.ts"
+import { getUsers, getUser, createUser } from "./api/users";
+
+// GET /users?_limit=3
+const users = await getUsers.send({ queryParams: { _limit: 3 } });
+console.log(users.data); // User[] | null
+
+// GET /users/1, `params` is required and typed by the endpoint
+// highlight-next-line
+const { data, error, status } = await getUser.send({ params: { userId: 1 } });
+
+if (data) {
+  console.log(data.name); // "Leanne Graham"
+} else {
+  console.error(status, error); // ApiError | Error | null
+}
+
+// POST /users with a typed payload
+const created = await createUser.send({
+  payload: { name: "Ann", email: "ann@example.com" },
+});
+console.log(created.status); // 201
+```
+
+Requests are immutable, so you can also set values ahead of time and keep the result:
+
+```ts
+const getFirstUser = getUser.setParams({ userId: 1 });
+
+await getFirstUser.send(); // no options needed anymore
 ```
 
 ---
 
-### 3. Interact with server
+## What you get without configuring anything
 
-Once you have your request instances, you can interact with the server. This can be done in two primary ways:
+| Behavior            | Default                                                                  |
+| ------------------- | ------------------------------------------------------------------------ |
+| Deduplication       | Identical GET requests in flight at the same time share one call         |
+| Cache               | Successful responses are stored for 5 minutes and fresh for 5 minutes    |
+| Offline             | Requests sent while offline wait for the connection instead of failing   |
+| Timeout             | The fetch adapter aborts a request after 5 seconds                       |
+| Retries             | Off. Turn them on per request with `retry` and `retryTime`               |
 
-```tsx title="users.ts"
-import { getUsers } from "requests";
+:::info Node.js and the cache
 
-const fetchUsers = async () => {
-  const { data, error, status } = await getUsers.send();
-
-  if (data) {
-    // work with User[] data
-    // e.g., console.log(data);
-  } else {
-    // handle error
-    // e.g., console.error(error, status);
-  }
-};
-```
-
-```tsx title="login.ts"
-import { login } from "requests";
-
-const handleLogin = async (values: { email: string; password: string }) => {
-  const { data, error, status } = await login.send({ data: values });
-
-  if (data) {
-    // perform login
-    // e.g., store data.token
-  } else {
-    // handle error
-    // e.g., console.error(error, status);
-  }
-};
-```
-
----
-
-:::success That's it!
-
-You've seen how straightforward it is to get started with HyperFetch.
+On the server, the client does not cache by default, so data of one user never reaches another. Give a request a scope
+with `setScope(id)` to cache it per user, see [Cache](/docs/core/cache.mdx).
 
 :::
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Requests in depth"
+      description="Params, query params, keys, retries, cancelation and every request option."
+      to="/docs/core/request"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Client"
+      description="Interceptors for auth and errors, request defaults and plugins."
+      to="/docs/core/client"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="React quick start"
+      description="Use the same requests in components with useFetch and useSubmit."
+      to="/docs/react/quick-start"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="promo"
+      title="See it in HyperFlow"
+      description="Inspect every request, cache entry and queue in the devtools app."
+      to="/docs/hyper-flow"
+    />
+  </div>
+</div>

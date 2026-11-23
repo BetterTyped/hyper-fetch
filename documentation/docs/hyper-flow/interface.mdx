@@ -1,0 +1,98 @@
+---
+sidebar_position: 4
+title: HyperFlow Interface Tour
+description: "A guided tour of the HyperFlow window. The home screen with your connected apps, the sidebar of an app, its pages and how they fit together."
+sidebar_label: Interface tour
+---
+
+# Interface tour
+
+HyperFlow has two levels. The **home screen** lists every app that connected. Each **app** has its own pages for its
+requests, cache, queues, sockets and dbs. This page shows where everything is.
+
+---
+
+## The home screen
+
+HyperFlow opens on **Applications**. Each card is one app, named by the `appName` you passed to the plugin.
+
+<Screenshot
+  src="/img/hyper-flow/applications.webp"
+  alt="The HyperFlow home screen with application cards for Acme Store, Checkout Service and Admin Panel."
+  markers={[
+    { x: 14, y: 21.7, label: <><strong>Applications</strong> lists every app that connected.</> },
+    { x: 12, y: 27.2, label: <><strong>Settings</strong> holds the port of HyperFlow's local server.</> },
+    { x: 25.8, y: 33.6, label: <>The adapter and the <code>environment</code> you passed to the plugin.</> },
+    { x: 50.6, y: 33.6, label: <><strong>Connected</strong> or <strong>Disconnected</strong>. Connected apps are listed first.</> },
+    { x: 55, y: 42, label: <><strong>View Details</strong>, or a click anywhere on the card, opens the app.</> },
+    { x: 80, y: 53, label: <>A link to the setup guide, for when your app does not show up.</> },
+  ]}
+/>
+
+An app that disconnects stays on the list with the data HyperFlow collected, and picks up where it left off when it
+reconnects under the same name. To remove an app, open the **⋮** menu that appears when you hover its card.
+
+**Support** and **Feedback** at the bottom of the sidebar open GitHub issues and discussions.
+
+---
+
+## Inside an app
+
+Select an app to open its start page. The sidebar on the left switches between its pages.
+
+<Screenshot
+  src="/img/hyper-flow/app-general.webp"
+  alt="The Acme Store app in HyperFlow with the sidebar of pages on the left, the app header and the General tab of the dashboard."
+  markers={[
+    { x: 3, y: 9, label: <>Back to the home screen.</> },
+    { x: 3, y: 19.6, label: <>The pages of this app: App, Network, Cache, Queues, Sockets, DB and Settings.</> },
+    { x: 9.1, y: 10.2, label: <>The app's name and base URL.</> },
+    { x: 89.3, y: 10.2, label: <>The app's environment.</> },
+    { x: 8.7, y: 19, label: <>Tabs of the dashboard: General, Performance and Cache.</> },
+    { x: 46.5, y: 28.1, label: <>Live data. Every number updates as your app sends requests.</> },
+  ]}
+/>
+
+| Page                                                    | Use it to                                                         |
+| ------------------------------------------------------- | ----------------------------------------------------------------- |
+| [App](/docs/hyper-flow/features/dashboard.mdx)          | See request totals, success rate, slow endpoints and cache usage  |
+| [Network](/docs/hyper-flow/features/network.mdx)        | Find a request and inspect its payload, response and timing       |
+| [Cache](/docs/hyper-flow/features/cache.mdx)            | Check what is cached and edit, invalidate or remove entries       |
+| [Queues](/docs/hyper-flow/features/queues.mdx)          | Watch queued requests, and stop, start or clear a queue           |
+| [Sockets](/docs/hyper-flow/features/sockets.mdx)        | Read realtime messages and the connection state                   |
+| [DB](/docs/hyper-flow/features/db.mdx)                  | Look at collections, live queries and the outbox                  |
+| [Settings](/docs/hyper-flow/features/settings.mdx)      | Set the history limit and the errors you simulate                 |
+
+When an app is disconnected, its pages show an **Offline** badge at the top. You can still read everything HyperFlow
+collected, but cache edits and queue controls need the app to be connected.
+
+---
+
+## Lists and details
+
+The Network, Cache and Queues pages work the same way. A list fills the page, with a search field and filters above it.
+Select a row to open its details in a panel next to the list. Drag the panel's edge to resize it, close it with the
+**X** in its toolbar, and find actions such as **Remove** or **Stop** under **Actions** in the same toolbar.
+
+Every value in the details is shown as a tree. Expand objects and arrays with the arrows, and copy any value with the
+button next to it.
+
+---
+
+## Keyboard shortcuts
+
+| Shortcut                             | Action                                         |
+| ------------------------------------ | ---------------------------------------------- |
+| <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>I</kbd> | Copy a screenshot of the window to the clipboard on macOS |
+| <kbd>⌘</kbd> <kbd>R</kbd>            | Reload the window (<kbd>Ctrl</kbd> <kbd>R</kbd>) |
+| <kbd>⌘</kbd> <kbd>M</kbd>            | Minimize the window on macOS                   |
+| <kbd>⌘</kbd> <kbd>W</kbd>            | Close the window. On macOS, HyperFlow keeps running in the background |
+
+Reloading the window keeps every app and its settings but empties the collected requests, cache and messages.
+
+:::secondary Summary
+
+The home screen lists your apps, each app has seven pages in its sidebar, and every list opens its details in a side
+panel. The [feature pages](/docs/hyper-flow/features/dashboard.mdx) explain each page in depth.
+
+:::

@@ -1,13 +1,15 @@
 /* eslint-disable react/no-array-index-key */
 import { Title } from "@site/src/components";
-import { Code, LucideProps, PlugZap, Server, Usb, Users } from "lucide-react";
+import { Activity, Code, Cpu, Layers, LucideProps, PlugZap, Server, Smartphone, Usb, Users } from "lucide-react";
 import { integrations } from "@site/src/integrations";
+import type { Section } from "@site/src/modules";
 
 import { IntegrationCard } from "../card/card";
 
+// Packages, and the frameworks, runtimes and tools that only need a page on how to connect them
 const categories = integrations
-  .filter((section) => section.isPackage)
-  .reduce((acc, item) => {
+  .filter((section) => section.category !== "docs")
+  .reduce<Record<string, Section[]>>((acc, item) => {
     if (!acc[item.category]) {
       acc[item.category] = [item];
     } else {
@@ -25,8 +27,12 @@ const icons: Record<
 > = {
   Plugin: PlugZap,
   Tools: Code,
-  Adapters: Usb,
+  Adapter: Usb,
   Service: Server,
+  Framework: Layers,
+  Runtime: Cpu,
+  Native: Smartphone,
+  Monitoring: Activity,
   Community: Users,
 };
 

@@ -1,90 +1,173 @@
 ---
 sidebar_position: 3
 title: Connect Devtools to Your HyperFetch Client
-description: Add the devtools plugin to a HyperFetch client and connect it to HyperFlow in three steps, for browser apps and Node.js backends.
-sidebar_label: Connecting Devtools
+description: "Add the devtools plugin to a HyperFetch client and connect it to HyperFlow. Covers development-only setup, Node.js backends, several apps at once, sockets, dbs and every plugin option."
+sidebar_label: Connect your app
 ---
 
-# Connect devtools to your HyperFetch client
+# Connect your app
 
-HyperFlow shows the requests, cache and queues of your app in real time. To connect devtools to a HyperFetch client,
-you add one plugin to the client and start the HyperFlow app. The plugin finds HyperFlow on `ws://localhost:2137`.
+Your app talks to HyperFlow through `@hyper-fetch/plugin-devtools`. You add the plugin to the client once, and every
+request, cache change and queue event of that client appears in HyperFlow. It takes three steps and about two minutes.
 
----
+:::tip What you'll set up
 
-:::tip Purpose
-
-This guide will walk you through connecting the HyperFetch Devtools plugin to your client instance. You will learn how
-to:
-
-1.  **Install** the necessary devtools package.
-2.  **Initialize** and **connect** the devtools plugin to your HyperFetch client.
-3.  **Verify** the connection and start monitoring your requests.
+1. **Install** the plugin.
+2. **Add it** to your client, only in development.
+3. **Check** that your app shows up in HyperFlow.
 
 :::
 
 ---
 
-## Step-by-step Guide
-
-1. ### Installation
-
-Install `@hyper-fetch/plugin-devtools`. It talks to HyperFlow through `@hyper-fetch/sockets`, so install that too.
+## 1. Install the plugin
 
 ```npm2yarn2pnpm
 npm install @hyper-fetch/plugin-devtools @hyper-fetch/sockets
 ```
 
-2. ### Connecting to the Client
+The plugin reaches HyperFlow over a WebSocket built with `@hyper-fetch/sockets`, so both packages are needed.
 
-Once installed, import `DevtoolsPlugin` and `createClient`. Then, use the `client.addPlugin` method to connect it. The
-plugin requires an `appName` to identify your application in the devtools.
+---
 
-<LinkCard
-  type="integrations"
-  title="Devtools Plugin"
-  description="Learn more how to install it and what it does"
-  href="/docs/integrations/plugin-devtools"
-/>
+## 2. Add it to your client
 
-```typescript title="api/client.ts"
+Pass `DevtoolsPlugin` to `addPlugin`. The `appName` is the name HyperFlow shows, so give every app a different one.
+
+```ts title="api/client.ts"
 import { createClient } from "@hyper-fetch/core";
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
-// Create a client instance
-export const client = createClient({
-  url: "https://api.your-app.com",
-  // highlight-start
-}).addPlugin(DevtoolsPlugin({ appName: "My Awesome App" })); // Add the plugin to the client
+export const client = createClient({ url: "https://api.example.com" });
+
+// highlight-start
+if (process.env.NODE_ENV === "development") {
+  client.addPlugin(DevtoolsPlugin({ appName: "Acme Store" }));
+}
 // highlight-end
 ```
 
-You should replace `"My Awesome App"` with a name that uniquely identifies your application in HyperFlow.
+The plugin connects as soon as it is added, so the condition keeps it out of production. Use the variable your bundler
+provides, such as `import.meta.env.DEV` in Vite.
 
-3. ### Verifying the Connection
+<details>
+<summary>Keep the plugin out of the production bundle</summary>
 
-Once you've added the plugin, run your application and make a request using HyperFetch. If the connection is
-successful, you will see your application appear in the HyperFlow devtools, and your requests will be logged in
-real-time.
+A static import ships the plugin's code even when the condition is false. Load it with a dynamic import, and bundlers
+leave it out of production builds:
 
-This setup is typically done once in a central file where you configure your HyperFetch client.
+```ts title="api/client.ts"
+export const client = createClient({ url: "https://api.example.com" });
+
+if (process.env.NODE_ENV === "development") {
+  // highlight-next-line
+  void import("@hyper-fetch/plugin-devtools").then(({ DevtoolsPlugin }) => {
+    client.addPlugin(DevtoolsPlugin({ appName: "Acme Store" }));
+  });
+}
+```
+
+With this setup you can install the plugin as a dev dependency (`npm install -D`).
+
+</details>
 
 ---
 
-## When nothing shows up
+## 3. Check the connection
 
-1.  **HyperFlow is not running**: start it first. The plugin keeps up to 1,000 events it could not send yet and delivers them
-    when HyperFlow connects.
-2.  **Another port**: if you changed the port in HyperFlow, pass it with `DevtoolsPlugin({ appName, url: "ws://localhost:<port>" })`.
-3.  **Node.js 18 or 20**: there is no global `WebSocket`. Install `ws` and pass it with the `WebSocket` option, see the
-    [plugin page](../integrations/plugin-devtools/index.mdx#nodejs-backends).
-4.  **Still unclear**: set `debug: true` on the plugin to log what it sends.
+Open HyperFlow, then start your app and let it send a request. Your app appears on the **Applications** screen with a
+green **Connected** dot. Select it to open its start page.
+
+<Screenshot
+  src="/img/hyper-flow/applications.webp"
+  alt="The HyperFlow Applications screen listing Acme Store and Checkout Service as connected and Admin Panel as disconnected."
+  caption="Connected apps come first. An app that closed stays listed as Disconnected, with the data HyperFlow collected."
+/>
+
+You can start HyperFlow and your app in any order. While HyperFlow is closed, the plugin retries the connection with a
+growing delay, starting at 3 seconds, up to 100 times. It keeps the latest 1,000 events meanwhile and sends them once it
+connects.
+
+If your app does not show up, see [Troubleshooting](/docs/hyper-flow/troubleshooting.mdx).
 
 ---
 
-:::secondary
+## Inspect sockets and dbs
 
-In this guide, you learned how to connect the HyperFetch Devtools plugin to your client. This enables real-time
-monitoring of your application's data exchange, which is invaluable for debugging and development.
+Pass the sockets and `@hyper-fetch/db` dbs you want to see. They appear under the same app, on the
+[Sockets](/docs/hyper-flow/features/sockets.mdx) and [DB](/docs/hyper-flow/features/db.mdx) pages.
+
+```ts title="api/client.ts"
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+
+import { db } from "./db";
+import { socket } from "./socket";
+
+client.addPlugin(
+  DevtoolsPlugin({
+    appName: "Acme Store",
+    // highlight-start
+    sockets: [socket],
+    dbs: [db],
+    // highlight-end
+  }),
+);
+```
+
+---
+
+## Node.js backends and other runtimes
+
+The plugin works wherever the client runs: Node.js servers, scripts, workers, Bun, Deno and React Native. Give the
+backend its own `appName` and an `environment` so you can tell it apart from the frontend.
+
+On Node.js 22+, Bun and Deno the plugin uses the global `WebSocket`. On Node.js 18 and 20, install `ws` and pass it:
+
+```ts title="server/client.ts"
+import { createClient } from "@hyper-fetch/core";
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+import { WebSocket } from "ws";
+
+export const client = createClient({ url: "https://api.example.com" }).addPlugin(
+  DevtoolsPlugin({
+    appName: "Acme API",
+    environment: "server",
+    // highlight-next-line
+    WebSocket: WebSocket as unknown as typeof globalThis.WebSocket,
+  }),
+);
+```
+
+---
+
+## Several apps at once
+
+Each client with the plugin becomes one application in HyperFlow, keyed by its `appName`. A frontend, a backend and a
+worker can all be connected at the same time. When an app reconnects under the same name, HyperFlow keeps its history
+and settings.
+
+The `environment` option shows as a badge on the app's card, such as `development` or `staging`. Use it when you run
+the same app in several places.
+
+---
+
+## Plugin options
+
+| Option        | Default                  | What it does                                                                         |
+| ------------- | ------------------------ | ------------------------------------------------------------------------------------ |
+| `appName`     | required                 | The name HyperFlow shows. Apps with the same name are treated as one app.           |
+| `environment` | the `appName`            | A badge on the app's card, shown when it differs from the name.                     |
+| `url`         | `"ws://localhost:2137"`  | Where HyperFlow listens. Change it when you [change the port](/docs/hyper-flow/features/settings.mdx#server-port). |
+| `sockets`     | `[]`                     | `@hyper-fetch/sockets` instances to show on the Sockets page.                       |
+| `dbs`         | `[]`                     | `@hyper-fetch/db` dbs to show on the DB page.                                       |
+| `WebSocket`   | the global `WebSocket`   | The WebSocket class to connect with. Pass the one from `ws` on Node.js 18 and 20.   |
+| `debug`       | `false`                  | Logs the plugin's connection events through the client's logger.                    |
+
+---
+
+:::secondary Summary
+
+You installed the plugin, added it to your client in development, and saw your app connect. Next, take the
+[interface tour](/docs/hyper-flow/interface.mdx) to find your way around.
 
 :::

@@ -1,120 +1,149 @@
 ---
 sidebar_position: 2
 title: "Sockets Quick Start: Real-Time in TypeScript"
-description: "Create a Socket, define a typed listener and emitter, and exchange real-time events over WebSockets in a few lines of TypeScript. No framework needed."
+description: "Connect to a WebSocket server, define a typed listener and emitter, and exchange realtime messages in a few lines of TypeScript. No framework needed."
 sidebar_label: Quick Start
 ---
 
-> HyperFetch's Sockets module enables real-time, bidirectional communication using WebSockets or other adapters. It's
-> framework-agnostic and requires no external libraries to function.
+# Quick start
 
-:::secondary What you'll learn
+In this guide you connect to a public echo server, which sends back every message it receives. You send a typed chat
+message and receive it again through a listener, so you see both directions working in under 20 lines.
 
-- How to initialize the socket client
-- How to create emitters and listeners
-- How to interact with the server
+:::tip What you'll learn
+
+1. **Create a socket** for one server.
+2. **Define a listener and an emitter** with typed data.
+3. **Receive and send** messages, and react to the connection state.
 
 :::
 
 ---
 
-1. ### Initialize the Socket Client
+## 1. Install
 
-The first step is to initialize the **Socket client**. This manages the WebSocket connection and all real-time
-communication. Specify the `url` of your WebSocket server.
+```npm2yarn2pnpm
+npm install @hyper-fetch/sockets
+```
 
-```tsx title="socket.ts"
+Browsers, Node.js 22+, Bun and Deno have a global `WebSocket`. On older Node.js versions, install `ws` and pass it
+with `adapterOptions: { WebSocket }`.
+
+---
+
+## 2. Create the socket
+
+Create one socket per server and export it. It connects right away and reconnects on its own when the connection
+drops.
+
+```ts title="socket.ts"
 import { createSocketClient } from "@hyper-fetch/sockets";
 
-export const socket = createSocketClient({ url: "ws://localhost:3000" });
+// highlight-next-line
+export const socket = createSocketClient({ url: "wss://echo.websocket.org" });
+
+socket.onConnected(() => console.log("connected")).onDisconnected(() => console.log("disconnected"));
 ```
 
 ---
 
-2. ### Create Emitters and Listeners
+## 3. Define the topics
 
-With your socket client set up, you can define **emitters** (to send events) and **listeners** (to receive events) for
-real-time communication.
+A topic is a channel of messages. A **listener** receives one topic with a typed `data`. An **emitter** sends to one
+topic with a typed `payload`. Like requests, both are templates you define once.
 
-#### Creating Listeners
-
-Listeners subscribe to server events and provide type-safe callbacks.
-
-```ts
+```ts title="chat.ts"
 import { socket } from "./socket";
 
-export const onChatMessage = socket.createListener<ChatMessageType>()({
-  topic: "chat-message",
-});
+type ChatMessage = { author: string; text: string };
+
+// highlight-start
+export const onChatMessage = socket.createListener<ChatMessage>()({ topic: "chat" });
+export const sendChatMessage = socket.createEmitter<ChatMessage>()({ topic: "chat" });
+// highlight-end
 ```
 
-#### Creating Emitters
+By default, messages travel as JSON in the shape `{ "topic": "chat", "data": { ... } }`. If your server uses another
+format, map it with the adapter's `decode` and `encode` options.
 
-Emitters send typed events to the server.
+---
 
-```tsx
-import { socket } from "./socket";
+## 4. Listen and send
 
-export const sendChatMessage = socket.createEmitter<ChatMessageType>()({
-  topic: "chat-message",
+```ts title="index.ts"
+import { onChatMessage, sendChatMessage } from "./chat";
+
+// highlight-next-line
+const unlisten = onChatMessage.listen(({ data }) => {
+  console.log(`${data.author}: ${data.text}`); // "Ann: Hello!"
 });
+
+// highlight-next-line
+sendChatMessage.emit({ payload: { author: "Ann", text: "Hello!" } });
+
+// Stop listening when you no longer need the messages
+// unlisten();
 ```
 
-:::tip
+The echo server returns your message on the same topic, so the listener logs it. With a real chat server, the
+listener receives messages from other users the same way.
 
-Both listeners and emitters are fully typed, ensuring you always know the shape of your data.
+:::caution Emit only when connected
+
+`emit()` does not queue messages. When the socket is disconnected, the message is dropped and reported through
+`socket.events.onEmitterError`. In React, `useEmitter` returns `connected` so you can disable the send button.
 
 :::
 
 ---
 
-3. ### Interact with the Server
+## 5. Topics with params
 
-Once you have your emitters and listeners, you can send and receive real-time events.
-
-#### Listen to events
-
-Just use the `listen` method and pass the callback function.
+Put params in the topic string to address rooms, users or documents. They are typed, and required when you send.
 
 ```ts
-import { onChatMessage } from "./listeners";
+const onRoomMessage = socket.createListener<ChatMessage>()({ topic: "rooms/:roomId" });
+const sendRoomMessage = socket.createEmitter<ChatMessage>()({ topic: "rooms/:roomId" });
 
-// The callback receives an object with `data` and `extra` properties
-onChatMessage.listen(({ data, extra }) => console.log(data));
-```
-
-#### Emit events
-
-Just use the `emit` method and pass the data you want to send.
-
-```ts
-import { sendChatMessage } from "./emitters";
-
-sendChatMessage.emit({ payload: { message: "Hello world" } });
+onRoomMessage.setParams({ roomId: "general" }).listen(({ data }) => console.log(data.text));
+sendRoomMessage.emit({ params: { roomId: "general" }, payload: { author: "Ann", text: "Hi room" } });
 ```
 
 ---
 
-## Additional: Changing the adapter
+## Next steps
 
-By default, Sockets uses **WebSocket** adapter, but you can switch to SSE or provide your own adapter for maximum
-flexibility. Pass the adapter via the `adapter` constructor option.
-
-```tsx
-import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
-
-const socket = createSocketClient({
-  url: "http://localhost:3000",
-  adapter: ServerSentEventsAdapter(),
-});
-```
-
----
-
-:::success That's it!
-
-You've seen how straightforward it is to get started with HyperFetch Sockets for real-time communication.
-
-:::
-
----
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Authentication"
+      description="Send a fresh token on every connection attempt with onConnect."
+      to="/docs/sockets/socket"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Server-Sent Events"
+      description="Switch the adapter and keep your listeners."
+      to="/docs/sockets/adapter"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="useListener"
+      description="Show realtime data in React components."
+      to="/docs/react/sockets/use-listener"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="promo"
+      title="Inspect sockets in HyperFlow"
+      description="See every message in and out, the connection state and errors."
+      to="/docs/hyper-flow/features/sockets"
+    />
+  </div>
+</div>

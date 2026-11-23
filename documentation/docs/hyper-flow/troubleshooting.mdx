@@ -1,0 +1,133 @@
+---
+sidebar_position: 6
+title: HyperFlow Troubleshooting and FAQ
+description: "Fix common HyperFlow problems by symptom. Your app does not show up, the server does not start, requests are missing, cache edits do nothing, and answers to frequent questions."
+sidebar_label: Troubleshooting
+---
+
+# Troubleshooting
+
+Find your symptom below. Most problems come down to the plugin not reaching HyperFlow's local server, so the first
+section covers that in detail.
+
+---
+
+## My app does not show up
+
+Work through these checks in order. Each one rules out a cause.
+
+1. **HyperFlow runs and its server is up.** Open **Settings** on the home screen. **Server Status** must say
+   **Running**. If it says **Crashed**, select **Restart Server**.
+2. **The plugin is added.** Check that `client.addPlugin(DevtoolsPlugin({ appName }))` runs. A development-only
+   condition, such as `process.env.NODE_ENV === "development"`, may be false in the build you run.
+3. **The ports match.** The plugin connects to `ws://localhost:2137`. If you changed the port in HyperFlow, pass the same
+   one with the `url` option.
+4. **The runtime has a `WebSocket`.** Node.js 18 and 20 do not. Install `ws` and pass it with the `WebSocket` option, see
+   [Node.js backends](/docs/hyper-flow/connecting.mdx#nodejs-backends-and-other-runtimes).
+5. **The app can reach `localhost`.** An app inside Docker, a virtual machine or a phone does not see your computer as
+   `localhost`. Use your computer's address in `url`, such as `ws://host.docker.internal:2137` from Docker or
+   `ws://192.168.1.20:2137` from a phone on the same network, and make sure your firewall allows the port.
+6. **The plugin did not give up.** It retries 100 times with a growing delay. If HyperFlow started long after your app,
+   reload the app.
+
+Still nothing? Turn on logging with `DevtoolsPlugin({ appName, debug: true })` and look for connection errors in your
+app's console.
+
+---
+
+## "Server is not running" or "Port 2137 is already in use"
+
+Another program uses the port, often a second HyperFlow window or an older HyperFlow that did not quit. Quit the other
+program, or pick another port in **Settings** › **Change Port** and pass it to the plugin with `url`. See
+[Server port](/docs/hyper-flow/features/settings.mdx#server-port).
+
+---
+
+## The app shows as Disconnected
+
+The plugin lost its connection: the app was closed or reloaded, or the browser tab was put to sleep. HyperFlow keeps
+the app's data and reconnects it under the same name as soon as the plugin is back. Two apps with the same `appName`
+are treated as one, so give each app and each environment its own name or `environment`.
+
+---
+
+## Requests are missing from the Network page
+
+- **The history limit was reached.** HyperFlow keeps the latest 1,000 requests per app. Raise
+  [Network History Limit](/docs/hyper-flow/features/settings.mdx#network-history-limit).
+- **A search or filter is active.** Select **All** and clear the search field.
+- **The request used another client.** Every client needs its own plugin, so a second `createClient` without
+  `DevtoolsPlugin` stays invisible.
+
+---
+
+## Cache edits or queue controls do nothing
+
+They only work while the app is connected. If the page shows an **Offline** badge, start the app again. Also check that
+you edit the entry your components read: two cache keys that differ in a param or query param are two entries.
+
+---
+
+## A cache entry is missing
+
+Entries disappear when their `cacheTime` passes, and requests with `cache: false` are never stored. On the server, the
+client caches nothing unless a request has a scope, see [Cache](/docs/core/cache.mdx). The
+[Cache tab](/docs/hyper-flow/features/dashboard.mdx#cache) of the dashboard lists requests that were not cached.
+
+---
+
+## Sockets or dbs show "No sockets inspected" or "No dbs inspected"
+
+Pass them to the plugin with the `sockets` and `dbs` options. HyperFlow only shows the ones you list.
+
+---
+
+## FAQ
+
+<details>
+<summary>Does HyperFlow work in production?</summary>
+
+It is built for development. The plugin connects to a server on the developer's machine, so in production it only
+tries to connect and gives up. Add it only in development builds, as shown in
+[Connect your app](/docs/hyper-flow/connecting.mdx#2-add-it-to-your-client).
+
+</details>
+
+<details>
+<summary>Does HyperFlow send my data anywhere?</summary>
+
+No. Events go from the plugin to HyperFlow's server on your machine and stay in HyperFlow's memory.
+
+</details>
+
+<details>
+<summary>Can I connect React Native, Electron or a Next.js server?</summary>
+
+Yes. The plugin works wherever the HyperFetch client runs and a `WebSocket` is available. For a device or emulator, set
+`url` to your computer's address, because `localhost` on the device is the device itself.
+
+</details>
+
+<details>
+<summary>Which adapters are supported?</summary>
+
+All of them: fetch, Axios, GraphQL, tRPC, oRPC, Firebase and custom adapters. The
+[compatibility table](/docs/hyper-flow/compatibility.mdx) lists every feature per adapter.
+
+</details>
+
+<details>
+<summary>Is the data still there after I restart HyperFlow?</summary>
+
+Your apps and their settings are. Requests, cache entries, queues, socket messages and db snapshots are kept in memory
+and start empty after a restart. See [What HyperFlow remembers](/docs/hyper-flow/features/settings.mdx#what-hyperflow-remembers).
+
+</details>
+
+---
+
+## Report a bug
+
+HyperFlow is in alpha. If something here does not help, open an issue on
+[GitHub](https://github.com/BetterTyped/hyper-fetch/issues) with your operating system, HyperFlow version, adapter and
+what you expected to see.

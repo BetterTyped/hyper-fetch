@@ -1,0 +1,99 @@
+---
+sidebar_position: 1
+title: HyperFetch on Cloudflare Workers and Edge Runtimes
+description: Call your APIs from Cloudflare Workers, Vercel Edge Functions and other edge runtimes with HyperFetch, using a client scoped to each request.
+sidebar_label: Overview
+---
+
+# Cloudflare Workers
+
+Cloudflare Workers, Vercel Edge Functions and the other edge runtimes run web standard APIs instead of Node.js. HyperFetch
+only needs one of them, `fetch`, so it runs there unchanged: typed requests, retries and response mapping included.
+
+---
+
+:::tip Purpose
+
+1.  **Web standards only**: The default adapter uses `fetch` and nothing from Node.js.
+2.  **Typed calls at the edge**: Call upstream APIs with typed requests and a typed SDK.
+3.  **Safe for shared isolates**: A client per incoming request keeps users' data apart.
+
+:::
+
+---
+
+## Getting started
+
+```bash
+npm install @hyper-fetch/core
+```
+
+A Worker isolate serves many requests, so create the client inside `fetch`. Its cache and deduplication then belong to
+that one request:
+
+```ts title="src/index.ts"
+import { createClient } from "@hyper-fetch/core";
+
+type Env = { API_URL: string };
+
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    // highlight-next-line
+    const client = createClient({ url: env.API_URL });
+
+    const getProduct = client.createRequest<{
+      response: { id: string; price: number };
+    }>()({
+      endpoint: "/products/:id",
+    });
+
+    const id = new URL(request.url).searchParams.get("id") ?? "";
+    const { data, error } = await getProduct
+      .setParams({ id })
+      .setRetry(1)
+      .send();
+
+    return Response.json(error ?? data, { status: error ? 502 : 200 });
+  },
+};
+```
+
+The same handler shape works in Vercel Edge Functions and Next.js route handlers on the edge runtime.
+
+---
+
+## A typed SDK at the edge
+
+Generate an SDK from the OpenAPI document of the API you call, and create it inside the handler like the client:
+
+```bash
+npx @hyper-fetch/cli@latest generate --template openapi --url https://api.example.com/openapi.json --fileName upstream.sdk.ts
+```
+
+```ts
+const sdk = createSdk(createClient({ url: env.API_URL }));
+const { data } = await sdk.products.$id.$get.setParams({ id }).send();
+```
+
+<LinkCard
+  type="docs"
+  title="OpenAPI TypeScript client"
+  description="Generate a typed SDK from an OpenAPI document and call it with send()."
+  to="/docs/cli/openapi-typescript-client"
+/>
+
+:::note When it's helpful
+
+- Edge proxies and backends-for-frontends that combine several upstream APIs.
+- Workers that need retries and typed responses without pulling in Node.js APIs.
+- Calling the same API from the edge and the browser with the same request definitions.
+
+:::
+
+:::secondary Summary
+
+- HyperFetch only needs `fetch`, so it runs on Workers and other edge runtimes unchanged.
+- Create the client inside the handler so each incoming request gets its own cache.
+- Generate a typed SDK with the CLI for the APIs your Worker calls.
+
+:::

@@ -1,6 +1,6 @@
+import { Book, LucideProps } from "lucide-react";
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { ComponentType, SVGProps } from "react";
-import { Book, LucideProps } from "lucide-react";
 
 import { isBrowser } from "./utils/is-browser";
 
@@ -35,6 +35,7 @@ export type Section = {
   featured?: boolean;
   isPackage: boolean;
   isNew?: boolean;
+  isBeta?: boolean;
   isPro?: boolean;
 } & (
   | {
@@ -120,7 +121,8 @@ export const modules: Section[] = [
     paths: ["db"],
     img: DbIcon,
     text: "drop-shadow-sm !text-violet-500 dark:!text-violet-400",
-    textAction: "focus:!text-violet-500 focus:dark:!text-violet-400 active:!text-violet-600 active:dark:!text-violet-300",
+    textAction:
+      "focus:!text-violet-500 focus:dark:!text-violet-400 active:!text-violet-600 active:dark:!text-violet-300",
     textHover: "hover:!text-violet-500 hover:dark:!text-violet-400",
     icon: "group-hover:shadow-violet-200 dark:group-hover:bg-violet-500 bg-violet-400 dark:bg-violet-500 !bg-opacity-30",
     iconHover:
@@ -129,6 +131,8 @@ export const modules: Section[] = [
     borderHover: "hover:border-violet-500 hover:dark:border-violet-400",
     category: "Framework",
     package: "db",
+    isNew: true,
+    isBeta: true,
   },
   {
     label: "React",
@@ -188,6 +192,5 @@ export const modules: Section[] = [
     featured: true,
     category: "CLI",
     package: "hyper-fetch",
-    isNew: true,
   },
 ];

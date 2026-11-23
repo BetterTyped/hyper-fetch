@@ -19,6 +19,7 @@ import {
   Highlight,
   Highlights,
 } from "@site/src/components/highlights/highlights";
+import { Screenshot } from "@site/src/components/screenshot/screenshot";
 
 /**
  * MDX components
@@ -50,6 +51,7 @@ const MDXComponents: MDXComponentsObject = {
   ShowMore,
   Highlights,
   Highlight,
+  Screenshot,
 };
 
 // eslint-disable-next-line import/no-default-export

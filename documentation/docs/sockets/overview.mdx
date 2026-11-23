@@ -1,158 +1,224 @@
 ---
 sidebar_position: 1
 title: Sockets Overview
-description: "HyperFetch Sockets brings typed, event-based real-time communication over WebSockets and Server-Sent Events, with reconnects and auth built in."
+description: "HyperFetch Sockets gives you typed listeners and emitters over WebSockets, Server-Sent Events, GraphQL subscriptions, tRPC, oRPC and Firebase, with reconnects, auth and message batching built in."
 sidebar_label: Overview
 ---
 
-import { LinkCard } from "@site/src/components";
+# Sockets overview
 
-# Overview
+`@hyper-fetch/sockets` handles realtime data the way [core](/docs/core/overview.mdx) handles requests. You open one
+**socket** per server, then define each topic once as a typed **listener** (to receive) or **emitter** (to send). The
+socket reconnects with backoff, refreshes credentials on every attempt and reports its state as events.
 
-> The Sockets module brings real-time, event-driven communication to HyperFetch, for data exchange over
-> persistent connections. Designed for flexibility and type safety, it empowers you to build robust, scalable
-> applications with minimal effort.
+```ts title="realtime.ts"
+import { createSocketClient } from "@hyper-fetch/sockets";
+
+export const socket = createSocketClient({ url: "wss://api.example.com/ws" });
+
+type ChatMessage = { id: string; text: string; author: string };
+
+// highlight-start
+export const onChatMessage = socket.createListener<ChatMessage>()({ topic: "chat/:roomId" });
+export const sendChatMessage = socket.createEmitter<{ text: string }>()({ topic: "chat/:roomId" });
+// highlight-end
+
+const unlisten = onChatMessage.setParams({ roomId: "general" }).listen(({ data }) => {
+  console.log(data.author, data.text); // data: ChatMessage
+});
+
+sendChatMessage.emit({ params: { roomId: "general" }, payload: { text: "Hello" } });
+```
+
+The WebSocket adapter connects as soon as the socket is created. `listen()` returns the function that stops listening.
 
 ---
 
-## Why Sockets?
+## What you get
 
-Modern applications often require real-time updates - think chat apps, live dashboards, or collaborative tools. Our
-sockets package provides a unified, typesafe API for working with connections like WebSockets, Server-Sent Events (SSE),
-while supporting custom adapters for libraries like Firebase Realtime Database.
+<Tabs>
+<TabItem value="types" label="Typed topics">
 
-:::note Our approach
+Topic params come from the topic string, and payloads from the emitter's type. Both are checked before anything is sent.
 
-Sockets is built on the same principles as the core HyperFetch package: consistency, type safety, and developer
-experience. It extends these ideas to the world of real-time data.
+```ts
+const sendToRoom = socket.createEmitter<{ text: string }>()({ topic: "rooms/:roomId" });
+
+// error-next-line
+sendToRoom.emit({ payload: { text: "hi" } });
+// Property 'params' is missing: `:roomId` comes from the topic
+
+// highlight-next-line
+sendToRoom.emit({ params: { roomId: 1 }, payload: { text: "hi" } }); // ✅
+```
+
+</TabItem>
+<TabItem value="auth" label="Auth and reconnects">
+
+`onConnect` runs before every connection attempt, including automatic reconnects, so an expired token is never reused.
+Lost connections come back with exponential backoff and jitter, at once when the device is back online.
+
+```ts
+export const socket = createSocketClient({
+  url: "wss://api.example.com/ws",
+  // highlight-start
+  reconnect: 20, // attempts before giving up, Infinity by default
+  maxReconnectTime: 15_000, // never wait longer than 15 seconds
+  // highlight-end
+}).onConnect(async ({ connection, attempt }) => {
+  const token = await getAccessToken({ forceRefresh: attempt > 0 });
+  return { ...connection, queryParams: { token } };
+});
+```
+
+</TabItem>
+<TabItem value="delivery" label="Fast streams">
+
+High-frequency topics, such as prices or logs, can deliver only the newest message per interval or every message in
+batches, so your UI renders less often.
+
+```ts
+// At most one message, the newest, every 16 ms
+const onPrice = socket.createListener<Price>()({
+  topic: "prices",
+  // highlight-next-line
+  delivery: { strategy: "latest", interval: 16 },
+});
+
+// Every message, as an array per 100 ms window
+const onTrade = socket.createListener<Trade>()({
+  topic: "trades",
+  // highlight-next-line
+  delivery: { strategy: "batch", interval: 100 },
+});
+
+onTrade.listen(({ data }) => data.length); // data: Trade[]
+```
+
+</TabItem>
+<TabItem value="adapters" label="Any transport">
+
+WebSocket is the default. Swap the adapter for Server-Sent Events or another protocol, and keep your listeners.
+
+```ts
+import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+
+const events = createSocketClient({
+  url: "https://api.example.com/events",
+  // highlight-next-line
+  adapter: ServerSentEventsAdapter(),
+});
+```
+
+| Transport                     | Adapter                                                   |
+| ----------------------------- | --------------------------------------------------------- |
+| WebSocket                     | `WebsocketAdapter` (default)                              |
+| Server-Sent Events            | `ServerSentEventsAdapter` (receive only)                  |
+| GraphQL subscriptions         | `GraphqlWsAdapter` from `@hyper-fetch/graphql`            |
+| tRPC subscriptions            | `TrpcWebsocketAdapter`, `TrpcSseAdapter`                  |
+| oRPC event iterators          | `OrpcWebsocketAdapter`, `OrpcStreamAdapter`               |
+| Firestore and Realtime DB     | `FirebaseSocketsAdapter` from `@hyper-fetch/firebase`     |
+
+</TabItem>
+<TabItem value="cache" label="Live HTTP cache">
+
+Write realtime updates into the HTTP cache, and every component showing that request updates without a refetch.
+
+```ts
+const getNote = client.createRequest<{ response: Note }>()({ endpoint: "/notes/:noteId" });
+const onNoteChange = socket.createListener<Note>()({ topic: "notes" });
+
+onNoteChange.listen(({ data }) => {
+  // highlight-next-line
+  client.cache.update(getNote.setParams({ noteId: data.id }), { data });
+});
+```
+
+</TabItem>
+<TabItem value="react" label="React">
+
+`useListener` keeps the latest message and `useEmitter` exposes `emit` and the connection state. Both unsubscribe on
+unmount.
+
+```tsx
+import { useEmitter, useListener } from "@hyper-fetch/react";
+
+const Chat = () => {
+  // highlight-start
+  const { data } = useListener(onChatMessage.setParams({ roomId: "general" }));
+  const { emit, connected } = useEmitter(sendChatMessage);
+  // highlight-end
+
+  return <p>{connected ? data?.text : "Reconnecting..."}</p>;
+};
+```
+
+</TabItem>
+</Tabs>
+
+---
+
+## How the pieces fit
+
+```mermaid
+flowchart LR
+  S["Socket<br/>connection · reconnects · auth"] --> A["Adapter<br/>WebSocket · SSE · GraphQL<br/>tRPC · oRPC · Firebase"]
+  A <--> Srv[(Server)]
+  L["Listener<br/>topic + response type"] -- listen --> S
+  E["Emitter<br/>topic + payload type"] -- emit --> S
+```
+
+| Building block                       | What it owns                                                                   |
+| ------------------------------------ | ------------------------------------------------------------------------------ |
+| [Socket](/docs/sockets/socket.mdx)   | The connection, reconnect policy, `onConnect` and lifecycle events             |
+| [Listener](/docs/sockets/listener.mdx) | One topic you receive, its data type and its delivery strategy               |
+| [Emitter](/docs/sockets/emitter.mdx) | One topic you send to, its payload type and payload mapper                     |
+| [Adapter](/docs/sockets/adapter.mdx) | The transport and its wire format, adjustable with `decode` and `encode`       |
+| [Socket SDK](/docs/sockets/sdk.mdx)  | Every topic of a server in one typed tree, built from a schema                 |
+
+:::note Before you build on it
+
+- **`emit()` does not wait for an answer.** It returns nothing and drops the message when the socket is disconnected.
+  Model replies as their own listener topic.
+- **Server-Sent Events only receive.** Calling `emit()` on an SSE socket throws.
 
 :::
 
 ---
 
-## Typesafe realtime
+## Next steps
 
-Handling realtime data exchange such as with WebSockets or Server-Sent Events (SSE) presents unique challenges,
-particularly around maintaining type safety as your application grows. The library addresses this by exposing dedicated
-Listener and Emitter classes, each with their own explicit types for responses and payloads.
-
-This means that when you use a listener, such as `chatMessageListener`, you always know the exact type of data being
-handled. Similarly, when emitting data, you have clear expectations for the payload structure.
-
-This approach is especially powerful in projects with multiple listeners and emitters, ensuring type safety and
-maintainability even as your application scales.
-
-```tsx
-import { createSocketClient } from "@hyper-fetch/sockets";
-
-const socket = createSocketClient({
-  url: "ws://localhost:3000",
-});
-
-const chatMessageListener = socket.createListener<{ message: string }>()({
-  topic: "chat-message",
-});
-
-chatMessageListener.listen(({ data }) => {
-  console.log(data); // { message: string }
-});
-```
-
----
-
-## Listener templates
-
-Usual approach to sockets it to use the `.on()` method where you have to define the topic and the callback. Our approach
-is a bit different. Just like in the core-package we prefer to create reusable templates for the listeners. They keep
-the information about expected message data type and other. This way you can use the listener template in multiple
-places with full type-safety.
-
-```tsx
-import { createSocketClient } from "@hyper-fetch/sockets";
-
-// 1. Initialize the socket
-const socket = createSocketClient({
-  url: "ws://localhost:3000",
-});
-
-// 2. Create the listener template
-const chatMessageListener = socket.createListener<{ message: string }>()({
-  topic: "chat-message",
-});
-
-// 3. Listen to the chat message
-chatMessageListener.listen(({ data }) => {
-  console.log(data); // { message: string }
-});
-```
-
----
-
-## Emitter templates
-
-To incorporate full type-safety and readability we also have emitter templates. They are used to send messages to the
-realtime servers. This way we keep very clear data-exchange between the client and the server. It is reusable and very
-easy to use.
-
-```tsx
-import { createSocketClient } from "@hyper-fetch/sockets";
-
-// 1. Initialize the socket
-const socket = createSocketClient({
-  url: "ws://localhost:3000",
-});
-
-// 2. Create the emitter template
-const chatMessageEmitter = socket.createEmitter<{ text: string }>()({
-  topic: "new-message",
-});
-
-// 3. Send the chat message
-chatMessageEmitter.emit({ payload: { text: "Hello, world!" } });
-```
-
----
-
-## Event-Driven and Extensible
-
-Sockets exposes all events, making it easy to build custom devtools, analytics, or advanced integrations. The
-event-driven approach ensures your app can react to every stage of the connection lifecycle.
-
----
-
-## See More
-
-<LinkCard
-  type="docs"
-  title="Socket Class"
-  description="Learn more about the Socket class and its configuration options."
-  to="/docs/sockets/socket"
-/>
-<LinkCard
-  type="docs"
-  title="Listeners"
-  description="How to receive and handle real-time events."
-  to="/docs/sockets/listener"
-/>
-<LinkCard
-  type="docs"
-  title="Emitters"
-  description="How to send events to the server."
-  to="/docs/sockets/emitter"
-/>
-<LinkCard
-  type="docs"
-  title="Adapters"
-  description="Customize or extend socket communication with adapters."
-  to="/docs/sockets/adapter"
-/>
-<LinkCard
-  type="docs"
-  title="Socket SDK"
-  description="Type-safe proxy-based SDK for organizing listeners and emitters."
-  to="/docs/sockets/sdk"
-/>
-
----
-
-With these building blocks, you're ready to build powerful, real-time features with **HyperFetch Sockets**! 🎊
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Quick start"
+      description="Connect to a server, listen to a topic and send messages."
+      to="/docs/sockets/quick-start"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Socket"
+      description="Connection options, auth, reconnects and lifecycle events."
+      to="/docs/sockets/socket"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="useListener"
+      description="Realtime data in React components."
+      to="/docs/react/sockets/use-listener"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="promo"
+      title="Inspect sockets in HyperFlow"
+      description="Connection state, every message in and out, and errors."
+      to="/docs/hyper-flow/features/sockets"
+    />
+  </div>
+</div>
