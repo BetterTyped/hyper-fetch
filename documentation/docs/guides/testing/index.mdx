@@ -5,60 +5,72 @@ description: "Testing HyperFetch apps: mock requests with request.setMock(), kee
 sidebar_label: Testing
 ---
 
-Testing is one of the best things in HyperFetch. With our architecture and focus on global singleton structure, tests
-can be largely based on the application’s configuration. This means tests are no longer sensitive to micro-changes (like
-changing endpoints or types). Everything reacts and adapts to tests or shows the appropriate error – making tests easier
-to maintain and faster to write.
-
-If you're using the SDK pattern, testing becomes even simpler - create a mock SDK with `$configure`, inject it into your
-components, and every endpoint automatically returns controlled data with no network layer involved.
+Tests of a HyperFetch app use the same client and requests as production. You replace the network with
+`request.setMock()`, reset the client between tests with `client.clear()`, and everything else (cache, queues, retries,
+hooks) runs as it does for users. These guides cover both parts.
 
 :::secondary What you'll learn
 
-1.  The **benefits** of testing with HyperFetch.
-2.  How to **isolate tests** to ensure they are deterministic.
-3.  How to **mock API requests** for reliable and fast tests.
-4.  How to **inject a test SDK** with centralized mocks into your components.
+1. How to **mock requests** with `setMock` instead of a fake server.
+2. How to **isolate tests** so cache and queues never leak between them.
+3. How to **inject a test SDK** with all mocks in one place.
 
 :::
 
 ---
 
-## Benefits
+## The approach
 
-- Our setup is always up-to-date with the production solution.
-- No configuration or setup duplication.
-- Easy test maintenance.
-- Faster test builds.
+```ts title="src/components/users.test.tsx"
+import { client } from "../api/client";
+import { getUsers } from "../api/users";
+
+beforeEach(() => client.clear()); // no cache or queue left from the previous test
+afterEach(() => getUsers.clearMock()); // setMock changes the request instance
+
+it("loads users", async () => {
+  getUsers.setMock(() => ({ data: [{ id: 1, name: "Ann" }], status: 200 }));
+
+  const { data } = await getUsers.send();
+
+  expect(data).toEqual([{ id: 1, name: "Ann" }]);
+});
+```
+
+- **Mocks are typed.** `setMock` checks the mocked `data` and `error` against the request's types, so a changed API type
+  breaks the mock at compile time.
+- **No duplicate setup.** Tests import the production client and requests, with their interceptors and defaults.
+- **The real pipeline runs.** A mock replaces only the adapter call: interceptors, mappers, retries, cache writes and
+  hook state behave as in the app.
 
 ---
 
-## Testing Guides
+## Guides
 
-To help you get started with testing in HyperFetch, we have prepared a few guides that cover the most important topics.
-We recommend reading them in the following order to get a complete picture of our testing philosophy.
+<LinkCard
+  type="guides"
+  title="Mocking"
+  description="Mock requests with setMock, centralize mocks in a test SDK and override them per test."
+  to="/docs/guides/testing/mocking"
+/>
 
 <LinkCard
   type="guides"
   title="Isolation"
-  description="Learn how to isolate your tests to prevent them from interfering with each other."
+  description="Reset the client between tests so no state leaks."
   to="/docs/guides/testing/isolation"
 />
-<LinkCard
-  type="guides"
-  title="Mocking"
-  description="Discover how to mock API requests to create reliable and fast tests."
-  to="/docs/guides/testing/mocking"
-/>
+
+Runnable examples: [Testing](/examples/getting-started/testing) and [Mocking](/examples/request-control/mocking).
 
 ---
 
 :::success Congratulations!
 
-You've got an overview of testing in HyperFetch!
+You've got an overview of testing with HyperFetch.
 
-- You understand the **main benefits** of the HyperFetch testing approach.
-- You know where to find **detailed guides** on test isolation and mocking.
-- You are ready to dive deeper into writing **robust and maintainable tests**.
+- You can **mock** requests with `setMock` and remove the mock with `clearMock`.
+- You can **reset** the client between tests with `client.clear()`.
+- You know where to find the **mocking** and **isolation** guides.
 
 :::

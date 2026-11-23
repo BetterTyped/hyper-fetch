@@ -1,92 +1,130 @@
 ---
 title: Dependent Requests in React
-description: "Run dependent requests in React with HyperFetch: use the disabled option in useFetch to wait for data from one request before firing the next in a chain."
+description: "Run dependent requests in React with HyperFetch: wait for one useFetch before sending the next with the disabled option or a child component."
 sidebar_label: Dependent Requests
 ---
 
 # Dependent Requests
 
-In many applications, you'll encounter scenarios where one request depends on the data returned by another. For example,
-you might need to fetch a user's profile first and then use their ID to fetch their posts. HyperFetch provides a simple
-and declarative way to handle these dependent requests using the `disabled` option in the `useFetch` hook.
+A dependent request needs data from another one, such as the posts of the user you just loaded. This guide covers two
+ways to wait for it with [`useFetch`](/docs/react/hooks/use-fetch): the `disabled` option and a child component that
+renders once the data exists.
 
 :::secondary What you'll learn
 
-1.  How to create **dependent requests** where one query relies on data from another.
-2.  How to use the **`disabled` option** to conditionally prevent a request from firing.
-3.  How to build a **chain of requests** for more complex data-fetching scenarios.
+1.  How to hold a request with the **`disabled` option** until its data is ready.
+2.  How to split a chain into a **child component** so params are never placeholders.
+3.  How **`loading`** behaves while a request is disabled.
+4.  When to use **which approach**.
 
 :::
 
-## Chaining Requests
+---
 
-The key to handling dependent requests is the `disabled` option in the `useFetch` hook. By setting `disabled` to `true`,
-you can prevent a request from being executed. When the condition changes and `disabled` becomes `false`, the request
-will automatically fire.
+## Wait with disabled
 
-Let's look at an example where we first fetch a user and then, once we have the user's ID, we fetch their products.
+Set `disabled` while the data you need is missing. Nothing is sent and `loading` stays `false`. As soon as `disabled`
+turns `false`, the hook sends the request.
 
-```tsx
-function DependentRequestsExample() {
-  // highlight-next-line
-  const { data: user } = useFetch(getCurrentUser);
+```tsx title="components/user-posts.tsx"
+import { useFetch } from "@hyper-fetch/react";
+import { getCurrentUser, getUserPosts } from "../api/users";
 
+export function UserPosts() {
+  const { data: user, loading: loadingUser } = useFetch(getCurrentUser);
+
+  // highlight-start
+  // The placeholder 0 keeps the request typed; nothing is sent until user exists
   const {
-    data: products,
+    data: posts,
     loading,
     error,
-    // highlight-start
-  } = useFetch(getUserProducts.setParams({ userId: user?.id }), {
+  } = useFetch(getUserPosts.setParams({ userId: user?.id ?? 0 }), {
     disabled: !user,
   });
   // highlight-end
 
-  return (
-    <div className="flex flex-col gap-4">
-      {user ? (
-        <div className="p-4 border rounded-md">
-          <p className="font-bold">User Details:</p>
-          <p>ID: {user.id}</p>
-          <p>Name: {user.name}</p>
-        </div>
-      ) : (
-        <p>Loading user...</p>
-      )}
+  if (loadingUser) return <p>Loading user...</p>;
 
-      {loading && <p>Loading products...</p>}
-      {error && <p className="text-red-500">Error loading products!</p>}
-      {products && (
-        <div className="p-4 border rounded-md">
-          <p className="font-bold">Products:</p>
-          <ul className="list-disc list-inside">
-            {products.map((product) => (
-              <li key={product.id}>{product.name}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+  return (
+    <div className="flex flex-col gap-2">
+      <h2 className="font-bold">{user?.name}</h2>
+      {loading && <p>Loading posts...</p>}
+      {error && <p className="text-red-500">{error.message}</p>}
+      <ul className="list-disc list-inside">
+        {posts?.map((post) => (
+          <li key={post.id}>{post.title}</li>
+        ))}
+      </ul>
     </div>
   );
 }
 ```
 
-In this example:
+Never call a hook conditionally (`if (user) useFetch(...)`): it breaks the rules of hooks. `disabled` keeps the hook
+mounted and only holds the request.
 
-1. The first `useFetch` call fetches the current user.
-2. The second `useFetch` call for products is **disabled** as long as `user` is `undefined`.
-3. Once the first request succeeds and `user` data is available, the `disabled: !user` condition becomes `false`.
-4. The second request then automatically executes with the `userId` from the `user` object.
+---
 
-This pattern ensures that you don't try to fetch data with missing parameters, which would likely result in an error.
+## Render a child once the data exists
+
+When the second request lives in its own part of the screen, render that part only after the first response. The child
+receives real values, so no placeholder param and no `disabled` flag are needed.
+
+```tsx title="components/user-page.tsx"
+export function UserPage() {
+  const { data: user } = useFetch(getCurrentUser);
+
+  if (!user) return <p>Loading user...</p>;
+  return <PostsList userId={user.id} />;
+}
+
+function PostsList({ userId }: { userId: number }) {
+  const { data: posts } = useFetch(getUserPosts.setParams({ userId }));
+
+  return <ul>{posts?.map((post) => <li key={post.id}>{post.title}</li>)}</ul>;
+}
+```
+
+Both requests are cached, so going back to the page renders the user and the posts at once while they revalidate in the
+background.
+
+---
+
+## Which approach to use
+
+| Situation                                                     | Use                     |
+| ------------------------------------------------------------- | ----------------------- |
+| Both results render in one component                          | `disabled`              |
+| The dependent data has its own section or component           | A child component       |
+| The second request waits for a user action, not for data      | [`useSubmit`](/docs/guides/react/basics/submitting) |
+| Two requests do not depend on each other                      | Two `useFetch` calls, they run in parallel |
+
+Each step of a chain waits for the previous response, so a chain of three requests costs three round trips. When the
+server can return the related data in one response, that is faster than any client-side chain.
 
 ---
 
 :::success Congratulations!
 
-You've mastered handling dependent requests in HyperFetch!
+You can now chain requests in React without effects.
 
-- You can **chain requests** by using data from one request to trigger another.
-- You can use the **`disabled` option** for conditional fetching.
-- You can build **complex data-fetching logic** in a declarative and readable way.
+- You can hold a request with **`disabled`** until its data exists.
+- You can move the dependent request into a **child component**.
+- You know that a disabled hook sends nothing and reports **`loading: false`**.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="useFetch reference"
+  description="The disabled option and every other setting of the hook."
+  to="/docs/react/hooks/use-fetch#wait-for-another-request"
+/>
+
+- Guides: [fetching data](/docs/guides/react/basics/fetching), [prefetching](/docs/guides/core/advanced/prefetching).
+- Runnable examples: [dependent requests](/examples/data-fetching/dependent-requests),
+  [parallel requests](/examples/data-fetching/parallel-requests),
+  [Rick and Morty explorer](/examples/apps/rick-and-morty).

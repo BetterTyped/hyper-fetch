@@ -5,131 +5,111 @@ description: "Use HyperFetch in Electron. It runs in the renderer like a browser
 sidebar_label: Electron
 ---
 
-**`Electron`** is also supported by `HyperFetch`. This library was designed to work with many environments, which is
-why we kept the structure of the base library very generic and modular. While `HyperFetch` works out-of-the-box in
-Electron's renderer process due to its browser-like nature, you can leverage Electron's APIs for more robust
-integrations.
+# Electron
 
-:::secondary What you'll learn
+HyperFetch runs in Electron's renderer process like in a [browser](/docs/react/environments/browser), with no setup.
+Browser events can be unreliable in Electron, so you can send online and focus state from the main process instead and
+feed it to the client's [`AppManager`](/docs/core/managers).
 
-- How to handle online/offline status using `is-online` in the main process.
-- How to manage application focus/blur states with `BrowserWindow` events.
+:::tip Purpose
+
+1. **Works as is** in the renderer process.
+2. **Accurate online state**: check real connectivity in the main process.
+3. **Window focus**: use `BrowserWindow` events instead of DOM events.
 
 :::
 
 ---
 
-## Online / Offline status handling
+## 1. Send the state from the main process
 
-The default events that handle online/offline status in the library are based on the events available in the web browser
-environment. These work in Electron but can sometimes be unreliable for determining actual internet connectivity. For a
-more accurate connection status, you can use Electron's utilities in the main process and communicate with the renderer
-process where `HyperFetch` is running.
+`is-online` checks real connectivity; `BrowserWindow` reports focus. Send both to the renderer over IPC.
 
-For example, you can use a library like `is-online` in the main process to periodically check for a connection and
-notify the renderer process via IPC.
+```ts title="main/app-state.ts"
+import type { BrowserWindow } from "electron";
+import isOnline from "is-online";
 
-**Main Process (`main.js`)**
+export const sendAppState = (window: BrowserWindow) => {
+  let online: boolean | null = null;
 
-```javascript
-// In your main electron file
-import { BrowserWindow } from 'electron';
-import isOnline from 'is-online';
-
-// This is an example of how you can check for online status in the main process
-// and send it to the renderer process.
-export const setupOnlineListener = (mainWindow: BrowserWindow) => {
-  let online = false;
   setInterval(async () => {
-    const isOnlineStatus = await isOnline();
-    if (online !== isOnlineStatus) {
-      online = isOnlineStatus;
-      mainWindow.webContents.send('online-status', online);
-    }
+    const next = await isOnline();
+    if (next !== online) window.webContents.send("app:online", (online = next));
   }, 5000);
-}
+
+  window.on("focus", () => window.webContents.send("app:focused", true));
+  window.on("blur", () => window.webContents.send("app:focused", false));
+};
 ```
 
-Then, in your renderer process, you can set up your `Client` to listen for these events. Remember to handle
-`contextIsolation` by exposing `ipcRenderer` via a preload script.
+---
 
-**Renderer Process**
+## 2. Expose it in the preload script
 
-```tsx
-import { Client, AppManager } from "@hyper-fetch/core";
-import { ipcRenderer } from "electron"; // Assuming exposed via preload script
+With `contextIsolation` on, the renderer cannot import `ipcRenderer`. Expose a small subscribe function instead.
 
-export const client = new Client({
-  url: environment.serverUrl,
-  appManager: () =>
-    new AppManager({
-      initiallyOnline: navigator.onLine,
-      onlineEvent: (setOnline) => {
-        const onlineListener = (event, isOnline: boolean) => setOnline(isOnline);
-        ipcRenderer.on("online-status", onlineListener);
+```ts title="preload.ts"
+import { contextBridge, ipcRenderer } from "electron";
 
-        return () => {
-          ipcRenderer.removeListener("online-status", onlineListener);
-        };
-      },
-    }),
+contextBridge.exposeInMainWorld("appState", {
+  subscribe: (
+    channel: "app:online" | "app:focused",
+    callback: (value: boolean) => void,
+  ) => {
+    const listener = (_event: unknown, value: boolean) => callback(value);
+    ipcRenderer.on(channel, listener);
+    return () => ipcRenderer.removeListener(channel, listener);
+  },
 });
 ```
 
 ---
 
-## Application focus / blur state
+## 3. Connect the client
 
-Similarly to the online/offline status, you can handle application focus and blur states more reliably by using
-Electron's `BrowserWindow` events from the main process rather than the browser-based `window` events.
-
-**Main Process (`main.js`)**
-
-```javascript
-// In your main electron file
-import { BrowserWindow } from 'electron';
-
-export const setupFocusListeners = (mainWindow: BrowserWindow) => {
-  mainWindow.on('focus', () => {
-    mainWindow.webContents.send('window-focused');
-  });
-
-  mainWindow.on('blur', () => {
-    mainWindow.webContents.send('window-blurred');
-  });
-}
-```
-
-Then, you can listen for these events in your renderer process and configure the `AppManager`.
-
-**Renderer Process**
-
-```tsx
-import { Client, AppManager } from "@hyper-fetch/core";
-import { ipcRenderer } from "electron"; // Assuming exposed via preload script
+```ts title="renderer/api/client.ts"
+import { AppManager, Client } from "@hyper-fetch/core";
 
 export const client = new Client({
-  url: environment.serverUrl,
+  url: "https://api.example.com",
   appManager: () =>
     new AppManager({
-      focusEvent: (setFocused) => {
-        const focusListener = () => setFocused(true);
-        const blurListener = () => setFocused(false);
-
-        ipcRenderer.on("window-focused", focusListener);
-        ipcRenderer.on("window-blurred", blurListener);
-
-        return () => {
-          ipcRenderer.removeListener("window-focused", focusListener);
-          ipcRenderer.removeListener("window-blurred", blurListener);
-        };
-      },
+      onlineEvent: (setOnline) =>
+        window.appState.subscribe("app:online", setOnline),
+      focusEvent: (setFocused) =>
+        window.appState.subscribe("app:focused", setFocused),
     }),
 });
 ```
 
-:::success That's it!
+Each event returns the unsubscribe function, so the listeners are removed when `client.clear()` runs. Declare
+`window.appState` in a `.d.ts` file to type it.
 
-Your app is now ready to fully use all of the features of HyperFetch.
+---
+
+:::secondary Summary
+
+1. HyperFetch works in the renderer with no setup.
+2. For accurate state, send connectivity and focus from the main process over IPC.
+3. Pass them to the client through `onlineEvent` and `focusEvent` of a custom `AppManager`.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="useAppManager"
+  description="Read the online and focus state in components."
+  to="/docs/react/hooks/use-app-manager"
+/>
+
+<LinkCard
+  type="guides"
+  title="Offline"
+  description="Keep requests while offline and send them when the network returns."
+  to="/docs/guides/core/advanced/offline"
+/>
+
+- Runnable example: [offline queue](/examples/offline/offline-queue).
+- Related: [Managers](/docs/core/managers), [React Native](/docs/react/environments/react-native).

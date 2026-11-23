@@ -4,19 +4,18 @@ title: Realtime Database with the Firebase Admin SDK
 description: Read and write the Firebase Realtime Database from Node.js with the Admin SDK, using typed get, set, push, update and remove requests and queries.
 sidebar_label: Realtime Database
 ---
+
 # Realtime Database with the Firebase Admin SDK
 
-Realtime Database operations from Node.js through the firebase admin sdk become HyperFetch requests with a Realtime
-Database `method`. They behave like the [web package](/docs/integrations/adapter-firebase/realtime), with the Admin SDK
-underneath. `initializeApp` needs a `databaseURL` for the Realtime Database.
-
----
+Each Realtime Database operation from Node.js is a request with a Realtime Database `method`, run by the Admin SDK.
+Methods, lists and queries match the [web Realtime Database page](/docs/integrations/adapter-firebase/realtime), so this
+page shows the server setup and the differences.
 
 :::tip Purpose
 
-1.  **Read** values and lists with `get`.
-2.  **Write** with `set`, `push`, `update` and `remove`, with the payload typed per request.
-3.  **Query** lists with ordering, limits and cursors.
+1. **Read** values and lists with `get`.
+2. **Write** with `set`, `push`, `update` and `remove`, with the payload typed per request.
+3. **Query** lists with ordering, limits and cursors.
 
 :::
 
@@ -24,101 +23,170 @@ underneath. `initializeApp` needs a `databaseURL` for the Realtime Database.
 
 ## Setup
 
-```ts
-import { Client } from "@hyper-fetch/core";
+Pass the Admin SDK Realtime Database instance to `FirebaseAdminAdapter`. `initializeApp` needs a `databaseURL`.
+
+```ts title="server/firebase.ts"
+import { createClient } from "@hyper-fetch/core";
 import { FirebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
 import { initializeApp } from "firebase-admin/app";
 import { getDatabase } from "firebase-admin/database";
 
 initializeApp({ databaseURL: process.env.FIREBASE_DATABASE_URL });
 
-export const client = new Client({ url: "" }).setAdapter(FirebaseAdminAdapter(getDatabase()));
+export const client = createClient({ url: "" }).setAdapter(
+  FirebaseAdminAdapter(getDatabase()),
+);
 
-type Session = { userId: string; lastSeen: number };
+export type Session = { userId: string; lastSeen: number };
 ```
 
 ---
 
 ## Methods
 
-| Method   | `data`                           | `extra`                       |
-| -------- | -------------------------------- | ----------------------------- |
-| `get`    | the value, or a list             | `ref`, `snapshot`             |
-| `set`    | the payload                      | `ref`                         |
-| `push`   | the payload plus the new `__key` | `ref` of the new child, `key` |
-| `update` | the payload                      | `ref`                         |
-| `remove` | `null`                           | `ref`                         |
+The same five methods as the [web package](/docs/integrations/adapter-firebase/realtime#methods), with `get` as the
+default and the same `data` and `extra`.
 
-`get` is the default, so a request without `method` reads.
+### Read
 
-```ts
-const getSessions = client.createRequest<{ response: (Session & { __key: string })[] | null }>()({
+```ts title="server/sessions.ts"
+export const getSessions = client.createRequest<{
+  response: (Session & { __key: string })[] | null;
+}>()({
   endpoint: "sessions",
 });
+```
 
-const startSession = client.createRequest<{ response: Session & { __key: string }; payload: Session }>()({
+### Write
+
+```ts title="server/sessions.ts"
+export const startSession = client.createRequest<{
+  response: Session & { __key: string };
+  payload: Session;
+}>()({
   endpoint: "sessions",
   method: "push",
 });
 
-const touchSession = client.createRequest<{ response: Partial<Session>; payload: Partial<Session> }>()({
+export const touchSession = client.createRequest<{
+  response: Partial<Session>;
+  payload: Partial<Session>;
+}>()({
   endpoint: "sessions/:sessionId",
   method: "update",
 });
 
-const endSession = client.createRequest<{ response: null }>()({
-  endpoint: "sessions/:sessionId",
-  method: "remove",
+const { data: session } = await startSession.send({
+  payload: { userId: "u1", lastSeen: Date.now() },
 });
-
-const { data: session } = await startSession.send({ payload: { userId: "u1", lastSeen: Date.now() } });
-await touchSession.setParams({ sessionId: session!.__key }).send({ payload: { lastSeen: Date.now() } });
+await touchSession
+  .setParams({ sessionId: session!.__key })
+  .send({ payload: { lastSeen: Date.now() } });
 ```
-
-`set` replaces the value at the path, and a `null` payload deletes it.
 
 ---
 
 ## Values and lists
 
-As in the web package, `get` returns an odd-segment path (`sessions`) as an array of children, each spread into an
-object with its `__key`, or `null` when empty. An even-segment path (`sessions/abc`) returns the stored value as is.
-Lists should hold objects.
+Same as the [web package](/docs/integrations/adapter-firebase/realtime#values-and-lists): an odd-segment path
+(`sessions`) returns an array of children with their `__key`, or `null` when empty, and an even-segment path
+(`sessions/abc`) returns the stored value.
 
 ---
 
 ## Querying
 
-```ts
+The chain and its typing match the [web package](/docs/integrations/adapter-firebase/realtime#querying). Import
+`RealtimeDBQueryParams` from `@hyper-fetch/firebase-admin`. `orderByChild` needs an `.indexOn` rule, and a missing one
+arrives in `response.error`.
+
+```ts title="server/sessions.ts"
 import type { RealtimeDBQueryParams } from "@hyper-fetch/firebase-admin";
 
-const getStaleSessions = client.createRequest<{
+export const listSessions = client.createRequest<{
   response: (Session & { __key: string })[] | null;
   queryParams?: RealtimeDBQueryParams<Session>;
 }>()({
   endpoint: "sessions",
   method: "get",
 });
+```
 
-const { data } = await getStaleSessions.send({
+### Pagination
+
+```ts title="server/sessions.ts"
+const page1 = await listSessions.send({
   queryParams: (c) => c.orderByChild("lastSeen").limitToFirst(100),
 });
-const last = data?.at(-1);
-const next = await getStaleSessions.send({
-  queryParams: (c) => c.orderByChild("lastSeen").startAfter(last!.lastSeen, last!.__key).limitToFirst(100),
+const last = page1.data?.at(-1);
+
+const page2 = await listSessions.send({
+  queryParams: (c) =>
+    c
+      .orderByChild("lastSeen")
+      .startAfter(last!.lastSeen, last!.__key)
+      .limitToFirst(100),
 });
 ```
 
-A query can have one `orderBy*`, and `orderByChild` needs an `.indexOn` rule; a missing one arrives in
-`response.error`. The full list of chain methods is on the
-[web Realtime Database page](/docs/integrations/adapter-firebase/realtime#querying).
+### Constraints as data
+
+The `$`-helpers (`$orderByChild`, `$limitToFirst`, `$equalTo` and the cursors) are exported from
+`@hyper-fetch/firebase-admin` and work as on the [web](/docs/integrations/adapter-firebase/realtime#constraints-as-data).
+
+---
+
+## Realtime Database in your app
+
+Send requests from route handlers, server actions or jobs, after you checked that the caller may do it. A cleanup job,
+for example:
+
+```ts title="server/jobs/cleanup.ts"
+import { listSessions } from "../sessions";
+
+export async function findStaleSessions(olderThan: number) {
+  const { data, error } = await listSessions.send({
+    queryParams: (c) => c.orderByChild("lastSeen").endAt(olderThan),
+  });
+
+  return error ? [] : (data ?? []);
+}
+```
+
+---
+
+## Web and admin differences
+
+Realtime Database requests work the same in [`@hyper-fetch/firebase`](/docs/integrations/adapter-firebase/realtime),
+except:
+
+| Topic                      | `@hyper-fetch/firebase` (web)    | `@hyper-fetch/firebase-admin` (server)            |
+| -------------------------- | -------------------------------- | ------------------------------------------------- |
+| Database instance          | `getDatabase(app)` from `firebase/database` | `getDatabase()` from `firebase-admin/database`, with `databaseURL` in `initializeApp` |
+| Security rules             | enforced for the signed-in user  | bypassed                                          |
 
 ---
 
 :::secondary Summary
 
-1.  `get` reads; `set` and `update` resolve with the payload, `push` adds `__key`, and `remove` resolves with `null`.
-2.  Odd-segment paths return lists of objects with `__key`; even-segment paths return the value.
-3.  Queries are a `queryParams` callback, and cursors take a value and an optional tie-breaking key.
+- `get` reads; `set` and `update` resolve with the payload, `push` adds `__key`, and `remove` resolves with `null`.
+- Odd-segment paths return lists of objects with `__key`; even-segment paths return the value.
+- Queries are a `queryParams` callback, and cursors take a value and an optional tie-breaking key.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="Web Realtime Database page"
+  description="Every method and query constraint in detail."
+  to="/docs/integrations/adapter-firebase/realtime"
+/>
+
+<LinkCard
+  type="docs"
+  title="Realtime listening"
+  description="React to Realtime Database changes from Node.js workers."
+  to="/docs/integrations/adapter-firebase-admin/realtime-queries"
+/>

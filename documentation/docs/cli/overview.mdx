@@ -5,109 +5,98 @@ description: The HyperFetch CLI generates a typed SDK from your OpenAPI or Swagg
 sidebar_label: Overview
 ---
 
-CLI is a tool that allows to automate some of the hyper-fetch features. It's a great way to get started with HyperFetch
-and to automate your workflow by generating a typed SDK from your API schema.
+# HyperFetch CLI
 
-```bash
-npx @hyper-fetch/cli@latest
+<Lead>
+
+**Turn your OpenAPI schema into a typed SDK with one command.** `@hyper-fetch/cli` writes one TypeScript file with
+every model and operation, and you keep your own client for the base URL, auth and plugins.
+
+</Lead>
+
+```bash title="terminal"
+npx @hyper-fetch/cli@latest generate --template openapi --url ./openapi.json \
+  --fileName api.sdk.ts
 ```
 
-This basic command will open the wizard to guide you through the setup process.
+```ts title="src/api/index.ts"
+import { createClient } from "@hyper-fetch/core";
+import { createSdk } from "./api.sdk"; // generated
+
+export const client = createClient({ url: "https://api.example.com" });
+export const sdk = createSdk(client);
+
+// GET /pet/:petId, typed from the schema
+const { data, error } = await sdk.pet.$petId.$get.send({
+  params: { petId: 1 },
+});
+```
+
+<Flow caption="Regenerate when the API changes, and the compiler shows every call that broke.">
+  <FlowStep title="Schema" icon="file">
+    OpenAPI 3 or Swagger JSON
+  </FlowStep>
+  <FlowStep title="generate" icon="terminal" active>
+    Reads it once
+  </FlowStep>
+  <FlowStep title="api.sdk.ts" icon="code">
+    Models and operations
+  </FlowStep>
+  <FlowStep title="Client" icon="plug">
+    Base URL, auth, plugins
+  </FlowStep>
+  <FlowStep title="Typed requests" icon="send">
+    Checked by the compiler
+  </FlowStep>
+</Flow>
 
 ---
 
-:::tip Purpose
+## Commands
 
-1.  **Generate code** from your OpenAPI or Swagger schema.
-2.  **Configure once** with an `api.json` file that decides where generated files go.
-3.  **Automate your workflow** by regenerating the SDK in scripts and CI.
+<Tiles>
+  <Tile title="generate" icon="terminal" meta="command" to="/docs/cli/commands/generate">
+    Writes the SDK file from a schema URL or a local JSON file.
+  </Tile>
+  <Tile title="init" icon="wrench" meta="command" to="/docs/cli/commands/init">
+    Creates `api.json` and the folder generated files go to.
+  </Tile>
+</Tiles>
 
-:::
+`generate` runs `init` with its defaults when `api.json` is missing, so one command is enough to start. Run the CLI
+without a command to pick one from a menu. Every flag you leave out is asked for in a prompt, so pass all of them in
+scripts and CI.
 
 ---
 
-## Usage
+## Before you start
 
-You can use it in two ways - by going through wizard or passing individual arguments.
+- A `package.json` and a `tsconfig.json` in the working directory (`--cwd`).
+- A schema in JSON. Convert YAML before generating.
+- `@hyper-fetch/core` in your dependencies, since the generated file imports it.
 
-### Wizard
+Install the CLI as a dev dependency to pin its version, so regenerated output does not change between releases. The
+binary is then called `hyper-fetch`.
 
-To use the wizard, run the following command:
-
-```bash
-npx @hyper-fetch/cli@latest
-```
-
-It lets you pick a command (`init` or `generate`) and asks for every value it needs.
-
-### Custom arguments
-
-You can also pass individual arguments to the command. Which is useful for the scripts.
-
-```bash
-npx @hyper-fetch/cli@latest {command}
-```
-
-Example:
-
-```bash
-npx @hyper-fetch/cli@latest generate
+```bash npm2yarn2pnpm
+npm install --save-dev @hyper-fetch/cli
 ```
 
 ---
 
-## Auto-Initialization
+## Next
 
-The CLI automatically initializes your project when needed. If you run any command (like `generate`) on a project that
-hasn't been set up yet (no `api.json` config file), the CLI will automatically run the `init` flow first, then proceed
-to your original command.
-
-This means you can jump straight to generating code without running `init` manually:
-
-```bash
-# This "just works" — auto-inits if api.json is missing, then generates
-npx @hyper-fetch/cli@latest generate --url https://api.example.com/openapi.json
-```
-
-The auto-init creates:
-- An `api.json` configuration file in the working directory (`--cwd`)
-- A `src/api` directory for generated code
-- Default path aliases for api, hooks, components, and lib directories
-
-:::info
-
-If you prefer to configure things manually first, you can still run `init` separately. The auto-init only triggers
-when `api.json` is not found.
-
-:::
-
----
-
-## More
-
-We will be covering individual commands in the next sections.
-
-<LinkCard
-  type="docs"
-  title="Initialize a cli project"
-  description="Learn how to initialize new cli project"
-  to="/docs/cli/commands/init/"
-/>
-
-<LinkCard
-  type="docs"
-  title="Generate sdk"
-  description="Learn how to generate sdk from your api"
-  to="/docs/cli/commands/generate/"
-/>
-
----
-
-:::success Congratulations!
-
-You've learned how to use the CLI in HyperFetch!
-
-1.  You can use the wizard to guide you through the setup process.
-2.  You can pass individual arguments to the command for more control.
-
-:::
+<Tiles>
+  <Tile title="Generate an SDK" icon="terminal" to="/docs/cli/commands/generate">
+    Flags, generated output and CI recipes.
+  </Tile>
+  <Tile title="OpenAPI to TypeScript" icon="learn" to="/docs/cli/openapi-typescript-client">
+    Compare generators, then go from a schema to a component.
+  </Tile>
+  <Tile title="OpenAPI codegen example" icon="play" to="/examples/integrations/openapi-codegen">
+    A runnable project with a generated SDK.
+  </Tile>
+  <Tile title="SDK" icon="braces" meta="createSdk" to="/docs/core/sdk">
+    How SDK requests are built, configured and extended.
+  </Tile>
+</Tiles>

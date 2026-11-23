@@ -5,72 +5,85 @@ description: The init command sets up HyperFetch in your project with a default 
 sidebar_label: Initialize
 ---
 
-The `init` command is a tool that allows you to initialize a new HyperFetch project. It will create a new project with
-the default configuration.
+The `init` command creates the API folder and an `api.json` file that tells [`generate`](/docs/cli/commands/generate)
+where to write the SDK and how to import it.
 
 ```bash
-npx @hyper-fetch/cli@latest init
+npx @hyper-fetch/cli@latest init --yes
 ```
-
----
 
 :::tip Purpose
 
-By using the `init` command, you can:
-
-1.  **Guided Setup**: Initialize your project with an interactive wizard.
-2.  **Centralized Configuration**: Create an `api.json` to manage all code generation settings.
-3.  **Path Aliases**: Automatically detect and configure TypeScript/JavaScript path aliases.
-4.  **Foundation for Codegen**: Prepare your project for the `generate` command.
+1.  **Pick the output folder** once, in `api.json`.
+2.  **Detect path aliases** from `tsconfig.json`, so imports match your project.
+3.  **Prepare** the project for `generate`.
 
 :::
 
 ---
 
-## Usage
+## What it creates
 
-You can use it by going through wizard which will ask you about the project's configuration.
+Without `--yes`, `init` asks for the main directory (`src`, `app` or another path) and the API folder name (`api`).
+With `--yes` it uses `src` and `api`. It creates the folder and writes `api.json` in the working directory:
 
-To use the wizard, run the following command:
-
-```bash
-npx @hyper-fetch/cli@latest init
+```text title="Project after init"
+my-app
+├── api.json
+├── package.json
+├── tsconfig.json
+└── src
+    └── api
 ```
 
-It will guide you through the process of generating the `api.json` configuration. This file will be used by other
-commands and will allow us to generate files in the correct locations with correct imports paths.
+```json title="api.json"
+{
+  "tsx": true,
+  "aliases": {
+    "api": "@/api",
+    "hooks": "@/hooks",
+    "ui": "@/components/ui",
+    "components": "@/components",
+    "lib": "@/lib"
+  }
+}
+```
+
+- **Aliases** come from `compilerOptions.paths` in `tsconfig.json`. With `"@/*": ["./src/*"]` the API folder is
+  `@/api`. Without a matching path alias, the value is the folder relative to `baseUrl`, such as `src/api`.
+- **`api`** is the folder `generate` writes to. The other aliases are reserved for future commands.
+- **`tsx: true`** gives a `.ts` file when the file name has no extension, `false` a `.js` file.
+
+Running `init` again keeps the values of an existing `api.json` and fills in missing ones.
+
+---
+
+## Flags
+
+| Flag     | Alias | Default           | Description                                    |
+| -------- | ----- | ----------------- | ---------------------------------------------- |
+| `--yes`  | `-y`  | `false`           | Skip the prompts and use `src` and `api`       |
+| `--cwd`  | `-c`  | current directory | Working directory with `package.json`          |
+| `--help` | `-h`  |                   | Print the flags                                |
+
+You can skip `init`: when `api.json` is missing, `generate` runs it with `--yes` defaults first.
+
+---
+
+:::secondary Summary
+
+- `init` creates the API folder and `api.json`. `--yes` uses `src/api`.
+- `aliases.api` decides where `generate` writes, resolved through your tsconfig paths.
+
+:::
+
+## Next steps
 
 <LinkCard
   type="docs"
-  title="Generate a client"
-  description="Learn how to generate code from your api with the `generate` command."
-  to="/docs/cli/commands/generate/"
+  title="Generate an SDK"
+  description="Write the typed SDK from your OpenAPI or Swagger schema."
+  to="/docs/cli/commands/generate"
 />
 
----
-
-## Available arguments
-
-| Flag           | Description                                                 |
-| -------------- | ----------------------------------------------------------- |
-| `-y`, `--yes`  | Skip the prompts and use the defaults (`src` and `api`)     |
-| `-c`, `--cwd`  | Working directory (default: the current directory)          |
-| `-h`, `--help` | Print the available arguments                               |
-
-Run the following command to print the arguments in your terminal:
-
-```bash
-npx @hyper-fetch/cli@latest init --help
-```
-
----
-
-:::success Congratulations!
-
-You've learned how to initialize a HyperFetch project!
-
-1.  You can use the wizard to guide you through the setup process.
-2.  Your project now has an `api.json` file to store configuration.
-3.  You're ready to use other commands like `generate`.
-
-:::
+<LinkCard type="docs" title="CLI overview" description="Commands, requirements and automatic setup." to="/docs/cli/overview" />

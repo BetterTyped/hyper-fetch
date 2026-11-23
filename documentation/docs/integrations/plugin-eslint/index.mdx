@@ -7,44 +7,35 @@ sidebar_label: Overview
 
 # ESLint plugin for typed data fetching requests
 
-[Read the API Reference »](/docs/api/plugin-eslint/Variables/rules.mdx)
-
-**`eslint-plugin-hyper-fetch`** is an eslint plugin for data fetching code written with HyperFetch. Its two rules check
-the generics you pass to `createClient` and `createRequest`, and report keys the factory does not know about, empty
-generics and generics that are not objects. Those are the mistakes TypeScript accepts without a word, and they cost you
-the types of the response.
-
----
+`eslint-plugin-hyper-fetch` catches typos, unknown keys, empty generics and non-object generics in the types you pass to
+`createClient` and `createRequest`. TypeScript accepts those mistakes without a word, and they cost you the types of
+the response.
 
 :::tip Purpose
 
-1.  **Catch generic typos**: `rsponse` instead of `response` is reported where you wrote it.
-2.  **Flag unknown keys**: anything outside `response`, `payload`, `error`, `queryParams`, `endpoint` and `params` on a
-    request, or `error` on a client.
-3.  **Stay fast**: the rules read syntax only, so no type-aware linting setup is needed.
+1. **Catch generic typos**: `rsponse` instead of `response` is reported where you wrote it.
+2. **Flag unknown keys**: anything outside `response`, `payload`, `error`, `queryParams`, `endpoint` and `params` on a
+   request, or `error` on a client.
+3. **No type-aware setup**: the rules read syntax only, so `parserOptions.project` is not needed.
 
 :::
 
 ---
 
-## Install the Plugin
+## Install
 
-The rules read TypeScript generics, so files must be parsed by [typescript-eslint](https://typescript-eslint.io).
-Install both packages:
+The rules read TypeScript generics, so files must be parsed by [typescript-eslint](https://typescript-eslint.io). The
+plugin works with ESLint 8.57 and newer, including ESLint 10.
 
 ```bash npm2yarn2pnpm
 npm install -D eslint eslint-plugin-hyper-fetch typescript-eslint
 ```
 
-The plugin works with ESLint 8.57 and newer, including ESLint 10. The rules only read syntax, so no type information
-(`parserOptions.project`) is needed.
-
 ---
 
-## Quick Start
+## Recommended config
 
-Add the recommended preset to your flat config (`eslint.config.mjs`, the only format in ESLint 10). It registers the
-plugin and turns on every rule as `"error"`:
+Add the recommended preset to your flat config. It registers the plugin and turns on every rule as `"error"`:
 
 ```js title="eslint.config.mjs"
 import hyperFetch from "eslint-plugin-hyper-fetch";
@@ -59,36 +50,66 @@ export default [
 ];
 ```
 
-Still on `.eslintrc`? Use the legacy preset, see [Configuration](/docs/integrations/plugin-eslint/configuration.mdx).
+To pick severities yourself, scope the preset or use `.eslintrc`, see [Configuration](/docs/integrations/plugin-eslint/configuration).
+
+---
+
+## Rules
+
+| Rule                                                                                  | Description                                                     | Recommended | Fixable |
+| ------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ----------- | ------- |
+| [`client-generic-types`](/docs/integrations/plugin-eslint/rules#client-generic-types)   | Checks the generic of `createClient` from `@hyper-fetch/core`  | Yes         | No      |
+| [`request-generic-types`](/docs/integrations/plugin-eslint/rules#request-generic-types) | Checks the generic of every `.createRequest<...>()` call       | Yes         | No      |
 
 ---
 
 ## Why typed requests need linting
 
 A typed request describes its data with a generic object. Every key in it is optional, because a request without a
-payload or query params is valid. TypeScript rejects a generic that has no known key at all, but once one key is right,
-a typo next to it is legal:
+payload or query params is valid. TypeScript rejects a generic with no known key at all, but once one key is right, a
+typo next to it is legal:
 
-```ts
-// No TypeScript error. `payload` is valid, so `rsponse` is just an extra key and `data` gets the default type.
-const updateUser = client.createRequest<{ rsponse: User; payload: UserInput }>()({
+```ts title="api/users.ts"
+// No TypeScript error: `payload` is valid, so `rsponse` is an extra key and
+// `data` gets the default type
+const updateUser = client.createRequest<{
+  rsponse: User;
+  payload: UserInput;
+}>()({
   endpoint: "/users/:id",
   method: "PATCH",
 });
 ```
 
-Nothing fails until someone reads `data` and finds it has no fields. The lint rule reports `rsponse` as an unexpected
-generic key in the editor, before the code runs. The [rules page](./rules.mdx) lists everything each rule checks.
-
-This is the same idea as typed request linting in any data fetching library: the type system checks values, and a lint
-rule checks the shape of the type you declared.
+Nothing fails until someone reads `data` and finds it has no fields. The lint rule reports `rsponse` in the editor,
+before the code runs.
 
 ---
 
-:::note When it's helpful
+:::secondary Summary
 
-- Teams where many people write requests, and a typo in one generic would go unnoticed in review.
-- Codebases that type every request by hand rather than generating them.
-- Projects moving to [Oxlint](../plugin-oxlint/index.mdx), which has the same rules under the same ids.
+- `eslint-plugin-hyper-fetch` checks the generics of `createClient` and `createRequest`.
+- `hyperFetch.configs.recommended` turns both rules on as `"error"` in flat config.
+- Parse TypeScript with typescript-eslint, no type information is needed.
 
 :::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="integrations"
+  title="Rules"
+  description="What each rule reports and accepts, with incorrect and correct code."
+  to="/docs/integrations/plugin-eslint/rules"
+/>
+<LinkCard
+  type="integrations"
+  title="Oxlint plugin"
+  description="The same rules under the same ids for Oxlint."
+  to="/docs/integrations/plugin-oxlint"
+/>
+
+See the [API reference](/docs/api/plugin-eslint/Variables/configs) for the exported `configs` and `rules`, and
+[Request](/docs/core/request) for the generic keys a request accepts.

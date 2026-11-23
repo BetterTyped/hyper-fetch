@@ -7,22 +7,18 @@ sidebar_label: Quick Start
 
 # Quick start
 
-You will build a user list with an "add user" form against a public test API. By the end, the list loads with typed
-data, shows loading and error states, and refreshes after the form saves.
+<Lead>
 
-:::tip What you'll learn
+**Build a user list with an "add user" form against a public test API.** The list loads typed data, shows loading
+and error states, and refreshes after the form saves.
 
-1. **Define requests** once and share them across components.
-2. **Read data** with `useFetch`.
-3. **Write data** with `useSubmit` and refresh the list after it succeeds.
-
-:::
+</Lead>
 
 ---
 
 ## 1. Install
 
-```npm2yarn2pnpm
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/react
 ```
 
@@ -38,7 +34,9 @@ level, outside components, so every component shares the same cache.
 ```ts title="api.ts"
 import { createClient } from "@hyper-fetch/core";
 
-export const client = createClient({ url: "https://jsonplaceholder.typicode.com" });
+export const client = createClient({
+  url: "https://jsonplaceholder.typicode.com",
+});
 
 export type User = { id: number; name: string; email: string };
 
@@ -68,9 +66,11 @@ export const UsersList = () => {
   // highlight-next-line
   const { data, loading, error, refetch } = useFetch(getUsers);
 
-  // `loading` is also true while cached data refreshes, so show the spinner only without data
+  // `loading` is also true while cached data refreshes, so show the spinner
+  // only without data
   if (loading && !data) return <p>Loading users...</p>;
-  if (error && !data) return <button onClick={refetch}>Failed to load. Try again</button>;
+  if (error && !data)
+    return <button onClick={refetch}>Failed to load. Try again</button>;
 
   return (
     <ul>
@@ -107,19 +107,28 @@ export const AddUserForm = () => {
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     // highlight-start
-    const { success } = await submit({ payload: { name, email: `${name}@example.com` } });
+    const { success } = await submit({
+      payload: { name, email: `${name}@example.com` },
+    });
 
     if (success) {
       setName("");
-      client.cache.invalidate(getUsers); // every mounted useFetch(getUsers) refetches
+      // every mounted useFetch(getUsers) refetches
+      client.cache.invalidate(getUsers);
     }
     // highlight-end
   };
 
   return (
     <form onSubmit={onSubmit}>
-      <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Name" />
-      <button disabled={submitting}>{submitting ? "Saving..." : "Add user"}</button>
+      <input
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+        placeholder="Name"
+      />
+      <button disabled={submitting}>
+        {submitting ? "Saving..." : "Add user"}
+      </button>
       {error && <p>{error.message}</p>}
     </form>
   );
@@ -149,44 +158,38 @@ export const App = () => (
 );
 ```
 
-You now have typed data in components, deduplicated requests, a cache that survives remounts and a list that refreshes
-after a mutation, with no state management code.
+---
+
+## What just happened
+
+- The [client](/docs/core/client) holds the base URL and the cache. Each [request](/docs/core/request) carries its
+  endpoint and types, so the hooks need no generics.
+- [`useFetch`](/docs/react/hooks/use-fetch) sent `getUsers` once for every mounted list and kept the response in the
+  [cache](/docs/core/cache).
+- [`useSubmit`](/docs/react/hooks/use-submit) sent `createUser` on demand, and `client.cache.invalidate` refreshed every
+  list that reads `getUsers`.
 
 ---
 
-## Next steps
+## Next
 
-<div className="row">
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="useFetch options"
-      description="Params, dependencies, polling, refetch on focus and suspense."
-      to="/docs/react/hooks/use-fetch"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="guides"
-      title="Optimistic updates"
-      description="Show the change before the server answers and roll it back on failure."
-      to="/docs/guides/react/basics/optimistic-approach"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="guides"
-      title="Next.js data fetching"
-      description="Fetch on the server and hydrate the first render."
-      to="/docs/guides/react/basics/nextjs-data-fetching"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="promo"
-      title="Connect HyperFlow"
-      description="See every request your hooks send, with payloads, cache entries and timings."
-      to="/docs/hyper-flow/connecting"
-    />
-  </div>
-</div>
+<Tiles>
+  <Tile title="useFetch options" icon="send" to="/docs/react/hooks/use-fetch">
+    Params, dependencies, polling, refetch on focus, suspense.
+  </Tile>
+  <Tile title="Optimistic updates" icon="sparkles" to="/docs/guides/react/basics/optimistic-approach">
+    Show the change first, roll back on failure.
+  </Tile>
+  <Tile title="Next.js data fetching" icon="server" to="/docs/guides/react/basics/nextjs-data-fetching">
+    Fetch on the server and hydrate the first render.
+  </Tile>
+  <Tile title="Basic data fetching" icon="play" meta="example" to="/examples/getting-started/basic">
+    A finished version you can run in StackBlitz.
+  </Tile>
+  <Tile title="CRUD" icon="play" meta="example" to="/examples/mutations/crud">
+    Create, update and delete, written into the cached list.
+  </Tile>
+  <Tile title="Connect HyperFlow" icon="activity" to="/docs/hyper-flow/connecting">
+    See every request your hooks send, with timings.
+  </Tile>
+</Tiles>

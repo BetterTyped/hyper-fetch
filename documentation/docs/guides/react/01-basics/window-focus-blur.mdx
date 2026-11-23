@@ -6,122 +6,122 @@ sidebar_label: Window & Network Events
 
 # Window and Network Events
 
-Modern web applications often need to be aware of their environment. Does the user have the window focused? Is their
-network connection stable? HyperFetch provides several powerful options in `useFetch` to automatically handle data
-fetching based on these events, ensuring your app's data is fresh when it needs to be and that it behaves intelligently
-when the user returns to your app or reconnects to the internet.
+Data on screen gets old while the user is in another tab or offline. This guide refetches it when the user comes back,
+when the network returns, and pauses polling in the background, with options of
+[`useFetch`](/docs/react/hooks/use-fetch).
 
 :::secondary What you'll learn
 
-1.  How to automatically **re-fetch data on window focus**.
-2.  How to trigger refreshes on **network reconnection**.
-3.  The difference between **`refetchOnFocus`**, **`refetchOnBlur`**, and **`refetchOnReconnect`**.
-4.  How `refetchBlurred` affects background refreshing behavior.
-5.  How to **combine these options** for robust data synchronization.
+1.  How to **refetch on window focus** with `refetchOnFocus`.
+2.  How to **refetch after a reconnect** with `refetchOnReconnect`.
+3.  How to **pause polling** in background tabs with `refetchBlurred`.
+4.  What **`refetchOnBlur`** is for.
+5.  How to set these options **for the whole app**.
 
 :::
 
-## Live Demo
+---
 
-This interactive example demonstrates how the various window and network event options work. Toggle the switches and
-then try interacting with the browser window (e.g., switch to another tab and come back) or use your browser's developer
-tools to simulate being offline and online.
+## Refetch when the user comes back
 
-```tsx
-import { Time } from "@hyper-fetch/core"
-function WindowEventsDemo() {
-  const [options, setOptions] = React.useState({
-    refresh: true,
-    refreshTime: Time.SEC * 5,
+Turn on `refetchOnFocus` and `refetchOnReconnect` for data that other people change, such as an inbox or a shared
+board. Both are off by default.
+
+```tsx title="components/inbox.tsx"
+import { useFetch } from "@hyper-fetch/react";
+import { getMessages } from "../api/messages";
+
+export function Inbox() {
+  const { data: messages, onSuccess } = useFetch(getMessages, {
+    // highlight-start
     refetchOnFocus: true,
-    refetchOnBlur: false,
     refetchOnReconnect: true,
-    refetchBlurred: false,
+    // highlight-end
   });
-  const [logs, setLogs] = React.useState([]);
 
-  const addLog = (message) => {
-    const timestamp = new Date().toLocaleTimeString();
-    setLogs((prev) => [`[${timestamp}] ${message}`, ...prev].slice(0, 10));
-  };
-
-  const { data, onSuccess } = useFetch(getActivities, options);
-
-  onSuccess((res) => addLog(`Fetched: "${res.data[0].name}"`));
-
-  const toggleOption = (option) => {
-    setOptions((prev) => ({ ...prev, [option]: !prev[option] }));
-  };
-
-  const OptionToggle = ({ name, description }) => (
-    <div className="flex items-center justify-between py-2 border-b">
-      <div>
-        <p className="font-semibold">{name}</p>
-        <p className="text-sm text-gray-600">{description}</p>
-      </div>
-      <button
-        onClick={() => toggleOption(name)}
-        className={`px-4 py-2 rounded text-white ${options[name] ? "bg-green-500" : "bg-gray-500"}`}
-      >
-        {options[name] ? "ON" : "OFF"}
-      </button>
-    </div>
+  onSuccess(({ response }) =>
+    console.log(`Loaded ${response.data.length} messages`),
   );
 
   return (
-    <div className="border rounded-md">
-      <div className="p-4 border-b">
-        <h2 className="text-xl font-bold">Event Options</h2>
-        <OptionToggle name="refetchOnFocus" description="Refetch when you return to this tab." />
-        <OptionToggle name="refetchOnReconnect" description="Refetch when network connection is restored." />
-        <OptionToggle name="refetchOnBlur" description="Refetch when you leave this tab." />
-        <OptionToggle
-          name="refetchBlurred"
-          description="Allow regular refreshing (every 5s) even if tab is not focused."
-        />
-      </div>
-      <div className="p-4 bg-gray-50">
-        <h3 className="font-bold mb-2">Event Log (Last 10)</h3>
-        <div className="font-mono text-sm space-y-1">
-          {logs.map((log, i) => (
-            <p key={i}>{log}</p>
-          ))}
-        </div>
-      </div>
-    </div>
+    <ul>
+      {messages?.map((message) => (
+        <li key={message.id}>{message.subject}</li>
+      ))}
+    </ul>
   );
 }
 ```
 
-### Options Explained
+- Focus means the browser tab or window gains focus. In React Native it is the app returning to the foreground.
+- Each event sends the request at once, even when the cached data is still fresh, and restarts the polling countdown.
+- A disabled hook ignores the events.
 
-- **`refetchOnFocus`**: (Default: `false`) When set to `true`, data will be
-  automatically re-fetched whenever the user focuses the window (e.g., switches back to your browser tab). This is a
-  great way to ensure the data is fresh when the user returns to your app after some time away.
+---
 
-- **`refetchOnReconnect`**: (Default: `false`) If the user loses their network connection and later comes back online,
-  this option will automatically trigger a re-fetch. This helps your app gracefully recover from network interruptions.
+## Pause polling in the background
 
-- **`refetchOnBlur`**: (Default: `false`) When `true`, a re-fetch is triggered the moment the user leaves the window
-  (e.g., switches to another tab). This is less common but can be useful if you need to trigger some action or fetch
-  data in the background immediately upon user departure.
+With `refresh`, polling continues in background tabs, default `refetchBlurred: true`. Set it to `false` and the ticks
+are skipped while the window is blurred. Combine it with `refetchOnFocus` so the user never sees data older than one
+interval.
 
-- **`refetchBlurred`**: (Default: `true`) This option works in conjunction with interval-based refreshing (using
-  `refresh` and `refreshTime`). When `true`, interval-based refreshing will continue to run even when the tab is in the
-  background. Set to `false` to pause interval refreshing when the window is blurred (not focused) and save resources.
+```tsx title="Poll only while visible"
+const { data } = useFetch(getStats, {
+  refresh: true,
+  refreshTime: Time.SEC * 10,
+  refetchBlurred: false,
+  refetchOnFocus: true,
+});
+```
 
-By combining these options, you can create a data-fetching strategy that is both efficient and highly responsive to the
-user's context.
+---
+
+## Refetch when the user leaves
+
+`refetchOnBlur` sends the request when the window loses focus. It is rarely needed: one use is loading fresh data in the
+background as the user leaves, so it is already current when they come back, without a refetch on focus.
+
+---
+
+## Which option to use
+
+| Situation                                             | Options                                     |
+| ----------------------------------------------------- | ------------------------------------------- |
+| Data that others change while the user is away        | `refetchOnFocus: true`                      |
+| Mobile or unstable networks                           | `refetchOnReconnect: true`                  |
+| Polling dashboards                                    | `refetchBlurred: false` + `refetchOnFocus`  |
+| Data that only the current user changes               | None, invalidate after mutations instead    |
+
+To turn an option on everywhere, set it once on the [`Provider`](/docs/react/overview#global-defaults) with
+`config={{ useFetchConfig: { refetchOnFocus: true } }}`. Hook options still override it.
+
+Focus and network state come from the client's app manager, which reads browser events. In React Native and Electron
+connect it to the platform APIs first: see [React Native](/docs/react/environments/react-native) and
+[Electron](/docs/react/environments/electron).
 
 ---
 
 :::success Congratulations!
 
-You're now an expert in handling window and network events with HyperFetch!
+You can now keep data fresh when the user's context changes.
 
-- You can intelligently **re-fetch data** when a user returns to your application.
-- Your app can **gracefully handle** network disconnections and reconnections.
-- You understand the specific behaviors of **`refetchOnFocus`**, **`refetchOnBlur`**, and **`refetchOnReconnect`**.
-- You can control **background data polling** with the `refetchBlurred` option.
+- You can **refetch on focus** and **after a reconnect**.
+- You can **pause polling** in background tabs with `refetchBlurred: false`.
+- You know when **`refetchOnBlur`** is useful.
+- You can set these options **globally** on the `Provider`.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Auto-refreshing data"
+  description="Poll requests on an interval and refresh on demand."
+  to="/docs/guides/react/basics/refreshing"
+/>
+
+- Docs: [`useAppManager`](/docs/react/hooks/use-app-manager) reads focus and online state in components,
+  [offline requests](/docs/guides/core/advanced/offline).
+- Runnable examples: [refetch on focus](/examples/data-fetching/refetch-on-focus),
+  [cache playground](/examples/getting-started/cache-playground), [offline queue](/examples/offline/offline-queue).

@@ -1,245 +1,271 @@
 ---
 sidebar_position: 3
 title: Socket
-description: "The Socket class configures a real-time connection: URL, adapter, query params, reconnect timing and auth. Listeners and emitters are created from it."
+description: "The Socket owns one realtime connection: URL, adapter, query params, auth, reconnect policy and lifecycle events. Listeners and emitters come from it."
 sidebar_label: Socket
 ---
 
-[Read the API Reference »](/docs/api/sockets/Classes/Socket)
+# Socket
 
-**`Socket`** is the central class for configuring your server connection in the HyperFetch sockets module. It
-initializes all core subsystems and provides a unified way to create and manage listeners and emitters based on its
-configuration. By keeping all data and logic encapsulated within a single socket instance, you ensure that each socket
-remains isolated and independent from others.
+A **`Socket`** owns one connection to a realtime server. It holds the URL, the [adapter](/docs/sockets/adapter), the
+reconnect policy and the auth hook, and it creates the [listeners](/docs/sockets/listener) and
+[emitters](/docs/sockets/emitter) that use the connection. It is the realtime counterpart of the
+[Client](/docs/core/client): create one per server, at module level.
 
----
+```ts title="socket.ts"
+import { createSocketClient } from "@hyper-fetch/sockets";
+
+export const socket = createSocketClient({ url: "wss://api.example.com/ws" });
+
+export const onMessage = socket.createListener<{ text: string }>()({
+  topic: "chat",
+});
+export const sendMessage = socket.createEmitter<{ text: string }>()({
+  topic: "chat",
+});
+```
+
+`createSocketClient(options)` and `new Socket(options)` are the same. The WebSocket adapter connects as soon as the
+socket is created, default `autoConnect: true`, change it with `adapterOptions: { autoConnect: false }`.
 
 :::tip Purpose
 
-1. **Orchestrates** the components and flow of the sockets library
-2. Creates **listeners** and **emitters** to provide global setup and environment
-3. Isolates sockets from each other and their events
+1. **One connection per server**, shared by every listener and emitter created from it.
+2. **Fresh credentials** on every connection attempt with `onConnect`.
+3. **Automatic reconnects** with backoff, jitter, and network and focus handling.
+4. **Lifecycle events** for connection state, messages and errors.
 
 :::
 
 ---
 
-## Initialization
+## Pick the transport
 
-```tsx
-import { createSocketClient } from "@hyper-fetch/sockets";
+The adapter decides how the socket talks to the server. WebSocket is the default. Pass another adapter, such as
+Server-Sent Events, and your listeners keep working.
 
-export const socket = createSocketClient({ url: "ws://localhost:3000" });
-```
+```ts title="events.ts"
+import {
+  createSocketClient,
+  ServerSentEventsAdapter,
+} from "@hyper-fetch/sockets";
 
----
-
-## Features
-
-Here are the main features of the `Socket` class.
-
-### Adapters
-
-You can pick between two built-in modes for the data exchange:
-
-1. **WebSocket mode** (default)
-2. **Server Sent Events (SSE) mode**
-
-You can change it with the `SSE` adapter by passing it via the `adapter` constructor option:
-
-```tsx
-import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
-
-const socket = createSocketClient({
-  url: "http://localhost:3000",
+export const events = createSocketClient({
+  url: "https://api.example.com/events",
   adapter: ServerSentEventsAdapter(),
 });
 ```
 
----
-
-### Intercepting Events
-
-The Socket class provides callback methods for intercepting outgoing and incoming events. These are not a separate
-subsystem - they are chainable methods on the socket instance itself:
-
-- `onSend` — triggered before sending an event. Receives the emitter instance and must return it (optionally modified).
-
-```tsx
-new Socket({ url: "ws://localhost:3000" }).onSend(({ emitter }) => {
-  return emitter.setPayload({ ...emitter.payload, token: "1234567890" });
-});
-```
-
-- `onError` — triggered on error from socket.
-
-```tsx
-new Socket({ url: "ws://localhost:3000" }).onError(({ error }) => {
-  console.error("Socket error:", error);
-});
-```
-
-- `onMessage` — triggered on any received message. Receives the message data as `event`, the listener `topic` and the
-  adapter `extra` (the `MessageEvent`, or the subscription details of the tRPC and oRPC adapters) and must return the
-  transformed data.
-
-```tsx
-new Socket({ url: "ws://localhost:3000" }).onMessage(({ event, topic, extra }) => {
-  return { ...event, topic, receivedAt: extra.timeStamp };
-});
-```
-
-- `onConnect` — triggered before **every connection attempt**: the initial connection, automatic reconnects and manual
-  reconnects. Receives the connection details (`url`, `queryParams`, `adapterOptions`) together with the reconnection
-  `attempt` number and must return the connection, optionally modified. It can be async, which makes it the place to
-  resolve values that change over time - like access tokens - right when they are needed.
-
-```tsx
-new Socket({ url: "ws://localhost:3000" }).onConnect(async ({ connection, attempt }) => {
-  const token = await auth.getValidAccessToken({ forceRefresh: attempt > 0 });
-  return { ...connection, queryParams: { ...connection.queryParams, token } };
-});
-```
-
-You can modify received data, outgoing payloads or connection details with these callbacks before they are used by
-other sub-systems.
+The [Adapter](/docs/sockets/adapter) page lists the built-in adapters, their options and how to map another message
+format.
 
 ---
 
-### Query Params
+## Authenticate every connection attempt
 
-You can pass query parameters to the socket connection via the `queryParams` constructor option. They will be appended
-to the connection URL. `setQueryParams` replaces the defaults used by the **next** connection attempt - it does not
-reconnect on its own, so call `reconnect()` when the new values should apply to a live connection.
+`onConnect` runs before every attempt: the first connection, automatic reconnects and manual reconnects. It receives
+the connection (`url`, `queryParams`, `adapterOptions`) and the `attempt` number, and returns the connection to use. It
+can be async, so a reconnect never reuses an expired token.
 
-```tsx
+```ts title="socket.ts"
 export const socket = createSocketClient({
-  url: "ws://localhost:3000",
-  queryParams: { param1: [1, 2, 3], param2: "test" },
+  url: "wss://api.example.com/ws",
+}).onConnect(async ({ connection, attempt }) => {
+  // attempt is 0 for a fresh connection
+  const token = await getAccessToken({ forceRefresh: attempt > 0 });
+  return { ...connection, queryParams: { token } };
 });
-
-// Store new defaults and apply them right away
-socket.setQueryParams({ param1: [4, 5], param2: "updated" });
-socket.reconnect();
 ```
 
-For values that change over time, prefer the `onConnect` interceptor - it resolves them right before every connection
-attempt, so you never have to keep the socket in sync with your application state.
+Chain `onConnect` right after creating the socket, so it applies to the first connection. If it throws, the attempt
+fails, `onError` receives the error and the socket stays disconnected until you call `connect()` or `reconnect()`.
 
 ---
 
-### Changing the URL
+## Change query params or the URL at runtime
 
-`setUrl` replaces the URL used by the **next** connection attempt - just like `setQueryParams`, call `reconnect()` to
-apply it to a live connection. Listeners stay registered, so they keep receiving events from the new server.
+`setQueryParams` and `setUrl` change what the next attempt uses. Neither reconnects on its own, so call `reconnect()`
+to apply them to a live connection. Listeners stay registered and receive messages from the new connection.
 
-```tsx
-export const socket = createSocketClient({ url: "wss://eu.example.com/ws" });
-
-socket.setUrl("wss://us.example.com/ws");
-socket.reconnect();
-```
-
----
-
-### Authentication
-
-To exchange authenticated events, set up the `queryParams` parameter with authentication parameter or resolve the
-credentials for every connection attempt with `onConnect`.
-
-```tsx
-export const socket = createSocketClient({
-  url: "ws://localhost:3000",
-  queryParams: { authToken: "1234567890" },
-}).onConnect(({ connection }) => ({
-  ...connection,
-  queryParams: { authToken: authStore.getState().token },
-}));
-```
-
-<LinkCard
-  type="guides"
-  title="Authentication guide"
-  description="Learn how to set up authentication for your sockets."
-  to="/docs/guides/sockets/authentication"
-/>
-
----
-
-## Constructor Options
-
-The `Socket` constructor (and `createSocketClient` helper) accepts the following options:
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `url` | `string` | — | **Required.** URL of the server to connect to. |
-| `adapter` | `(() => Adapter) \| Adapter` | `WebsocketAdapter()` | Adapter instance or factory for the transport layer. |
-| `adapterOptions` | `object` | — | Adapter-specific options passed to the adapter on initialization. |
-| `queryParams` | `object \| string` | — | Query parameters appended to the connection URL. |
-| `reconnect` | `number` | `Infinity` | Maximum number of reconnection attempts in one outage. |
-| `reconnectTime` | `number` | `1000` | Minimum delay in milliseconds before a reconnection attempt. |
-| `maxReconnectTime` | `number` | `30000` | Maximum delay in milliseconds before a reconnection attempt. |
-| `minUptime` | `number` | `5000` | How long in milliseconds a connection stays up before the attempt counter resets. |
-| `connectionTimeout` | `number` | `5000` | How long in milliseconds one connection attempt may take until the connection is ready. |
-| `reconnectDelay` | `function` | jittered backoff | `({ attempt, elapsed, reason }) => number \| null` - replaces the backoff, `null` stops reconnecting. |
-| `shouldReconnect` | `function` | 1000 stays closed | `({ code, reason, error }) => boolean` - decides which lost connections are retried. |
-
----
-
-## Connection Management
-
-The `Socket` class provides methods for controlling the connection lifecycle. When a socket is not needed anymore, for
-example after a logout, call `destroy()`. It disconnects and removes the subscriptions the adapter made to the app
-manager, so nothing reconnects the socket later. An app manager passed in the options stays mounted, so it can be shared
-by other sockets.
-
-```tsx
-await socket.destroy();
-```
-
-```tsx
-const socket = createSocketClient({ url: "ws://localhost:3000" });
-
-await socket.connect();
-await socket.disconnect();
+```ts title="switch-region.ts"
+socket.setUrl("wss://eu.example.com/ws").setQueryParams({ tenant: "eu" });
 await socket.reconnect();
 ```
 
-`connect()` resolves immediately when the socket is already connected. Use `reconnect()` to establish a fresh
-connection (for example after changing query params).
+For values that change with your app state, such as a token or a tenant, prefer `onConnect`.
 
 ---
 
-## Lifecycle Callbacks
+## Tune reconnects
 
-You can register callbacks for connection lifecycle events. These are called in order whenever the corresponding event
-occurs.
+A lost connection comes back on its own. The delay before attempt `n` (from 0) is
+`reconnectTime + random(0, min(maxReconnectTime - reconnectTime, reconnectTime * 2 ** n))`, an exponential backoff with
+full jitter, so clients of a restarted server spread out.
 
-```tsx
-const socket = createSocketClient({ url: "ws://localhost:3000" });
+```ts title="socket.ts"
+import { createSocketClient, defaultShouldReconnect } from "@hyper-fetch/sockets";
 
-socket
-  .onConnected(() => {
-    console.log("Connected");
-  })
-  .onDisconnected(() => {
-    console.log("Disconnected");
-  })
-  .onReconnect(() => {
-    console.log("Reconnecting...");
-  })
-  .onReconnectFailed(() => {
-    console.log("Reconnection failed");
-  });
+export const socket = createSocketClient({
+  url: "wss://api.example.com/ws",
+  reconnect: 20, // attempts per outage
+  maxReconnectTime: 15_000,
+  // 4401 is an app-level "token rejected" close: retrying cannot fix it
+  shouldReconnect: (loss) => defaultShouldReconnect(loss) && loss.code !== 4401,
+});
 ```
+
+- A normal closure (`1000`) from the server stays closed. Every other loss is retried. Closes started by the client are
+  never retried.
+- Going offline drops the connection without counting attempts, and coming back online connects at once. Regaining
+  focus skips the rest of a pending delay.
+- `reconnectDelay: ({ attempt, elapsed, reason }) => number | null` replaces the backoff. Return `null` to stop.
+- A manual `reconnect()` is never refused by the `reconnect` limit.
+
+The [reconnection guide](/docs/guides/sockets/websocket-reconnection-and-errors) shows close codes, error handling and
+reconnect UI.
+
+---
+
+## Connect, disconnect and destroy
+
+```ts title="lifecycle.ts"
+// No-op when already connected
+await socket.connect();
+
+// A fresh connection, also after disconnect() or when attempts ran out
+await socket.reconnect();
+
+// Stays closed until connect() or reconnect()
+await socket.disconnect();
+
+// Closes and stops following the network, for logout or tenant switches
+await socket.destroy();
+```
+
+`destroy()` also removes the adapter's app manager subscriptions, so nothing connects the socket again. An `appManager`
+passed in the options stays mounted, because other sockets may share it.
+
+---
+
+## React to connection events
+
+The `on*` methods register permanent callbacks and return the socket, so you can chain them at setup. For callbacks
+that must be removed later, such as in a component, use `socket.events.*`, which return an unsubscribe function.
+
+```ts title="socket.ts"
+socket
+  .onConnected(() => console.log("open"))
+  .onDisconnected(() => console.log("closed"))
+  .onReconnect(() => console.log("reconnecting"))
+  .onReconnectFailed(() => console.log("gave up"))
+  .onError(({ error }) => console.error(error));
+
+const off = socket.events.onConnected(() => console.log("open"));
+off();
+```
+
+The current state is on the adapter: `socket.adapter.connected`, `socket.adapter.connecting` and
+`socket.adapter.reconnectionAttempts`. In React, `useListener` and `useEmitter` return it as `connected` and
+`connecting`.
+
+---
+
+## Intercept messages
+
+`onMessage` runs for every incoming message and returns the data delivered to listeners. `onSend` runs before every
+emit and returns the emitter to send. Both must return a value.
+
+```ts title="socket.ts"
+socket
+  .onMessage<{
+    text: string;
+  }>(({ event, topic }) => ({ ...event, text: event.text.trim() }))
+  .onSend(({ emitter }) =>
+    emitter.setPayload({ ...emitter.payload, sentAt: Date.now() }),
+  );
+```
+
+`event` is the decoded message data, `topic` its topic, and `extra` the adapter's details, such as the `MessageEvent`.
+Keep `onMessage` cheap, it runs before every delivery.
+
+---
+
+## Options
+
+| Option              | Type                         | Default              | Description                                                               |
+| ------------------- | ---------------------------- | -------------------- | ------------------------------------------------------------------------- |
+| `url`               | `string`                     | required             | The server URL.                                                           |
+| `adapter`           | `Adapter \| (() => Adapter)` | `WebsocketAdapter()` | The transport.                                                            |
+| `adapterOptions`    | `object`                     | none                 | Options of the adapter, typed by it.                                      |
+| `queryParams`       | `object \| string`           | none                 | Query params appended to the connection URL.                              |
+| `reconnect`         | `number`                     | `Infinity`           | Reconnection attempts in one outage.                                      |
+| `reconnectTime`     | `number`                     | `1000`               | Minimum delay in ms before an attempt. The backoff starts here.           |
+| `maxReconnectTime`  | `number`                     | `30000`              | Maximum delay in ms before an attempt.                                    |
+| `minUptime`         | `number`                     | `5000`               | How long in ms a connection stays up before the attempt counter resets.  |
+| `connectionTimeout` | `number`                     | `5000`               | How long in ms one attempt may take, handshake included.                  |
+| `reconnectDelay`    | `function`                   | jittered backoff     | `({ attempt, elapsed, reason }) => number \| null`. `null` stops.         |
+| `shouldReconnect`   | `function`                   | retry all but `1000` | `({ code, reason, error }) => boolean`. Which lost connections retry.     |
+| `appManager`        | `() => AppManager`           | `new AppManager()`   | Tracks online and focus state, for example in React Native or Node.js.    |
+
+The [Socket API reference](/docs/api/sockets/Classes/Socket) lists every method.
 
 ---
 
 ## TypeScript
 
-Sockets has one generic type responsible for the type of the current `Socket Adapter`. It defaults to the built-in
-adapter type and **will automatically change** to any new adapter type you pass to the `Socket` class.
+`Socket` has one generic, the adapter type. It is inferred from the `adapter` option and types `adapterOptions`,
+`queryParams`, listener and emitter `options`, the `extra` of every message and the connection in `onConnect`. You never
+pass it by hand.
 
 ---
 
-{/* ## See More */}
+:::secondary Summary
+
+- Create one socket per server and define its listeners and emitters next to it.
+- Resolve tokens in `onConnect`, so every attempt uses a fresh one.
+- Let the socket reconnect, and tune it with `reconnect`, `reconnectTime`, `maxReconnectTime` and `shouldReconnect`.
+- Call `destroy()` when the socket is no longer needed.
+
+:::
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="guides"
+      title="Socket authentication"
+      description="Tokens in query params or subprotocols, refreshed on every attempt."
+      to="/docs/guides/sockets/authentication"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="guides"
+      title="Reconnection and errors"
+      description="Close codes, retry policy and a reconnecting UI."
+      to="/docs/guides/sockets/websocket-reconnection-and-errors"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Listener"
+      description="Typed subscriptions to topics, with params and delivery strategies."
+      to="/docs/sockets/listener"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="api"
+      title="Socket API reference"
+      description="Every method and option of the Socket class."
+      to="/docs/api/sockets/Classes/Socket"
+    />
+  </div>
+</div>
+
+The [WebSocket chat](/examples/realtime/websocket-chat) example shows a socket with connection state and reconnects in a
+React app. The [connection guide](/docs/guides/sockets/connection) covers connection state in more depth.

@@ -4,208 +4,200 @@ description: "Handle API errors in HyperFetch without try/catch, since requests 
 sidebar_label: Error Handling
 ---
 
-# Error Handling
+# Error handling
 
-Error handling is a crucial part of any application that communicates with an API. In HyperFetch, error handling is
-designed to be robust, type-safe, and developer-friendly. Unlike traditional promise-based libraries that might reject
-on failure, HyperFetch requests **never reject**. Instead, they return an `error` object alongside the `data`, ensuring
-that you can handle both success and failure states gracefully.
-
-This approach simplifies your async code by avoiding the need for `try...catch` blocks around your requests.
+HyperFetch requests do not reject by default. `send()` resolves with `error` and `status` next to `data` for every
+failure: an HTTP error, a timeout, an abort or a dropped connection. This guide shows the kinds of errors you get, how to
+type them, where to handle them and how to reject when your code needs it.
 
 :::secondary What you'll learn
 
-1.  How HyperFetch handles errors without **rejecting promises**.
-2.  How to define a **global error type** for all requests made with a client instance.
-3.  How to specify **local error types** for individual requests.
-4.  How to access and **differentiate between error types** in your application.
+1. How to read errors **without `try/catch`**.
+2. Which **kinds of errors** a request returns.
+3. How to type a **global error** on the client and a **local error** per request.
+4. How to **narrow** the error union and handle errors **in one place**.
+5. How to **reject** on errors with `throwOnError`.
 
 :::
 
 ---
 
-## Global Errors
+## Read the error from the response
 
-A global error type provides a consistent error structure for all requests initiated from a `Client` instance. This is
-useful for defining a standard error shape that your API returns, such as a generic error message and a status code.
+Branch on `data` or `error` instead of catching. `status` tells an HTTP error from a failure that never reached the
+server.
 
-You can define the global error type with the `error` generic of `createClient`.
+```ts title="src/app.ts"
+const { data, error, status } = await getUser.send({ params: { userId: 1 } });
 
-```ts
+if (data) {
+  renderUser(data);
+} else {
+  showError(status, error);
+}
+```
+
+Prefer checking `data` over `success`. `success` does not narrow the types, so `data` stays nullable after
+`if (success)`.
+
+---
+
+## Kinds of errors
+
+| Cause                                    | `error`                               | `status`       |
+| ---------------------------------------- | ------------------------------------- | -------------- |
+| The server answered 4xx or 5xx           | The parsed response body              | The HTTP status |
+| No connection, DNS or CORS failure       | The `fetch` error, usually `TypeError` | `0`            |
+| Timeout (fetch adapter, default 5000 ms) | `TimeoutError`                        | `0`            |
+| Aborted with `abort()`, `cancelable` or a `signal` | `AbortError`                | `0`            |
+| Removed from the queue before it ended   | `DeletedError`                        | `null`         |
+| A mapper or interceptor threw            | The thrown value                      | The response status |
+
+The first row is your API's error shape. The others are `Error` instances, exported from `@hyper-fetch/core`, so you can
+check them with `instanceof`.
+
+---
+
+## Type the global error
+
+Type your API's error body once on the client with the `error` generic. Keep `Error` in the union, because the system
+failures above are `Error` instances.
+
+```ts title="src/api/client.ts"
 import { createClient } from "@hyper-fetch/core";
 
-// 1. Define a global error type
-type GlobalErrorType = {
-  message: string;
-  status: number;
-  timestamp: string;
-};
+export type ApiError = { message: string; code: string };
 
-// 2. Create a client with the global error type
-const clientWithGlobalError = createClient<{ error: GlobalErrorType }>({
-  url: "https://jsonplaceholder.typicode.com",
+export const client = createClient<{ error: ApiError | Error }>({
+  url: "https://api.example.com",
 });
-
-const requestWithGlobalError = clientWithGlobalError.createRequest()({
-  endpoint: "/users/999", // This will cause a 404 error
-  method: "GET",
-});
-
-// 3. Example usage
-const { data, error } = await requestWithGlobalError.send();
-
-// `error` will be `GlobalErrorType | null`
-if (error) {
-  // Our mock server returns a plain object on 404
-  // but in a real scenario, this would be typed
-  console.log("Error occurred", { error });
-}
 ```
 
-This setup ensures that any request created from this client instance will have its `error` property typed as
-`GlobalErrorType | null`, providing type safety across your application.
+Every request of this client now has `error` typed as `ApiError | Error | null`. See
+[global error](/docs/guides/typescript/global-error).
 
 ---
 
-## Local Errors
+## Add a local error per request
 
-While global errors are great for consistency, some endpoints may return different error structures. For example, a form
-submission endpoint might return detailed validation errors for each field. HyperFetch allows you to define a **local
-error type** for specific requests.
+Some endpoints return their own error shape, such as field errors of a form. Add it with the request's `error` generic.
+It is joined with the global error into a union.
 
-This local error type will be combined with the global error type, creating a union type for the `error` property.
+```ts title="src/api/users.ts"
+type ValidationError = { fields: Record<string, string[]> };
 
-```ts
-import { createClient } from "@hyper-fetch/core";
+export const signUp = client.createRequest<{
+  response: User;
+  payload: { email: string; password: string };
+  error: ValidationError;
+}>()({ endpoint: "/users", method: "POST" });
 
-// Let's assume this client is defined in our app
-type GlobalErrorType = {
-  message: string;
-  status: number;
-};
+// error: ValidationError | ApiError | Error | null
+```
 
-const clientForLocalError = createClient<{ error: GlobalErrorType }>({
-  url: "https://jsonplaceholder.typicode.com",
-});
+See [local error](/docs/guides/typescript/local-error).
 
-// 1. Define a local error type for a specific endpoint
-type UserValidationError = {
-  errors: {
-    email?: string[];
-    password?: string[];
-  };
-};
+---
 
-// 2. Create a request and specify the local error type
-// Note that we are passing the local error to the `error` generic
-const signUpRequest = clientForLocalError.createRequest<{ error: UserValidationError }>()({
-  endpoint: "/users",
-  method: "POST",
-  payload: { email: "not-an-email" },
-});
+## Narrow the error
 
-// 3. Example usage
-const { data: signUpData, error: signUpError } = await signUpRequest.send();
+Check system errors with `instanceof`, then tell API shapes apart by a property only one of them has.
 
-// The `error` type is now a union of the global and local error types:
-// `GlobalErrorType | UserValidationError | null`
-console.log("Response from 'local error' example", { signUpData, signUpError });
+```ts title="src/sign-up.ts"
+import { AbortError, TimeoutError } from "@hyper-fetch/core";
 
-if (signUpError) {
-  // You can now narrow down the error type
-  if ("errors" in signUpError) {
-    // This is the UserValidationError
-    console.error("Validation failed (simulated):", { email: "Invalid email format" });
-  } else {
-    // This is the GlobalErrorType
-    console.error("A global error occurred:", signUpError.message);
+const { data, error } = await signUp.send({ payload: { email, password } });
+
+if (error instanceof AbortError) {
+  // The user canceled, nothing to show
+} else if (error instanceof TimeoutError) {
+  showToast("The server took too long. Try again.");
+} else if (error instanceof Error) {
+  showToast("Check your connection.");
+} else if (error && "fields" in error) {
+  showFieldErrors(error.fields);
+} else if (error) {
+  showToast(error.message);
+}
+```
+
+---
+
+## Handle errors in one place
+
+`client.onError` runs for every failed response, before `send()` resolves. Use it for logging, a global toast or
+refreshing a token. Return the response, changed or not.
+
+```ts title="src/api/client.ts"
+client.onError((response, request) => {
+  if (response.status && response.status >= 500) {
+    reportToMonitoring({
+      endpoint: request.endpoint,
+      status: response.status,
+      error: response.error,
+    });
   }
-}
+  return response;
+});
 ```
 
-By defining local errors, you can handle endpoint-specific error responses with full type safety, making your
-error-handling logic more robust and predictable.
+To turn errors of another shape into yours, map them in `setResponseMapper`, see
+[data mapping](/docs/guides/core/basics/data-mapping). To retry failed requests, see
+[retries](/docs/guides/core/basics/retries).
 
 ---
 
-## Error Type Narrowing
+## Reject on errors with throwOnError
 
-When a request has both global and local error types, the resulting `error` property is a union of these types. To
-handle them correctly, you'll need to perform type narrowing. A common way to do this is by checking for a property that
-is unique to one of the error types.
+Some code tells failures by a rejected promise: query functions of TanStack Query, fetchers of SWR, route loaders and
+`Promise.all`. Set `throwOnError` and `send()` or `exec()` rejects with the `error` of a failed response. A successful
+response resolves as usual. Default `false`: change it per call, per request or for many requests at once.
 
-```ts
-// Let's imagine we received an error from the signUp request
-const receivedError: GlobalErrorType | UserValidationError | null = {
-  errors: { email: ["Enter a valid email."] },
-};
-
-if (receivedError) {
-  if ("errors" in receivedError) {
-    // TypeScript now knows `error` is of type `UserValidationError`
-    console.log(receivedError.errors.email);
-  } else {
-    // Here, `error` must be `GlobalErrorType`
-    console.log(receivedError.message);
-  }
-}
-```
-
-This pattern allows you to write specific error handling logic for different failure scenarios, all while benefiting
-from TypeScript's static analysis.
-
----
-
-## Rejecting on errors with throwOnError
-
-Some code tells failures by a rejected promise: the query functions of TanStack Query, the fetchers of SWR, route
-loaders and `Promise.all`. For them, set `throwOnError`. `send()` and `exec()` then reject with the `error` of a failed
-response, and a successful response resolves the same way as without it.
-
-```ts
+```ts title="src/api/client.ts"
 // Per call
 const { data } = await getUser.send({ throwOnError: true });
 
 // Per request
-const getUser = client.createRequest<{ response: User }>()({
-  endpoint: "/users/:id",
-  // highlight-next-line
-  throwOnError: true,
-});
+const getUser = client
+  .createRequest<{ response: User }>()({ endpoint: "/users/:id" })
+  .setThrowOnError(true);
 
-// For a part of the API, or all of it
+// For many requests. This replaces the adapter's defaults,
+// so keep deduplication of reads, which the fetch adapter sets.
 client.adapter.setRequestDefaults((options) => ({
-  // Keep the default of the HTTP adapter - see the caution below
   deduplicate: (options.method ?? "GET") === "GET",
-  // highlight-next-line
   throwOnError: options.endpoint.startsWith("/admin"),
 }));
 ```
 
-A value given to the call wins over the request, and the request wins over the defaults. TypeScript does not type
-rejections, so narrow the caught value the same way as the `error` field above. An aborted call rejects with the abort
-error.
-
-:::caution Request defaults replace the adapter's own
-
-`setRequestDefaults` replaces the defaults of the adapter. The HTTP adapter uses them to turn `deduplicate` on for `GET`
-and `QUERY` requests, so return `deduplicate` as well when you still want that.
-
-:::
-
-The React hooks keep reporting failures through their state. `useFetch`, `useSubmit`, `useInfiniteFetch` and `useStream`
-never reject because a request has `throwOnError`. To throw into an error boundary, use the `throwOnError` option of the
-hook.
+The call wins over the request, and the request wins over the defaults. TypeScript does not type rejections, so narrow
+the caught value like `error` above. The React hooks ignore the option and keep errors in their state. To throw into
+an error boundary, use the `throwOnError` option of `useFetch`.
 
 ---
 
 :::success Congratulations!
 
-You've learned how to effectively handle errors in HyperFetch!
+You've learned how to handle errors.
 
-- You can define **global** and **local error types** to match your API's responses.
-- You can access error information from requests without using **`try...catch`**.
-- You can use **type narrowing** to handle different error types safely.
-- You can make `send()` and `exec()` **reject** with `throwOnError` when your code expects a rejected promise.
+- You can read errors from the response **without `try/catch`**.
+- You can tell **API errors** from **system errors** such as `TimeoutError` and `AbortError`.
+- You can type a **global** error on the client and a **local** error per request.
+- You can handle errors **in one place** with `client.onError`.
+- You can make `send()` and `exec()` **reject** with `throwOnError`.
 
 :::
+
+Runnable examples: [Error handling](/examples/getting-started/error-handling) and
+[Typed errors](/examples/request-control/typed-errors).
+
+<LinkCard
+  type="guides"
+  title="Global error type"
+  description="Type the error shape of your API once."
+  to="/docs/guides/typescript/global-error"
+/>
+
+<LinkCard type="guides" title="Retries" description="Retry failed requests with backoff." to="/docs/guides/core/basics/retries" />
+
+<LinkCard type="docs" title="Request" description="What send() resolves with." to="/docs/core/request" />

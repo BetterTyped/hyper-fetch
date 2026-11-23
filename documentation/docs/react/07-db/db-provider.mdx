@@ -1,34 +1,91 @@
 ---
 sidebar_position: 3
 title: DbProvider
+description: "DbProvider gives React components a @hyper-fetch/db db and useDb reads it, so server rendering can use one db per request."
 sidebar_label: DbProvider and useDb
 ---
 
 # DbProvider and useDb
 
-> `DbProvider` gives components a [`@hyper-fetch/db`](/docs/db/overview) db, and `useDb` reads it. A server renders
-> each request with its own db, so one user's rows never reach another user's page.
+`DbProvider` gives components a [`@hyper-fetch/db`](/docs/db/overview) db, and `useDb` reads it. Use them when you
+render on the server: each request renders with its own db, so one user's rows never reach another user's page.
+
+:::tip Purpose
+
+1. **One db per request** on the server.
+2. **A hydrated db** in the browser, created from the server's state.
+3. **Typed access**: `useDb<AppDb>()` returns the db with its collections.
+
+:::
 
 ---
 
 ## Usage
 
-```tsx
+```tsx title="app.tsx"
+import { eq } from "@hyper-fetch/db";
 import { DbProvider, useDb, useLiveQuery } from "@hyper-fetch/react";
+import { createAppDb } from "./db";
 
 type AppDb = ReturnType<typeof createAppDb>;
 
-const Posts = ({ teamId }: { teamId: number }) => {
+function Posts({ teamId }: { teamId: number }) {
   const db = useDb<AppDb>();
   const { data } = useLiveQuery(db.post.where((post) => eq(post.teamId, teamId)));
-  return <ul>{data?.map((post) => <li key={post.id}>{post.title}</li>)}</ul>;
-};
 
-<DbProvider db={db}>
-  <Posts teamId={1} />
-</DbProvider>;
+  return <ul>{data?.map((post) => <li key={post.id}>{post.title}</li>)}</ul>;
+}
+
+export const App = ({ db }: { db: AppDb }) => (
+  <DbProvider db={db}>
+    <Posts teamId={1} />
+  </DbProvider>
+);
 ```
 
-- `useDb` throws when no `DbProvider` is above the component.
-- An app that renders only in the browser may keep a module-level db and skip the provider.
-- See [Server rendering](/docs/db/server-rendering) for creating and hydrating a db per request.
+---
+
+## Props and returns
+
+| Name                 | Type        | Description                                                   |
+| -------------------- | ----------- | ------------------------------------------------------------- |
+| `DbProvider` `db`    | db          | The db components read. On the server, create one per request. |
+| `DbProvider` `children` | `ReactNode` | Components that read the db.                               |
+| `useDb<Db>()`        | `Db`        | The db of the nearest `DbProvider`, typed with `Db`.          |
+
+`useDb` throws when no `DbProvider` is above the component.
+
+---
+
+## When you can skip it
+
+An app that renders only in the browser can keep a module-level db and import it, as in the
+[quick start](/docs/db/quick-start). Use the provider once the same components render on the server.
+
+---
+
+:::secondary Summary
+
+1. `DbProvider` passes a db down the tree, and `useDb<AppDb>()` reads it.
+2. Create one db per server request; in the browser, start it from the dehydrated state.
+
+:::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="DB server rendering"
+  description="Load on the server, dehydrate the db and hydrate it in the browser."
+  to="/docs/db/server-rendering"
+/>
+
+<LinkCard
+  type="api"
+  title="DbProvider API reference"
+  description="Generated props of the component."
+  to="/docs/api/react/Components/DbProvider"
+/>
+
+- Guide: [server rendering with Next.js](/docs/guides/db/patterns/server-rendering).
+- Related: [`useDb` API](/docs/api/react/Hooks/useDb), [`useLiveQuery`](/docs/react/db/use-live-query).

@@ -7,22 +7,15 @@ sidebar_label: Realtime listening
 
 # Firestore realtime updates in React
 
-[Read the API Reference »](/api/adapter-firebase/Functions/FirebaseSocketsAdapter.mdx)
-
-Firestore realtime updates come from `onSnapshot`, and the Realtime Database has `onValue`. Both call you back with the
-full current result every time the data changes, and both return a function you must call to stop listening. In React
-that means a subscription in an effect, cleanup on unmount, and a new subscription whenever the query changes.
-
-Here both run through `@hyper-fetch/sockets`. You create a socket with `FirebaseSocketsAdapter`, create a listener for a
-path, and receive the full current result every time it changes. `useListener` starts and stops it with the component.
-
----
+`FirebaseSocketsAdapter` runs Firestore `onSnapshot` and Realtime Database `onValue` through a
+[Socket](/docs/sockets/socket). Each path becomes a typed [Listener](/docs/sockets/listener) that receives the full
+current result on every change, and `useListener` starts and stops it with the component.
 
 :::tip Purpose
 
-1.  **Listen** to Firestore documents and queries, or Realtime Database paths, with typed data.
-2.  **Filter** live queries with `setQueryParams((c) => ...)`, the same chain as requests.
-3.  **React** to changes with `useListener`, or group Firestore changes into added, modified and removed.
+1. **Listen** to Firestore documents and queries, or Realtime Database paths, with typed data.
+2. **Filter** live queries with `setQueryParams((c) => ...)`, the same chain as requests.
+3. **Group** Firestore changes into added, modified and removed, or read a Realtime Database path once.
 
 :::
 
@@ -30,54 +23,57 @@ path, and receive the full current result every time it changes. `useListener` s
 
 ## Setup
 
-```bash
-npm install @hyper-fetch/sockets
-```
+Install `@hyper-fetch/sockets`, then create a socket per database. Call `FirebaseSocketsAdapter(db)` inside each
+`new Socket(...)`: an adapter binds to the socket it was created for, so one adapter shared by two sockets sends every
+listener to the last socket's `url`.
 
-```tsx
+```ts title="api/sockets.ts"
 import { Socket } from "@hyper-fetch/sockets";
 import { FirebaseSocketsAdapter } from "@hyper-fetch/firebase";
-import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
+import { getFirestore } from "firebase/firestore";
 
-export const firestoreSocket = new Socket({ url: "", adapter: FirebaseSocketsAdapter(getFirestore(app)) });
-export const realtimeSocket = new Socket({ url: "", adapter: FirebaseSocketsAdapter(getDatabase(app)) });
+import { app } from "./firebase";
+
+export const firestoreSocket = new Socket({
+  url: "",
+  adapter: FirebaseSocketsAdapter(getFirestore(app)),
+});
+export const realtimeSocket = new Socket({
+  url: "",
+  adapter: FirebaseSocketsAdapter(getDatabase(app)),
+});
 ```
-
-:::danger One adapter per socket
-
-1.  Call `FirebaseSocketsAdapter(db)` inside each `new Socket(...)`. An adapter binds to the socket it was created for,
-    so sharing one adapter between two sockets sends every listener to the last socket's `url`.
-
-:::
 
 ---
 
 ## Listening
 
-The listener path is `socket.url + topic`. `listen` returns a function that stops the Firebase subscription.
+The listener path is `socket.url + topic`, and topic params work like endpoint params. `listen` returns a function that
+stops the Firebase subscription.
 
-```tsx
-type TeaDoc = { __key: string; name: string; type: "Green" | "Black"; year: number };
+```ts title="api/teas.ts"
+type TeaDoc = {
+  __key: string;
+  name: string;
+  type: "Green" | "Black";
+  year: number;
+};
 
-const onTeas = firestoreSocket.createListener<TeaDoc[]>()({ topic: "teas" });
-
-const stop = onTeas.listen(({ data, extra }) => {
-  render(data); // the whole current result, every time
+export const onTeas = firestoreSocket.createListener<TeaDoc[]>()({
+  topic: "teas",
+});
+export const onTea = firestoreSocket.createListener<TeaDoc | null>()({
+  topic: "teas/:teaId",
 });
 
+const stop = onTea
+  .setParams({ teaId: "sencha" })
+  .listen(({ data }) => render(data));
 stop();
 ```
 
-Topic params work like endpoint params:
-
-```tsx
-const onTea = firestoreSocket.createListener<TeaDoc | null>()({ topic: "teas/:teaId" });
-
-onTea.setParams({ teaId: "sencha" }).listen(({ data }) => render(data));
-```
-
-Every snapshot is delivered once, as the full current document or list. Replace your state with it; do not append.
+Every snapshot is delivered once, as the full current document or list. Replace your state with it, do not append.
 
 | Field                 | Firestore                                   | Realtime Database                     |
 | --------------------- | ------------------------------------------- | ------------------------------------- |
@@ -91,96 +87,157 @@ Every snapshot is delivered once, as the full current document or list. Replace 
 
 ## Filtering
 
-Listeners take query params like requests do: a callback that builds the constraints, set in `createListener` or with
-`setQueryParams`.
+Listeners take query params like requests: a callback that builds the constraints, or the `$`-helper array.
 
-```tsx
-const onGreenTeas = firestoreSocket
-  .createListener<TeaDoc[]>()({ topic: "teas" })
-  .setQueryParams((c) => c.where("type", "==", "Green").orderBy("year", "desc").limit(20));
+```ts title="api/live.ts"
+export const onGreenTeas =
+  firestoreSocket
+    .createListener<TeaDoc[]>()({
+      topic: "teas",
+    })
+    .setQueryParams((c) =>
+      c
+        .where("type", "==", "Green")
+        .orderBy("year", "desc")
+        .limit(20),
+    );
 
-type Message = { __key: string; text: string; sentAt: number };
-
-const onLastMessages = realtimeSocket
-  .createListener<Message[]>()({ topic: "rooms/general/messages" })
-  .setQueryParams((c) => c.orderByChild("sentAt").limitToLast(50));
+export const onLastMessages =
+  realtimeSocket
+    .createListener<Message[]>()({
+      topic: "rooms/general/messages",
+    })
+    .setQueryParams((c) =>
+      c
+        .orderByChild("sentAt")
+        .limitToLast(50),
+    );
 ```
 
 Field names are not checked on listeners, because a listener's query params are not tied to a document type. The
-constraints array works here too, and the `options.constraints` of earlier versions still works and is deprecated.
+`options.constraints` of earlier versions still works and is deprecated.
 
 ---
 
 ## Options
 
-| Option              | Database          | Effect                                                                                                                                   |
-| ------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `groupByChangeType` | Firestore         | On collection listeners, adds `extra.groupedResult` with the `added`, `modified` and `removed` documents. Document listeners get `null`. |
-| `onlyOnce`          | Realtime Database | Receives the first value and stops.                                                                                                      |
+| Option              | Database          | Effect                                                                                                   |
+| ------------------- | ----------------- | -------------------------------------------------------------------------------------------------------- |
+| `groupByChangeType` | Firestore         | On collection listeners, adds `extra.groupedResult` with the `added`, `modified` and `removed` documents |
+| `onlyOnce`          | Realtime Database | Receives the first value and stops                                                                       |
 
 ### Grouping changes
 
-```tsx
-const onTeas = firestoreSocket.createListener<TeaDoc[]>()({
-  topic: "teas",
-  options: { groupByChangeType: true },
-});
+`groupedResult` is `null` on document listeners and when a snapshot has no document changes. Its documents carry
+`__key`, like `data`.
 
-onTeas.listen(({ data, extra }) => {
-  render(data);
+```ts title="api/live.ts"
+const onTeasChanges =
+  firestoreSocket.createListener<
+    TeaDoc[]
+  >()({
+    topic: "teas",
+    options: {
+      groupByChangeType: true,
+    },
+  });
 
-  // null when the snapshot has no document changes
-  if (extra.groupedResult) {
-    const { added, modified, removed } = extra.groupedResult;
-    notify(`${added.length} new teas`);
-  }
-});
+onTeasChanges.listen(
+  ({ data, extra }) => {
+    render(data);
+    if (extra.groupedResult)
+      notify(
+        `${extra.groupedResult.added.length} new teas`,
+      );
+  },
+);
 ```
-
-The documents in `groupedResult` are the raw document data, without `__key`.
 
 ### Reading once
 
-```tsx
-const onConfig = realtimeSocket.createListener<Config | null>()({
-  topic: "config",
-  options: { onlyOnce: true },
-});
+```ts title="api/live.ts"
+const onConfig =
+  realtimeSocket.createListener<Config | null>()(
+    {
+      topic: "config",
+      options: { onlyOnce: true },
+    },
+  );
 ```
 
 ---
 
-## React
+## Listeners in your app
 
-```tsx
+In React, [`useListener`](/docs/react/sockets/use-listener) starts the listener on mount and stops it on unmount.
+
+```tsx title="GreenTeas.tsx"
 import { useListener } from "@hyper-fetch/react";
 
-function GreenTeas() {
+import { onGreenTeas } from "./api/live";
+
+export const GreenTeas = () => {
   const { data } = useListener(onGreenTeas);
 
   return data?.map((tea) => <p key={tea.__key}>{tea.name}</p>);
-}
+};
 ```
 
 ---
 
-:::caution Things to know
+## Web and admin differences
 
-1.  **One listener per topic on a socket.** Listeners on the same socket and topic also receive each other's snapshots,
-    so two listeners on `teas` with different constraints would mix results. Give them different sockets.
-2.  **`socket.disconnect()` takes the whole Firebase instance offline**: `disableNetwork` for Firestore, `goOffline` for
-    Realtime Database. Your `FirebaseAdapter` requests go offline too. To stop one listener, call its `stop` function.
-3.  **Sockets cannot emit.** Firebase sockets only receive; write with requests.
+Listeners work the same in
+[`@hyper-fetch/firebase-admin`](/docs/integrations/adapter-firebase-admin/realtime-queries), except:
 
-:::
+| Topic                                        | `@hyper-fetch/firebase` (web)                | `@hyper-fetch/firebase-admin` (server)         |
+| -------------------------------------------- | -------------------------------------------- | ---------------------------------------------- |
+| Socket adapter                               | `FirebaseSocketsAdapter`                     | `FirebaseSocketsAdminAdapter`                  |
+| Firestore socket `connect()`, `disconnect()` | toggle the network of the instance           | throw, stop listeners with their stop function |
+| Realtime document listener `data`            | the value                                    | the value plus `__key`                         |
+| Firestore listener `extra`                   | `ref`, `snapshot`, `status`, `groupedResult` | the same, plus `unsubscribe`                   |
+| Documents in `groupedResult`                 | with `__key`                                 | without `__key`                                |
+
+---
+
+## Limits
+
+- **One listener per topic on a socket.** Listeners on the same socket and topic receive each other's snapshots, so two
+  listeners on `teas` with different constraints would mix results. Give them different sockets.
+- **`socket.disconnect()` takes the whole Firebase instance offline**: `disableNetwork` for Firestore, `goOffline` for
+  the Realtime Database. Your requests go offline too. To stop one listener, call its stop function.
+- **Sockets cannot emit.** Firebase sockets only receive. Write with requests.
 
 ---
 
 :::secondary Summary
 
-1.  Create each socket with its own `FirebaseSocketsAdapter(db)`.
-2.  The listener path is `socket.url + topic`, and every snapshot arrives once as the full current result.
-3.  Filter with `setQueryParams((c) => ...)`; group Firestore changes with `groupByChangeType`; read once with `onlyOnce`.
-4.  Keep one listener per topic on a socket, and stop listeners with the function `listen` returns.
+- Create each socket with its own `FirebaseSocketsAdapter(db)`.
+- The listener path is `socket.url + topic`, and every snapshot arrives as the full current result.
+- Filter with `setQueryParams((c) => ...)`, group with `groupByChangeType`, read once with `onlyOnce`.
+- Keep one listener per topic on a socket, and stop listeners with the function `listen` returns.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="useListener"
+  description="Listen to a socket topic in a React component."
+  to="/docs/react/sockets/use-listener"
+/>
+
+<LinkCard
+  type="docs"
+  title="DB with Firestore"
+  description="Live Firestore collections that several views share."
+  to="/docs/db/firestore"
+/>
+
+<LinkCard
+  type="api"
+  title="FirebaseSocketsAdapter API reference"
+  description="The socket adapter factory and its listener types."
+  to="/docs/api/adapter-firebase/Functions/FirebaseSocketsAdapter"
+/>

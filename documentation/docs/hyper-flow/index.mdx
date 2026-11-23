@@ -7,10 +7,12 @@ sidebar_label: Overview
 
 # HyperFlow
 
-HyperFlow is a desktop app for macOS, Windows and Linux that shows what the data layer of your HyperFetch app is doing,
-while it runs. Add the [devtools plugin](/docs/integrations/plugin-devtools/index.mdx) to your client, and HyperFlow
-lists every request with its payload, response and timing, the cache with its fresh and stale entries, the queues,
-socket traffic and `@hyper-fetch/db` collections.
+<Lead>
+
+**See what your data layer does while your app runs.** HyperFlow is a desktop app for macOS, Windows and Linux that
+shows every request, cache entry, queue, socket and db of your HyperFetch app, live.
+
+</Lead>
 
 <Screenshot
   src="/img/hyper-flow/app-general.webp"
@@ -29,94 +31,67 @@ HyperFlow is in alpha. Expect rough edges, and tell us what you miss on
 
 ## What you can do with it
 
-<div className="row">
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Inspect every request"
-      description="Payload, response, headers, timing and retries. Filter by success, failure, paused or canceled."
-      to="/docs/hyper-flow/features/network"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Browse and edit the cache"
-      description="See fresh and stale entries and their observers. Edit, invalidate or remove an entry and watch your UI react."
-      to="/docs/hyper-flow/features/cache"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Control queues"
-      description="Stop, start and clear queues, or force a loading state, to test slow and offline paths."
-      to="/docs/hyper-flow/features/queues"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Find slow endpoints"
-      description="Success rate, p95 response times, traffic by endpoint and error summaries."
-      to="/docs/hyper-flow/features/dashboard"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Read socket traffic"
-      description="Connection state, every message in and out, and errors for WebSocket and SSE."
-      to="/docs/hyper-flow/features/sockets"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Look inside a db"
-      description="Collections, loaded subsets, live query plans and the outbox of @hyper-fetch/db."
-      to="/docs/hyper-flow/features/db"
-    />
-  </div>
-</div>
+<Tiles>
+  <Tile title="Inspect every request" icon="send" to="/docs/hyper-flow/features/network">
+    Payload, response, headers, timing and retries.
+  </Tile>
+  <Tile title="Browse and edit the cache" icon="database" to="/docs/hyper-flow/features/cache">
+    Edit, invalidate or remove an entry and watch your UI react.
+  </Tile>
+  <Tile title="Control queues" icon="list" to="/docs/hyper-flow/features/queues">
+    Stop, start and clear queues to test slow and offline paths.
+  </Tile>
+  <Tile title="Find slow endpoints" icon="gauge" to="/docs/hyper-flow/features/dashboard">
+    Success rate, p95 response times and error summaries.
+  </Tile>
+  <Tile title="Read socket traffic" icon="radio" to="/docs/hyper-flow/features/sockets">
+    Connection state and every message in and out.
+  </Tile>
+  <Tile title="Look inside a db" icon="layers" to="/docs/hyper-flow/features/db">
+    Collections, loaded subsets, live query plans and the outbox.
+  </Tile>
+</Tiles>
 
 ---
 
 ## Get started in three steps
 
-1. **[Download HyperFlow](/docs/hyper-flow/download.mdx)** for your system and open it.
-2. **Add the plugin** to your client:
+1. **[Download HyperFlow](/docs/hyper-flow/download)** for your system and open it.
+2. **Add the [devtools plugin](/docs/integrations/plugin-devtools)** to your client:
 
    ```ts title="api/client.ts"
    import { createClient } from "@hyper-fetch/core";
    import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
-   export const client = createClient({ url: "https://api.example.com" }).addPlugin(
-     // highlight-next-line
-     DevtoolsPlugin({ appName: "My App" }),
-   );
+   export const client = createClient({ url: "https://api.example.com" });
+
+   // highlight-next-line
+   client.addPlugin(DevtoolsPlugin({ appName: "My App" }));
    ```
 
 3. **Run your app.** It shows up on the HyperFlow home screen as soon as the plugin connects.
 
-[Connect your app](/docs/hyper-flow/connecting.mdx) covers installation, development-only setup, Node.js backends,
+[Connect your app](/docs/hyper-flow/connecting) covers installation, development-only setup, Node.js backends,
 sockets and dbs.
 
 ---
 
 ## How it works
 
-```mermaid
-flowchart LR
-  subgraph app [Your app]
-    C["HyperFetch client"] --> P["DevtoolsPlugin"]
-    S["Sockets and dbs"] --> P
-  end
-  P -- "events over WebSocket<br/>ws://localhost:2137" --> H["HyperFlow<br/>local server"]
-  H --> UI["HyperFlow window"]
-  UI -- "cache edits, queue controls" --> H
-  H --> P
-```
+<Flow caption="Cache edits and queue controls travel back the same way.">
+  <FlowStep title="Your client" icon="code">
+    Requests, sockets, dbs
+  </FlowStep>
+  <FlowStep title="DevtoolsPlugin" icon="plug">
+    Listens to every event
+  </FlowStep>
+  <FlowStep title="Local server" icon="server">
+    WebSocket on port 2137
+  </FlowStep>
+  <FlowStep title="HyperFlow" icon="activity" active>
+    Shows it live
+  </FlowStep>
+</Flow>
 
 The plugin listens to the client's events and sends them to a small server that HyperFlow runs on your machine, on port
 `2137` by default. HyperFlow keeps what it receives in memory and shows it live. The connection also works the other
@@ -137,23 +112,21 @@ The trade-off is one more app to start while you develop.
 
 ---
 
-## Where to go next
+## Next
 
-<div className="row">
-  <div className="col col--6">
-    <LinkCard
-      type="promo"
-      title="Download HyperFlow"
-      description="Builds for macOS, Windows and Linux."
-      to="/docs/hyper-flow/download"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Tour the interface"
-      description="What every part of the window does, in one annotated screenshot."
-      to="/docs/hyper-flow/interface"
-    />
-  </div>
-</div>
+<Tiles>
+  <Tile title="Download HyperFlow" icon="rocket" to="/docs/hyper-flow/download">
+    Builds for macOS, Windows and Linux.
+  </Tile>
+  <Tile title="Connect your app" icon="plug" to="/docs/hyper-flow/connecting">
+    Development-only setup, Node.js backends, sockets and dbs.
+  </Tile>
+  <Tile title="Tour the interface" icon="compass" to="/docs/hyper-flow/interface">
+    What every part of the window does.
+  </Tile>
+  <Tile title="Devtools example" icon="play" to="/examples/integrations/devtools">
+    A small app with cached, failed and slow requests to watch.
+  </Tile>
+</Tiles>
+
+API reference: [`DevtoolsPlugin`](/docs/api/plugin-devtools/Functions/DevtoolsPlugin) lists every option of the plugin.

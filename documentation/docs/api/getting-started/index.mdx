@@ -1,32 +1,98 @@
-# Overview
+# API reference
 
-Welcome to the API documentation for the Hyper Fetch framework.
+<Lead>
 
-:::note Always Up-to-date
+**Every export of every package, with its exact signature.** The reference is generated from the TypeScript source
+and its TSDoc on every docs build, so it matches the published code. For how and when to use something, start from the
+[docs](/docs/core/overview) and [guides](/docs/guides/getting-started).
 
-This documentation is continuously updated to reflect the latest changes in the framework, ensuring you always have
-access to the most accurate information.
-
-:::
-
----
-
-## What You'll Find Here
-
-#### Comprehensive API Reference:
-
-- All interfaces, types, and methods exposed by Hyper Fetch.
-- Usage examples and type structures.
-
-#### Accurate & Up-to-date:
-
-- Documentation is automatically generated using the `@docsgen` library by BetterTyped.
-- Type definitions are sourced directly from the codebase.
+</Lead>
 
 ---
 
-## How to Use This Section
+## Core packages
 
-- Browse the available interfaces and types to understand the API surface.
-- Reference type contracts for seamless integration into your projects.
-- Use the provided examples to speed up development and ensure type safety.
+<Tiles>
+  <Tile title="Core" icon="code" meta="@hyper-fetch/core" to="/docs/api/core/Classes/Client">
+    `Client`, `Request`, `Cache`, `Dispatcher` and `createSdk`.
+  </Tile>
+  <Tile title="React" icon="atom" meta="@hyper-fetch/react" to="/docs/api/react/Hooks/useFetch">
+    `useFetch`, `useSubmit`, `useListener` and the other hooks.
+  </Tile>
+  <Tile title="Sockets" icon="radio" meta="@hyper-fetch/sockets" to="/docs/api/sockets/Classes/Socket">
+    `Socket`, `Listener`, `Emitter` and the socket adapters.
+  </Tile>
+  <Tile title="DB" icon="database" meta="@hyper-fetch/db" to="/docs/api/db/Functions/collection">
+    `collection`, `createDb`, operators and query types.
+  </Tile>
+</Tiles>
+
+---
+
+## Adapters
+
+<Tiles cols={3}>
+  <Tile title="Axios" icon="plug" meta="@hyper-fetch/axios" to="/docs/api/adapter-axios/Variables/AxiosAdapter">
+    `AxiosAdapter` and its option types.
+  </Tile>
+  <Tile title="GraphQL" icon="plug" meta="@hyper-fetch/graphql" to="/docs/api/adapter-graphql/Functions/GraphqlAdapter">
+    `GraphqlAdapter` and `GraphqlWsAdapter`.
+  </Tile>
+  <Tile title="Firebase" icon="plug" meta="@hyper-fetch/firebase" to="/docs/api/adapter-firebase/Functions/FirebaseAdapter">
+    Firestore and Realtime Database adapters.
+  </Tile>
+  <Tile
+    title="Firebase Admin"
+    icon="plug"
+    meta="@hyper-fetch/firebase-admin"
+    to="/docs/api/adapter-firebase-admin/Functions/FirebaseAdminAdapter"
+  >
+    The same adapters for the Admin SDK.
+  </Tile>
+  <Tile title="oRPC" icon="plug" meta="@hyper-fetch/orpc" to="/docs/api/adapter-orpc/Functions/OrpcAdapter">
+    HTTP, stream and WebSocket adapters.
+  </Tile>
+  <Tile title="tRPC" icon="plug" meta="@hyper-fetch/trpc" to="/docs/api/adapter-trpc/Functions/TrpcAdapter">
+    HTTP, SSE and WebSocket adapters.
+  </Tile>
+</Tiles>
+
+---
+
+## Server frameworks
+
+<Tiles>
+  <Tile title="Hono" icon="server" meta="@hyper-fetch/hono" to="/docs/api/hono/Types/HonoSchema">
+    Types that turn a Hono app into a typed SDK.
+  </Tile>
+  <Tile title="Elysia" icon="server" meta="@hyper-fetch/elysia" to="/docs/api/elysia/Types/ElysiaSchema">
+    Types that turn an Elysia app into a typed SDK.
+  </Tile>
+</Tiles>
+
+---
+
+## Tooling
+
+<Tiles>
+  <Tile title="Devtools plugin" icon="activity" meta="@hyper-fetch/plugin-devtools" to="/docs/api/plugin-devtools/Functions/DevtoolsPlugin">
+    `DevtoolsPlugin` and the events it sends to HyperFlow.
+  </Tile>
+  <Tile title="CLI" icon="terminal" meta="@hyper-fetch/cli" to="/docs/api/cli/Classes/OpenapiRequestGenerator">
+    The OpenAPI generator behind `generate`.
+  </Tile>
+  <Tile title="ESLint plugin" icon="shield" meta="eslint-plugin-hyper-fetch" to="/docs/api/plugin-eslint/Variables/rules">
+    Rules and configs.
+  </Tile>
+  <Tile title="Oxlint plugin" icon="shield" meta="oxlint-plugin-hyper-fetch" to="/docs/api/plugin-oxlint/Variables/default">
+    The plugin and its two generic-type rules.
+  </Tile>
+</Tiles>
+
+---
+
+## Reading an entry
+
+- **Classes** list their constructor, properties and methods. Setters on `Request` return a new request.
+- **Functions** list their parameters and return type.
+- **Types** show the full definition, with a description of each property where the source has one.

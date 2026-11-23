@@ -8,7 +8,7 @@ sidebar_label: Sockets
 # Sockets
 
 The **Sockets** page shows the realtime side of your app: whether each socket is connected, every message it receives
-and sends, and its errors. It works with every adapter of [`@hyper-fetch/sockets`](/docs/sockets/overview.mdx), such as
+and sends, and its errors. It works with every adapter of [`@hyper-fetch/sockets`](/docs/sockets/overview), such as
 WebSocket and Server-Sent Events.
 
 <Screenshot
@@ -83,3 +83,29 @@ listener's topic or params differ from what the server sends. When it is missing
 
 When HyperFlow restarts, the plugin reports every socket and its current state again. Only messages sent while
 HyperFlow was closed are missing.
+
+---
+
+## Next steps
+
+<div className="row">
+  <div className="col col--6">
+    <LinkCard
+      type="docs"
+      title="Sockets overview"
+      description="Sockets, listeners, emitters and adapters."
+      to="/docs/sockets/overview"
+    />
+  </div>
+  <div className="col col--6">
+    <LinkCard
+      type="guides"
+      title="Reconnection and errors"
+      description="Close codes, retry policy and a reconnecting UI."
+      to="/docs/guides/sockets/websocket-reconnection-and-errors"
+    />
+  </div>
+</div>
+
+For a busy log to explore, add the plugin with `sockets: [socket]` to the runnable
+[WebSocket chat](/examples/realtime/websocket-chat) or [notifications](/examples/realtime/notifications) example.

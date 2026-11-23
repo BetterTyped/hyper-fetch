@@ -5,238 +5,201 @@ description: Retry failed requests with a retry count, a delay and a retry condi
 sidebar_label: Retries
 ---
 
-# Retry Failed Requests
+# Retry failed requests
 
-Networks drop packets, servers restart, load balancers return a 503 for a second. Most of those failures go away if you
-just try again, so the usual fix is to retry failed requests a few times with a pause in between. This guide covers
-what a good retry policy looks like, how people do it with `fetch` and Axios, and how HyperFetch handles it with the
-`retry` and `retryTime` options.
-
----
+Networks drop, servers restart and proxies return a `503` for a second. Most of those failures pass if you try again,
+so the usual fix is to retry a few times with a pause in between. This guide covers which failures to retry, how
+`fetch` and Axios do it, and how HyperFetch does it with `retry`, `retryTime` and `setRetryOnError`.
 
 :::secondary What you'll learn
 
-1.  Which errors are **worth retrying** and which are not.
-2.  How a **fetch retry** and **axios-retry** setup usually look.
-3.  How to **enable and configure retries** for a request in HyperFetch.
-4.  How to set a **custom delay** and a **retry condition**.
-5.  How to add **exponential backoff** with `exponentialBackoff` or your own delay function.
-6.  How to **watch retry attempts** with `onRetry`.
+1. Which failures are **worth retrying**.
+2. How to set **retries and a delay** on a request.
+3. How to retry only **some errors** with `setRetryOnError`.
+4. How to add **exponential backoff** or honor `Retry-After`.
+5. How to **watch retry attempts** with `onRetry`.
 
 :::
 
 ---
 
-## What to retry, and what not to
+## What to retry
 
-Retrying is only safe when the second attempt can succeed and can't do harm. A short checklist:
+A retry is safe only when the second attempt can succeed and can do no harm.
 
-| Failure                                 | Retry?                                                   |
-| --------------------------------------- | -------------------------------------------------------- |
-| Network error, connection reset         | Yes                                                      |
-| `502`, `503`, `504`                     | Yes, the server or proxy is temporarily unavailable      |
-| `429 Too Many Requests`                 | Yes, but wait longer (respect `Retry-After` if present) |
-| `500`                                   | Often, if the operation is idempotent                    |
-| `400`, `401`, `403`, `404`, `422`       | No, the same request will fail the same way              |
-| A `POST` that may have reached the server | Only if the endpoint is idempotent (for example with an idempotency key) |
+| Failure                                   | Retry?                                                       |
+| ----------------------------------------- | ------------------------------------------------------------ |
+| Network error, connection reset           | Yes                                                          |
+| `502`, `503`, `504`                       | Yes, the server or proxy is briefly unavailable              |
+| `429 Too Many Requests`                   | Yes, after the `Retry-After` delay                           |
+| `500`                                     | Often, when the operation is idempotent                      |
+| `400`, `401`, `403`, `404`, `422`         | No, the same request fails the same way                      |
+| A `POST` that may have reached the server | Only when the endpoint is idempotent, such as with an idempotency key |
 
-Two more rules: cap the number of attempts, and space them out. Retrying instantly in a tight loop makes an overloaded
-server worse.
+Cap the number of attempts and space them out. Retrying at once in a tight loop makes an overloaded server worse.
 
----
-
-## Fetch retry and axios retry
-
-`fetch` has no retry option. A fetch retry is a loop around the call that checks `response.ok` and catches network
-errors.
-
-Axios has no built-in retry either. The common choice is the
-[axios-retry](https://github.com/softonic/axios-retry) package. It adds `retries` (default `3`), a `retryCondition`
-(by default network errors and 5xx responses on idempotent methods), a `retryDelay` callback with a built-in
-`exponentialDelay`, and an `onRetry` hook.
-
-In HyperFetch, retries are part of the request. They are scheduled by the dispatcher, so they work with every adapter,
-including the [Axios adapter](../../../integrations/adapter-axios/overview.mdx), and they show up in the hooks state.
+`fetch` has no retry option, so a fetch retry is a loop around the call. Axios has none either, and the
+[axios-retry](https://github.com/softonic/axios-retry) package adds `retries`, a `retryCondition` and a `retryDelay`. In
+HyperFetch retries are request options run by the [dispatcher](/docs/core/dispatcher), so they work with every adapter,
+including the [Axios adapter](/docs/integrations/adapter-axios/overview).
 
 ---
 
-## Basic configuration
+## Set retries on a request
 
-You can configure retries directly on a request using the `retry` and `retryTime` options.
+`retry` is the number of extra attempts after a failure, default `0`. `retryTime` is the delay between them in
+milliseconds, default `500`.
 
-- `retry`: The number of times to re-attempt the request after it fails.
-- `retryTime`: The delay in milliseconds between each retry attempt.
-
-Let's create a request that will fail (by pointing to a non-existent endpoint) and see how retries work.
-
-```tsx
-// We are using non-existent endpoint to showcase the retry mechanism
-const getUsers = client.createRequest()({
-  method: "GET",
-  endpoint: "/users-fake-endpoint",
-  // highlight-start
+```ts title="src/api/reports.ts"
+export const getReport = client.createRequest<{ response: Report }>()({
+  endpoint: "/reports/:reportId",
   retry: 3,
-  retryTime: 1000, // 1 second
-  // highlight-end
+  retryTime: 1000,
 });
 
-const sendRequest = async () => {
-  const { data, error } = await getUsers.send();
-  console.log({ data, error });
-};
-
-sendRequest();
+// One promise, resolved with the last attempt's response
+const { data, error } = await getReport.send({ params: { reportId: 7 } });
 ```
 
-In the example above, if the request to `/users-fake-endpoint` fails, HyperFetch retries it up to **3 times**, with a
-**1-second delay** between each attempt. The `send()` promise resolves once, with the last response, so your code
-doesn't see the intermediate failures.
+`send()` resolves once, after the last attempt, so your code does not see the failures in between. Change the values on
+an existing request with `setRetry` and `setRetryTime`, or for one call with `send({ retry: 1 })`:
 
-A few things are never retried:
+```ts live
+// failingRequest fails on purpose
+const withRetries = failingRequest
+  .setRetry(2)
+  .setRetryTime(2000);
 
-- **Aborted requests.** Cancelling a request ends it. See [cancellation](../02-advanced/cancellation.mdx).
-- **Offline failures.** With `offline: true` (the default) the request waits for the network to come back instead of
-  burning its retries. See [offline-first requests](../02-advanced/offline.mdx).
-
----
-
-## Dynamic configuration
-
-You can also configure retries dynamically using the `.setRetry()` and `.setRetryTime()` methods. This is useful when
-you need to change the retry behavior based on application state or other conditions.
-
-These methods return a new `Request` instance, leaving the original request unchanged.
-
-```tsx live
-import { failingRequest } from "./api";
-
-// For our example we import request that will fail on purpose
-// We can set retries and retryTime on creation or dynamically
-const failingRequestWithRetries = failingRequest.setRetry(2).setRetryTime(2000); // 2 seconds
-
-const { data, error } = await failingRequestWithRetries.send();
+const { data, error } =
+  await withRetries.send();
 console.log({ data, error });
 ```
 
-Here, we created a new request `failingRequestWithRetries` with 2 retries and a 2-second delay, without modifying the
-original `failingRequest`.
+Some failures are never retried:
+
+- **Aborted requests.** Canceling ends the request, see [cancellation](/docs/guides/core/advanced/cancellation).
+- **Offline failures.** With `offline: true`, the default, the request waits for the connection instead of using its
+  retries, see [offline](/docs/guides/core/advanced/offline).
+
+To set retries for every request, use [global defaults](/docs/guides/core/basics/global-defaults).
 
 ---
 
-## Backoff
+## Retry only some errors
 
-`retryTime` also takes a function that returns the delay of each attempt. It receives the `attempt` (`0` for the first
-retry) and the failed `response`. `exponentialBackoff` builds one that doubles the delay with every attempt, up to a
-maximum. By default it adds random jitter, so many clients that failed at the same time don't all retry together.
+By default every failed response is retried. `setRetryOnError` decides per response: return `true` to retry, `false` to
+stop. It is the counterpart of axios-retry's `retryCondition`.
 
-```ts
+```ts title="src/api/reports.ts"
+export const getReports = client
+  .createRequest<{ response: Report[] }>()({
+    endpoint: "/reports",
+    retry: 3,
+    retryTime: 1000,
+  })
+  // Retry network errors (status 0) and 5xx, never 4xx
+  .setRetryOnError(({ status }) => !status || Number(status) >= 500);
+```
+
+When the callback throws, the request is not retried.
+
+---
+
+## Add backoff
+
+`retryTime` also takes a function. It receives the `attempt` (`0` for the first retry) and the failed `response`, and
+returns the delay. `exponentialBackoff` builds one that doubles the delay with each attempt up to a maximum, with random
+jitter so clients that failed together do not retry at the same instant.
+
+```ts title="src/api/reports.ts"
 import { exponentialBackoff } from "@hyper-fetch/core";
 
-const getUsers = client.createRequest()({
-  endpoint: "/users",
+export const getStats = client.createRequest()({
+  endpoint: "/stats",
   retry: 5,
-  // highlight-next-line
   retryTime: exponentialBackoff({ min: 500, max: 10_000 }),
 });
 
-// Or your own function - honor the Retry-After header of a 429 response
-const getReports = getUsers.setRetryTime(({ attempt, response }) => {
+// Or honor the Retry-After header of a 429 response
+export const getQuota = getStats.setRetryTime(({ attempt, response }) => {
   const retryAfter = Number(response.extra?.headers?.["retry-after"]);
   return Number.isFinite(retryAfter) ? retryAfter * 1000 : 1000 * (attempt + 1);
 });
 ```
 
-| `exponentialBackoff` option | Default       | Description                                                         |
-| --------------------------- | ------------- | ------------------------------------------------------------------- |
-| `min`                       | `500`         | Delay of the first retry in milliseconds                            |
-| `max`                       | `30000`       | Longest delay in milliseconds                                       |
-| `jitter`                    | `true`        | Pick a random delay from `min` up to `min * 2 ** attempt`           |
-| `random`                    | `Math.random` | Source of the randomness, for deterministic tests                   |
+| `exponentialBackoff` option | Default       | Description                                                 |
+| --------------------------- | ------------- | ----------------------------------------------------------- |
+| `min`                       | `500`         | Delay of the first retry in milliseconds                    |
+| `max`                       | `30000`       | Longest delay in milliseconds                               |
+| `jitter`                    | `true`        | Pick a random delay from `min` up to `min * 2 ** attempt`   |
+| `random`                    | `Math.random` | Source of the randomness, for deterministic tests           |
 
-When the function throws, the request is not retried. A delay that is not a positive number retries right away. A
-function can't be stored as JSON, so a request restored from a persistent queue uses the default delay of 500 ms.
+A delay that is not a positive number retries at once. A function cannot be stored as JSON, so a request restored from a
+[persisted queue](/docs/guides/core/advanced/persistence) uses the default 500 ms.
 
----
-
-## Conditional retries
-
-By default, HyperFetch retries on any error. You can use `setRetryOnError` to add a condition. For example, only retry
-on server errors (5xx) but not on client errors (4xx) where retrying won't help:
-
-```ts
-const getUsers = client.createRequest()({
-  endpoint: "/users",
-  retry: 3,
-  retryTime: 1000,
-});
-
-// highlight-start
-const smartRetry = getUsers.setRetryOnError((response) => {
-  // Only retry on server errors, not client errors
-  return response.status >= 500;
-});
-// highlight-end
-```
-
-The callback receives the error response and must return `true` to allow the retry or `false` to stop retrying. This is
-how you avoid retrying a `400 Bad Request` or `404 Not Found`, and it's the HyperFetch counterpart of axios-retry's
-`retryCondition`.
+For most screens, `retry: 2` or `3` with a fixed `retryTime` of one or two seconds is enough. Use backoff when many
+clients call the same endpoint, or when the server asks you to slow down.
 
 ---
 
-## Watching retry attempts
+## Watch retry attempts
 
-`send()` resolves once, with the last response, and `onResponse` fires only for that one. The failed attempts in
-between are announced by `onRetry`. It fires when a failed attempt schedules a retry, right before the request starts
-waiting, so you can tell the user what is going on:
+`onResponse` fires only for the last attempt. `onRetry` fires for each failed attempt that schedules a retry, so you can
+show "Retrying (2 of 3)" while the request waits.
 
-```ts
-await getUsers.send({
+```ts title="src/app.ts"
+await getReport.send({
+  params: { reportId: 7 },
   onRetry: ({ retry, delay, response }) => {
-    console.log(`Attempt failed with ${response.status}, retry ${retry} of ${getUsers.retry} in ${delay} ms`);
+    console.log(
+      `${response.status}: retry ${retry} of ${getReport.retry} in ${delay} ms`,
+    );
   },
-  onResponse: ({ response, details }) => {
-    console.log(response.status, `retries used: ${details.retries}`);
-  },
+  onResponse: ({ response, details }) =>
+    console.log(response.status, `retries used: ${details.retries}`),
 });
 ```
 
-| Field      | Description                                                                         |
-| ---------- | ----------------------------------------------------------------------------------- |
-| `retry`    | Number of the scheduled retry, counted from `1`, up to the `retry` option            |
-| `delay`    | Milliseconds before the next attempt, as returned by `retryTime`                    |
-| `response` | The failed response of the attempt, after `retryOnError` allowed the retry          |
-| `details`  | The same details as in `onResponse`, with `willRetry: true`                         |
+| Field      | Description                                                              |
+| ---------- | ------------------------------------------------------------------------ |
+| `retry`    | Number of the scheduled retry, counted from `1`                          |
+| `delay`    | Milliseconds before the next attempt                                     |
+| `response` | The failed response, after `setRetryOnError` allowed the retry           |
+| `details`  | The same details as in `onResponse`, with `willRetry: true`              |
 
-`onRetry` does not fire when the request succeeds, runs out of retries, is aborted or fails offline. It is also
-available on the request with `request.$hooks.onRetry()`, and on the client for every request with
-`client.requestManager.events.onRetry()` (or `onRetryById` and `onRetryByQueue`).
-
-In React, `useFetch` returns an `onRetry` callback and a `retries` counter, and `useSubmit` returns `onSubmitRetry`, so
-you can show "Retrying (2 of 3)..." while the request waits. See [useFetch](../../../react/04-hooks/use-fetch.mdx).
-
----
-
-## When backoff matters
-
-Exponential backoff doubles the wait after every failure: 500 ms, 1 s, 2 s, 4 s. Random jitter on top stops many
-clients from retrying at the same instant after an outage, which is why `exponentialBackoff` adds it by default (see
-[Backoff](#backoff) above).
-
-For most screens a fixed `retryTime` of one or two seconds with `retry: 2` or `3` is enough. Reach for
-`exponentialBackoff` when many clients hit the same endpoint, or when the server tells you to slow down with a `429`
-and a `Retry-After` header.
+`onRetry` does not fire when the request succeeds, runs out of retries, is aborted or fails offline. Listen to every
+call of a request with `request.$hooks.onRetry()`, or to every request of the client with
+`client.requestManager.events.onRetry()`. In React, [`useFetch`](/docs/react/hooks/use-fetch) returns `onRetry` and a
+`retries` counter, and [`useSubmit`](/docs/react/hooks/use-submit) returns `onSubmitRetry`.
 
 ---
 
 :::success Congratulations!
 
-You've learned how to retry failed requests with HyperFetch.
+You've learned how to retry failed requests.
 
-- You know which failures are **worth retrying** and which are not.
-- You can set **retry attempts** and **delay** with `retry` and `retryTime`, or `.setRetry()` and `.setRetryTime()`.
-- You can limit retries to specific errors with **`setRetryOnError`**.
+- You can set **retries and a delay** with `retry` and `retryTime`, or their setters.
+- You can retry only **some errors** with `setRetryOnError`.
+- You can add **exponential backoff** or honor `Retry-After` with a `retryTime` function.
 - You can show each scheduled retry with **`onRetry`**.
-- You can add **exponential backoff** with `exponentialBackoff`, or honor `Retry-After` with your own delay function.
 
 :::
+
+Runnable examples: [Retries](/examples/request-control/retries), [Custom retry](/examples/request-control/custom-retry)
+and [Retry-After](/examples/request-control/retry-after).
+
+<LinkCard type="docs" title="Dispatcher" description="How retries are scheduled in the queue." to="/docs/core/dispatcher" />
+
+<LinkCard
+  type="guides"
+  title="Error handling"
+  description="Read and type the error of the last attempt."
+  to="/docs/guides/core/basics/error-handling"
+/>
+
+<LinkCard
+  type="api"
+  title="exponentialBackoff in the API reference"
+  description="Signature and options of the backoff helper."
+  to="/docs/api/core/Functions/exponentialBackoff"
+/>

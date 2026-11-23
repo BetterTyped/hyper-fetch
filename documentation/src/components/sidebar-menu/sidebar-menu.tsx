@@ -1,127 +1,69 @@
-/* eslint-disable react/no-array-index-key */
-import Link from "@docusaurus/Link";
 import { useLocation } from "@docusaurus/router";
 import type { SidebarItem } from "@site/src/hooks/use-sidebar";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
-import { cn } from "@site/src/lib/utils";
 import { apiGroupIndexOf, apiGroupOf } from "@site/src/api-groups";
 import { groupIndexOf, groupOf } from "@site/src/integration-groups";
+import { docsGroupLookup, guideGroupLookup } from "@site/src/section-groups";
 import { BookOpen, LayoutGrid } from "lucide-react";
 
 import { DocsVersionPicker } from "./docs-version-picker";
+import type { SectionPickerProps } from "./section-picker";
 import { SectionPicker } from "./section-picker";
 
-const getColor = (item: SidebarItem) => {
-  return item.active
-    ? item.section
-    : {
-        text: `text-zinc-500 dark:text-zinc-400`,
-        textHover: item.section.textHover,
-        textAction: item.section.textAction,
-        icon: `group-hover:shadow-zinc-200 dark:group-hover:bg-zinc-500 bg-zinc-400 dark:bg-zinc-500`,
-        iconHover: item.section.iconHover,
-        active: false,
-      };
-};
+type Area = Omit<SectionPickerProps, "items" | "activeItem">;
 
 /* Module level, so the pickers get stable functions */
-const integrationGroupOf = (item: SidebarItem) => groupOf(item.section);
-const integrationGroupIndexOf = (item: SidebarItem) =>
-  groupIndexOf(item.section);
-const packageGroupOf = (item: SidebarItem) => apiGroupOf(item.section);
-const packageGroupIndexOf = (item: SidebarItem) =>
-  apiGroupIndexOf(item.section);
+const areas = {
+  integrations: {
+    noun: { one: "integration", many: "integrations" },
+    groupOf: (item: SidebarItem) => groupOf(item.section),
+    groupIndexOf: (item: SidebarItem) => groupIndexOf(item.section),
+    overview: { label: "All integrations", icon: LayoutGrid },
+  },
+  api: {
+    noun: { one: "package", many: "packages" },
+    groupOf: (item: SidebarItem) => apiGroupOf(item.section),
+    groupIndexOf: (item: SidebarItem) => apiGroupIndexOf(item.section),
+    overview: { label: "API overview", icon: BookOpen },
+  },
+  guides: {
+    noun: { one: "guide", many: "guides" },
+    groupOf: (item: SidebarItem) => guideGroupLookup.groupOf(item.section),
+    groupIndexOf: (item: SidebarItem) =>
+      guideGroupLookup.groupIndexOf(item.section),
+    overview: { label: "Getting started", icon: BookOpen },
+  },
+  docs: {
+    noun: { one: "section", many: "sections" },
+    groupOf: (item: SidebarItem) => docsGroupLookup.groupOf(item.section),
+    groupIndexOf: (item: SidebarItem) =>
+      docsGroupLookup.groupIndexOf(item.section),
+    overview: { label: "Getting started", icon: BookOpen },
+  },
+} satisfies Record<string, Area>;
+
+const areaOf = (pathname: string): Area => {
+  if (pathname.includes("/integrations/")) return areas.integrations;
+  if (pathname.includes("/api/")) return areas.api;
+  if (pathname.includes("/guides/")) return areas.guides;
+  return areas.docs;
+};
 
 export const SidebarMenu = () => {
   const { sidebar, activeItem } = useSidebar();
-  // Too many integrations and packages for a list, so their pages pick one from a command palette
+  // Every area picks its section from a command palette, the way the integrations do
   const { pathname } = useLocation();
-  const isIntegrations = pathname.includes("/integrations/");
-  const isApi = pathname.includes("/api/");
-  const hasPicker = isIntegrations || isApi;
+  const area = areaOf(pathname);
 
   return (
     <div className="px-4 min-w-[250px]">
       <div className="docs_sidebar flex flex-col gap-3">
-        {activeItem && isIntegrations && (
-          <SectionPicker
-            items={sidebar}
-            activeItem={activeItem}
-            noun={{ one: "integration", many: "integrations" }}
-            groupOf={integrationGroupOf}
-            groupIndexOf={integrationGroupIndexOf}
-            overview={{ label: "All integrations", icon: LayoutGrid }}
-          />
-        )}
-        {activeItem && isApi && (
-          <SectionPicker
-            items={sidebar}
-            activeItem={activeItem}
-            noun={{ one: "package", many: "packages" }}
-            groupOf={packageGroupOf}
-            groupIndexOf={packageGroupIndexOf}
-            overview={{ label: "API overview", icon: BookOpen }}
-          />
+        {activeItem && (
+          <SectionPicker items={sidebar} activeItem={activeItem} {...area} />
         )}
         <DocsVersionPicker />
-        {activeItem && hasPicker && (
+        {activeItem && (
           <hr className="h-px mt-1 mb-1 bg-gray-200 border-0 dark:bg-gray-700" />
-        )}
-        {activeItem && !hasPicker && (
-          <div className="mt-4">
-            <ul>
-              {sidebar.map((item, index) => {
-                const color = getColor(item);
-                return (
-                  <li key={index}>
-                    <Link
-                      to={item.link.path}
-                      className={cn(
-                        "group !no-underline flex items-center lg:text-sm lg:leading-6",
-                        "mb-4 font-semibold capitalize",
-                        color.text,
-                        color.textAction,
-                        color.textHover,
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          "flex items-center justify-center h-6 w-6 ",
-                          "mr-4 rounded-md ring-1 ring-zinc-900/5 shadow-sm group-hover:shadow",
-                          "group-hover:ring-zinc-900/10 dark:ring-0 dark:shadow-none",
-                          "dark:group-hover:shadow-none dark:group-hover:highlight-white/10",
-                          "dark:highlight-white/10",
-                          color.icon,
-                          color.iconHover,
-                        )}
-                      >
-                        <item.img
-                          className={`${item.active ? "brightness-110" : ""} group-hover:brightness-110  w-4 h-4`}
-                        />
-                      </div>
-                      {item.name}
-                      {item.isPro && (
-                        <span className="ml-2 rounded-md bg-yellow-500 px-1.5 py-0.5 text-[11px] leading-none !text-black font-semibold no-underline group-hover:no-underline">
-                          Pro
-                        </span>
-                      )}
-                      {item.isNew && (
-                        <span className="ml-2 rounded-md bg-lime-500 px-1.5 py-0.5 text-[11px] leading-none !text-black font-semibold no-underline group-hover:no-underline">
-                          New
-                        </span>
-                      )}
-                      {item.isBeta && (
-                        <span className="ml-2 rounded-md bg-amber-400 px-1.5 py-0.5 text-[11px] leading-none !text-black font-semibold no-underline group-hover:no-underline">
-                          Beta
-                        </span>
-                      )}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-            <hr className="h-px mt-6 mb-1 bg-gray-200 border-0 dark:bg-gray-700" />
-          </div>
         )}
       </div>
     </div>

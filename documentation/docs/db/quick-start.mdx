@@ -7,27 +7,25 @@ sidebar_label: Quick Start
 
 # Quick start
 
-You will turn a list request into a collection of posts, show the posts of one team with a live query, and rename a post
-with an optimistic write. The rename shows in the list at once and reverts if the server rejects it.
+<Lead>
 
-:::tip What you'll learn
+**Turn a list request into posts that stay live.** You will define a collection, show one team's posts with a live
+query, and rename a post with a write that shows at once and reverts if the server rejects it.
 
-1. **Define a collection** from a schema and the requests that load and change it.
-2. **Query it live** in a React component.
-3. **Write to it** optimistically.
-
-:::
+</Lead>
 
 ---
 
 ## Install
 
-```npm2yarn2pnpm
-npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/db @hyper-fetch/react zod
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/db \
+  @hyper-fetch/react zod
 ```
 
-Zod is used here for the schema. Any [Standard Schema](https://standardschema.dev) library works, such as Valibot or
-ArkType, and `rowType<Post>()` works without one.
+`@hyper-fetch/sockets` is a peer of `@hyper-fetch/db`, used by [syncs](/docs/guides/db/basics/realtime-sync). Zod is used
+here for the schema. Any [Standard Schema](https://standardschema.dev) library works, such as Valibot or ArkType, and
+`rowType<Post>()` works without one.
 
 ---
 
@@ -54,7 +52,10 @@ const client = createClient({ url: "https://api.example.com" });
 const getTeamPosts = client.createRequest<{ response: Post[] }>()({
   endpoint: "/teams/:teamId/posts",
 });
-const updatePost = client.createRequest<{ response: Post; payload: Partial<Post> }>()({
+const updatePost = client.createRequest<{
+  response: Post;
+  payload: Partial<Post>;
+}>()({
   endpoint: "/posts/:postId",
   method: "PATCH",
 });
@@ -62,7 +63,7 @@ const updatePost = client.createRequest<{ response: Post; payload: Partial<Post>
 export const Post = collection(PostSchema, { key: "id" })
   .load(getTeamPosts, {
     where: {
-      // A query for `teamId = 1` sends GET /teams/1/posts. The query must set it.
+      // A query for `teamId = 1` sends GET /teams/1/posts. It must set teamId.
       // highlight-next-line
       teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
     },
@@ -110,7 +111,9 @@ import { db } from "./db";
 export const TeamPosts = ({ teamId }: { teamId: number }) => {
   // highlight-start
   const { data, status } = useLiveQuery(
-    db.post.where((post) => eq(post.teamId, teamId)).orderBy((post) => post.createdAt, "desc"),
+    db.post
+      .where((post) => eq(post.teamId, teamId))
+      .orderBy((post) => post.createdAt, "desc"),
   );
   // highlight-end
 
@@ -126,9 +129,18 @@ export const TeamPosts = ({ teamId }: { teamId: number }) => {
 
 ## 4. Write to it
 
-```ts title="post-row.tsx"
-// highlight-next-line
-const { success } = await db.post.update(post.id, { title: "Renamed" });
+```tsx title="post-row.tsx"
+import { db } from "./db";
+
+export const PostRow = ({ post }: { post: { id: number; title: string } }) => {
+  const rename = async () => {
+    // highlight-next-line
+    const { success } = await db.post.update(post.id, { title: "Renamed" });
+    if (!success) alert("Rename failed, the old title is back");
+  };
+
+  return <p onClick={rename}>{post.title}</p>;
+};
 ```
 
 The new title shows in every query that holds the post before the request finishes. If the request fails, the db
@@ -136,39 +148,29 @@ reverts this change and keeps any other changes made since. The write resolves w
 
 ---
 
-## Next steps
+## What just happened
 
-<div className="row">
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Overview"
-      description="Loaders, queries, syncs, writes and errors in depth."
-      to="/docs/db/overview"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Realtime syncs"
-      description="Keep loaded rows current with socket listeners."
-      to="/docs/db/overview#syncs-and-ingest"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Transactions"
-      description="Group writes that must succeed or revert together."
-      to="/docs/db/transactions"
-    />
-  </div>
-  <div className="col col--6">
-    <LinkCard
-      type="docs"
-      title="Server rendering"
-      description="Load on the server and send the rows with the page."
-      to="/docs/db/server-rendering"
-    />
-  </div>
-</div>
+- The [collection](/docs/guides/db/basics/thinking-in-collections) turned `GET /teams/:teamId/posts` into typed rows,
+  and its [loader](/docs/guides/db/basics/loaders) mapped the `teamId` condition to the request params.
+- [`useLiveQuery`](/docs/react/db/use-live-query) picked that loader, sent one request and keeps the list current.
+- [`db.post.update`](/docs/guides/db/basics/optimistic-writes) changed the row at once, then sent `updatePost` with
+  the `map` from `mutate`.
+
+---
+
+## Next
+
+<Tiles>
+  <Tile title="DB guides" icon="learn" to="/docs/guides/db/basics/thinking-in-collections">
+    Build one app step by step, from loaders to offline.
+  </Tile>
+  <Tile title="Realtime sync" icon="radio" to="/docs/guides/db/basics/realtime-sync">
+    Keep loaded rows current with socket listeners.
+  </Tile>
+  <Tile title="Transactions" icon="boxes" to="/docs/db/transactions">
+    Group writes that must succeed or revert together.
+  </Tile>
+  <Tile title="Server rendering" icon="server" to="/docs/db/server-rendering">
+    Load on the server and send the rows with the page.
+  </Tile>
+</Tiles>

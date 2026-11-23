@@ -1,158 +1,175 @@
 ---
 sidebar_position: 2
 title: Socket Listening Guide
-description: "Listen to WebSocket events with socket.createListener in HyperFetch, start and stop listeners, handle incoming data and use them in React with useListener."
+description: "Listen to WebSocket and SSE events with HyperFetch listeners: start and stop them, filter by topic params, sync the HTTP cache and observe every message."
 sidebar_label: Listening
 ---
 
 # Listening to Events
 
-In real-time applications, listening to events from a server is a core functionality. HyperFetch provides a simple and
-powerful way to handle incoming socket events using `socket.createListener`. This allows you to define event listeners
-that can be easily managed and integrated into your application, including React components.
-
----
+A [listener](/docs/sockets/listener) receives the messages of one topic with a typed `data`. This guide starts and
+stops listeners, listens to one room with topic params, handles only the next message, writes messages into the HTTP
+cache and observes every topic at once. In React, use the [listening in React](/docs/guides/react/sockets/listening)
+guide.
 
 :::secondary What you'll learn
 
-1.  How to define an event listener using **`createListener`**.
-2.  How to **start and stop** listening to events.
-3.  How to **handle incoming data** from the socket.
-4.  How to integrate socket listeners in React using the **`useListener` hook**.
-5.  How to manage **multiple listeners** for the same event.
+1.  How to **start and stop** a listener and why cleanup matters.
+2.  How to listen to **one resource** with topic params.
+3.  How to handle **only the next message**.
+4.  How to keep the **HTTP cache in sync** with messages.
+5.  How to **observe every message** of a socket for logging.
 
 :::
 
-## Creating a Listener
+---
 
-To start listening for events, you first need to create a listener. This is done using the `socket.createListener`
-method, which requires a `topic` that corresponds to the event name you want to listen to. It's also a good practice
-to provide a type for the expected message payload for type safety.
+## Start and stop listening
 
-```ts
-// highlight-start
-// It is recommended to create a single listener instance and reuse it throughout your application.
-// This helps to avoid re-creating listeners and attaching multiple handlers for the same event.
-// highlight-end
-const onChatMessage = socketInstance.createListener<{ message: string }>()({
-  topic: "chat-message",
+`listen()` registers a callback and returns the function that removes it. The callback receives `{ data, extra }`:
+`data` is typed by the listener, `extra` holds the adapter's details, such as the `MessageEvent` for WebSocket.
+
+```ts title="src/chat.ts"
+import { socket } from "./api/socket";
+
+type ChatMessage = { id: string; author: string; text: string };
+
+// Define once, at module level, and reuse
+export const onChatMessage = socket.createListener<ChatMessage>()({
+  topic: "chat",
 });
+
+const unlisten = onChatMessage.listen(({ data }) => {
+  console.log(`${data.author}: ${data.text}`);
+});
+
+// When the screen closes
+unlisten();
 ```
 
-Here, we've created a listener for the `chat-message` event. The generic `<{ message: string }>` ensures that the data
-received from this event will be correctly typed.
+Every `listen()` call is its own subscription with its own remover, so two features can listen to one topic and stop
+independently. Passing the same function twice does not add a second subscription. A listener that is never removed
+keeps its callback alive for the life of the socket.
 
-## Starting and Stopping
+---
 
-Once you have a listener, you can start listening for events by calling the `.listen()` method with a callback function.
-This function will be executed every time a new message arrives on the specified topic.
+## Listen to one room with topic params
 
-The `.listen()` method returns an `unlisten` function, which you can call to stop listening for events. It's crucial to
-call this cleanup function when the listener is no longer needed to prevent memory leaks.
+Put params in the topic with a colon. `setParams` returns a new listener for the filled topic and leaves the original
+unchanged, so always use the returned value.
 
-```ts
-const callback = ({ data }) => {
-  // highlight-next-line
-  // `data` is fully typed based on the generic provided to `createListener`.
-  console.log("New message received:", data.message);
-};
+```ts title="src/rooms.ts"
+export const onRoomMessage = socket.createListener<ChatMessage>()({
+  topic: "rooms/:roomId",
+});
 
-// Start listening
-const unlisten = onChatMessage.listen(callback);
+// Listens on "rooms/general"
+const stop = onRoomMessage
+  .setParams({ roomId: "general" })
+  .listen(({ data }) => console.log(data.text));
+```
 
-// When you no longer need to listen for events, call the returned function.
-// For example, in a web component's disconnectedCallback or a framework's unmount lifecycle.
-unlisten();
+Each param combination is a separate topic, matched exactly, without prefixes or wildcards. A missing or misspelled
+param is a type error.
+
+---
+
+## Handle only the next message
+
+Call the remover inside the callback to react once, for example to wait for a "ready" message.
+
+```ts title="src/wait-for-ready.ts"
+const onReady = socket.createListener<{ version: string }>()({
+  topic: "server/ready",
+});
+
+export const waitForReady = () =>
+  new Promise<string>((resolve) => {
+    const unlisten = onReady.listen(({ data }) => {
+      unlisten();
+      resolve(data.version);
+    });
+  });
 ```
 
 ---
 
-## React Integration with `useListener`
+## Keep the HTTP cache in sync
 
-For React applications, `@hyper-fetch/react` provides a `useListener` hook that simplifies the process of listening to
-socket events within your components. It automatically handles starting and stopping the listener based on the
-component's lifecycle.
+When the same records are loaded over HTTP, write each message into the matching request's cache. Every `useFetch` or
+`send()` reading it gets the new data without a refetch.
 
-The `useListener` hook takes the listener instance as its first argument and returns an `onEvent` callback registrar
-for handling incoming messages.
+```ts title="src/notes-sync.ts"
+const getNote = client.createRequest<{ response: Note }>()({
+  endpoint: "/notes/:noteId",
+});
+const onNoteChange = socket.createListener<Note>()({ topic: "notes" });
 
-```tsx
-function ChatComponent() {
-  const [messages, setMessages] = React.useState([]);
-
-  // highlight-start
-  // The useListener hook manages the listener's lifecycle,
-  // automatically calling listen() on mount and unlisten() on unmount.
-  // highlight-end
-  const { onEvent } = useListener(onChatMessage);
-
-  onEvent(({ data: newMessage }) => {
-    setMessages((previousMessages) => [...previousMessages, newMessage]);
-  });
-
-  return (
-    <div className="p-4 border rounded-md w-full">
-      <h3 className="text-lg font-bold mb-2">Live Chat</h3>
-      <div className="h-48 overflow-y-auto bg-gray-100 dark:bg-gray-800 p-2 rounded-md space-y-2">
-        {messages.length === 0 && (
-          <p className="text-gray-500 dark:text-gray-400">No messages yet. Waiting for the server...</p>
-        )}
-        {messages.map((msg, index) => (
-          <div key={index} className="bg-blue-100 dark:bg-blue-900 p-2 rounded-md">
-            <p className="text-blue-800 dark:text-blue-200">{msg.message}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-```
-
-## Listening from Multiple Sources
-
-You can use the `.listen()` method multiple times on the same listener instance. Each call will register a new callback,
-and all of them will be executed when an event is received. Each `.listen()` call returns its own `unlisten` function,
-allowing you to manage each listener independently.
-
-```ts
-const listenerOne = (message) => console.log("Listener 1:", message);
-const listenerTwo = (message) => console.log("Listener 2:", message);
-
-const unlistenOne = onChatMessage.listen(listenerOne);
-const unlistenTwo = onChatMessage.listen(listenerTwo);
-
-// To stop only the second listener:
-unlistenTwo();
-
-// To stop the first listener:
-unlistenOne();
-```
-
-## Dealing with High-Frequency Streams
-
-If a topic emits hundreds of messages per second, you rarely want every one of them to reach your callbacks. The
-`delivery` option lets a listener sample (`latest`) or batch (`batch`) messages before they are delivered, while
-`listen()` and `useListener` keep working unchanged:
-
-```ts
-const onPrice = socketInstance.createListener<Price>()({
-  topic: "prices",
-  delivery: { strategy: "latest", interval: 16 },
+onNoteChange.listen(({ data }) => {
+  client.cache.update(getNote.setParams({ noteId: data.id }), { data });
 });
 ```
 
-Read the [Throttling & Batching guide](/docs/guides/sockets/throttling) for timelines, trade-offs and custom
-strategies.
+When the message only says that something changed, call `client.cache.invalidate(getNotes)` instead and let the
+mounted hooks refetch.
+
+---
+
+## Observe every message
+
+`socket.events.onListenerEvent` receives every incoming message with its `topic`, before any delivery strategy. Use it
+for logging and debugging, not for features: it is not typed per topic.
+
+```ts title="src/debug.ts"
+const off = socket.events.onListenerEvent(({ topic, data }) => {
+  console.debug("[socket]", topic, data);
+});
+```
+
+---
+
+## Which approach to use
+
+| Need                                              | Use                                                         |
+| ------------------------------------------------- | ----------------------------------------------------------- |
+| React to a topic for a while                      | `listen()` and call the remover on cleanup                  |
+| One room, user or resource                        | `setParams(...).listen()`                                   |
+| Wait for one message                              | Call the remover inside the callback                        |
+| Data that is also loaded over HTTP                | `client.cache.update` in the callback                       |
+| Hundreds of messages per second                   | A [delivery strategy](/docs/guides/sockets/throttling)      |
+| tRPC, oRPC or GraphQL subscriptions with input    | `setPayload` on the listener, see the [Listener](/docs/sockets/listener#start-a-server-side-subscription-with-a-payload) docs |
+| Logging every message                             | `socket.events.onListenerEvent`                             |
 
 ---
 
 :::success Congratulations!
 
-You now have a solid understanding of how to listen for socket events with HyperFetch.
+You can now receive realtime messages anywhere in your app.
 
-- You can **create a typed listener** for any socket event.
-- You know how to **start and stop listening** and the importance of cleaning up.
-- You can integrate socket listeners into your **React components** effortlessly with the `useListener` hook.
-- You are able to set up **multiple callbacks** for a single event and manage them independently.
+- You can **start and stop** listeners with the remover from `listen()`.
+- You can listen to **one resource** with `setParams`.
+- You can react to **only the next message**.
+- You can keep the **HTTP cache in sync** and **log every message**.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="Listener"
+  description="Topics, params, payloads, delivery strategies and types."
+  to="/docs/sockets/listener"
+/>
+
+<LinkCard
+  type="guides"
+  title="Listening in React"
+  description="useListener, connection state and live cache updates in components."
+  to="/docs/guides/react/sockets/listening"
+/>
+
+- Guides: [emitting](/docs/guides/sockets/emitting), [throttling and batching](/docs/guides/sockets/throttling).
+- Runnable examples: [live cache updates](/examples/realtime/live-cache-updates),
+  [notifications](/examples/realtime/notifications), [server-sent events](/examples/realtime/server-sent-events),
+  [tRPC subscriptions](/examples/integrations/trpc-subscriptions).

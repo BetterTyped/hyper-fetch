@@ -7,108 +7,102 @@ sidebar_label: Event Iterators
 
 # oRPC event iterators and streaming in React
 
-[Read the API Reference »](/docs/api/adapter-orpc/Functions/OrpcStreamAdapter.mdx)
-
-An oRPC event iterator is a procedure that returns an async generator, so the server can keep sending events after one
-call: chat messages, job progress or tokens from a model. The oRPC client for HyperFetch turns each event iterator
-procedure into a typed listener on a `Socket`, over an HTTP event stream or a WebSocket, with the procedure input as
-the payload. In React, `useListener` gives you every event as it arrives.
+An oRPC event iterator is a procedure that returns an async generator, so the server keeps sending events after one
+call: chat messages, job progress or model tokens. `OrpcStreamAdapter` and `OrpcWebsocketAdapter` turn each one into a
+typed [Listener](/docs/sockets/listener) on a [Socket](/docs/sockets/socket), with the procedure input as the payload.
 
 :::tip Purpose
 
-1. **Listen to event iterators** with the `Socket`, `Listener` and `useListener` API you use for other realtime sources.
+1. **Listen to event iterators** with the `Socket`, `Listener` and `useListener` API of other realtime sources.
 2. **Infer types from your router or contract** with `OrpcSocketSchema` and `createSocketSdk`.
-3. **Share one server subscription** between every listener with the same input.
+3. **Share one server subscription** between listeners with the same input.
 4. **Resume after reconnecting** from the id of the last event, set with `withEventMeta`.
-5. **Keep rich types** such as `Date`, `BigInt` and `Map` in the input and in every event.
 
 :::
 
 ---
 
-## Installation
+## Install
 
-The socket adapters live in the oRPC package and need `@hyper-fetch/sockets`.
+The socket adapters ship in `@hyper-fetch/orpc` and need `@hyper-fetch/sockets`.
 
-```bash
+```bash npm2yarn2pnpm
 npm install @hyper-fetch/core @hyper-fetch/sockets @hyper-fetch/orpc @orpc/client
 ```
 
 ---
 
-## Event stream over HTTP
+## Listen over HTTP
 
-`OrpcStreamAdapter` calls the procedure the same way the `RPCLink` of `@orpc/client/fetch` does: a
-`POST {url}/planet/onUpdate` with the serialized input, answered with a `text/event-stream`. It works with the
-`RPCHandler` of `@orpc/server/fetch` or `@orpc/server/node`, the same handler that serves your queries.
+`OrpcStreamAdapter` calls the procedure like the `RPCLink` of `@orpc/client/fetch`: `POST {url}/planet/onUpdate` with the
+serialized input, answered with a `text/event-stream`. It works with the HTTP `RPCHandler` that already serves your
+queries.
 
-```ts title="server.ts"
+```ts title="server/router.ts"
 import { EventPublisher, os, withEventMeta } from "@orpc/server";
 import { z } from "zod";
+
+type Planet = { id: number; name: string; version: number };
 
 const publisher = new EventPublisher<Record<string, Planet>>();
 
 export const router = {
   planet: {
-    onUpdate: os.input(z.object({ id: z.number() })).handler(async function* ({ input, signal }) {
-      for await (const planet of publisher.subscribe(`planet/${input.id}`, { signal })) {
-        yield withEventMeta(planet, { id: String(planet.version) });
-      }
-    }),
+    onUpdate: os
+      .input(z.object({ id: z.number() }))
+      .handler(async function* ({ input, signal }) {
+        const events = publisher.subscribe(`planet/${input.id}`, { signal });
+        for await (const planet of events) {
+          yield withEventMeta(planet, { id: String(planet.version) });
+        }
+      }),
   },
 };
 ```
 
-```ts title="client.ts"
+```ts title="api/socket.ts"
 import { createSocketSdk, Socket } from "@hyper-fetch/sockets";
 import { OrpcStreamAdapter } from "@hyper-fetch/orpc";
 import type { OrpcSocketSchema } from "@hyper-fetch/orpc";
 
-import type { router } from "./server";
+import type { router } from "../server/router";
 
-const socket = new Socket({ url: "http://localhost:3000/rpc", adapter: OrpcStreamAdapter() });
+export const socket = new Socket({
+  url: "http://localhost:3000/rpc",
+  adapter: OrpcStreamAdapter(),
+});
 
-const sdk = createSocketSdk<typeof socket, OrpcSocketSchema<typeof router>>(socket, {
+export const sdk = createSocketSdk<
+  typeof socket,
+  OrpcSocketSchema<typeof router>
+>(socket, {
   camelCaseToKebabCase: false,
 });
 
-const stop = sdk.planet.onUpdate.$listener.setPayload({ id: 1 }).listen(({ data, extra }) => {
-  console.log(data.name, extra.id);
-});
+const stop = sdk.planet.onUpdate.$listener
+  .setPayload({ id: 1 })
+  .listen(({ data, extra }) => {
+    console.log(data.name, extra.id);
+  });
 ```
 
-Every subscription is its own request, there is no shared connection. "Connected" means the adapter opens streams:
-
-| Socket call    | What happens to the streams                                                                        |
-| -------------- | -------------------------------------------------------------------------------------------------- |
-| `connect()`    | Every listener starts its stream. The socket connects on creation, unless `autoConnect` is `false` |
-| `disconnect()` | Every stream is aborted and the server cancels the generators. Listeners stay registered           |
-| `reconnect()`  | Every running stream is aborted and started again with the id of its last event                    |
-
-When a stream fails, for example the network drops, the error is reported and the stream starts again after the `retry`
-of the last event, or after the `reconnectTime` of the socket. After the `reconnect` attempts of the socket the
-subscription ends with an error. A stream whose response does not arrive within the `connectionTimeout` of the socket (5
-seconds by default) is aborted and starts again the same way. Going offline aborts every stream, and coming back online
-starts them all again at once with the id of their last event.
-
-```ts
-const socket = new Socket({
-  url: "http://localhost:3000/rpc",
-  adapter: OrpcStreamAdapter(),
-  adapterOptions: { headers: { authorization: `Bearer ${token}` }, fetchOptions: { credentials: "include" } },
-});
-```
+Every subscription is its own request, so "connected" means the adapter opens streams: `connect()` starts every
+listener's stream, `disconnect()` aborts them (the server cancels the generators, listeners stay registered), and
+`reconnect()` restarts them with the id of their last event. A failed or timed out stream starts again after the
+`retry` of its last event or the socket's `reconnectTime`, until the socket's `reconnect` attempts run out.
 
 ---
 
-## WebSocket
+## Listen over WebSocket
 
-`OrpcWebsocketAdapter` speaks the protocol of the `RPCHandler` of `@orpc/server/ws`, the same as the `RPCLink` of
+`OrpcWebsocketAdapter` speaks the protocol of the `RPCHandler` of `@orpc/server/ws`, like the `RPCLink` of
 `@orpc/client/websocket`. Every subscription is a request on one shared connection.
 
-```ts title="server.ts"
+```ts title="server/ws.ts"
 import { RPCHandler } from "@orpc/server/ws";
 import { WebSocketServer } from "ws";
+
+import { router } from "./router";
 
 const handler = new RPCHandler(router);
 const wss = new WebSocketServer({ port: 3000 });
@@ -116,238 +110,219 @@ const wss = new WebSocketServer({ port: 3000 });
 wss.on("connection", (ws) => handler.upgrade(ws, { context: {} }));
 ```
 
-```ts title="client.ts"
+```ts title="api/socket.ts"
 import { OrpcWebsocketAdapter } from "@hyper-fetch/orpc";
 
-const socket = new Socket({ url: "ws://localhost:3000", adapter: OrpcWebsocketAdapter() });
-
-const sdk = createSocketSdk<typeof socket, OrpcSocketSchema<typeof router>>(socket, {
-  camelCaseToKebabCase: false,
+export const socket = new Socket({
+  url: "ws://localhost:3000",
+  adapter: OrpcWebsocketAdapter(),
 });
 ```
 
-The connection follows the regular [socket reconnection](/docs/guides/sockets/connection#retries): a handshake that
-takes longer than `connectionTimeout` is a failed attempt, and a dropped connection comes
-back after a jittered backoff between `reconnectTime` and `maxReconnectTime`. Every running subscription then starts again
-with the id of its last event.
+A lost connection comes back with the [socket reconnection](/docs/guides/sockets/connection) backoff, and every running
+subscription starts again with the id of its last event.
 
-:::note When to use which?
-
-- Use `OrpcStreamAdapter` when your API already runs on an HTTP `RPCHandler`, behind proxies and CDNs, or in serverless
-  functions.
-- Use `OrpcWebsocketAdapter` for many subscriptions per client, since they all share one connection.
-
-:::
+Pick `OrpcStreamAdapter` when your API already runs on an HTTP `RPCHandler`, behind proxies and CDNs, or in serverless
+functions. Pick `OrpcWebsocketAdapter` when a client holds many subscriptions, since they share one connection.
 
 ---
 
 ## Inputs and shared subscriptions
 
-`OrpcSocketSchema` turns every event iterator procedure into a `$listener`. The listener response is the yielded value,
-the payload is the procedure input and the topic is the procedure path, such as `planet/onUpdate`. Regular procedures
-are left out, call them with [`OrpcSchema`](/docs/integrations/adapter-orpc/overview.mdx).
+`OrpcSocketSchema` turns every event iterator procedure into a `$listener`: the response is the yielded value, the
+payload is the input and the topic is the procedure path, such as `planet/onUpdate`. Regular procedures are left out,
+call them with [`OrpcSchema`](/docs/integrations/adapter-orpc/overview).
 
-```ts
-// highlight-next-line
+```ts title="api/planets.ts"
 sdk.planet.onUpdate.$listener.setPayload({ id: 1 }).listen(({ data }) => {});
-
-// The payload can be passed to listen as well
 sdk.planet.onUpdate.$listener.listen(({ data }) => {}, { payload: { id: 2 } });
-
-// Procedures without an input need no payload
-sdk.ticks.$listener.listen(({ data }) => {});
 ```
 
-Listeners with the same topic and payload share one server subscription, and the last one to unsubscribe cancels it. One
-callback function can listen with several payloads, every `listen()` call is stopped by its own unsubscribe. Payloads
-are compared in the oRPC wire format, so `{ at: new Date(0) }` and `{ at: new Date(1) }` are different subscriptions.
-Every listener receives only the events of its own payload.
+- Listeners with the same topic and payload share one server subscription, and the last one to unsubscribe cancels it.
+- Payloads are compared in the oRPC wire format, so `{ at: new Date(0) }` and `{ at: new Date(1) }` are different
+  subscriptions. Each listener receives only the events of its own payload.
+- For contract-first APIs use `OrpcSocketSchema<ContractRouterClient<typeof contract>>`.
 
-For contract-first APIs, pass the client type of the contract.
+---
 
-```ts
-import type { ContractRouterClient } from "@orpc/contract";
+## Event ids and resuming
 
-const sdk = createSocketSdk<typeof socket, OrpcSocketSchema<ContractRouterClient<typeof contract>>>(socket, {
-  camelCaseToKebabCase: false,
-});
+The `extra` of every event holds the meta the server set with `withEventMeta`: `extra.id` and, when set,
+`extra.retry` in milliseconds. When a subscription starts again after a reconnect or a failed stream, the adapter sends
+the last id as the `last-event-id` header, and oRPC passes it to the procedure as `lastEventId`.
+
+```ts title="server/router.ts"
+onUpdate: os
+  .input(z.object({ id: z.number() }))
+  .handler(async function* ({ input, lastEventId }) {
+    for (const planet of await history.after(input.id, lastEventId)) {
+      yield withEventMeta(planet, { id: String(planet.version) });
+    }
+    // ...then the live events
+  }),
 ```
 
 ---
 
-## Event meta and resuming
+## Subscriptions in React
 
-The `extra` of every message holds the meta the server set with `withEventMeta`.
+[`useListener`](/docs/react/sockets/use-listener) subscribes on mount and unsubscribes on unmount. A new payload starts
+a new subscription and cancels the previous one. In `StrictMode` the server keeps one subscription.
 
-```ts
-sdk.planet.onUpdate.$listener.setPayload({ id: 1 }).listen(({ data, extra }) => {
-  extra.id; // "42" - the id of the event
-  extra.retry; // the retry delay in milliseconds, when the server set one
-});
-```
-
-When a subscription starts again, after a reconnect or a failed stream, the adapter sends the id of its last event as
-the `last-event-id` header. oRPC passes it to the procedure as `lastEventId`, so the server can send the events the
-client missed.
-
-```ts
-onUpdate: os.input(z.object({ id: z.number() })).handler(async function* ({ input, lastEventId }) {
-  // highlight-next-line
-  for (const planet of await history.after(input.id, lastEventId)) {
-    yield withEventMeta(planet, { id: planet.eventId });
-  }
-  // ...then the live events
-}),
-```
-
----
-
-## React
-
-`useListener` subscribes on mount and unsubscribes on unmount. A new payload starts a new subscription and cancels the
-previous one. In `StrictMode` the extra mount is cancelled right away, so the server keeps one subscription.
-
-`status` follows the [subscription lifecycle](#subscription-lifecycle): `"starting"` until the server confirms it,
-`"listening"` while it runs, then `"ended"`, or `"failed"` with the `OrpcSocketError` in `error`.
-
-```tsx
+```tsx title="Planet.tsx"
 import { useListener } from "@hyper-fetch/react";
 
-function Planet({ id }: { id: number }) {
-  const { data, extra, status, error } = useListener(sdk.planet.onUpdate.$listener.setPayload({ id }));
+import { sdk } from "./api/socket";
 
-  if (status === "failed") {
-    return <p>{error?.message}</p>;
-  }
+export const Planet = ({ id }: { id: number }) => {
+  const { data, extra, status, error } = useListener(
+    sdk.planet.onUpdate.$listener.setPayload({ id }),
+  );
+
+  if (status === "failed") return <p>{error?.message}</p>;
 
   return (
-    <div>
-      <h3>{data?.name}</h3>
-      <p>
-        Event {extra?.id} ({status})
-      </p>
-    </div>
+    <p>
+      {data?.name}, event {extra?.id} ({status})
+    </p>
   );
-}
+};
 ```
+
+`status` is `"idle"`, `"starting"` until the server confirms the subscription, `"listening"`, then `"ended"` or
+`"failed"` with the `OrpcSocketError` in `error`.
 
 ---
 
 ## Errors
 
-Errors of a subscription never throw into your code. They are reported to `socket.onError` and the socket error events
-as an `OrpcSocketError`, which tells you which subscription failed:
+Subscription errors never throw into your code. They reach `socket.onError` as an `OrpcSocketError`:
 
-| Property                            | Description                                                                       |
-| ----------------------------------- | --------------------------------------------------------------------------------- |
-| `topic`                             | Topic of the failed subscription, such as `planet/onUpdate`                       |
-| `payload`                           | Input of the failed subscription                                                  |
-| `shape`                             | The server error in the shape of `ORPCError.toJSON()`, `null` when there was none |
-| `defined`, `code`, `status`, `data` | Read from `shape`. `defined` is `true` for errors from the `.errors()` map        |
-| `cause`                             | The original error - the `ORPCError`, an `ErrorEvent`, or the network error       |
+| Property                            | Description                                                                        |
+| ----------------------------------- | ---------------------------------------------------------------------------------- |
+| `topic`, `payload`                  | The failed subscription. `topic` is `null` for a WebSocket frame that can't be read |
+| `shape`                             | The server error as `ORPCError.toJSON()`, `null` when there was none               |
+| `defined`, `code`, `status`, `data` | Read from `shape`. `defined` is `true` for errors from the `.errors()` map          |
+| `cause`                             | The original error: the `ORPCError`, an `ErrorEvent`, or the network error         |
 
-```ts
+```ts title="api/socket.ts"
 import { OrpcSocketError } from "@hyper-fetch/orpc";
 
 socket.onError(({ error }) => {
-  if (error instanceof OrpcSocketError && error.defined && error.code === "OVERHEATED") {
+  if (
+    error instanceof OrpcSocketError &&
+    error.defined &&
+    error.code === "OVERHEATED"
+  ) {
     console.log(error.topic, error.payload, error.data);
   }
 });
 ```
 
-What ends up in it:
-
-- An `error` event of the iterator, and a call the server rejected before the iterator started (a failed input
-  validation or middleware), have the `ORPCError` as the `cause` and its JSON as the `shape`.
-- An error event that is not an oRPC error has the `ErrorEvent` of `@orpc/client` as the `cause`, with its `data`.
-- A procedure that returns a regular output, malformed data, and a failed or timed out stream have `shape: null`.
-- A WebSocket frame that can't be read at all has `topic: null`, since it can't be matched to a subscription.
-
-A listener callback that throws is reported with its own error, and the other listeners still receive the event. A
-WebSocket connection that closes is reported as a regular `Error`, the same as in the other socket adapters.
+An `error` event of the iterator and a call rejected before the iterator started (failed input validation or
+middleware) carry the `ORPCError`. A procedure that returns a regular output, malformed data, and a failed or timed out
+stream have `shape: null`. A listener callback that throws is reported on its own, and other listeners still get the
+event.
 
 ---
 
 ## Subscription lifecycle
 
-Both adapters report when the server confirms a subscription and when it ends it. Pass `onStart` and `onEnd` to
-`listen()`:
+Both adapters report when the server confirms a subscription and when it ends. Pass `onStart` and `onEnd` to `listen()`.
 
-```ts
-sdk.countdown.$listener.setPayload({ from: 3 }).listen(({ data }) => console.log(data), {
-  // The server answered with the event iterator - also after every restart
-  onStart: ({ topic }) => console.log(`${topic} is live`),
-  // The iterator finished (`error` is `null`) or failed
-  onEnd: ({ topic, error }) => console.log(topic, error ? "failed" : "finished"),
-});
+```ts title="api/countdown.ts"
+sdk.countdown.$listener
+  .setPayload({ from: 3 })
+  .listen(({ data }) => console.log(data), {
+    // also after every restart
+    onStart: ({ topic }) => console.log(`${topic} is live`),
+    onEnd: ({ topic, error }) =>
+      console.log(topic, error ? "failed" : "finished"),
+  });
 ```
 
-| Event     | When                                                                                                                                                                                                                                                                   |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `onStart` | The response of the stream, or of the WebSocket request, carries the event iterator. A listener that joins a running subscription gets it right away. It comes again when the subscription is confirmed after a reconnect or a failed stream                           |
-| `onEnd`   | `error: null` after the `done` event, or when the server closes the stream. The `OrpcSocketError` after an `error` event, a rejected call, a procedure that is not an event iterator, an input the WebSocket adapter can't encode, or a stream that stopped restarting |
-
-A failure the adapter recovers from, such as a dropped connection that reconnects, does not end the subscription. The
-error is still reported to `socket.onError`.
-
-When a subscription ends, the listeners receive the events that came before the end (also the batch of a `delivery`
-strategy), then they unsubscribe and `onEnd` runs. The value returned by the generator is not delivered. The adapter
-doesn't cancel anything on the server, since the server already finished. A reconnect never starts an ended subscription
-again - call `listen()` for a new one. It starts without the id of the last event of the old one.
+- `onStart` runs when the response carries the event iterator, right away for a listener that joins a running
+  subscription, and again after every restart.
+- `onEnd` runs with `error: null` after the `done` event or when the server closes the stream, and with the
+  `OrpcSocketError` after an error, a rejected call, a procedure that is not an event iterator, or a stream that stopped
+  restarting.
+- A recovered failure, such as a dropped connection that reconnects, does not end the subscription.
+- Events before the end are delivered first, including a pending `delivery` batch. The generator's return value is not.
+- A reconnect never restarts an ended subscription. A new `listen()` starts a fresh one without the old event id.
 
 ---
 
 ## Options
 
-Both adapters take `customJsonSerializers`, the same list as the `RPCHandler`.
-
-```ts
-const socket = new Socket({ url, adapter: OrpcStreamAdapter({ customJsonSerializers: [moneySerializer] }) });
-```
+Both adapter factories take `customJsonSerializers`, the same list as the server's `RPCHandler`. Connection options go
+in the socket's `adapterOptions`, or per connection attempt in `socket.onConnect`, for example to send a fresh token.
 
 | Option         | Adapter                | Description                                            |
 | -------------- | ---------------------- | ------------------------------------------------------ |
-| `autoConnect`  | both                   | Connect when the socket is created, `true` by default  |
+| `autoConnect`  | both                   | Connect when the socket is created, default `true`     |
 | `headers`      | both                   | Headers of every subscription request                  |
 | `fetch`        | `OrpcStreamAdapter`    | The `fetch` to use, the global one by default          |
 | `fetchOptions` | `OrpcStreamAdapter`    | Options passed to `fetch`, such as `credentials`       |
-| `WebSocket`    | `OrpcWebsocketAdapter` | The `WebSocket` constructor, the global one by default |
+| `WebSocket`    | `OrpcWebsocketAdapter` | The `WebSocket` class, the global one by default       |
 | `protocols`    | `OrpcWebsocketAdapter` | Subprotocols of the `WebSocket`                        |
 
-Set them with the `adapterOptions` of the socket, or per connection attempt in `socket.onConnect`, for example to send a
-fresh token. Query params of the socket are appended to the URL. In a runtime without a global `fetch` or `WebSocket`,
-pass one - otherwise the connection fails with "not available in this environment".
-
-```ts
-import WebSocket from "ws";
-
-const socket = new Socket({
-  url: "ws://localhost:3000",
-  adapter: OrpcWebsocketAdapter(),
-  adapterOptions: { WebSocket: WebSocket as unknown as typeof globalThis.WebSocket },
+```ts title="api/socket.ts"
+export const socket = new Socket({
+  url: "http://localhost:3000/rpc",
+  adapter: OrpcStreamAdapter({ customJsonSerializers: [moneySerializer] }),
+  adapterOptions: {
+    headers: { authorization: `Bearer ${token}` },
+    fetchOptions: { credentials: "include" },
+  },
 });
 ```
 
-The socket options `connectionTimeout` (the limit of one connection attempt or stream response) and `reconnectTime` (the
-minimum delay before the next attempt) apply to both adapters. `socket.destroy()` closes the connection and removes everything
-the adapter subscribed to, such as the online listener of the app manager.
+The socket's `connectionTimeout` (default 5 seconds) limits one connection attempt or stream response, and
+`reconnectTime` is the minimum delay before the next attempt. Query params of the socket are appended to the URL.
+`socket.destroy()` closes everything the adapter opened.
 
 ---
 
-## Limitations
+## Limits
 
-- The adapters only subscribe. Emitting throws, use `OrpcAdapter` for regular procedures.
+- The adapters only subscribe. Emitting throws; use `OrpcAdapter` for regular procedures.
 - Inputs with files are not supported over WebSocket.
 - Event iterators in the input (client streaming) and request batching are not supported.
+- In a runtime without a global `fetch` or `WebSocket`, pass one in the options, or the connection fails.
 
-:::secondary What you learned
+---
 
-1. `OrpcStreamAdapter` reads event iterators from HTTP event streams, `OrpcWebsocketAdapter` from one WebSocket.
-2. `OrpcSocketSchema` types every event iterator procedure as a listener, with the input as the payload.
-3. Listeners with the same payload share one server subscription.
-4. The event id from `withEventMeta` is in `extra` and resumes the subscription after a reconnect.
-5. `onStart` and `onEnd`, and the `status` of `useListener`, follow the server side of the subscription.
-6. Errors arrive in `socket.onError` as an `OrpcSocketError` with the topic, the payload and the server error.
+:::secondary Summary
+
+- `OrpcStreamAdapter` reads event iterators from HTTP event streams, `OrpcWebsocketAdapter` from one WebSocket.
+- `OrpcSocketSchema` types every event iterator procedure as a listener, with the input as the payload.
+- The event id from `withEventMeta` is in `extra` and resumes the subscription after a reconnect.
+- Errors arrive in `socket.onError` as an `OrpcSocketError` with the topic, payload and server error.
 
 :::
+
+## Next steps
+
+Runnable example: [oRPC event iterators](/examples/integrations/orpc-event-iterator), job progress streamed into
+`useListener` with event ids.
+
+<LinkCard
+  type="docs"
+  title="oRPC overview"
+  description="Call regular procedures with OrpcAdapter and OrpcSchema."
+  to="/docs/integrations/adapter-orpc/overview"
+/>
+
+<LinkCard
+  type="docs"
+  title="useListener"
+  description="Listen to a socket topic in a React component."
+  to="/docs/react/sockets/use-listener"
+/>
+
+<LinkCard
+  type="api"
+  title="OrpcStreamAdapter API reference"
+  description="The HTTP event stream socket adapter and its options."
+  to="/docs/api/adapter-orpc/Functions/OrpcStreamAdapter"
+/>

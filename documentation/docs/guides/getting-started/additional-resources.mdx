@@ -5,25 +5,11 @@ description: "Recommended reading on data fetching basics: the MDN docs for the 
 sidebar_label: Additional Resources
 ---
 
-Expanding your knowledge about data fetching is essential for building robust web applications. Below are some highly
-recommended resources to help you understand the fundamentals and best practices:
+HyperFetch's HTTP adapter is built on the Fetch API and cancels requests with `AbortController`. These resources explain
+both, which helps when you read adapter options or debug a request.
 
----
-
-### [MDN Web Docs: Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
-
-> Comprehensive guide to the Fetch API, including usage examples, browser compatibility, and advanced features.
-
----
-
-### [MDN Web Docs: AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
-
-> API reference for AbortController, used by HyperFetch for request cancellation.
-
----
-
-### [JavaScript.info: Fetch](https://javascript.info/fetch)
-
-> In-depth tutorial on using the Fetch API with practical examples and explanations.
-
----
+| Resource                                                                                   | What it covers                                                                                                                              |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| [MDN: Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)               | `fetch`, `Request`, `Response` and `Headers`, with browser support. Adapter options such as `credentials` or `mode` are `RequestInit` fields |
+| [MDN: AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)   | The API HyperFetch uses to [cancel requests](/docs/guides/core/advanced/cancellation)                                                       |
+| [JavaScript.info: Fetch](https://javascript.info/fetch)                                    | A `fetch` tutorial with examples for JSON, form data, progress and aborting                                                                 |

@@ -7,175 +7,134 @@ sidebar_label: Headers
 
 # Headers
 
-In HTTP requests, headers are a crucial component, carrying additional information between the client and the server.
-They can be used for authentication, content type specification, caching control, and more. HyperFetch provides a
-flexible and powerful way to manage headers for your requests.
-
----
+Headers carry metadata with a request, such as an auth token, a content type or a trace id. In HyperFetch you set them on
+the request, at call time, or for every request through the client. This guide covers each level and how they combine.
 
 :::secondary What you'll learn
 
-1. How to set **global headers** on the HyperFetch client.
-2. How to set **static headers** when creating a request.
-3. How to add or override headers **dynamically** before sending a request.
-4. How to set headers for a **single specific execution** of a request.
-5. Understanding the **order of merging** for all header types.
-6. What are the **adapter limitations** regarding headers.
+1. How to set headers **on a request** and **at call time**.
+2. How to add headers to **every request** of a client.
+3. Why `setHeaders` **replaces** the headers instead of merging them.
+4. Which headers the adapter **adds for you**.
 
 :::
 
 ---
 
-## Setting Headers
+## Set headers on a request
 
-HyperFetch offers multiple levels for setting headers, giving you fine-grained control over how they are applied.
-Headers are merged in a specific order of precedence, allowing you to set defaults and override them when needed.
+Pass `headers` when you create the request for values that never change.
 
-### 1. Global Headers
-
-You can set headers on the `client` instance. These headers will be automatically included in **every request** created
-by that client. This is useful for headers that are common to all API calls, like `Accept` or `Authorization` tokens.
-
-```ts
-// Create a client with global headers
-const apiClient = createClient({
-  url: "https://api.example.com",
-  headers: {
-    Accept: "application/json",
-    Authorization: "Bearer your-static-token",
-  },
+```ts title="src/api/reports.ts"
+export const getReport = client.createRequest<{ response: Report }>()({
+  endpoint: "/reports/:reportId",
+  headers: { Accept: "application/json", "X-Api-Version": "2" },
 });
-
-// A request created with this client will inherit its headers
-const getUsers = apiClient.createRequest()({
-  endpoint: "/users",
-});
-
-// highlight-next-line
-console.log("Inherited headers:", getUsers.headers);
-
-const getProducts = apiClient.createRequest()({
-  endpoint: "/products",
-});
-
-// highlight-next-line
-console.log("All requests from apiClient have these headers:", getProducts.headers);
 ```
-
-### 2. Per-Request Headers
-
-For more granular control, you can set headers on a per-request basis. These headers are merged with global client
-headers, allowing you to add new ones or override the global settings for a specific request.
-
-#### Static Headers
-
-If a request always requires specific headers, you can define them when creating it. These static headers are merged
-with global headers, with request-specific headers taking precedence in case of conflicts.
-
-```ts
-const apiClient = createClient({
-  url: "https://api.example.com",
-  headers: {
-    Accept: "application/json",
-  },
-});
-
-// We can add more headers or override the client's headers
-const getUsers = apiClient.createRequest()({
-  endpoint: "/users",
-  // highlight-start
-  headers: {
-    "X-Custom-Header": "my-value",
-    Accept: "application/xml", // This will override the client's Accept header
-  },
-  // highlight-end
-});
-
-// The headers are now a combination of client and request headers
-console.log("Merged static headers:", getUsers.headers);
-```
-
-#### Dynamic Headers
-
-For headers that change at runtime, like a session-based authentication token, you can use the `.setHeaders()` method.
-This method merges the new headers with any existing ones on the request instance.
-
-```ts
-const getUser = client.createRequest()({
-  endpoint: "/users/1",
-});
-
-// A function that provides the latest auth token
-const getAuthToken = () => "Bearer new-secret-token";
-
-// Use .setHeaders() to apply the dynamic header
-// highlight-next-line
-const requestWithAuth = getUser.setHeaders({
-  Authorization: getAuthToken(),
-});
-
-console.log("Request with dynamic header:", requestWithAuth.headers);
-```
-
-#### One-Time Headers
-
-You can also provide headers directly to the `.send()` method. These headers are used only for that specific request
-execution and have the highest precedence, overriding any headers defined on the client or the request instance.
-
-```ts
-const updateUser = client.createRequest()({
-  endpoint: "/users/1",
-  method: "PUT",
-  headers: { "X-Static-Header": "some-value" },
-});
-
-// The 'send' method triggers the request with the one-time headers
-// Note: for this example, we are just showing how to pass headers.
-updateUser.send({
-  // highlight-start
-  headers: {
-    "X-Request-ID": "abc-123",
-    "X-Static-Header": "overridden-value", // This overrides the static header for this call
-  },
-  // highlight-end
-});
-
-// The headers on the 'updateUser' instance itself are not changed by .send()
-console.log("Original request headers:", updateUser.headers);
-```
-
-### Headers Precedence
-
-HyperFetch merges headers from different sources in a specific order. Each subsequent level overrides the previous one
-in case of duplicate header keys:
-
-1.  **Client Headers**: The base level, providing default headers for all requests.
-2.  **Request Static Headers**: Headers defined on the request instance, overriding client headers.
-3.  **Request Dynamic Headers (`.setHeaders`)**: Headers set with `.setHeaders()`, overriding static and client headers.
-4.  **Send Method Headers (`.send`)**: One-time headers with the highest precedence, overriding all others for a single
-    execution.
 
 ---
 
-:::warning Adapter Compatibility
+## Set headers at call time
 
-It's important to remember that not all adapters will use headers. For instance, adapters for services that don't use
-the HTTP protocol, like `@hyper-fetch/firebase`, will ignore them. Always check the documentation for the adapter you're
-using to see if it supports headers.
+`setHeaders` returns a new request with the given headers, and `send({ headers })` sets them for one call. Both
+**replace** the request's headers, so spread the existing ones to keep them:
 
-:::
+```ts title="src/app.ts"
+// Keep the request's headers and add one
+const traced = getReport.setHeaders({
+  ...getReport.headers,
+  "X-Request-Id": crypto.randomUUID(),
+});
+
+// Or for one call only
+await getReport.send({
+  params: { reportId: 7 },
+  headers: { ...getReport.headers, "X-Request-Id": crypto.randomUUID() },
+});
+```
+
+`request.headers` is typed as `HeadersInit`, which can also be a `Headers` instance or an array of pairs. Spreading only
+works for a plain object, so keep request headers as objects.
+
+---
+
+## Add headers to every request
+
+The client has no `headers` option. Add shared headers in an interceptor that runs before each request:
+
+- **`onAuth`** for credentials. It runs only for requests with `auth: true`, the default, so public endpoints can opt out
+  with `auth: false`.
+- **`onRequest`** for everything else, such as a locale or a trace id.
+
+```ts title="src/api/client.ts"
+export const client = createClient({ url: "https://api.example.com" })
+  .onRequest((request) =>
+    request.setHeaders({ "Accept-Language": getLocale(), ...request.headers }),
+  )
+  .onAuth((request) =>
+    request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${getToken()}`,
+    }),
+  );
+```
+
+The order of the spread decides who wins. In `onRequest` above, a header set on the request overrides the shared one. In
+`onAuth`, the interceptor's `Authorization` overrides the request's. See [authentication](/docs/guides/core/basics/authentication).
+
+`setRequestDefaults` can also return `headers`, but a request that sets its own `headers` replaces them entirely. Use an
+interceptor when headers must be merged.
+
+---
+
+## Pick the level
+
+Each level reaches a different set of calls and combines with the request's headers its own way.
+
+| Where                  | Scope                         | Combines with the request's headers   |
+| ---------------------- | ----------------------------- | ------------------------------------- |
+| `createRequest` option | Every call of the request     | It is the request's headers           |
+| `setHeaders`           | The returned request          | Replaces them                          |
+| `send({ headers })`    | One call                      | Replaces them                          |
+| `onRequest` / `onAuth` | Every request of the client   | As you spread them                     |
+
+---
+
+## Headers the adapter adds
+
+The fetch adapter sends `Content-Type: application/json` when the payload is an object or array. It leaves it out for
+`FormData`, `Blob` and other binary bodies, so `fetch` can set the multipart boundary. A `content-type` header you set,
+in any letter case, replaces the default. A header with an `undefined` or `null` value is not sent.
+
+Other adapters treat headers their own way, and the Firebase adapters ignore them. Check the page of your adapter.
 
 ---
 
 :::success Congratulations!
 
-You now know how to manage headers in HyperFetch like a pro!
+You've learned how to manage headers.
 
-- You can set **global headers** on the client for all requests.
-- You can define **static headers** on a request for consistent values.
-- You can use `.setHeaders()` to apply **dynamic headers** at runtime.
-- You can pass **one-time headers** directly to `.send()` for specific calls.
-- You understand the **precedence rules** for header merging.
-- You are aware of **adapter limitations** regarding headers.
+- You can set headers **on a request**, with **`setHeaders`** or for **one call** in `send()`.
+- You can add headers to **every request** with `onRequest` and `onAuth`.
+- You know that `setHeaders` and `send({ headers })` **replace** headers, so you spread the existing ones.
 
 :::
+
+Runnable examples: [Authentication](/examples/request-control/authentication) and
+[Retry-After](/examples/request-control/retry-after), which reads a response header.
+
+<LinkCard
+  type="guides"
+  title="Authentication"
+  description="Add tokens with onAuth and refresh them on 401."
+  to="/docs/guides/core/basics/authentication"
+/>
+
+<LinkCard
+  type="guides"
+  title="Intercepting"
+  description="Change every request and response of a client."
+  to="/docs/guides/core/advanced/intercepting"
+/>
+
+<LinkCard type="docs" title="Client" description="Interceptors and their order." to="/docs/core/client" />

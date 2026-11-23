@@ -5,62 +5,87 @@ description: "Install HyperFetch with npm, yarn, pnpm or bun. Add @hyper-fetch/c
 sidebar_label: Installation
 ---
 
-An installation of HyperFetch can be run `clean` or for a specific environment. However, we only currently support
-React.
+# Installation
 
-:::info
+<Lead>
 
-The main `@hyper-fetch/core` package is required for other sub packages to work.
+**Every setup starts with `@hyper-fetch/core`.** Add the packages for your framework, transport and tooling on top
+of it.
 
-:::
-
----
-
-## Install Core packages
-
-For minimal installation, you need to install the core package and eslint plugin.
+</Lead>
 
 ```bash npm2yarn2pnpm
-npm install --save @hyper-fetch/core eslint-plugin-hyper-fetch
-```
-
-:::warning
-
-[Eslint plugin](/docs/integrations/plugin-eslint/) is required for maximum type safety. It enhances the abilities of the
-typescript via checking the object generic types to match exact schema.
-
-Using Oxlint? Install [`oxlint-plugin-hyper-fetch`](/docs/integrations/plugin-oxlint/) instead. It has the same rules.
-
-:::
-
----
-
-## Sockets
-
-Sockets is created for handling websockets or server sent events.
-
-```bash npm2yarn2pnpm
-npm install --save @hyper-fetch/sockets
+npm install @hyper-fetch/core
 ```
 
 ---
 
-## React
+## Add the lint plugin
 
-React allows the installation of the base library with hooks, offering interfaces that facilitate library usage and
-support the application lifecycle.
+The request generics are objects (`createRequest<{ response: User }>()`), and TypeScript accepts unknown keys in them
+without an error. The lint plugin reports misspelled or unknown generic keys, so install it next to core.
 
 ```bash npm2yarn2pnpm
-bun add @hyper-fetch/core @hyper-fetch/react
+npm install --save-dev eslint-plugin-hyper-fetch
+```
+
+Using Oxlint? Install [`oxlint-plugin-hyper-fetch`](/docs/integrations/plugin-oxlint) instead. It has the same rules.
+Setup for both is on the [ESLint plugin page](/docs/integrations/plugin-eslint).
+
+---
+
+## Add your framework
+
+React hooks (`useFetch`, `useSubmit` and the others) need React 18 or newer.
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core @hyper-fetch/react
+```
+
+For WebSocket and server-sent events, add sockets. It works with or without React.
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/sockets
 ```
 
 ---
 
-## Integrations
+## All packages
 
-<LinkCard
-  type="integrations"
-  title="Integrations"
-  description="Find out how to integrate HyperFetch with your favorite libraries"
-  to="/docs/integrations/getting-started"
-/>
+| Package                        | What it adds                                                   |
+| ------------------------------ | -------------------------------------------------------------- |
+| `@hyper-fetch/core`            | Client, requests, cache, dispatchers and the fetch adapter     |
+| `@hyper-fetch/react`           | React hooks and the `Hydrate` component                         |
+| `@hyper-fetch/sockets`         | Realtime listeners and emitters over WebSocket and SSE         |
+| `@hyper-fetch/db`              | Collections of typed rows with live queries and optimistic writes |
+| `@hyper-fetch/axios`           | Axios adapter, with upload progress in the browser             |
+| `@hyper-fetch/graphql`         | GraphQL adapter for queries, mutations and subscriptions       |
+| `@hyper-fetch/firebase`        | Firestore and Realtime Database adapter for the client SDK     |
+| `@hyper-fetch/firebase-admin`  | The same adapter for the Firebase Admin SDK on the server      |
+| `@hyper-fetch/trpc`            | Typed requests from a tRPC router                              |
+| `@hyper-fetch/orpc`            | Typed requests from an oRPC router                             |
+| `@hyper-fetch/hono`            | A typed SDK from a Hono app type                               |
+| `@hyper-fetch/elysia`          | A typed SDK from an Elysia app type                            |
+| `@hyper-fetch/plugin-devtools` | Connects a client to the HyperFlow devtools app                |
+| `@hyper-fetch/cli`             | Generates a typed SDK from an OpenAPI or Swagger schema        |
+| `eslint-plugin-hyper-fetch`    | Lint rules for request and client generics                     |
+| `oxlint-plugin-hyper-fetch`    | The same lint rules for Oxlint                                 |
+
+---
+
+## Next
+
+<Tiles>
+  <Tile title="Quick start" icon="rocket" meta="5 min" to="/docs/getting-started/quick-start">
+    Pick your stack and send your first typed request.
+  </Tile>
+  <Tile title="Integrations" icon="puzzle" to="/docs/integrations/getting-started">
+    Set up an adapter or a server framework.
+  </Tile>
+  <Tile title="Lint plugin" icon="shield" meta="eslint" to="/docs/integrations/plugin-eslint">
+    Rules and setup for ESLint and Oxlint.
+  </Tile>
+  <Tile title="Generate from OpenAPI" icon="terminal" meta="cli" to="/docs/cli/overview">
+    A typed SDK for your API in one command.
+  </Tile>
+</Tiles>

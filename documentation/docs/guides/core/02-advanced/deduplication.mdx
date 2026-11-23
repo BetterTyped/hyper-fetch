@@ -4,171 +4,131 @@ description: Request deduplication merges identical in-flight requests into one 
 sidebar_label: Deduplication
 ---
 
-# Request Deduplication
+# Request deduplication
 
-Request deduplication means that when the same request is already on its way to the server, a second identical call
-doesn't open a new connection. It waits for the first one and gets the same response. You send one request instead of
-four, the server does the work once, and every caller ends up with the same data.
-
----
+Deduplication means that when an identical request is already on its way to the server, a second call does not open a
+new one. It joins the first and gets the same response. This guide explains where duplicate calls come from and how
+HyperFetch merges them.
 
 :::secondary What you'll learn
 
-1.  Why React apps end up with **duplicate API calls**.
-2.  How to **enable deduplication** on a request to optimize data fetching.
-3.  How to use `deduplicateTime` to **control the time window** for combining requests.
-4.  How deduplication differs from **caching** and **cancellation**.
+1. Why apps make **duplicate API calls**.
+2. How deduplication differs from **caching** and **cancellation**.
+3. When deduplication is **on by default** and how to turn it on or off.
+4. How to limit the window with **`deduplicateTime`**.
 
 :::
 
 ---
 
-## Why React apps make duplicate API calls
+## Why apps make duplicate API calls
 
-If you open the network tab and see the same `GET /users` twice or more, the usual causes are:
+The same `GET /users` twice in the network tab usually comes from one of these:
 
-- **Several components need the same data.** A header avatar, a sidebar and a settings page all fetch the current user
-  on mount, each in its own `useEffect`.
-- **Strict Mode in development.** React runs effects twice in development to surface missing cleanup, so a bare
-  `fetch` in `useEffect` fires twice.
-- **Re-renders that change effect dependencies.** An object or array created during render makes the effect run again.
-- **Fast repeated actions.** A user double-clicks a refresh button, or a list and its detail view mount at the same time.
+- **Several components need the same data.** A header avatar, a sidebar and a settings page each fetch the current user
+  on mount.
+- **React Strict Mode** runs effects twice in development, so a bare `fetch` in `useEffect` fires twice.
+- **Effect dependencies** that are new objects on every render make the effect run again.
+- **Fast repeated actions**, such as a double-click on refresh.
 
-The first three are fixed by moving fetching out of individual components into a shared layer that knows what is
-already in flight. That is what deduplication does.
+Moving fetching from components into a layer that knows what is already in flight fixes all of them. That is what
+deduplication does.
 
----
+| Technique     | A second identical request...                           | Use it for                                    |
+| ------------- | ------------------------------------------------------- | --------------------------------------------- |
+| Deduplication | Joins the request already in flight                     | Many callers asking for the same data at once |
+| Caching       | Gets the stored response                                | Data asked for again later                    |
+| Cancellation  | Aborts the earlier request and goes out itself          | Search inputs where only the latest matters   |
 
-## Deduplication, caching and cancellation
-
-These three often get mixed up. They solve different problems:
-
-| Technique     | When a second identical request comes in...           | Use it for                                    |
-| ------------- | ----------------------------------------------------- | --------------------------------------------- |
-| Deduplication | It joins the request already in flight               | Many callers asking for the same data at once |
-| Caching       | It gets the stored response if it's still fresh       | Data asked for again later                    |
-| Cancellation  | The earlier request is aborted, the new one goes out | Search inputs where only the latest matters   |
-
-They work together. Deduplication covers the window while the request is in flight, and the
-[cache](./cache-revalidation.mdx) covers the time after it finished. For the opposite behaviour, see
-[cancellation](./cancellation.mdx).
+Deduplication covers the time a request is in flight, the [cache](/docs/guides/core/advanced/cache-revalidation) the time
+after it. For the opposite behavior, see [cancellation](/docs/guides/core/advanced/cancellation).
 
 ---
 
-## Setup
+## Turn deduplication on
 
-In HyperFetch, `GET` requests sent through the default HTTP adapter are deduplicated already. The adapter turns on
-`deduplicate` for safe methods, and an explicit `deduplicate` option on the request still wins. For other methods, or
-other adapters, set it yourself:
+With the fetch adapter, GET and QUERY requests are deduplicated by default. For other methods or adapters, set
+`deduplicate: true`, and turn it off with `deduplicate: false` or `setDeduplicate(false)`.
 
-```ts
-const getUsers = client.createRequest()({
+```ts title="src/api/users.ts"
+export const getUsers = client.createRequest<{ response: User[] }>()({
   endpoint: "/users",
-  deduplicate: true,
+  deduplicate: true, // already the default for GET with the fetch adapter
 });
 ```
 
-Two requests count as identical when they share the same `queryKey`. By default that is built from the method, the
-endpoint with its params, and the query string, so `/users?page=1` and `/users?page=2` are never merged.
-
-## How it works
-
-In the example below, we call the `getUsers.send()` method four times in quick succession. Since `deduplicate` is
-enabled, HyperFetch sends a single request to the backend. The other calls receive the response from the first one.
-
-```typescript
-// We are using pre-build 'getUsers' request and 'client' instance
-
-// highlight-start
-const getUsers = client.createRequest()({
-  endpoint: "/users",
-  deduplicate: true,
-});
-// highlight-end
-
-// Multiple calls of the same request
-getUsers.send({
-  onRequestStart: ({ request, requestId }) => {
-    console.log("Request starting...", { requestId, request });
-  },
-});
-getUsers.send();
-getUsers.send();
-getUsers.send();
-
-// Only a single request will be sent to the backend,
-// and you will see only one "Request starting..." log in the console.
+```ts title="src/app.ts"
+// One network call, four identical responses
+const responses = await Promise.all([
+  getUsers.send(),
+  getUsers.send(),
+  getUsers.send(),
+  getUsers.send(),
+]);
 ```
 
-In React, the same happens when several components call `useFetch(getUsers)` at once. They share one request and one
-cache entry, so moving duplicated `useEffect` fetches to `useFetch` removes the duplicate API calls. See
-[fetching data in React](../../react/01-basics/fetching.mdx).
+Two requests are identical when they share a `queryKey`, which is built from the method, the filled endpoint and the
+query params. `/users?page=1` and `/users?page=2` are never merged. A joined call does not start its own request, so its
+`onRequestStart` does not fire. Track joins with `client.requestManager.events.onDeduplicated`.
 
-## Deduplication time
-
-By default `deduplicateTime` is `null`: a new request joins an identical request for as long as that request is in
-flight. Set `deduplicateTime` to a number of milliseconds to shorten this window. A new request then joins only an
-in-flight request that started at most that many milliseconds ago. Once the first request has finished, the next call
-is always sent, whatever the window.
-
-In this example, we set `deduplicateTime` to 2000 milliseconds. An identical request sent within 2000ms of the first one
-joins it, as long as the first one has not finished yet.
-
-```typescript
-// We are using pre-build 'getUsers' request and 'client' instance
-
-// highlight-start
-const getUsersWithTime = client.createRequest()({
-  endpoint: "/users",
-  deduplicate: true,
-  deduplicateTime: 2000,
-});
-// highlight-end
-
-getUsersWithTime.send({
-  onRequestStart: ({ request, requestId }) => {
-    console.log("Request starting with deduplicateTime...", { requestId, request });
-  },
-});
-
-setTimeout(() => {
-  getUsersWithTime.send({
-    onRequestStart: ({ request, requestId }) => {
-      // Not logged when the first request is still in flight, because it's within the 2000ms window
-      console.log("Second request starting...", { requestId, request });
-    },
-  });
-}, 500);
-```
+In React, several components calling `useFetch(getUsers)` at once share one request in the same way. See
+[fetching in React](/docs/guides/react/basics/fetching).
 
 :::caution Mutations
 
-Be careful turning on deduplication for `POST`, `PUT` or `DELETE`. Two clicks that create two orders are two different
-intentions. Merging them hides a real second request. For writes, prefer disabling the button while `submitting`, or
-[queueing](./queueing.mdx) the requests one by one.
+Think twice before deduplicating `POST`, `PUT` or `DELETE`. Two clicks that create two orders are two intentions, and
+merging them hides the second. For writes, disable the button while submitting, or [queue](/docs/guides/core/advanced/queueing)
+the requests.
 
 :::
 
-A request with `cancelable: true` or `queued: true` is never deduplicated. Those modes take precedence.
-
 ---
 
-<LinkCard
-  type="docs"
-  title="Dispatcher"
-  description="To learn more about deduplication and alternative request modes, you can visit the Dispatcher docs."
-  to="/docs/core/dispatcher#modes"
-/>
+## Limit the window with deduplicateTime
+
+By default `deduplicateTime` is `null`: a request joins an identical one for as long as that one is in flight. A number
+of milliseconds shortens the window, counted from the start of the in-flight request. After the first request has
+finished, the next call is always sent.
+
+```ts title="src/api/stats.ts"
+export const getStats = client.createRequest<{ response: Stats }>()({
+  endpoint: "/stats",
+  deduplicate: true,
+  deduplicateTime: 2000,
+});
+
+getStats.send();
+// Within 2 s of the first call and while it is in flight: joins it
+setTimeout(() => getStats.send(), 500);
+// After 2 s: sent on its own, even if the first call is still running
+setTimeout(() => getStats.send(), 2500);
+```
+
+Deduplication never applies when the request is `queued` or `cancelable`, which take precedence, or when it was marked
+with `setUsed(true)`, such as a resend after a [token refresh](/docs/guides/core/basics/authentication#refresh-the-token-on-401).
 
 ---
 
 :::success Congratulations!
 
-You've learned how to use request deduplication in HyperFetch.
+You've learned how deduplication works.
 
-- You know the common causes of **duplicate API calls** in React.
-- You can **enable deduplication** with the `deduplicate: true` option, and `GET` requests have it on by default.
-- You can **shorten the deduplication window** using `deduplicateTime`.
-- You know how deduplication differs from **caching** and **cancellation**.
+- You know the common causes of **duplicate API calls**.
+- You know deduplication is **on for GET and QUERY** with the fetch adapter, and how to set it yourself.
+- You can limit the window with **`deduplicateTime`**.
+- You know how it differs from **caching** and **cancellation**.
 
 :::
+
+Runnable example: [Deduplication](/examples/request-control/deduplication).
+
+<LinkCard type="docs" title="Dispatcher" description="How the queue mode of a request is picked." to="/docs/core/dispatcher#choose-a-mode-per-queue" />
+
+<LinkCard type="guides" title="Cancellation" description="Abort the previous request instead of joining it." to="/docs/guides/core/advanced/cancellation" />
+
+<LinkCard
+  type="api"
+  title="Request API reference"
+  description="setDeduplicate, setDeduplicateTime and the other setters."
+  to="/docs/api/core/Classes/Request"
+/>

@@ -7,50 +7,30 @@ sidebar_label: Overview
 
 # A React Query devtools alternative for HyperFetch
 
-[Read the API Reference »](/docs/api/plugin-devtools/Functions/DevtoolsPlugin.mdx)
+`@hyper-fetch/plugin-devtools` connects your client to [HyperFlow](/docs/hyper-flow), a desktop devtools app for macOS,
+Windows and Linux. HyperFlow shows every request and response, and lets you edit the cache and control the queues while
+the app runs. It is the HyperFetch counterpart of React Query Devtools, but it runs outside the browser.
 
-If you came looking for react query devtools, this is the HyperFetch equivalent. The devtools plugin connects your
-client to [HyperFlow](/docs/hyper-flow), a desktop app for macOS, Windows and Linux. HyperFlow shows every request and
-response, lets you inspect, edit, invalidate and delete cache entries, and stops, starts and clears the request queues.
-It is not a browser extension and it does not render inside your page.
-
----
+<Screenshot
+  src="/img/hyper-flow/network.webp"
+  alt="The HyperFlow Network page listing the requests of a connected app with their method, endpoint, status and timing."
+  caption="Every request of the connected client, live, in HyperFlow."
+/>
 
 :::tip Purpose
 
-1.  **Real-time request inspection**: See every request your client sends and the response or error it got.
-2.  **Cache control**: Inspect cached data, change it, invalidate it or delete it, and watch the app react.
-3.  **Queue control**: Stop, start and clear the fetch and submit queues to test slow or offline flows.
-4.  **Sockets and backends**: Inspect sockets next to requests, and connect Node.js services as well as browsers.
+1. **Request inspection**: see every request your client sends and the response or error it got.
+2. **Cache and queue control**: edit, invalidate or delete cached data, and stop, start or clear the queues.
+3. **Sockets, dbs and backends**: inspect sockets and dbs next to requests, and connect Node.js services as well as
+   browsers.
 
 :::
 
 ---
 
-## React Query Devtools, React DevTools and HyperFlow
+## Install
 
-Three tools with similar names do different jobs:
-
-| Tool                        | What it is                                                          | What it shows                                    |
-| --------------------------- | ------------------------------------------------------------------- | ------------------------------------------------ |
-| React Query Devtools        | A React component from `@tanstack/react-query-devtools`, rendered inside your app as a floating or embedded panel | The TanStack Query cache: queries, their state and data |
-| React DevTools (Chrome, Firefox, Edge) | A browser extension from the React team                  | The component tree, props, state, hooks and the profiler |
-| HyperFlow                   | A desktop app that your client connects to through this plugin      | HyperFetch requests, cache, queues and sockets   |
-
-[React Query Devtools](https://tanstack.com/query/latest/docs/framework/react/devtools) is the right tool for a
-TanStack Query app. It mounts in the page, and by default it is only included in development builds. Chrome's React
-DevTools does not show network traffic or a data cache at all. It answers "why did this component render", not "what did
-this request return".
-
-HyperFlow runs outside the browser. The plugin opens a WebSocket to the app on `ws://localhost:2137`, so the same window
-can show a browser tab and a Node.js backend side by side, each under its `appName`.
-
----
-
-## Install the Plugin
-
-Install the DevTools plugin using npm or yarn. The plugin talks to HyperFlow through `@hyper-fetch/sockets`, so install it
-too:
+The plugin talks to HyperFlow through `@hyper-fetch/sockets`, so install both:
 
 ```bash npm2yarn2pnpm
 npm install @hyper-fetch/plugin-devtools @hyper-fetch/sockets
@@ -58,77 +38,91 @@ npm install @hyper-fetch/plugin-devtools @hyper-fetch/sockets
 
 ---
 
-## Usage
+## Connect your client
 
-Import the plugin and use it in your application:
+Add the plugin to the client. It opens a WebSocket to HyperFlow on `ws://localhost:2137`, and the app appears there
+under its `appName`. The plugin connects whenever it is added, so add it only in development:
 
-(@import plugin-devtools DevtoolsPlugin type=import)
-
-```tsx
+```ts title="src/api/client.ts"
+import { createClient } from "@hyper-fetch/core";
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
-const client = new Client({ url: "http://localhost:3000" }).addPlugin(
-  DevtoolsPlugin({
-    // highlight-start
-    appName: "My App",
-    // highlight-end
-  }),
-);
-```
+export const client = createClient({ url: "http://localhost:3000" });
 
-(@import plugin-devtools DevtoolsPluginOptions type=returns)
+if (process.env.NODE_ENV === "development") {
+  // highlight-next-line
+  client.addPlugin(DevtoolsPlugin({ appName: "My App" }));
+}
+```
 
 ---
 
-## Inspecting sockets
+## Network
 
-Pass your sockets in the `sockets` option to inspect their connection, messages and errors in HyperFlow, next to the
-requests of the client. See the [Socket Inspector](/docs/hyper-flow/features/sockets).
+The [network inspector](/docs/hyper-flow/features/network) lists every request with its payload, headers, response,
+status and timings. Failed and paused requests are marked, so you see retries and offline queues as they happen.
 
-```tsx
-const socket = new Socket({ url: "ws://localhost:3000" });
+---
 
-const client = new Client({ url: "http://localhost:3000" }).addPlugin(
-  DevtoolsPlugin({
-    appName: "My App",
-    // highlight-next-line
-    sockets: [socket],
-  }),
+## Cache
+
+The [cache inspector](/docs/hyper-flow/features/cache) lists every cache entry with its freshness and observers. Edit a
+value, mark it stale, remove it or replace it with an error, and your hooks pick up the change at once.
+
+<Screenshot
+  src="/img/hyper-flow/cache.webp"
+  alt="The Cache page listing cache keys with their status Fresh or Stale, observer counts and last update times."
+  caption="Each row is one cache key with its freshness, observers and last update."
+/>
+
+---
+
+## Queues
+
+The [queue inspector](/docs/hyper-flow/features/queues) shows the fetch and submit queues. Stop, start and clear them
+to test slow or offline flows without touching the server.
+
+---
+
+## Sockets and dbs
+
+Pass your sockets in `sockets` to inspect their connection, messages and errors next to the requests, see the
+[socket inspector](/docs/hyper-flow/features/sockets). Pass [`@hyper-fetch/db`](/docs/db/overview) dbs in `dbs` to
+inspect their collections, loaded subsets, live queries and outbox, see the [db inspector](/docs/hyper-flow/features/db).
+
+```ts title="src/api/client.ts"
+client.addPlugin(
+  DevtoolsPlugin({ appName: "My App", sockets: [socket], dbs: [db] }),
 );
 ```
 
-## Inspecting dbs
+---
 
-Pass your [`@hyper-fetch/db`](/docs/db/overview) dbs in the `dbs` option, as in `DevtoolsPlugin({ appName, dbs: [db] })`,
-to inspect their collections, loaded subsets, live queries and outbox. See the
-[DB Inspector](/docs/hyper-flow/features/db).
+## Options
+
+| Option        | Type                          | Default                  | Description                                                          |
+| ------------- | ----------------------------- | ------------------------ | -------------------------------------------------------------------- |
+| `appName`     | `string`                      | required                 | Name the app is listed under in HyperFlow                            |
+| `url`         | `string`                      | `"ws://localhost:2137"`  | HyperFlow address, change it when you change the port in HyperFlow   |
+| `environment` | `string`                      | -                        | Shown next to the app name, for example `"backend"` or `"staging"`   |
+| `debug`       | `boolean`                     | `false`                  | Logs what the plugin sends                                           |
+| `WebSocket`   | `typeof WebSocket`            | global `WebSocket`       | `WebSocket` class for runtimes without a global one                  |
+| `sockets`     | `SocketInstance[]`            | -                        | Sockets to inspect                                                   |
+| `dbs`         | `DevtoolsDb[]`                | -                        | `@hyper-fetch/db` dbs to inspect                                     |
 
 ---
 
 ## Node.js backends
 
-The plugin reports from servers and scripts too, so you can inspect the requests your backend sends. Use the
-`environment` option to tell the backend apart from your frontend in HyperFlow.
+The plugin reports from servers and scripts too. Set `environment` to tell the backend apart from the frontend. On
+Node.js 22+, Deno and Bun the plugin uses the global `WebSocket`. On Node.js 18 and 20, install `ws` and pass its class:
 
-```tsx
-import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
-
-const client = new Client({ url: "http://localhost:3000" }).addPlugin(
-  DevtoolsPlugin({
-    appName: "My API",
-    environment: "backend",
-  }),
-);
-```
-
-On Node.js 22+, Deno and Bun the plugin uses the global `WebSocket`. On Node.js 18 and 20 install `ws` and pass its
-class:
-
-```tsx
+```ts title="server/client.ts"
+import { createClient } from "@hyper-fetch/core";
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 import { WebSocket } from "ws";
 
-const client = new Client({ url: "http://localhost:3000" }).addPlugin(
+export const client = createClient({ url: "http://localhost:3000" }).addPlugin(
   DevtoolsPlugin({
     appName: "My API",
     environment: "backend",
@@ -140,25 +134,55 @@ const client = new Client({ url: "http://localhost:3000" }).addPlugin(
 
 ---
 
-## Only in development
+## React Query Devtools, React DevTools and HyperFlow
 
-The plugin connects whenever it is added, so add it only in builds where you want HyperFlow to see the traffic:
+Three tools with similar names do different jobs:
 
-```tsx
-const client = new Client({ url: "http://localhost:3000" });
+| Tool                 | What it is                                                         | What it shows                                    |
+| -------------------- | ------------------------------------------------------------------ | ------------------------------------------------ |
+| React Query Devtools | A component from `@tanstack/react-query-devtools`, inside your app | The TanStack Query cache: queries, state, data   |
+| React DevTools       | A browser extension from the React team                            | The component tree, props, state and profiler    |
+| HyperFlow            | A desktop app your client connects to through this plugin          | HyperFetch requests, cache, queues and sockets   |
 
-if (process.env.NODE_ENV === "development") {
-  client.addPlugin(DevtoolsPlugin({ appName: "My App" }));
-}
-```
+Because HyperFlow runs outside the browser, one window can show a browser tab and a Node.js backend side by side.
 
-If you changed the port in HyperFlow, pass the address with the `url` option. Set `debug: true` to log what the plugin
-sends. Read [connecting HyperFlow](../../hyper-flow/connecting.mdx) for the full setup and the
-[network inspector](../../hyper-flow/features/network.mdx) for what you see once it connects.
+---
 
+## Troubleshooting
+
+- **The app does not appear**: check that HyperFlow is open and that `url` matches its port, see
+  [connecting HyperFlow](/docs/hyper-flow/connecting).
+- **Nothing is logged**: set `debug: true` to see what the plugin sends.
+- **No connection from Node.js 18 or 20**: these versions have no global `WebSocket`, pass the `ws` class in the
+  `WebSocket` option.
+
+---
+
+:::secondary Summary
+
+- `DevtoolsPlugin({ appName })` streams a client's requests, cache and queues to HyperFlow.
+- Pass `sockets` and `dbs` to inspect them next to the requests.
+- On Node.js 18 and 20, pass the `ws` class in the `WebSocket` option.
+
+:::
+
+## Next steps
+
+<LinkCard
+  type="integrations"
+  title="Example: devtools"
+  description="A small app whose buttons produce cached, failed and slow requests to inspect in HyperFlow."
+  to="/examples/integrations/devtools"
+/>
 <LinkCard
   type="promo"
   title="HyperFlow"
-  description="Learn more about HyperFlow devtools and how to use it"
-  href="/docs/hyper-flow"
+  description="Download HyperFlow and see everything it can inspect."
+  to="/docs/hyper-flow"
+/>
+<LinkCard
+  type="api"
+  title="DevtoolsPlugin API reference"
+  description="The plugin factory and its options."
+  to="/docs/api/plugin-devtools/Functions/DevtoolsPlugin"
 />

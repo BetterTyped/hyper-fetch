@@ -130,8 +130,8 @@ function Answer({ prompt }: { prompt: string }) {
 - `start()` is ignored while streaming. `abort()` cancels by the request's `abortKey`. `reset()` aborts and clears.
 - Option `autoStart: false` by default; `true` starts once on mount.
 - A non-stream response falls back to `text` (string data as is, other data JSON-stringified) with `done: true`.
-- It does not use the cache, dedupe or the hooks' field tracking, and the source has no unmount cleanup: call `abort()`
-  in an effect cleanup if a stream must stop when the component unmounts.
+- It does not use the cache, dedupe or the hooks' field tracking. Unmounting stops the stream: the request is aborted
+  and the body reader is canceled.
 
 ```tsx
 useEffect(() => abort, [abort]);

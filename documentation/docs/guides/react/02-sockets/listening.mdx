@@ -1,96 +1,183 @@
 ---
 sidebar_position: 1
 title: Socket listening in React with useListener
-description: "Subscribe to WebSocket events in React with the HyperFetch useListener hook, update state from incoming messages and react to connection and reconnect events."
+description: "Subscribe to WebSocket events in React with the HyperFetch useListener hook, update state and the HTTP cache from messages and show connection state."
 sidebar_label: Listening
 ---
 
 # Socket Listening
 
-Listening to real-time events from your server is a cornerstone of building dynamic, interactive applications. With
-HyperFetch, the `useListener` hook provides a declarative and powerful way to subscribe to socket events directly
-within your React components. It manages the entire lifecycle of the socket connection, from mounting to unmounting, and
-gives you fine-grained control over how to respond to incoming data and connection state changes.
+[`useListener`](/docs/react/sockets/use-listener) subscribes a component to a socket topic while it is mounted and
+unsubscribes on unmount. This guide shows three ways to use the messages: keep a list in state, write them into the
+HTTP cache, or render only the latest value, plus how to show the connection state.
 
 :::secondary What you'll learn
 
-1.  How to use the **`useListener`** hook to subscribe to socket events.
-2.  How to **update your component's state** with data received from the socket.
-3.  How to handle **connection states** like `connected` and `connecting`.
-4.  How to use helper hooks like **`onEvent`**, **`onError`**, and **`onReconnecting`** for lifecycle management.
+1.  How to **collect messages** into component state with `onEvent`.
+2.  How to listen to **one room or resource** with topic params.
+3.  How to **update the HTTP cache** from socket messages.
+4.  How to show **connection and reconnect state**.
+5.  When to use **`data`**, **`onEvent`** or the cache.
 
 :::
 
 ---
 
-## Basic Usage
+## Collect messages in state
 
-The `useListener` hook is designed for simplicity. You provide it with a listener from your socket setup, and
-it gives you back the connection status and any data that arrives. Here's how you can set up a basic message listener.
+`data` holds only the latest message, so keep a list in state when you need history. `onEvent` fires for every
+message with `{ data, extra }`.
 
-In this example, we'll listen for chat messages and display them in a list. The `onEvent` helper hook is the primary way
-to access incoming data. It fires every time a new message arrives, allowing you to update your component's state.
+```tsx title="components/chat-room.tsx"
+import { useState } from "react";
+import { useListener } from "@hyper-fetch/react";
+// socket.createListener<ChatMessage>()({ topic: "rooms/:roomId" })
+import { onChatMessage } from "../api/socket";
 
-```tsx
-function LiveChat() {
-  const [messages, setMessages] = React.useState([]);
+export function ChatRoom({ roomId }: { roomId: string }) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // setParams in render is fine: the hook subscribes again only when the topic
+  // changes
+  const { connected, onEvent } = useListener(
+    onChatMessage.setParams({ roomId }),
+  );
 
-  // This is our listener, it will be automatically cleaned up on unmount
-  const { connected, connecting, onEvent, onError, onReconnecting } = useListener(onChatMessage);
-
-  // Here we can listen for incoming messages
   onEvent(({ data }) => {
-    setMessages((prev) => [data, ...prev]);
+    setMessages((previous) => [...previous, data].slice(-200));
   });
-
-  // Optional: Handle socket errors
-  onError((event) => {
-    console.error("Socket error!", event);
-  });
-
-  // Optional: Handle reconnecting attempts
-  onReconnecting(({ attempts }) => {
-    console.log("Attempting to reconnect...", attempts);
-  });
-
-  if (connecting) {
-    return <p>Connecting to the chat...</p>;
-  }
 
   return (
-    <div className="w-full">
-      <p>Connection status: {connected ? "Connected" : "Disconnected"}</p>
-      <h3 className="text-lg font-bold mt-4">Messages:</h3>
-      {!messages.length && <p>No messages yet. Waiting for new messages...</p>}
-      <div className="flex flex-col-reverse mt-2 max-h-60 overflow-y-auto border p-2 rounded-md">
-        {messages.map((message, index) => (
-          <div key={index} className="bg-blue-100 p-2 my-1 rounded-md">
-            <p className="font-bold">{message.user}</p>
-            <p>{message.message}</p>
-            <p className="text-xs text-gray-500">{new Date(message.timestamp).toLocaleTimeString()}</p>
-          </div>
-        ))}
-      </div>
+    <div className="flex flex-col gap-2">
+      {!connected && <p className="text-sm text-gray-500">Connecting...</p>}
+      {messages.map((message) => (
+        <p key={message.id}>
+          <span className="font-bold">{message.author}:</span> {message.text}
+        </p>
+      ))}
     </div>
   );
 }
 ```
 
-In the example above, `onChatMessage` is a pre-defined listener. You can learn more about creating them in the
-[sockets guide](/docs/guides/sockets/listening).
+- Each `roomId` is its own topic. Changing the prop subscribes to the new room and drops the old one.
+- Keep the list bounded, as with `.slice(-200)`, so a long session does not grow memory without limit.
+- There is no `disabled` option. To stop listening, stop rendering the component.
 
-If the stream is fast and your component re-renders too often, configure a `delivery` strategy on the listener - see
-[Throttling & Batching in React](/docs/guides/react/sockets/throttling).
+---
+
+## Render only the latest value
+
+For state-like data, such as a status, a score or a price, the latest message is all you need. Read `data` and skip
+local state. `select` narrows it, so the component re-renders only when its part changes.
+
+```tsx title="components/order-status.tsx"
+function OrderStatus({ orderId }: { orderId: string }) {
+  const { data: status } = useListener(onOrderUpdate.setParams({ orderId }), {
+    select: (order) => order.status,
+  });
+
+  return (
+    <span className="font-semibold">{status ?? "Waiting for updates"}</span>
+  );
+}
+```
+
+---
+
+## Update the HTTP cache from messages
+
+When the same data is also loaded over HTTP with [`useFetch`](/docs/react/hooks/use-fetch), write each message into the
+request's cache. Every component that shows it updates, with no refetch and no duplicated state.
+
+```tsx title="components/notes-sync.tsx"
+import { client } from "../api/client";
+// client.createRequest<{ response: Note }>()({ endpoint: "/notes/:noteId" })
+import { getNote } from "../api/notes";
+
+export function NotesSync() {
+  const { onEvent } = useListener(onNoteChange);
+
+  onEvent(({ data }) => {
+    client.cache.update(getNote.setParams({ noteId: data.id }), { data });
+  });
+
+  return null;
+}
+```
+
+Render it once near the root, so the cache stays in sync on every screen. When a message only says "something changed",
+call `client.cache.invalidate(getNotes)` instead and let the mounted hooks refetch.
+
+---
+
+## Show connection state
+
+`connected` and `connecting` are shared by every hook on the same socket. The callbacks fire on connection changes,
+and the socket reconnects on its own.
+
+```tsx title="components/connection-banner.tsx"
+export function ConnectionBanner() {
+  const [message, setMessage] = useState<string | null>(null);
+  const { connected, onReconnecting, onReconnectingFailed, onConnected } =
+    useListener(onChatMessage);
+
+  onReconnecting(({ attempts }) =>
+    setMessage(`Reconnecting (attempt ${attempts})`),
+  );
+  onReconnectingFailed(() =>
+    setMessage("Connection lost. Refresh the page to try again."),
+  );
+  onConnected(() => setMessage(null));
+
+  return connected ? null : (
+    <p className="bg-yellow-100 p-2">{message ?? "Connecting..."}</p>
+  );
+}
+```
+
+---
+
+## Which approach to use
+
+| Data                                              | Use                                           |
+| ------------------------------------------------- | --------------------------------------------- |
+| A stream of events: chat, logs, notifications     | `onEvent` into a bounded list in state        |
+| State that changes: a status, a score, a price    | `data`, narrowed with `select`                |
+| Records also loaded over HTTP                     | `onEvent` with `client.cache.update`          |
+| Hundreds of messages per second                   | A [delivery strategy](/docs/guides/react/sockets/throttling) on the listener |
 
 ---
 
 :::success Congratulations!
 
-You now know how to listen for socket events in your React applications!
+You can now use realtime messages in React components.
 
-- You can use **`useListener`** to subscribe to events when a component mounts.
-- You can react to incoming data using the **`onEvent`** helper hook.
-- You can monitor the connection status with the **`connected`** and **`connecting`** properties.
-- You can add additional logic for errors and reconnections with **`onError`** and **`onReconnecting`**.
+- You can **collect messages** in state with `onEvent`.
+- You can listen to **one room** with `setParams` in render.
+- You can keep the **HTTP cache in sync** with `client.cache.update`.
+- You can show **connection and reconnect state**.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="useListener reference"
+  description="Options, returned values, callbacks and subscription status."
+  to="/docs/react/sockets/use-listener"
+/>
+
+<LinkCard
+  type="guides"
+  title="Emitting in React"
+  description="Send messages with useEmitter and handle failed sends."
+  to="/docs/guides/react/sockets/emitting"
+/>
+
+- Guides: [listening without React](/docs/guides/sockets/listening),
+  [throttling in React](/docs/guides/react/sockets/throttling),
+  [WebSockets in React](/docs/guides/sockets/websockets-in-react).
+- Runnable examples: [WebSocket chat](/examples/realtime/websocket-chat),
+  [live cache updates](/examples/realtime/live-cache-updates), [notifications](/examples/realtime/notifications),
+  [server-sent events](/examples/realtime/server-sent-events).

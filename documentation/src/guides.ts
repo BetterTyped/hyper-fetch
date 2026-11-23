@@ -13,7 +13,7 @@ const TypescriptIcon = isBrowser() ? require("../static/img/typescript.svg").def
 export const guides: Section[] = [
   {
     label: "Getting Started",
-    description: "Overview of the available integrations",
+    description: "Where the guides start, plus community and further resources",
     isPackage: false,
     dir: "getting-started",
     paths: ["getting-started"],
@@ -31,7 +31,7 @@ export const guides: Section[] = [
   },
   {
     label: "Core",
-    description: "Overview of the available integrations",
+    description: "Fetching, auth, errors, retries, cache revalidation, offline and custom adapters",
     isPackage: false,
     dir: "core",
     paths: ["core"],
@@ -48,7 +48,7 @@ export const guides: Section[] = [
   },
   {
     label: "Sockets",
-    description: "Overview of the available integrations",
+    description: "WebSocket and SSE setup, auth, reconnection and how they compare",
     isPackage: false,
     dir: "sockets",
     paths: ["sockets"],
@@ -83,7 +83,7 @@ export const guides: Section[] = [
   },
   {
     label: "React",
-    description: "Overview of the available integrations",
+    description: "Fetching, pagination, infinite scroll, optimistic updates and Next.js with hooks",
     isPackage: false,
     dir: "react",
     paths: ["react"],
@@ -100,7 +100,7 @@ export const guides: Section[] = [
   },
   {
     label: "Typescript",
-    description: "Learn how to use Typescript with Hyper Fetch",
+    description: "Extend the types and type global and local errors",
     isPackage: false,
     dir: "typescript",
     paths: ["typescript"],
@@ -117,7 +117,7 @@ export const guides: Section[] = [
   },
   {
     label: "Testing",
-    description: "Overview of the available integrations",
+    description: "Mock requests and keep specs isolated",
     isPackage: false,
     dir: "testing",
     paths: ["testing"],

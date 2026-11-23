@@ -5,189 +5,167 @@ description: "Set global default options for every HyperFetch request, change th
 sidebar_label: Global Defaults
 ---
 
-# Global Defaults
+# Global defaults
 
-In any application, you'll find yourself repeating request configurations. Whether it's setting caching policies for
-`GET` requests or ensuring mutations are never cached, this repetitive setup can lead to boilerplate and
-inconsistencies. HyperFetch solves this by allowing you to define powerful global defaults that apply to all requests,
-while still offering the flexibility to override them for specific cases.
-
-This guide will show you how to centralize your request logic, from default options to custom keying strategies.
-
----
+Options such as `retry`, `staleTime` or a fetch `timeout` are often the same for most requests. Instead of repeating
+them, set them once on the client's adapter and override them where a request needs something else. This guide also
+covers custom key and request id mappers.
 
 :::secondary What you'll learn
 
-1.  How to set **global default options** that apply to all requests.
-2.  How to create **dynamic default configurations** based on request properties like the HTTP method.
-3.  Why and how to customize **request keys** for features like caching and request aborting.
-4.  The purpose of **request keys** and when they are helpful.
-5.  How to assign **custom, predictable IDs** to your requests for better tracking and debugging.
+1. How to set **request defaults** with `setRequestDefaults`, per HTTP method.
+2. How to set **adapter defaults** such as `timeout` with `setAdapterDefaults`.
+3. How to change how **keys** and **request ids** are built.
+4. How to set defaults per endpoint in an **SDK** with `$configure`.
 
 :::
 
 ---
 
-## Setting Default Request Options
+## Set request defaults
 
-Adding global configurations can significantly streamline your application setup. For maximum flexibility, especially in
-larger applications, HyperFetch allows you to add global configs through a callback function. This function receives
-the request's details, enabling you to apply different defaults based on its properties, like the HTTP method.
+`client.adapter.setRequestDefaults` takes a callback. It receives the options of each new request and returns the
+defaults for it, so they can depend on the method or the endpoint. Options set on the request always win.
 
-Global configurations are overridden by options set on individual requests. This means you can set a sensible default
-and still customize behavior for specific cases.
+```ts title="src/api/client.ts"
+import { createClient, Time } from "@hyper-fetch/core";
 
-The main method for this is `client.adapter.setRequestDefaults`.
+export const client = createClient({ url: "https://api.example.com" });
 
-### Example
+client.adapter.setRequestDefaults((options) => {
+  // method is undefined when the request relies on the default "GET"
+  const method = options.method ?? "GET";
 
-Let's configure a client to have different defaults for `GET` requests versus other methods like `POST` or `PUT`. For
-`GET` requests, we'll enable deduplication and caching with a short stale time. For other requests, we'll disable
-caching to ensure mutations are always sent to the server.
-
-```ts
-import { client } from "./client";
-
-// highlight-start
-client.adapter.setRequestDefaults((request) => {
-  if (request.method === "GET") {
-    return {
-      deduplicate: true,
-      cache: true,
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: 3,
-    };
+  if (method === "GET" || method === "QUERY") {
+    return { deduplicate: true, retry: 2, staleTime: Time.MIN };
   }
-
-  return {
-    cache: false,
-    retry: 0,
-  };
-});
-// highlight-end
-
-const getUser = client.createRequest()({
-  method: "GET",
-  endpoint: "/users/:userId",
+  return { retry: 0, cache: false };
 });
 
-const getImportantUser = getUser.setOptions({
-  retry: 5,
-});
+// retry: 2
+const getUser = client.createRequest()({ endpoint: "/users/:userId" });
+// retry: 5 wins
+const getReport = client.createRequest()({ endpoint: "/reports", retry: 5 });
 ```
+
+Two rules to keep in mind:
+
+- **The callback replaces the built-in defaults.** The fetch adapter turns `deduplicate` on for GET and QUERY. Return
+  `deduplicate: true` yourself to keep it, as above.
+- **Defaults are read when a request is created.** Call `setRequestDefaults` right after `createClient`, before any
+  module creates requests. Requests created earlier keep the old values.
+
+Change a single request later with its setters, such as `getUser.setRetry(5)`. `setOptions` sets adapter options, not
+request options.
 
 ---
 
-## Customizing Request Keys
+## Set adapter defaults
 
-Data and requests within HyperFetch are organized by unique keys. These keys are automatically generated from request
-metadata like the endpoint, method, and parameters. They are crucial for features like caching, request deduplication,
-and aborting. However, you can customize the key generation logic to fit your specific needs.
+Adapter options are what the adapter passes to the transport: for the fetch adapter, `RequestInit` fields such as
+`credentials` or `mode`, plus `timeout`, `responseType` and `streaming`. `setAdapterDefaults` sets them for every
+request, and the request's own `options` are merged on top.
 
-Keys must always be a string.
+```ts title="src/api/client.ts"
+client.adapter.setAdapterDefaults(() => ({
+  timeout: 10_000, // default 5000 ms
+  credentials: "include",
+}));
 
-### Why is it helpful?
+// One request needs longer
+const exportData = client.createRequest()({
+  endpoint: "/export",
+  options: { timeout: 60_000 },
+});
+```
 
-- **Easier debugging**: Create more readable keys.
-- **Specific caching strategies**: Group or isolate cache entries based on custom logic.
-- **Integration with other systems**: Align keys with formats used elsewhere in your stack.
+The callback receives the request, so a default can depend on it. See the [timeouts example](/examples/request-control/timeouts).
 
-### Key Mapper Methods
+---
 
-HyperFetch provides several methods to override key generation:
+## Customize keys
 
-- `setQueryKeyMapper`: For keys used in query-like operations.
-- `setCacheKeyMapper`: For keys used to store and retrieve cached data.
-- `setAbortKeyMapper`: For keys used to identify requests that can be aborted.
+Every request has a `cacheKey`, a `queryKey` and an `abortKey`, built from its method, endpoint and query params. A
+`cacheKey` for `GET /users/1` looks like `GET_/users/1_`. Replace the builder for every request with
+`setCacheKeyMapper`, `setQueryKeyMapper` or `setAbortKeyMapper`. Return a key for every request, and fall back to
+`getRequestKey` for the ones you do not change.
 
-### Example
+```ts title="src/api/client.ts"
+import { getRequestKey } from "@hyper-fetch/core";
 
-Let's customize the cache key to create a more readable format. We'll add a `Cache__` prefix and include the HTTP method
-and endpoint. This makes it easier to identify cache entries during debugging.
-
-```ts
-// highlight-start
+// Share cache entries between tenants that serve the same public catalog
 client.setCacheKeyMapper((request) => {
-  return `Cache__${request.method}__${request.endpoint}`;
+  if (request.endpoint.startsWith("/catalog"))
+    return `catalog_${getRequestKey(request)}`;
+  return getRequestKey(request);
 });
-// highlight-end
-
-const getUsers = client.createRequest()({
-  method: "GET",
-  endpoint: "/users",
-});
-
-// highlight-next-line
-console.log(getUsers.cacheKey); // Cache__GET__/users
 ```
+
+A key that leaves out the query params or params makes different requests share one cache entry or queue. For a single
+request, set the key with `setCacheKey`, `setQueryKey` or `setAbortKey`, see [Request keys](/docs/core/request#keys).
 
 ---
 
-## Customizing Request IDs
+## Customize request ids
 
-Every request in HyperFetch is assigned a unique identifier, which is crucial for tracking, logging, and debugging. By
-default, this ID is a randomly generated string. However, there are cases where you might want to define your own logic
-for generating these IDs.
+Each `send()` gets a random `requestId`, used in lifecycle events and to stop a single request. `setRequestIdMapper`
+replaces the generator, for example to match ids in your backend logs or to get predictable ids in tests.
 
-### When to use it?
+```ts title="src/api/client.ts"
+let counter = 0;
 
-- **Predictable IDs for testing**: Set static IDs in your test environment for easier assertions.
-- **Improved logging**: Use a format that includes the endpoint or other request details for more descriptive logs.
-- **Cross-system correlation**: Align request IDs with identifiers used in other parts of your infrastructure (e.g.,
-  backend logs).
-
-The `setRequestIdMapper` method allows you to override the default ID generation.
-
-### Example
-
-Let's create a custom ID that includes the request's endpoint and a timestamp for better traceability in logs.
-
-```ts
-// highlight-start
-client.setRequestIdMapper((request) => {
-  const timestamp = new Date().getTime();
-  return `Request__${request.endpoint}__${timestamp}`;
-});
-// highlight-end
-
-const getUsers = client.createRequest()({
-  endpoint: "/users",
-});
-
-// The custom ID is assigned when the request enters the dispatcher
-const requestId = client.fetchDispatcher.add(getUsers);
-console.log(requestId); // Request__/users__1718858400000
+client.setRequestIdMapper(
+  (request) => `${request.method}_${request.endpoint}_${++counter}`,
+);
 ```
+
+Ids must be unique among requests in flight.
+
+---
+
+## Defaults per endpoint in an SDK
+
+With an [SDK](/docs/core/sdk), `$configure` sets defaults by endpoint pattern or SDK path, and function values have every
+setter available:
+
+```ts title="src/api/sdk.ts"
+export const api = sdk.$configure({
+  "*": { retry: 2 },
+  "/users/*": { staleTime: 60_000 },
+  "users.$userId.$delete": (request) => request.setCancelable(true),
+});
+```
+
+| Tool                    | Scope                           | Use it for                               |
+| ----------------------- | ------------------------------- | ---------------------------------------- |
+| `setRequestDefaults`    | Every request of the client     | Retries, caching, deduplication per method |
+| `setAdapterDefaults`    | Every request of the client     | `timeout`, `credentials` and other fetch options |
+| `$configure`            | SDK endpoints by pattern        | Per-endpoint options and mappers         |
+| Request option or setter| One request                     | Exceptions                               |
 
 ---
 
 :::success Congratulations!
 
-You've learned how to centralize and streamline your request configurations in HyperFetch!
+You've learned how to set defaults for every request.
 
-- You can set **dynamic global defaults** for all your requests using `client.adapter.setRequestDefaults`.
-- You can tailor default behaviors based on **request properties** like the HTTP method.
-- You can customize the logic for generating **request keys** to better suit your application's needs.
-- You understand the **purpose of request keys** and why customizing them can be beneficial.
-- You can assign **custom, predictable IDs** to your requests for better tracking and debugging.
+- You can set **request defaults** per method with `setRequestDefaults`, and re-add `deduplicate` for reads.
+- You can set **adapter defaults** such as `timeout` and `credentials` with `setAdapterDefaults`.
+- You can change how **keys** and **request ids** are built for the whole client.
+- You can set **per-endpoint** defaults in an SDK with `$configure`.
 
 :::
 
----
+Runnable examples: [Provider defaults](/examples/getting-started/provider-defaults) for React hooks and
+[Timeouts](/examples/request-control/timeouts).
 
-## SDK Configuration Alternative
+<LinkCard type="docs" title="Client" description="Interceptors, defaults and modules of the client." to="/docs/core/client" />
 
-If you're using the [SDK pattern](/docs/core/sdk), the `$configure` method provides an even more powerful way to set
-defaults. It supports **method-specific keys** (like `"users.$get"`), **endpoint groups** (like `"/users/*"`), and
-**function-based values** that give you access to every Request setter — including mappers, mocking, and hooks.
+<LinkCard type="docs" title="SDK" description="Typed requests from a schema, configured with $configure." to="/docs/core/sdk" />
 
-```typescript
-const configured = sdk.$configure({
-  "*": { retry: 3, deduplicate: true },
-  "/users/*": { cache: true, cacheTime: 60000 },
-  "users.$get": (request) => request.setResponseMapper(userListMapper),
-  "users.$post": { retry: 0, cache: false },
-});
-```
-
-See the [SDK documentation](/docs/core/sdk#sdk-configuration-configure) for full details.
+<LinkCard
+  type="api"
+  title="Adapter API reference"
+  description="setRequestDefaults, setAdapterDefaults and the other adapter methods."
+  to="/docs/api/core/Classes/Adapter"
+/>

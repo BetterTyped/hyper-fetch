@@ -7,16 +7,12 @@ description:
 sidebar_label: Thinking in Collections
 ---
 
-# Thinking in Collections
+# Thinking in collections
 
-A post shows up in a team feed, in its own detail page and in a "recently edited" sidebar. Someone renames it, a socket
-event arrives, and now three cached responses hold three copies of the same post. With request-level caching, each copy
-has to be found and patched by hand, or refetched. `@hyper-fetch/db` takes a different approach: every post lives
-**once**, as a row in a typed collection, and every view is a **live query** over that collection. Change the row and
-every view that shows it updates.
-
-This guide builds the mental model the other DB guides rely on. Each guide extends the same app: **Teamboard**, a team
-workspace with posts, authors and comments.
+With request-level caching, a post shown in a feed, a detail page and a sidebar lives in three cached responses, and
+each copy has to be patched or refetched. [`@hyper-fetch/db`](/docs/db/overview) keeps every post **once**, as a row in
+a typed collection, and every view is a **live query** over it. This guide builds that mental model on **Teamboard**, a
+team workspace with posts, authors and comments that every DB guide extends.
 
 :::secondary What you'll learn
 
@@ -35,7 +31,7 @@ workspace with posts, authors and comments.
 Here is Teamboard built with request-level caching. The feed and the detail page each fetch their own response, and a
 socket handler keeps them current:
 
-```tsx
+```tsx title="src/team-feed.tsx"
 const TeamFeed = ({ teamId }: { teamId: string }) => {
   const { data } = useFetch(getTeamPosts.setParams({ teamId }));
   const { onEvent } = useListener(onPostChanged.setParams({ teamId }));
@@ -45,25 +41,25 @@ const TeamFeed = ({ teamId }: { teamId: string }) => {
     client.cache.update(getTeamPosts.setParams({ teamId }), (cached) => ({
       data: cached?.data && {
         ...cached.data,
-        items: cached.data.items.map((post) => (post.id === changes.id ? { ...post, ...changes } : post)),
+        items: cached.data.items.map((post) =>
+          post.id === changes.id ? { ...post, ...changes } : post,
+        ),
       },
     }));
-    // highlight-start
-    // ...and the detail page's copy, and the sidebar's, and every filtered variant of the feed
-    // highlight-end
+    // highlight-next-line
+    // ...and the detail page's copy, and the sidebar's, and every filtered
+    // variant of the feed
   });
 
   return data?.items.map((post) => <PostCard key={post.id} post={post} />);
 };
 ```
 
-Every new view that shows posts adds another copy to keep in step. The usual fixes have costs of their own:
+Every new view that shows posts adds another copy to keep in step:
 
-- **Patch every copy by hand.** Each response has its own shape, and the copy you forget shows stale data.
-- **Invalidate and refetch.** Little code, but every event becomes a request, and a new post still waits for the
-  refetch.
-- **Race conditions.** A list response that was in flight while the event arrived lands later and overwrites the newer
-  title.
+- **Patching every copy by hand** breaks on the copy you forget, because each response has its own shape.
+- **Invalidating and refetching** turns every event into a request, and a new post still waits for the refetch.
+- **Races** remain: a list response in flight while the event arrived lands later and overwrites the newer title.
 
 The root cause is that the source of truth is the **response**. The db moves it to the **record**.
 
@@ -78,26 +74,37 @@ import { collection, createDb } from "@hyper-fetch/db";
 
 const byTeam = { teamId: { eq: (teamId: string) => ({ params: { teamId } }) } };
 
-const PostSummary = collection(PostSummarySchema, { key: "id", version: "updatedAt" })
+const PostSummary = collection(PostSummarySchema, {
+  key: "id",
+  version: "updatedAt",
+})
   // How rows load: the feed endpoint, which needs a team
   .load(getTeamPosts, {
     rows: (response) => response.items,
-    where: { teamId: { eq: (teamId) => ({ params: { teamId } }), required: true } },
+    where: {
+      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },
+    },
   })
   // How rows stay live: one socket topic per team
-  .sync(onPostChanged, { type: "update", where: byTeam, row: ({ body, ...changes }) => changes });
+  .sync(onPostChanged, {
+    type: "update",
+    where: byTeam,
+    row: ({ body, ...changes }) => changes,
+  });
 
 export const db = createDb({ postSummary: PostSummary });
 ```
 
 Components query the collection, never the endpoint:
 
-```tsx
+```tsx title="src/team-feed.tsx"
 import { eq } from "@hyper-fetch/db";
 import { useLiveQuery } from "@hyper-fetch/react";
 
 const TeamFeed = ({ teamId }: { teamId: string }) => {
-  const { data } = useLiveQuery(db.postSummary.where((post) => eq(post.teamId, teamId)));
+  const { data } = useLiveQuery(
+    db.postSummary.where((post) => eq(post.teamId, teamId)),
+  );
 
   return data?.map((post) => <PostCard key={post.id} post={post} />);
 };
@@ -147,7 +154,7 @@ Two rules make the model hold together:
 
 - **Rows are complete.** Every row has every field of its schema, so any query can filter, sort and select any field. A
   list that returns summaries without `body` is its own collection, `postSummary`. The
-  [List and Detail Views](../02-patterns/list-and-detail.mdx) guide shows how the two stay in step.
+  [list and detail views](/docs/guides/db/patterns/list-and-detail) guide shows how the two stay in step.
 - **Types check the data path.** A loader, sync or write whose rows do not match the schema does not compile, and
   neither does a query that no loader can serve.
 
@@ -164,12 +171,14 @@ A query only describes **what** to show. The db decides **how**, in four steps:
 3. **Keep it live.** The loaded subset subscribes to the syncs that cover it, before its request goes out.
 4. **Share.** Queries that need the same subset share it, and its request.
 
-`query.explain()` shows the plan, so nothing about it is hidden. For a mounted query it looks like this:
+`query.explain()` shows the plan. For a mounted query it looks like this:
 
-```ts
+```ts title="src/queries.ts"
 import { and, eq, gt } from "@hyper-fetch/db";
 
-const popular = db.postSummary.where((post) => and(eq(post.teamId, "t1"), gt(post.likes, 10)));
+const popular = db.postSummary.where((post) =>
+  and(eq(post.teamId, "t1"), gt(post.likes, 10)),
+);
 
 popular.explain();
 // {
@@ -189,28 +198,16 @@ it instead. Components do not change.
 
 ## When to use the db
 
-:::note When it pays off
+The [DB overview](/docs/db/overview#when-to-use-it) has the full decision table. In short, the db pays off when the same
+records show in several views, change from several places (your writes, sockets, other users) or must be written
+offline. [`useFetch`](/docs/react/hooks/use-fetch) is the better fit when:
 
-- The same records show in **several views**: a feed, a detail page, a sidebar, a search.
-- Records change from **several places**: your own mutations, socket events, other users.
-- Writes must feel **instant** and survive failures without hand-written rollback code.
-- The app has to keep working **offline** and replay writes later.
-- Your backend is **Firestore** or another source with live snapshots.
-
-:::
-
-:::caution When useFetch is the better fit
-
-- Each screen shows **its own data**, such as a settings page or a report. A request and its cache entry are simpler.
+- Each screen shows **its own data**, such as a settings page or a report.
 - Responses are **not records**: a computed dashboard, a file download, a one-off RPC result.
-- You need **aggregates** such as counts and sums. Queries return rows, not computed values, so keep a request for them.
+- You need **aggregates** such as counts and sums. Queries return rows, not computed values.
 
-A request used by both `useFetch` and a collection keeps two copies of its data, one in the Cache and one in the
-collection, and they do not update each other. Pick one per piece of data.
-
-:::
-
-The db and `useFetch` live side by side in one app. Start with the screens where copies already hurt.
+The two live side by side in one app, but a request used by both keeps two copies that do not update each other, so
+pick one per request. Start with the screens where copies already hurt.
 
 ---
 
@@ -229,13 +226,13 @@ Every data source plugs in one of three ways. Pick by what the source is:
   waits for them.
 - A collection can have all of them. Most have one or two loaders and a sync per event type.
 - Writes are separate: `.mutate()` declares how `db.post.insert`, `update` and `delete` reach the server. See
-  [Optimistic Writes](./optimistic-writes.mdx).
+  [Optimistic writes](/docs/guides/db/basics/optimistic-writes).
 
 ---
 
 :::success Congratulations!
 
-You know how HyperFetch DB thinks about data!
+You've learned how HyperFetch DB thinks about data.
 
 - You can explain why **request-level caching** leaves stale copies, and how collections keep one row per record.
 - You can name the four sources of rows: **loaders**, **syncs**, **ingest** and **writes**.
@@ -250,14 +247,18 @@ You know how HyperFetch DB thinks about data!
 
 <LinkCard
   type="guides"
-  title="Loading Data with Loaders"
+  title="Loading data with loaders"
   description="Turn your existing requests into loaders: rows, filters, orders and reads by key."
   to="/docs/guides/db/basics/loaders"
 />
 
 <LinkCard
   type="docs"
-  title="DB Quick Start"
+  title="DB quick start"
   description="The shortest path from a request to a live query."
   to="/docs/db/quick-start"
 />
+
+- Reference: [DB overview](/docs/db/overview), [`useLiveQuery`](/docs/react/db/use-live-query).
+- API reference: [`collection`](/docs/api/db/Functions/collection), [`createDb`](/docs/api/db/Functions/createDb),
+  [`QueryExplanation`](/docs/api/db/Types/QueryExplanation).

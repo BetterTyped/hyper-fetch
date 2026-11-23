@@ -64,9 +64,9 @@ export const adminSocket = createSocketClient({ url: "", adapter: FirebaseSocket
    `/` changes the target (and the document vs collection parity). Reject anything that is not a plain id.
 5. **Pass Admin SDK instances only.** The adapters detect Firestore with `instanceof` the `firebase-admin/firestore`
    class and treat anything else as Realtime Database. A Web SDK instance silently takes the wrong branch.
-6. **Pass adapter instances, always set `method`.** `setAdapter(FirebaseAdminAdapter(db))` (not a factory). The default
-   method is `"getDoc"`, which does not exist on Realtime Database: use `"get"`, `"set"`, `"push"`, `"update"`,
-   `"remove"` there.
+6. **Pass adapter instances, set `method` for anything but a read.** `setAdapter(FirebaseAdminAdapter(db))` (not a
+   factory). A request without a method reads: `"getDoc"` on Firestore, `"get"` on Realtime Database. Realtime
+   Database methods are `"get"`, `"set"`, `"push"`, `"update"` and `"remove"`.
 7. **Path parity decides document vs collection** exactly like the web package: even segments is a document, odd is a
    collection (`client.url + endpoint`, `socket.url + topic`).
 8. **Errors are in the response.** `send()` resolves; check `error` / `status` (`"success"`, `"error"`,

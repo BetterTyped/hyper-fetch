@@ -8,16 +8,14 @@ sidebar_label: Hydrate (SSR)
 # Hydrate
 
 **`Hydrate`** passes data fetched on the server to the hooks rendered below it. Hooks render the data on the first
-render - during server rendering too - and the [`Client`](/core/client.mdx) cache receives it before any hook mounts, so
-the browser does not fetch it again.
-
----
+render, during server rendering too, and the [client](/docs/core/client) cache receives it before any hook mounts. Use
+it for server rendering without a loading state on the first paint.
 
 :::tip Purpose
 
-1. Server rendering (Next.js, Remix, custom SSR) without a loading state on the first paint
-2. Passing data from server components to client components
-3. Seeding the cache from data you already have
+1. **Server rendering** (Next.js, Remix, Astro, custom SSR) without a loading flash.
+2. **Server to client components**: pass plain data, not the client instance.
+3. **Seed the cache** from data you already have.
 
 :::
 
@@ -46,15 +44,20 @@ import { Hydrate, useFetch } from "@hyper-fetch/react";
 import type { HydrateProps } from "@hyper-fetch/react";
 import { client, getUsers } from "@/api";
 
-export const UsersList = ({ hydration }: { hydration: HydrateProps["data"] }) => (
+export const UsersList = ({
+  hydration,
+}: {
+  hydration: HydrateProps["data"];
+}) => (
   <Hydrate client={client} data={hydration}>
     <Users />
   </Hydrate>
 );
 
 const Users = () => {
-  // Renders the server data immediately - no loading state, no request while the data is fresh
-  const { data } = useFetch(getUsers);
+  // Renders the server data on the first render; revalidate: false skips the
+  // background refetch while it is fresh
+  const { data } = useFetch(getUsers, { revalidate: false });
   return (
     <ul>
       {data?.map((user) => (
@@ -89,13 +92,13 @@ export default function App({ Component, pageProps }: AppProps) {
 
 ## How it works
 
-- **First render.** Hooks below `Hydrate` (`useFetch`, `useSubmit`, `useCache`) start with the hydrated data. On the
-  server nothing is written to the cache - in server mode the cache stores only scoped requests - so concurrent server
-  renders never see each other's data.
+- **First render.** Hooks below `Hydrate` (`useFetch`, `useSubmit`, `useCache`, `useInfiniteFetch`) start with the
+  hydrated data. On the server nothing is written to the cache (in server mode the cache stores only scoped requests),
+  so concurrent server renders never see each other's data.
 - **Before the hooks mount.** In the browser the data is written to the cache before the hooks run their mount logic, so
   fresh data is not fetched again. With the default `revalidate: true`, `useFetch` still refreshes the data in the
   background while showing the hydrated value; use `revalidate: false` and a `staleTime` to rely on it.
-- **Newer data wins.** Cached data that is newer than the snapshot is kept, and an older cache entry is replaced - hooks
+- **Newer data wins.** Cached data that is newer than the snapshot is kept, and an older cache entry is replaced. Hooks
   that already show it update. Re-rendering with the same items does not write them again.
 - **After the cache is cleared** (for example on logout) the snapshot is not used again by hooks mounted later.
 - **Scopes** are respected: a snapshot of `request.setScope("user-1")` hydrates only that scope.
@@ -108,7 +111,7 @@ export default function App({ Component, pageProps }: AppProps) {
 Every `Hydrate` serves only its own client, so they can be nested and combined freely. A nested `Hydrate` adds its items
 to the ones above; for the same key the newer data wins.
 
-```tsx
+```tsx title="app/layout.tsx"
 <Hydrate client={apiClient} data={apiHydration}>
   <Hydrate client={cmsClient} data={cmsHydration}>
     <Page />
@@ -119,10 +122,13 @@ to the ones above; for the same key the newer data wins.
 Empty values are ignored, so the payload can be built conditionally and `Hydrate` can be rendered only when there is
 something to hydrate:
 
-```tsx
-<Hydrate client={client} data={[user && getUser.dehydrate({ response: user }), settings]}>
+```tsx title="app/providers.tsx"
+<Hydrate
+  client={client}
+  data={[user && getUser.dehydrate({ response: user }), settings]}
+>
   {children}
-</Hydrate>
+</Hydrate>;
 ```
 
 ---
@@ -138,4 +144,37 @@ something to hydrate:
 
 Set `override: false` in the item or in `options` to never replace existing cache data, even when it is older.
 
-Without React, call `client.hydrate(items)` directly - see [Client hydration](/core/client.mdx).
+Without React, call `client.hydrate(items)` directly, see [client hydration](/docs/core/client#hydrate-data-from-the-server).
+To render the first pages of an infinite list on the server, use
+[`fetchInfinite`](/docs/react/hooks/use-infinite-fetch#server-rendering).
+
+---
+
+:::secondary Summary
+
+1. Fetch on the server, call `request.dehydrate({ response })` and pass the items to `Hydrate`.
+2. Hooks below it render the data on the first render, and the browser cache receives it before they mount.
+3. Use `revalidate: false` and a `staleTime` to skip the background refetch.
+
+:::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Next.js data fetching"
+  description="Fetch on the server with the app and pages routers and hydrate the hooks."
+  to="/docs/guides/react/basics/nextjs-data-fetching"
+/>
+
+<LinkCard
+  type="api"
+  title="Hydrate API reference"
+  description="Generated props and types of the component."
+  to="/docs/api/react/Components/Hydrate"
+/>
+
+- Runnable examples: [Next.js App Router](/examples/frameworks/nextjs-app-router),
+  [Next.js Pages Router](/examples/frameworks/nextjs-pages-router), [Next.js streaming](/examples/frameworks/nextjs-streaming),
+  [Astro](/examples/frameworks/astro).
+- Types: [`HydrateProps`](/docs/api/react/Types/HydrateProps).

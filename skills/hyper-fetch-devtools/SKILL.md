@@ -54,6 +54,9 @@ answers are queued in memory and flushed once HyperFlow reports it is initialize
 | `url`         | `string`  | `"ws://localhost:2137"` | HyperFlow server URL. Change it when you change the port in HyperFlow |
 | `debug`       | `boolean` | `false`                 | Log connect, disconnect and socket errors through the client logger   |
 | `environment` | `string`  | `appName`               | Label shown next to the app name (e.g. `"development"`, `"staging"`)  |
+| `WebSocket`   | `typeof WebSocket` | global `WebSocket` | Constructor used to connect. On Node.js older than 22 pass `WebSocket` from `ws` |
+| `sockets`     | `SocketInstance[]` | `[]`        | `@hyper-fetch/sockets` sockets to inspect: connection, messages, errors |
+| `dbs`         | `DevtoolsDb[]` | `[]`                | `@hyper-fetch/db` dbs to inspect: collections, subsets, live queries, outbox |
 
 The plugin's socket is created with `reconnect: 100` and `reconnectTime: 3000`, so it keeps retrying every 3 s while
 HyperFlow is closed.

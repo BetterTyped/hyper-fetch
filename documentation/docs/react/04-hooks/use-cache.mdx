@@ -7,149 +7,94 @@ sidebar_label: useCache
 
 # useCache
 
-[Read the API Reference »](/docs/api/react/Hooks/useCache)
-
-The `useCache` hook **subscribes to cache updates** for a given request without triggering any network request. It is a
-read-only observer of the cache layer - it provides cached state, `invalidate`, and setters for its own state, but it
-does not fetch, submit, or abort requests.
+`useCache` subscribes a component to the [cache](/docs/core/cache) entry of a request without ever sending it. Use it
+to show data that another component fetched, such as a header badge reading the cart that a page loaded with
+[`useFetch`](/docs/react/hooks/use-fetch).
 
 :::tip Purpose
 
-1. **Subscribe to cache changes** for a specific request without initiating a fetch.
-2. **Display cached data** from one request in a different component (cross-component data sharing).
-3. **Invalidate cache** to force other hooks (`useFetch`, `useSubmit`) to re-fetch.
-4. **Override the hook state** with `setData`, `setError`, and `setLoading`.
+1. **Read without fetching**: never sends a request.
+2. **Share data across components**: re-renders when the cache entry changes.
+3. **Invalidate**: make every `useFetch` on that key fetch again.
 
 :::
-
-:::info Local state, not the cache
-
-`setData`, `setError` and `setLoading` change only the state of this hook. The cache and the other hooks reading it
-keep their values, and the next cache update replaces yours. To change the cached data for every consumer, use
-`client.cache.update()`.
-
-:::
-
-:::caution What useCache does NOT provide
-
-Unlike `useFetch`, `useCache` does **not** provide `abort`, `onSuccess`, `onError`, `refetch`, or any network-related
-functionality. It only observes the cache and invalidates it. If you need to fetch data, use `useFetch` instead.
-
-:::
-
-> **When to use it**: Use `useCache` when you need to display or react to cached data that was fetched elsewhere. For
-> example, a sidebar component that shows user details fetched by a different page component.
 
 ---
 
-## Quick Start
+## Usage
 
-Just provide a prepared [`Request`](/docs/core/request) instance to the hook and listen to it's cache state.
-
-:::warning Remember to match the `cacheKey`
-
-Request's `cacheKey` are generated dynamically based on the request's `queryKey` and `params`. If you want to use
-`useCache` hook, you need to ensure that the `cacheKey` is matching the triggered request's `cacheKey`.
-
-For example if your request has params, provide them like:
-
-```ts
-// When fetching data
-const { data } = useFetch(getUser.setParams({ userId: 1 }));
-
-// code-editor-split
-
-// When listening to cache from another component
-const { data } = useCache(getUser.setParams({ userId: 1 }));
-```
-
-:::
-
-```tsx
+```tsx title="components/cart-badge.tsx"
 import { useCache } from "@hyper-fetch/react";
+import { getCart } from "./api/cart";
 
-const { data, error, loading, invalidate, setData, setError, setLoading } = useCache(getUsers);
-```
+function CartBadge() {
+  // Reads the entry that <CartPage /> filled with useFetch(getCart)
+  const { data } = useCache(getCart);
 
-:::info Cache-only - no network requests
-
-`useCache` never sends a request to the server. If the cache is empty when the hook mounts, `data` will be `null` until
-another hook (like `useFetch`) populates the cache for the same `cacheKey`.
-
-:::
-
----
-
-## Invalidate cache
-
-Invalidate the cache for the current request or a custom key.
-
-```tsx
-const { invalidate } = useCache(request);
-
-// Invalidate current request cache
-invalidate();
-
-// Invalidate by custom key (Regex or cacheKey)
-invalidate(cacheKey);
-```
-
-:::info Invalidating cache
-
-In many cases, **you don't need to use** the `useCache` hook to invalidate cache entries. You can call the `invalidate`
-method directly on the cache instance for more flexibility. Do not worry - it is integrated with our hooks, so you can
-use it in the same way as with the `useCache` hook.
-
-```tsx
-import { client } from "./client";
-
-// Invalidate cache for a specific request
-client.cache.invalidate(request);
-
-// Invalidate cache by custom key (Regex or cacheKey)
-client.cache.invalidate(/^getUsers/);
-
-// Invalidate cache by request instance
-client.cache.invalidate(request);
-```
-
-:::
-
----
-
-## Clear State
-
-The `clearState` method resets all hook state (`data`, `error`, `status`, `extra`, timestamps) back to initial values.
-
-```tsx title="Using clearState"
-import { useCache } from "@hyper-fetch/react";
-import { getUsers } from "./api/users";
-
-function UsersCache() {
-  const { data, clearState } = useCache(getUsers);
-
-  return (
-    <div>
-      {data && <Table data={data} />}
-      <button type="button" onClick={clearState}>
-        Clear Cache State
-      </button>
-    </div>
-  );
+  return <span>{data?.items.length ?? 0}</span>;
 }
 ```
 
+The request must have the same cache key as the one that was sent: set the same params and query params, for example
+`useCache(getUser.setParams({ userId: 1 }))` to read `useFetch(getUser.setParams({ userId: 1 }))`. While the cache is
+empty, `data` is `null`.
+
 ---
 
-## Selecting Data
+## Options
 
-Use the `select` option to subscribe to a part of the cached data. The hook re-renders only when the selected value
-changes, and the result keeps its reference while it stays deeply equal (structural sharing). See
-[useFetch - Selecting Data](/docs/react/hooks/use-fetch#selecting-data) for details.
+| Option               | Default | Description                                                                     |
+| -------------------- | ------- | ------------------------------------------------------------------------------- |
+| `initialResponse`    | `null`  | Data shown while the cache is empty.                                            |
+| `select`             | -       | `(data) => part`. Re-renders only when the selected part changes.               |
+| `structuralSharing`  | `true`  | Keep references of the unchanged parts of the selected data.                    |
+| `deepCompare`        | `true`  | Equal incoming values keep their reference and do not re-render.                |
+| `dependencyTracking` | `true`  | Re-render only for the returned fields the component reads.                     |
 
-```tsx title="Cache selector"
+---
+
+## Returns
+
+(@import react useCache type=returns)
+
+`useCache` has no `refetch`, `abort` or `onSuccess`: it observes the cache only. To fetch, use `useFetch`.
+
+---
+
+## Invalidate the cache
+
+`invalidate()` marks the hook's cache entry as stale, so every mounted `useFetch` on that key fetches again and other
+hooks fetch on their next mount. Pass a cache key, a RegExp, a request or an array of them to invalidate other entries.
+Outside the hook, call [`client.cache.invalidate`](/docs/core/cache) with the same arguments.
+
+```tsx title="Refresh button"
+const { invalidate } = useCache(getCart);
+
+<button onClick={() => invalidate()}>Refresh</button>;
+<button onClick={() => invalidate(/\/products/)}>Refresh products</button>;
+```
+
+---
+
+## Update data for every component
+
+`setData`, `setError`, `setLoading` and `clearState()` change only this hook's state; the next cache update replaces
+them. To change what every component sees, update the cache itself.
+
+```tsx title="Write to the cache"
+// Patches the entry for every component; does nothing when there is no entry yet
+client.cache.update(getCart, { data: { items: [] } });
+```
+
+---
+
+## Select part of the data
+
+`select` subscribes to a part of the cached data. The component re-renders only when that part changes. It works like
+[`select` in useFetch](/docs/react/hooks/use-fetch#select-part-of-the-response).
+
+```tsx title="Count done todos"
 function TodosCounter() {
-  // Re-renders only when the number of done todos changes
   const { data: doneCount } = useCache(getTodos, {
     select: (todos) => todos.filter((todo) => todo.done).length,
   });
@@ -160,49 +105,29 @@ function TodosCounter() {
 
 ---
 
-## Options
+:::secondary Summary
 
-Configuration options for this hook provided as a second parameter.
+1. `useCache` reads a cache entry and never sends a request.
+2. The request needs the same cache key as the one that was sent.
+3. `invalidate()` refetches every `useFetch` on that key; `client.cache.update` changes the data for everyone.
 
-```tsx
-const { ... } = useCache(request, options)
-```
+:::
 
-(@import react UseCacheOptionsType type=returns)
+## Next steps
 
----
-
-## State and methods
-
-This hook returns the following values.
-
-```tsx
-const values = useCache(request);
-```
-
-(@import react useCache type=returns)
+<LinkCard
+  type="docs"
+  title="Cache"
+  description="Cache keys, stale time, invalidation and persistence."
+  to="/docs/core/cache"
+/>
 
 <LinkCard
   type="api"
-  title="useCache API Reference"
-  description="Learn more about the useCache hook."
+  title="useCache API reference"
+  description="Generated types for the hook, its options and its return value."
   to="/docs/api/react/Hooks/useCache"
 />
 
----
-
-## See also
-
-<LinkCard
-  type="docs"
-  to="/docs/react/overview"
-  title="Use with React"
-  description="Overview of all React hooks and the approach to use them"
-/>
-
-<LinkCard
-  type="docs"
-  to="/docs/core/cache"
-  title="Cache"
-  description="Learn more about the Cache class and its methods"
-/>
+- Runnable examples: [shared state](/examples/caching/shared-state), [cache updates](/examples/caching/cache-updates).
+- Types: [`UseCacheOptionsType`](/docs/api/react/Types/UseCacheOptionsType).

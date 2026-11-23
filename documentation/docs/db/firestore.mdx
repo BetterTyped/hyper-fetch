@@ -1,13 +1,15 @@
 ---
 sidebar_position: 4
 title: DB Firestore
+description: "firestoreCollection declares a @hyper-fetch/db collection for Firestore in one call: queries become constraints, snapshots keep them live."
 sidebar_label: Firestore
 ---
 
 # Firestore
 
-> `firestoreCollection` from `@hyper-fetch/firebase/db` declares a whole db collection for a Firestore collection in one
-> call: queries become Firestore constraints, snapshots keep every query live, and writes go through Firestore.
+`firestoreCollection` from `@hyper-fetch/firebase/db` declares a whole db collection for a Firestore collection in one
+call: queries become Firestore constraints, snapshots keep every query live, and writes go through Firestore. It builds
+on the [Firebase adapter](/docs/integrations/adapter-firebase/overview).
 
 :::tip Purpose
 
@@ -23,7 +25,7 @@ sidebar_label: Firestore
 
 ## Setup
 
-```ts
+```ts title="db.ts"
 import { Client } from "@hyper-fetch/core";
 import { Socket } from "@hyper-fetch/sockets";
 import { createDb, and, eq, gt } from "@hyper-fetch/db";
@@ -31,9 +33,17 @@ import { FirebaseAdapter, FirebaseSocketsAdapter } from "@hyper-fetch/firebase";
 import { firestoreCollection } from "@hyper-fetch/firebase/db";
 
 const client = new Client({ url: "" }).setAdapter(FirebaseAdapter(firestore));
-const socket = new Socket({ url: "", adapter: FirebaseSocketsAdapter(firestore) });
+const socket = new Socket({
+  url: "",
+  adapter: FirebaseSocketsAdapter(firestore),
+});
 
-const Post = firestoreCollection(PostSchema, { client, socket, path: "posts", key: "id" });
+const Post = firestoreCollection(PostSchema, {
+  client,
+  socket,
+  path: "posts",
+  key: "id",
+});
 
 export const db = createDb({ post: Post });
 ```
@@ -44,7 +54,7 @@ export const db = createDb({ post: Post });
 
 ## Queries
 
-```ts
+```ts title="Query posts"
 const query = db.post
   .where((post) => and(eq(post.teamId, 1), gt(post.likes, 10)))
   .orderBy((post) => post.likes, "desc");
@@ -63,8 +73,13 @@ query.explain(); // { kind: "list", loader: 0, local: [], ... }
 
 ## Writes
 
-```ts
-await db.post.insert({ id: crypto.randomUUID(), teamId: 1, title: "New", likes: 0 });
+```ts title="Write posts"
+await db.post.insert({
+  id: crypto.randomUUID(),
+  teamId: 1,
+  title: "New",
+  likes: 0,
+});
 await db.post.update(id, { title: "Renamed" });
 await db.post.delete(id);
 ```
@@ -90,3 +105,15 @@ await db.post.delete(id);
 - Writes go through Firestore's own local writes and offline queue.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="integrations"
+  title="Firestore adapter"
+  description="Firestore requests, constraints and realtime listeners without the db."
+  to="/docs/integrations/adapter-firebase/firestore"
+/>
+
+- Runnable example: [Firebase](/examples/integrations/firebase) uses the adapter requests in React.
+- Related: [`useLiveQuery`](/docs/react/db/use-live-query), [DB overview](/docs/db/overview).

@@ -58,7 +58,7 @@ export const modules: Section[] = [
   {
     label: "Getting Started",
     description:
-      "Start your journey with Hyper Fetch. Learn core concepts, installation, and basic setup to get up and running quickly.",
+      "What HyperFetch is, how to install it and your first request in a few minutes.",
     isPackage: false,
     dir: "getting-started",
     paths: ["getting-started"],
@@ -77,7 +77,7 @@ export const modules: Section[] = [
   {
     label: "Core",
     description:
-      "Discover the framework-agnostic heart of Hyper Fetch, with powerful features for building robust API clients.",
+      "Typed requests, cache, queues and retries for any TypeScript runtime.",
     isPackage: true,
     dir: "core",
     paths: ["core"],
@@ -96,7 +96,7 @@ export const modules: Section[] = [
   {
     label: "Sockets",
     description:
-      "Enable real-time communication in your application with our WebSockets module for seamless data exchange.",
+      "WebSocket and SSE listeners and emitters, typed like your requests.",
     isPackage: true,
     dir: "sockets",
     paths: ["sockets"],
@@ -137,7 +137,7 @@ export const modules: Section[] = [
   {
     label: "React",
     description:
-      "Integrate Hyper Fetch into your React applications with custom hooks for effortless data fetching and state management.",
+      "Hooks for fetching, mutations, sockets and live queries that share one cache.",
     isPackage: true,
     dir: "react",
     paths: ["react"],
@@ -156,7 +156,7 @@ export const modules: Section[] = [
   {
     label: "HyperFlow",
     description:
-      "A powerful devtool for building, testing, and debugging your API connections, enhancing your development workflow.",
+      "A desktop app that shows requests, cache, queues and sockets live.",
     isPackage: false,
     dir: "hyper-flow",
     paths: ["hyper-flow"],
@@ -176,7 +176,7 @@ export const modules: Section[] = [
   },
   {
     label: "CLI",
-    description: "The CLI for Hyper Fetch, use it to generate code from your api, add sdks, and more.",
+    description: "Generate a typed SDK from an OpenAPI document in one command.",
     dir: "cli",
     isPackage: true,
     paths: ["cli"],

@@ -5,57 +5,97 @@ description: "HyperFetch works in the browser with no setup. How online, offline
 sidebar_label: Browser
 ---
 
-> HyperFetch is configured to work in a browser environment **out-of-the-box**. This means you can integrate it into
-> any browser-based application without any initial setup.
+# Browser
 
-:::success Ready out-of-the-box
+HyperFetch needs no setup in the browser. The client's [`AppManager`](/docs/core/managers) listens to window and
+document events to know when the app is online and focused, which drives offline requests, `refetchOnFocus` and
+`refetchOnReconnect`.
 
-With no additional configuration, HyperFetch will automatically handle the browser environment and mixed environments.
+:::tip Purpose
+
+1. **No setup**: online and focus state come from browser events.
+2. **Server rendering**: the same client works on the server without browser events.
+3. **Customizable**: replace the events with your own when the defaults do not fit.
 
 :::
 
-{/* ---
+---
 
-## More about mixed environments
+## Default events
 
-HyperFetch supports Server-Side Rendering (SSR) scenarios, requiring no extra configuration to get started.
-It automatically handles the environment, ensuring a smooth experience whether you're rendering on the client or the
-server.
+| State   | Initial value         | Updated by                                                       |
+| ------- | --------------------- | ---------------------------------------------------------------- |
+| Online  | `navigator.onLine`    | `online` and `offline` window events                             |
+| Focused | `true`                | `focus` and `blur` window events, and document `visibilitychange` |
 
-<LinkCard
-  type="guides"
-  title="Server-Side Rendering (SSR)"
-  description="Learn more about Server-Side Rendering (SSR)."
-  to="/docs/guides/ssr"
-/> */}
+Read or change the state in components with [`useAppManager`](/docs/react/hooks/use-app-manager).
 
 ---
 
-## See more
+## Server rendering
 
-This is how we handle the browser environment. You can use this as a reference to implement your own set of rules for
-the events.
+The client detects where it runs: `"client"` mode in the browser, `"server"` mode elsewhere. On the server the cache
+stores only scoped requests, so concurrent renders never share data, and hooks do not send requests. Fetch on the server
+and pass the responses to the browser with [`Hydrate`](/docs/react/hydrate).
 
-### Online / Offline status handling
+---
 
-The default events that handle online/offline status in the library are based on the events available in the web browser
-environment. To use mobile device solutions, you can change the code responsible for handling the connection status.
+## Replace the events
+
+Pass your own `AppManager` to the client to change where the state comes from, for example to treat a hidden tab as
+focused.
+
+```ts title="api/client.ts"
+import { AppManager, Client } from "@hyper-fetch/core";
+
+export const client = new Client({
+  url: "https://api.example.com",
+  appManager: () =>
+    new AppManager({
+      // Only window focus counts; document visibility is ignored
+      focusEvent: (setFocused) => {
+        const onFocus = () => setFocused(true);
+        const onBlur = () => setFocused(false);
+        window.addEventListener("focus", onFocus);
+        window.addEventListener("blur", onBlur);
+
+        return () => {
+          window.removeEventListener("focus", onFocus);
+          window.removeEventListener("blur", onBlur);
+        };
+      },
+    }),
+});
+```
+
+Return a cleanup function from `focusEvent` and `onlineEvent` so the listeners are removed when `client.clear()` runs.
+
+---
+
+:::secondary Summary
+
+1. In the browser, online and focus state come from window and document events with no setup.
+2. On the server, hooks do not fetch; use `Hydrate` for server data.
+3. Pass a custom `AppManager` to change the events.
+
+:::
+
+## Next steps
 
 <LinkCard
   type="guides"
-  title="Online / Offline status handling"
-  description="Learn more about online / offline status handling."
+  title="Window focus and blur"
+  description="Refetch when the user comes back to the tab."
+  to="/docs/guides/react/basics/window-focus-blur"
+/>
+
+<LinkCard
+  type="guides"
+  title="Offline"
+  description="Keep requests while offline and send them when the network returns."
   to="/docs/guides/core/advanced/offline"
 />
 
-### Focus / Blur state handling
-
-The default events that handle focus/blur state in the library are based on the events available in the web browser
-environment. To use mobile device solutions, you can change the code responsible for handling the focus/blur state.
-
-<LinkCard
-  type="guides"
-  title="Focus / Blur state handling"
-  description="Learn more about focus / blur state handling."
-  to="/docs/guides/react/basics/window-focus-blur"
-/>
+- Runnable examples: [refetch on focus](/examples/data-fetching/refetch-on-focus),
+  [offline queue](/examples/offline/offline-queue), [tab sync](/examples/caching/tab-sync).
+- Other environments: [React Native](/docs/react/environments/react-native), [Electron](/docs/react/environments/electron).

@@ -55,7 +55,8 @@ const hasLightTile = (item: SidebarItem) =>
 
 /** The overview is the "Getting Started" page of the area, every other entry is a package or a guide */
 const isOverviewItem = (item: SidebarItem) =>
-  item.section.category.toLowerCase() === "docs";
+  item.section.category.toLowerCase() === "docs" ||
+  item.section.dir === "getting-started";
 
 /** The logo on its tile. `glow` adds a blurred tile in the brand color behind it. */
 export const IconTile = ({
@@ -187,7 +188,14 @@ export const usePanelPosition = ({
     if (!open) {
       return undefined;
     }
-    const place = () => {
+    const place = (event?: Event) => {
+      // Scrolling a list inside the panel does not move the trigger
+      if (
+        event?.target instanceof Node &&
+        panelRef.current?.contains(event.target)
+      ) {
+        return;
+      }
       const rect = triggerRef.current?.getBoundingClientRect();
       if (!rect) {
         return;
@@ -202,12 +210,22 @@ export const usePanelPosition = ({
         window.innerWidth - panelWidth - EDGE,
       );
       const top = rect.bottom + GAP;
-      setPosition({
+      const next = {
         top,
         left,
         width: panelWidth,
         maxHeight: Math.max(320, window.innerHeight - top - EDGE),
-      });
+      };
+      // Keep the same object when nothing moved, so effects that depend on the position do not run again
+      setPosition((prev) =>
+        prev &&
+        prev.top === next.top &&
+        prev.left === next.left &&
+        prev.width === next.width &&
+        prev.maxHeight === next.maxHeight
+          ? prev
+          : next,
+      );
     };
     place();
     window.addEventListener("resize", place);
@@ -216,7 +234,7 @@ export const usePanelPosition = ({
       window.removeEventListener("resize", place);
       window.removeEventListener("scroll", place, true);
     };
-  }, [open, triggerRef, width, align]);
+  }, [open, triggerRef, panelRef, width, align]);
 
   useEffect(() => {
     if (!open) {
@@ -240,8 +258,8 @@ export const usePanelPosition = ({
 
 /**
  * Picks one page of an area from a command palette: search, category chips, a list and a preview of the highlighted
- * entry. The integrations and the API packages outgrew a plain list in the sidebar, so the sidebar shows the current
- * one and opens the rest on demand. The panel is portaled to the body, so the scrolling sidebar never clips it.
+ * entry. Every area of the docs (docs, guides, integrations and the API) uses one, so the sidebar shows the current
+ * section and opens the rest on demand. The panel is portaled to the body, so the scrolling sidebar never clips it.
  */
 export const SectionPicker = ({
   items,
@@ -262,6 +280,13 @@ export const SectionPicker = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const listId = useId();
+  const revealHighlighted = useRef(false);
+
+  /** Highlights an entry and scrolls the list to it */
+  const moveHighlight = (next: React.SetStateAction<number>) => {
+    revealHighlighted.current = true;
+    setHighlighted(next);
+  };
 
   const overviewItem = items.find(isOverviewItem);
   // Kept in group order, so each group heading shows once
@@ -319,13 +344,19 @@ export const SectionPicker = ({
     if (!open) {
       return;
     }
-    setHighlighted(Math.max(0, entries.indexOf(activeItem)));
+    moveHighlight(Math.max(0, entries.indexOf(activeItem)));
     requestAnimationFrame(() => inputRef.current?.focus());
     // Runs when the panel opens, not on every keystroke
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  // Bring the highlighted entry into view only when the keyboard, a filter or opening moved it. The mouse highlights
+  // what is already in view, and scrolling the list past the highlighted entry must not pull it back.
   useEffect(() => {
+    if (!open || !position || !revealHighlighted.current) {
+      return;
+    }
+    revealHighlighted.current = false;
     listRef.current
       ?.querySelector(`[data-index="${highlighted}"]`)
       ?.scrollIntoView({ block: "nearest" });
@@ -342,10 +373,10 @@ export const SectionPicker = ({
     const count = Math.max(options.length, 1);
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setHighlighted((index) => (index + 1) % count);
+      moveHighlight((index) => (index + 1) % count);
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
-      setHighlighted((index) => (index - 1 + count) % count);
+      moveHighlight((index) => (index - 1 + count) % count);
     } else if (event.key === "Enter" && preview) {
       event.preventDefault();
       openHighlighted();
@@ -360,7 +391,7 @@ export const SectionPicker = ({
         (all.indexOf(group) + (event.shiftKey ? -1 : 1) + all.length) %
         all.length;
       setGroup(all[next]);
-      setHighlighted(0);
+      moveHighlight(0);
     }
   };
 
@@ -405,7 +436,7 @@ export const SectionPicker = ({
               value={query}
               onChange={(event) => {
                 setQuery(event.target.value);
-                setHighlighted(0);
+                moveHighlight(0);
               }}
               onKeyDown={onKeyDown}
               placeholder={`Search ${noun.many}...`}
@@ -444,7 +475,7 @@ export const SectionPicker = ({
                   tabIndex={-1}
                   onClick={() => {
                     setGroup(title);
-                    setHighlighted(0);
+                    moveHighlight(0);
                     inputRef.current?.focus();
                   }}
                   className={cn(

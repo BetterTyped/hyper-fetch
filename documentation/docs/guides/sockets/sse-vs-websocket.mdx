@@ -7,16 +7,13 @@ sidebar_label: SSE vs WebSocket
 
 # SSE vs WebSocket
 
-The short answer to sse vs websocket: Server-Sent Events send data one way, from server to client, over an ordinary HTTP
-response. WebSockets open a separate two-way channel where both sides can send at any time. If the client only needs to
-receive, SSE is usually the simpler choice. If the client sends a steady stream too, use a WebSocket.
-
-The rest of this page explains why, where each one hurts, and how HyperFetch lets you switch between them without
-touching the code that reads the messages.
+Server-Sent Events send data one way, from server to client, over an ordinary HTTP response. WebSockets open a two-way
+channel where both sides can send at any time. If the client only receives, SSE is usually simpler; if it sends a steady
+stream too, use a WebSocket. This guide explains the trade-offs and how HyperFetch runs the same listeners over both.
 
 :::secondary What you'll learn
 
-1.  How **server sent events vs websockets** differ at the protocol level.
+1.  How **Server-Sent Events and WebSockets** differ at the protocol level.
 2.  The practical trade-offs: **HTTP/2**, **reconnection**, **binary data**, **headers** and **proxies**.
 3.  Which one to pick for common features.
 4.  How the **same listener API** runs over the `ServerSentEventsAdapter` and the `WebsocketAdapter`.
@@ -62,16 +59,18 @@ client sends many small messages fit a WebSocket better, because each client mes
 
 Without HTTP/2, SSE shares the browser's connection pool, and the limit is low: six open connections per browser and
 domain, across all tabs. Over HTTP/2, the streams are multiplexed on one connection and the limit is negotiated, 100 by
-default ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)). If you plan
-to use SSE, serve it over HTTP/2. A user with seven tabs open on HTTP/1.1 otherwise sees the seventh tab hang.
+default ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)).
+
+Serve SSE over HTTP/2. On HTTP/1.1, a user with seven tabs open sees the seventh tab hang.
 
 ### Reconnection
 
 `EventSource` reconnects on its own. The server can set the delay with the `retry:` field, and if events carry an `id:`,
 the browser sends the last one back in the `Last-Event-ID` header when it reconnects, so the server can replay what was
-missed ([Vercel: SSE vs WebSockets](https://vercel.com/guides/do-vercel-serverless-functions-support-websocket-connections)). A WebSocket has none of
-this. A closed WebSocket stays closed until your code opens a new one, and resuming is up to your protocol. The
-[reconnection guide](./websocket-reconnection-and-errors.mdx) covers what that code needs to do.
+missed ([Vercel: SSE vs WebSockets](https://vercel.com/guides/do-vercel-serverless-functions-support-websocket-connections)).
+
+A WebSocket has none of this. A closed WebSocket stays closed until your code opens a new one, and resuming is up to
+your protocol. The [reconnection guide](/docs/guides/sockets/websocket-reconnection-and-errors) covers what that code needs to do.
 
 ### Binary data
 
@@ -82,8 +81,8 @@ size and CPU. For audio, video frames or compact binary protocols, use a WebSock
 
 SSE is a regular HTTP response, so it goes through the same proxies, CDNs, auth middleware and logging as the rest of your
 API. The usual catch is buffering: a layer that buffers or compresses the whole response holds events back until it
-flushes. Idle streams can also be cut by timeouts, which is why servers send a comment line (`: ping`) now and then; MDN
-describes this exact use.
+flushes. Idle streams can also be cut by timeouts, which is why servers send a comment line (`: ping`) now and then, as
+MDN describes.
 
 A WebSocket needs every hop to support the upgrade, and the load balancer has to keep long-lived connections open. Most
 platforms do this now, but it is one more thing to configure, and after the upgrade your HTTP middleware no longer sees
@@ -91,7 +90,7 @@ the traffic.
 
 ---
 
-## Websocket vs SSE: which one to pick
+## WebSocket vs SSE: which one to pick
 
 | Feature | Pick | Why |
 | --- | --- | --- |
@@ -103,7 +102,7 @@ the traffic.
 | Binary data | WebSocket | SSE is text only |
 
 When the stream belongs to a single request, like one AI completion, you may not need either: a streamed `fetch` response
-is enough, and [useStream](../../react/04-hooks/use-stream.mdx) reads it chunk by chunk.
+is enough, and [useStream](/docs/react/hooks/use-stream) reads it chunk by chunk.
 
 ---
 
@@ -113,18 +112,22 @@ In HyperFetch the transport is an adapter on the `Socket`. Listeners, `useListen
 interceptors are the same for both, so the choice above stays a one-line decision you can change later.
 
 ```ts title="src/realtime.ts"
-import { Socket, ServerSentEventsAdapter, WebsocketAdapter } from "@hyper-fetch/sockets";
+import {
+  createSocketClient,
+  ServerSentEventsAdapter,
+  WebsocketAdapter,
+} from "@hyper-fetch/sockets";
 
 type Price = { symbol: string; price: number };
 
 // Server-Sent Events
-export const sse = new Socket({
+export const sse = createSocketClient({
   url: "https://api.example.com/events",
   adapter: ServerSentEventsAdapter(),
 });
 
 // WebSocket
-export const ws = new Socket({
+export const ws = createSocketClient({
   url: "wss://api.example.com/ws",
   adapter: WebsocketAdapter(),
 });
@@ -136,7 +139,7 @@ export const onPriceWs = ws.createListener<Price>()({ topic: "prices" });
 
 Components do not know which one they use:
 
-```tsx
+```tsx title="src/ticker.tsx"
 import { useListener } from "@hyper-fetch/react";
 
 function Ticker() {
@@ -144,7 +147,11 @@ function Ticker() {
   const { data, connected } = useListener(onPriceSse);
 
   if (!connected) return <p>Reconnecting...</p>;
-  return <p>{data ? `${data.symbol}: ${data.price}` : "Waiting for the first price"}</p>;
+  return (
+    <p>
+      {data ? `${data.symbol}: ${data.price}` : "Waiting for the first price"}
+    </p>
+  );
 }
 ```
 
@@ -153,7 +160,7 @@ function Ticker() {
 Both adapters read JSON shaped `{ topic, data }` by default. Over SSE, a **named event** works too: an event with
 `event: prices` is delivered to the listeners whose topic is `prices`, with the data parsed as JSON or kept as text.
 
-```text
+```text title="Two SSE frames the adapter reads"
 data: {"topic":"prices","data":{"symbol":"BTC","price":64000}}
 
 event: prices
@@ -161,7 +168,7 @@ data: {"symbol":"BTC","price":64000}
 ```
 
 If your server uses another envelope, pass a `decode` function in `adapterOptions` on either adapter. The full option
-tables are in the [adapter reference](../../sockets/adapter.mdx).
+tables are in the [adapter reference](/docs/sockets/adapter).
 
 ### Where they differ
 
@@ -173,18 +180,42 @@ tables are in the [adapter reference](../../sockets/adapter.mdx).
   `maxReconnectTime`, before a new attempt.
 - **Heartbeat.** The `heartbeat`, `pingTimeout` and `pongTimeout` options exist on the WebSocket adapter only.
 - **Credentials.** For SSE, cookies go with `adapterOptions: { eventSourceInit: { withCredentials: true } }`. For a
-  WebSocket, use query params or subprotocols, see [socket authentication](./authentication.mdx).
+  WebSocket, use query params or subprotocols, see [socket authentication](/docs/guides/sockets/authentication).
 - **Node.js.** Node.js has no global `EventSource`. Pass one from the `eventsource` package with the `EventSource`
   adapter option.
 
-The [listening guide](./listening.mdx) shows the rest of the listener API, which is shared by both.
+The [listening guide](/docs/guides/sockets/listening) shows the rest of the listener API, which is shared by both.
 
-:::secondary Summary
+---
 
-- SSE is one-way, text-only HTTP with reconnection and resume built into `EventSource`. Serve it over HTTP/2.
-- WebSockets are two-way, carry binary, and leave reconnects and resume to you.
-- Pick by direction first: receive only means SSE, a steady stream from the client means WebSocket.
-- In HyperFetch, `ServerSentEventsAdapter` and `WebsocketAdapter` share listeners and `useListener`. Only emitting,
-  heartbeat and credentials differ.
+:::success Congratulations!
+
+You can now choose between SSE and WebSockets for each feature.
+
+- You know that **SSE** is one-way UTF-8 text over HTTP, with reconnect and resume in `EventSource`.
+- You know that **WebSockets** are two-way, carry binary and leave resume to your protocol.
+- You can **pick by direction** first, then by binary data, HTTP/2 and proxies.
+- You can switch between **`ServerSentEventsAdapter`** and **`WebsocketAdapter`** without changing listeners.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="docs"
+  title="Socket adapter"
+  description="WebSocket and SSE adapter options, frame formats and decode."
+  to="/docs/sockets/adapter"
+/>
+
+<LinkCard
+  type="guides"
+  title="HTTP vs WebSocket"
+  description="Polling, webhooks and mixing HTTP with a socket."
+  to="/docs/guides/sockets/http-vs-websocket"
+/>
+
+- Runnable examples: [server-sent events](/examples/realtime/server-sent-events),
+  [notifications](/examples/realtime/notifications), [WebSocket chat](/examples/realtime/websocket-chat),
+  [streaming](/examples/realtime/streaming), [AI chat](/examples/realtime/ai-chat).
+- Guides: [WebSockets in Next.js](/docs/guides/sockets/nextjs-websockets).

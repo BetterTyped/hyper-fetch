@@ -5,159 +5,126 @@ description: "Use HyperFetch in React Native. Connect NetInfo and AppState for o
 sidebar_label: React Native
 ---
 
-`HyperFetch` is designed to be environment-agnostic, providing full support for `React Native`. Its modular
-architecture allows for easy replacement of core components to seamlessly integrate with native device features.
+# React Native
 
-:::secondary What you'll learn
+The hooks work in React Native as they do on the web. React Native has no window events, so connect the client's
+[`AppManager`](/docs/core/managers) to `NetInfo` and `AppState` to get online and focus detection, and optionally keep
+the request queues in persistent storage.
 
-- How to handle **online/offline status** using `NetInfo`.
-- How to manage application **focus/blur states** with `AppState`.
-- How to **persist dispatcher queues** with MMKV for offline-first support.
+:::tip Purpose
+
+1. **Online state** from `@react-native-community/netinfo`.
+2. **Focus state** from `AppState`, so `refetchOnFocus` fires when the app returns to the foreground.
+3. **Persistent queues** with MMKV, so offline requests survive app restarts.
 
 :::
 
-## Online and Offline Status
+---
 
-By default, HyperFetch listens to browser-based online/offline events. For React Native, you can use the
-[`@react-native-community/netinfo`](https://github.com/react-native-netinfo/react-native-netinfo) library to track the
-device's network status.
+## Connect online and focus state
 
-First, you need to install the library:
-
-```bash
-npm install --save @react-native-community/netinfo
+```bash npm2yarn2pnpm
+npm install @react-native-community/netinfo
 ```
 
-Then, configure the `appManager` to use `NetInfo` for network state detection. This ensures that HyperFetch is always
-aware of the device's connectivity, preventing requests from being sent when the device is offline.
-
-```tsx title="services/client.ts"
-import { Client } from "@hyper-fetch/core";
-import { AppManager } from "@hyper-fetch/core";
+```ts title="api/client.ts"
+import { AppState } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
+import { AppManager, Client } from "@hyper-fetch/core";
 
-import { environment } from "src/environments";
-import { ServerErrorType } from "src/types";
-
-export const client = new Client<ServerErrorType>({
-  url: environment.serverUrl,
+export const client = new Client({
+  url: "https://api.example.com",
   appManager: () =>
     new AppManager({
-      initiallyOnline: NetInfo.fetch().then((state) => !!state.isConnected),
-      onlineEvent: (setOnline) => {
-        return NetInfo.addEventListener((state) => {
-          setOnline(!!state.isConnected);
-        });
-      },
-    }),
-});
-```
-
-## Application Focus and Blur
-
-To automatically manage requests based on the application's focus state, you can use React Native's `AppState` API. This
-allows HyperFetch to pause requests when the app is in the background and resume them when it's back in the foreground.
-
-This configuration tells HyperFetch to listen for app state changes. When the app becomes `active`, it's considered
-focused. When it's `inactive` or in the `background`, it's blurred.
-
-```tsx title="services/client.ts"
-import { AppState, AppStateStatus } from "react-native";
-import { Client } from "@hyper-fetch/core";
-import { AppManager } from "@hyper-fetch/core";
-
-import { environment } from "src/environments";
-import { ServerErrorType } from "src/types";
-
-export const client = new Client<ServerErrorType>({
-  url: environment.serverUrl,
-  appManager: () =>
-    new AppManager({
+      initiallyOnline: () =>
+        NetInfo.fetch().then((state) => !!state.isConnected),
+      onlineEvent: (setOnline) =>
+        NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
+      initiallyFocused: () => AppState.currentState === "active",
       focusEvent: (setFocused) => {
-        const onChange = (status: AppStateStatus) => {
-          setFocused(status === "active");
-        };
-
-        const subscription = AppState.addEventListener("change", onChange);
-
+        const subscription = AppState.addEventListener("change", (status) =>
+          setFocused(status === "active"),
+        );
         return () => subscription.remove();
       },
     }),
 });
 ```
 
-## Persistent Dispatcher Storage
-
-By default, the dispatcher stores its request queues in memory. In React Native, you can provide a persistent storage
-like [MMKV](https://github.com/mrousavy/react-native-mmkv) so that queued requests survive app restarts. This is
-especially useful for offline-first applications where requests should be retried when connectivity returns.
-
-HyperFetch automatically handles the serialization and deserialization of request data. When requests are read back from
-a JSON-based storage, they are transparently reconstructed into proper `Request` class instances — no extra work needed
-on your side.
-
-```bash
-npm install --save react-native-mmkv
-```
-
-```tsx title="services/client.ts"
-import { MMKV } from "react-native-mmkv";
-import { Client, Dispatcher, DispatcherStorageType } from "@hyper-fetch/core";
-
-const dispatcherMMKV = new MMKV({ id: "dispatcher-storage" });
-
-// highlight-start
-const dispatcherStorage: DispatcherStorageType = {
-  set: (key, data) => {
-    dispatcherMMKV.set(key, JSON.stringify(data));
-  },
-  get: (key) => {
-    const value = dispatcherMMKV.getString(key);
-    return value ? JSON.parse(value) : undefined;
-  },
-  keys: () => dispatcherMMKV.getAllKeys(),
-  entries: function* () {
-    const keys = dispatcherMMKV.getAllKeys();
-    for (const key of keys) {
-      yield [key, JSON.parse(dispatcherMMKV.getString(key) || "null")];
-    }
-  },
-  delete: (key) => dispatcherMMKV.delete(key),
-  clear: () => dispatcherMMKV.clearAll(),
-};
-// highlight-end
-
-export const client = new Client({
-  url: "https://api.my-app.com",
-  // highlight-start
-  fetchDispatcher: () => new Dispatcher({ storage: dispatcherStorage }),
-  submitDispatcher: () => new Dispatcher({ storage: dispatcherStorage }),
-  // highlight-end
-});
-```
-
-:::caution
-
-Persistent dispatcher queues are designed for single-instance environments like React Native. Avoid using them in
-browsers where multiple tabs can cause duplicated requests.
-
-:::
-
-<LinkCard
-  type="guides"
-  title="Persistence Guide"
-  description="Learn how to set up persistence for both cache and dispatcher queues."
-  to="/docs/guides/core/advanced/persistence"
-/>
+The app counts as focused while `AppState` is `active`, and blurred when it is `inactive` or in the `background`. Both
+events return a cleanup function, so the listeners are removed when `client.clear()` runs.
 
 ---
 
-:::success That's it!
+## Keep queued requests across restarts
 
-Your app is now ready to fully use all of the features of HyperFetch.
+By default the dispatchers keep their queues in memory. Give them a persistent `storage`, such as
+[MMKV](https://github.com/mrousavy/react-native-mmkv), so offline requests are sent after the app restarts. Requests
+read back from JSON are turned into `Request` instances again.
 
-- You can track **online/offline status** using `NetInfo`.
-- You can manage **focus/blur states** with `AppState`.
-- You can **persist dispatcher queues** with MMKV for offline-first support.
+```bash npm2yarn2pnpm
+npm install react-native-mmkv
+```
+
+```ts title="api/client.ts"
+import { MMKV } from "react-native-mmkv";
+import { Client, Dispatcher } from "@hyper-fetch/core";
+import type { DispatcherStorageType } from "@hyper-fetch/core";
+
+const mmkv = new MMKV({ id: "dispatcher-storage" });
+
+const dispatcherStorage: DispatcherStorageType = {
+  set: (key, data) => mmkv.set(key, JSON.stringify(data)),
+  get: (key) => {
+    const value = mmkv.getString(key);
+    return value ? JSON.parse(value) : undefined;
+  },
+  keys: () => mmkv.getAllKeys(),
+  entries: function* entries() {
+    for (const key of mmkv.getAllKeys()) {
+      yield [key, JSON.parse(mmkv.getString(key) || "null")];
+    }
+  },
+  delete: (key) => mmkv.delete(key),
+  clear: () => mmkv.clearAll(),
+};
+
+export const client = new Client({
+  url: "https://api.example.com",
+  fetchDispatcher: () => new Dispatcher({ storage: dispatcherStorage }),
+  submitDispatcher: () => new Dispatcher({ storage: dispatcherStorage }),
+});
+```
+
+For an async storage such as AsyncStorage, use the dispatcher's `lazyStorage` option instead. Persistent queues fit
+single-instance apps; in browsers, several tabs reading one queue can send requests twice.
+
+---
+
+:::secondary Summary
+
+1. Connect `NetInfo` and `AppState` through a custom `AppManager`.
+2. Give the dispatchers a persistent `storage` to keep offline requests across restarts.
 
 :::
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Persistence"
+  description="Persist the cache and the dispatcher queues."
+  to="/docs/guides/core/advanced/persistence"
+/>
+
+<LinkCard
+  type="guides"
+  title="Offline"
+  description="Keep requests while offline and send them when the network returns."
+  to="/docs/guides/core/advanced/offline"
+/>
+
+- Runnable examples: [resume after reload](/examples/offline/resume-after-reload),
+  [offline first](/examples/offline/offline-first).
+- Related: [`useAppManager`](/docs/react/hooks/use-app-manager), [Dispatcher](/docs/core/dispatcher),
+  [Electron](/docs/react/environments/electron).
