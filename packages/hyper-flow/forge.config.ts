@@ -11,6 +11,7 @@ import { FuseV1Options, FuseVersion } from "@electron/fuses";
 import dotenv from "dotenv";
 import { z } from "zod";
 
+import { forgeViteConfig } from "./configs/forge.vite.config";
 import { appConfig } from "./src/app/config";
 
 dotenv.config();
@@ -110,29 +111,7 @@ const config: ForgeConfig = {
     }),
   ],
   plugins: [
-    new VitePlugin({
-      // `build` can specify multiple entry builds, which can be Main process, Preload scripts, Worker process, etc.
-      // If you are familiar with Vite configuration, it will look really familiar.
-      build: [
-        {
-          // `entry` is just an alias for `build.lib.entry` in the corresponding file of `config`.
-          entry: "./src/app/main.ts",
-          config: "./configs/vite.main.config.mts",
-          target: "main",
-        },
-        {
-          entry: "./src/app/preload.ts",
-          config: "./configs/vite.preload.config.mts",
-          target: "preload",
-        },
-      ],
-      renderer: [
-        {
-          name: "main_window",
-          config: "./configs/vite.renderer.config.mts",
-        },
-      ],
-    }),
+    new VitePlugin(forgeViteConfig),
     // Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application
     new FusesPlugin({

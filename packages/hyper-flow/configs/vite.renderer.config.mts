@@ -7,7 +7,7 @@ import { config } from "./vite.base.config";
 
 // https://vitejs.dev/config
 export default defineConfig((props) => {
-  const options = config(props);
+  const options = config(props, { target: "renderer" });
   return {
     ...options,
     plugins: [...(options.plugins || []), react(), tailwindcss(), svgr()],
