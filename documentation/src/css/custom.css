@@ -2580,7 +2580,7 @@ input[type="search"]::-webkit-search-results-decoration {
   inset: -10px -14px;
   z-index: -1;
   border: 1px solid transparent;
-  border-radius: 9999px;
+  border-radius: 16px;
   pointer-events: none;
   transition:
     background-color 0.4s cubic-bezier(0.32, 0.72, 0, 1),
@@ -2619,6 +2619,7 @@ html[data-nav-scrolled] .navbar__inner::before {
   }
   .navbar__inner::before {
     inset: -6px -10px;
+    border-radius: 14px;
   }
   .navbar__inner {
     display: flex;
@@ -2647,9 +2648,19 @@ html[data-nav-scrolled] .navbar__inner::before {
   /* Infima gives the toggle `display: inherit`, which would inherit the `contents` above */
   .navbar__inner .navbar__toggle {
     display: flex;
+    align-items: center;
+    justify-content: center;
     order: 3;
+    width: 36px;
+    height: 36px;
     margin-left: auto;
-    margin-right: 0;
+    margin-right: -6px;
+    padding: 0 !important;
+    transform: none !important;
+  }
+  .navbar .clean-btn.navbar__toggle svg {
+    width: 24px !important;
+    height: 24px !important;
   }
   .navbar__inner .navbar-star,
   .navbar__inner .navbar__items--right > div {
@@ -2779,8 +2790,9 @@ html[data-nav-scrolled] .navbar__inner::before {
     column-gap: 4rem;
     padding: 2.5rem 2.5rem 5rem 1.5rem;
   }
+  /* The list has no table of contents, so its cards take the width up to the right edge */
   .blog-layout--sidebar {
-    grid-template-columns: var(--doc-sidebar-width) minmax(0, 880px);
+    grid-template-columns: var(--doc-sidebar-width) minmax(0, 1fr);
   }
   .blog-layout--sidebar.blog-layout--toc {
     grid-template-columns: var(--doc-sidebar-width) minmax(0, 880px) 250px;
@@ -2835,4 +2847,9 @@ article.blog-card:last-of-type {
   margin: 0;
   padding: 0.5rem;
   border-width: 1px;
+}
+
+/* The wordmark's ink sits high in its box, so it drops a few pixels to sit on the bar's centre line */
+.navbar__inner .navbar__brand {
+  margin-bottom: -6px;
 }

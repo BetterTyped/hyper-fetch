@@ -9,7 +9,7 @@ import { BlogCard } from "@site/src/components/blog-card/blog-card";
 // eslint-disable-next-line import/no-default-export
 export default function BlogPostItems({ items }: Props): React.ReactNode {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
       {items.map(({ content }, index) => (
         <BlogCard
           key={content.metadata.permalink}
