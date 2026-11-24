@@ -1,0 +1,135 @@
+---
+sidebar_position: 1
+title: React Router with HyperFetch, Typed Loaders and Actions
+description: Load React Router route data with typed HyperFetch requests, cancel them with the loader's signal on navigation and send errors to the ErrorBoundary with throwOnError.
+sidebar_label: Overview
+---
+
+# React Router
+
+React Router runs a loader before a route renders and an action when a form is submitted. Both are plain async
+functions, so a typed HyperFetch request fits in them directly. Pass the `signal` of the loader's `request` so an
+interrupted navigation cancels its call, and `throwOnError` so a failed response reaches the route's `ErrorBoundary`.
+There is no package to install beyond `@hyper-fetch/core`, and `@hyper-fetch/react` if components read the data too.
+
+---
+
+:::tip Purpose
+
+1.  **Typed loaders**: Params, response and error types come from the request.
+2.  **Cancelled on navigation**: `request.signal` aborts the call when the user navigates away before it finishes.
+3.  **Errors in the ErrorBoundary**: `throwOnError` rejects with the `error` of a failed response.
+4.  **One cache for loaders and hooks**: Loaders fill the HyperFetch cache, components read it with `useFetch`.
+
+:::
+
+---
+
+## Return data from a loader
+
+```tsx title="routes/user.tsx"
+import { type LoaderFunctionArgs, useLoaderData } from "react-router";
+
+export const userLoader = async ({ params, request }: LoaderFunctionArgs) => {
+  const { data } = await getUser
+    .setParams({ userId: Number(params.userId) })
+    .send({
+      // highlight-start
+      signal: request.signal,
+      throwOnError: true,
+      // highlight-end
+    });
+  return data;
+};
+
+export const UserPage = () => {
+  const user = useLoaderData<typeof userLoader>();
+  return <h1>{user.name}</h1>;
+};
+```
+
+Loaders use `send()`, so HyperFetch caches, deduplicates and retries them. In the `ErrorBoundary`, `useRouteError()`
+returns the `error` of the response. It is typed `unknown`, so narrow it before reading it.
+
+---
+
+## Share the cache with hooks
+
+To let components refresh the data in the background, fill the cache in the loader and read it with `useFetch`. Build
+the request the same way in both places, so the cache key matches:
+
+```tsx title="routes/user.tsx"
+import { useFetch } from "@hyper-fetch/react";
+import { type LoaderFunctionArgs, useParams } from "react-router";
+
+const userDetails = (userId: number) => getUser.setParams({ userId });
+
+export const userLoader = async ({ params, request }: LoaderFunctionArgs) => {
+  // highlight-next-line
+  await userDetails(Number(params.userId)).send({
+    cachePolicy: "cache-first",
+    signal: request.signal,
+  });
+  return null;
+};
+
+export const UserPage = () => {
+  const { userId } = useParams();
+  const { data } = useFetch(userDetails(Number(userId)), { revalidate: false });
+  return <h1>{data?.name}</h1>;
+};
+```
+
+`cache-first` returns cached data at once, so going back to a page sends nothing. The hook renders from the cache with
+no loading state.
+
+---
+
+## Actions
+
+Send the form in an action and update the cache with the saved data:
+
+```tsx title="routes/edit-user.tsx"
+import { type ActionFunctionArgs, redirect } from "react-router";
+
+export const editAction = async ({ params, request }: ActionFunctionArgs) => {
+  const userId = Number(params.userId);
+  const form = await request.formData();
+  const response = await updateUser
+    .setParams({ userId })
+    .send({ payload: { name: String(form.get("name")) } });
+
+  if (!response.data)
+    return { error: response.error?.message ?? "Could not save" };
+
+  client.cache.update(userDetails(userId), (cached) =>
+    cached?.data ? { data: { ...cached.data, ...response.data } } : {},
+  );
+  return redirect(`/users/${userId}`);
+};
+```
+
+:::note When it's helpful
+
+- Apps on the React Router data router or framework mode that want typed loaders and actions.
+- Pages that should render without spinners after navigation, and instantly when you come back.
+- Forms handled by route actions that should update the data other routes show.
+
+:::
+
+Runnable example: [React Router](/examples/frameworks/react-router).
+
+<LinkCard
+  type="guides"
+  title="Cancellation"
+  description="Abort one call with a signal, or a group by abortKey."
+  to="/docs/guides/core/advanced/cancellation"
+/>
+
+:::secondary Summary
+
+- Loaders call `send()` with `request.signal`, so an interrupted navigation cancels its call.
+- `throwOnError` sends failed responses to the route's `ErrorBoundary`.
+- Loaders can fill the HyperFetch cache for `useFetch`, and actions update it after a save.
+
+:::

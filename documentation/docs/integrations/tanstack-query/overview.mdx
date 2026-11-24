@@ -1,0 +1,147 @@
+---
+sidebar_position: 1
+title: TanStack Query with HyperFetch, Typed Query Functions
+description: Call typed HyperFetch requests from TanStack Query with exec(), pass the query's AbortSignal and reject failed responses with throwOnError.
+sidebar_label: Overview
+---
+
+# TanStack Query
+
+TanStack Query caches the result of any async function, and a typed HyperFetch request is a good one to give it.
+TanStack Query owns the cache, retries and refetching. HyperFetch sends the request with `exec()`, with your client's
+auth, interceptors, mappers and adapter. There is no package to install beyond `@hyper-fetch/core` and TanStack Query.
+
+---
+
+:::tip Purpose
+
+1.  **Typed query functions**: Params, payload, response and error types come from the request.
+2.  **Real cancellation**: The query's `signal` aborts only its own call when TanStack Query cancels the query.
+3.  **Errors TanStack Query understands**: `throwOnError` rejects with the `error` of a failed response.
+4.  **One cache**: `exec()` skips the HyperFetch dispatcher and cache, so nothing is cached or retried twice.
+
+:::
+
+---
+
+## Queries
+
+Pass the `signal` TanStack Query gives every query function, and `throwOnError` so a failed response puts the query in
+its error state:
+
+```tsx title="use-user.ts"
+import { useQuery } from "@tanstack/react-query";
+
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+});
+
+export const useUser = (userId: number) =>
+  useQuery({
+    queryKey: ["users", userId],
+    queryFn: async ({ signal }) => {
+      // highlight-next-line
+      const { data } = await getUser
+        .setParams({ userId })
+        .exec({ signal, throwOnError: true });
+      return data;
+    },
+  });
+```
+
+`send()` would go through the HyperFetch dispatcher and cache as well, which TanStack Query already does. Use `exec()`
+in query functions.
+
+The query function only uses `@hyper-fetch/core`, so the same code works in Vue Query, Solid Query, Svelte Query and
+Angular Query.
+
+---
+
+## Set throwOnError once
+
+`throwOnError` is a request option, so set it where the request is defined, or for a whole SDK, instead of in every
+query function. A value given to the call wins.
+
+```ts title="api.ts"
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  // highlight-next-line
+  throwOnError: true,
+});
+
+const api = createSdk<typeof client, Schema>(client).$configure({
+  // highlight-next-line
+  "*": { throwOnError: true },
+});
+```
+
+The HyperFetch React hooks ignore the option, so one client can serve TanStack Query and `useFetch` side by side.
+
+---
+
+## Mutations
+
+Send the payload with `exec()` and invalidate the queries the mutation changed:
+
+```tsx title="use-update-user.ts"
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+const updateUser = client.createRequest<{
+  response: User;
+  payload: Partial<User>;
+}>()({
+  endpoint: "/users/:userId",
+  method: "PATCH",
+  throwOnError: true,
+});
+
+export const useUpdateUser = (userId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: Partial<User>) => {
+      const { data } = await updateUser.setParams({ userId }).exec({ payload });
+      return data;
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["users", userId] }),
+  });
+};
+```
+
+:::note When it's helpful
+
+- You already use TanStack Query and want typed requests without rewriting the data layer.
+- You move to HyperFetch screen by screen, with both libraries running side by side.
+- You want HyperFetch adapters (GraphQL, Firebase, Axios) or a generated SDK behind a TanStack Query cache.
+
+:::
+
+:::caution One owner per resource
+
+TanStack Query and the HyperFetch cache don't share data. Read a given endpoint through one of them, or different
+screens show different data.
+
+:::
+
+<LinkCard
+  type="guides"
+  title="TanStack Query and SWR"
+  description="Queries, mutations, keys, cancellation and what each library owns, step by step."
+  to="/docs/guides/react/basics/tanstack-query-and-swr"
+/>
+
+<LinkCard
+  type="guides"
+  title="Migrating from React Query"
+  description="Map useQuery, useMutation and query keys to useFetch and useSubmit."
+  to="/docs/guides/react/basics/migrating-from-react-query"
+/>
+
+:::secondary Summary
+
+- Query functions call `exec()`, so TanStack Query owns caching, retries and refetching.
+- The query's `signal` cancels only its own call, and `throwOnError` turns failed responses into rejections.
+- Set `throwOnError` per call, per request or for a whole SDK.
+
+:::

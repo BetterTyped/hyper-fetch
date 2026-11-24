@@ -1,0 +1,113 @@
+---
+sidebar_position: 1
+title: SWR with HyperFetch, Typed Fetchers and Mutations
+description: Use typed HyperFetch requests as SWR fetchers with exec(), reject failed responses with throwOnError and send mutations with useSWRMutation.
+sidebar_label: Overview
+---
+
+# SWR
+
+SWR calls a fetcher for every key and caches what it returns. A typed HyperFetch request makes a good fetcher: SWR owns
+the cache, revalidation and retries, and HyperFetch sends the request with `exec()`, with your client's auth,
+interceptors, mappers and adapter. There is no package to install beyond `@hyper-fetch/core` and SWR.
+
+---
+
+:::tip Purpose
+
+1.  **Typed fetchers**: Params, response and error types come from the request.
+2.  **Errors SWR understands**: `throwOnError` rejects with the `error` of a failed response, so it lands in `error`.
+3.  **Stable keys**: `request.cacheKey` is built from the method, endpoint, params and query params.
+4.  **One cache**: `exec()` skips the HyperFetch dispatcher and cache, so nothing is cached or retried twice.
+
+:::
+
+---
+
+## Fetching
+
+SWR tells a failure by a rejected promise, so set `throwOnError`:
+
+```tsx title="use-users.ts"
+import useSWR from "swr";
+
+const getUsers = client.createRequest<{ response: User[] }>()({
+  endpoint: "/users",
+  // highlight-next-line
+  throwOnError: true,
+});
+
+export const useUsers = () =>
+  useSWR(getUsers.cacheKey, async () => {
+    const { data } = await getUsers.exec();
+    return data;
+  });
+```
+
+For a request with params, set them before reading the key, so each set of params gets its own entry:
+
+```tsx title="use-user.ts"
+export const useUser = (userId: number) => {
+  const request = getUser.setParams({ userId });
+
+  return useSWR(request.cacheKey, async () => (await request.exec()).data);
+};
+```
+
+SWR does not pass an `AbortSignal` to the fetcher, so these calls are not cancelled when the component unmounts.
+
+---
+
+## Mutations
+
+`useSWRMutation` passes the argument of `trigger()` as `arg`. Send it as the payload and revalidate the list afterwards:
+
+```tsx title="use-create-user.ts"
+import useSWRMutation from "swr/mutation";
+
+const createUser = client.createRequest<{ response: User; payload: NewUser }>()(
+  {
+    endpoint: "/users",
+    method: "POST",
+    throwOnError: true,
+  },
+);
+
+export const useCreateUser = () =>
+  useSWRMutation(getUsers.cacheKey, async (_key, { arg }: { arg: NewUser }) => {
+    const { data } = await createUser.exec({ payload: arg });
+    return data;
+  });
+```
+
+Mutating under the key of `getUsers` makes SWR revalidate the list once the mutation resolves.
+
+:::note When it's helpful
+
+- You already use SWR and want typed requests without rewriting the data layer.
+- You move to HyperFetch screen by screen, with both libraries running side by side.
+- You want HyperFetch adapters (GraphQL, Firebase, Axios) or a generated SDK behind an SWR cache.
+
+:::
+
+:::caution One owner per resource
+
+SWR and the HyperFetch cache don't share data. Read a given endpoint through one of them, or different screens show
+different data.
+
+:::
+
+<LinkCard
+  type="guides"
+  title="TanStack Query and SWR"
+  description="Why exec(), throwOnError, keys and what each library owns, step by step."
+  to="/docs/guides/react/basics/tanstack-query-and-swr"
+/>
+
+:::secondary Summary
+
+- Fetchers call `exec()`, so SWR owns caching, revalidation and retries.
+- `throwOnError` turns failed responses into rejections, set per call, per request or for a whole SDK.
+- `request.cacheKey` is a stable key, and `useSWRMutation` sends mutations with `exec({ payload })`.
+
+:::

@@ -1,6 +1,7 @@
 /*
- * The backends and runtimes Hyper Fetch works with, shown under the hero description. Each backend is an adapter, a
- * transport or a framework whose OpenAPI document the CLI turns into a typed SDK, and each logo links to its docs.
+ * The backends, runtimes and frontend libraries Hyper Fetch works with, shown under the hero description. Each backend
+ * is an adapter, a transport or a framework whose OpenAPI document the CLI turns into a typed SDK, and each logo links
+ * to its docs.
  */
 export const backends: {
   name: string;
@@ -105,6 +106,36 @@ export const backends: {
     name: "React",
     to: "/docs/react/overview",
     src: "/img/integration-react.svg",
+  },
+  {
+    name: "Next.js",
+    to: "/docs/integrations/nextjs/overview",
+    src: "/img/integration-next-dark.svg",
+  },
+  {
+    name: "Astro",
+    to: "/docs/integrations/astro/overview",
+    src: "/img/integration-astro.svg",
+  },
+  {
+    name: "TanStack Query",
+    to: "/docs/integrations/tanstack-query/overview",
+    src: "/img/integration-tanstack-query.svg",
+  },
+  {
+    name: "SWR",
+    to: "/docs/integrations/swr/overview",
+    src: "/img/integration-swr-dark.svg",
+  },
+  {
+    name: "React Router",
+    to: "/docs/integrations/react-router/overview",
+    src: "/img/integration-react-router-dark.svg",
+  },
+  {
+    name: "TanStack Router",
+    to: "/docs/integrations/tanstack-router/overview",
+    src: "/img/integration-tanstack-dark.svg",
   },
   {
     name: "Electron",

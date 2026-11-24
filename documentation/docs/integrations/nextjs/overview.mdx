@@ -1,0 +1,153 @@
+---
+sidebar_position: 1
+title: Next.js with HyperFetch, Server Components and Hydration
+description: Fetch in Next.js Server Components with send(), hydrate the responses into the client cache with Hydrate, and keep one user's data away from another with server cache scopes.
+sidebar_label: Overview
+---
+
+# Next.js
+
+HyperFetch runs on both sides of a Next.js app with one client. Server Components await `request.send()`, pack the
+response with `dehydrate()` and pass it to a Client Component, where `Hydrate` puts it into the client cache. The hooks
+then render the server data on the first render, with no loading state and no second request. There is no Next.js
+package to install: `@hyper-fetch/core` and `@hyper-fetch/react` cover it.
+
+---
+
+:::tip Purpose
+
+1.  **Data in the first HTML**: Server Components fetch with `send()`, so the page renders with its data.
+2.  **Hydration**: `Hydrate` hands server responses to `useFetch`, so the browser does not fetch them again.
+3.  **No data leaks between users**: In server mode the cache stores only scoped requests.
+4.  **Next.js fetch options**: `setOptions({ next: { revalidate } })` reaches the `fetch` Next.js patches.
+
+:::
+
+---
+
+## Fetch on the server and hydrate
+
+Define the client and requests in one module that both sides import, so the server and the browser build the same
+cache key:
+
+```ts title="lib/api.ts"
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({ url: "https://api.example.com" });
+
+export const getPosts = client.createRequest<{ response: Post[] }>()({
+  endpoint: "/posts",
+});
+```
+
+The Server Component sends the request and passes the dehydrated response to a Client Component:
+
+```tsx title="app/posts/page.tsx"
+import { getPosts } from "@/lib/api";
+import { PostList } from "./post-list";
+
+export default async function PostsPage() {
+  const response = await getPosts.send();
+
+  return (
+    // highlight-next-line
+    <PostList
+      hydration={[response.success ? getPosts.dehydrate({ response }) : null]}
+    />
+  );
+}
+```
+
+The Client Component imports the client itself, since a client instance cannot cross the server/client boundary:
+
+```tsx title="app/posts/post-list.tsx"
+"use client";
+
+import { Hydrate, type HydrateProps, useFetch } from "@hyper-fetch/react";
+import { client, getPosts } from "@/lib/api";
+
+export function PostList({ hydration }: { hydration: HydrateProps["data"] }) {
+  return (
+    // highlight-next-line
+    <Hydrate client={client} data={hydration}>
+      <Posts />
+    </Hydrate>
+  );
+}
+
+function Posts() {
+  const { data } = useFetch(getPosts, { revalidate: false });
+  return (
+    <ul>
+      {data?.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+Hydrate only successful responses: an `Error` cannot be passed to a Client Component, and a skipped `null` lets the
+hook fetch in the browser instead. With `revalidate: false`, `useFetch` sends nothing until the data is older than the
+request's `staleTime`.
+
+---
+
+## Keep users' data apart
+
+A Next.js server renders pages for many users in one process. In server mode the HyperFetch cache stores nothing for
+requests without a scope, so one user's response never reaches another user's render:
+
+```ts title="Server cache scopes"
+// Not cached on the server
+await getMe.send();
+
+// Cached per session
+await getMe.setScope(sessionId).send();
+```
+
+`Hydrate` serves the data to the hooks without writing it into the shared server cache.
+
+---
+
+## Pages Router and streaming
+
+- **Pages Router**: return `request.dehydrate({ response })` from `getServerSideProps` or `getStaticProps` and render
+  one `Hydrate` in `_app.tsx`.
+- **Streaming**: await each request in its own async Server Component inside `Suspense`, and wrap its Client Components
+  in `Hydrate`. Each section streams in as soon as its request is done.
+- **Server Actions** don't update the client cache. Invalidate the changed requests on the client after the action
+  returns, or refresh the route.
+
+:::note When it's helpful
+
+- Pages that must show data in the first HTML, for SEO or a fast first paint.
+- Server Components that already have the data and hand it to interactive Client Components.
+- Apps that keep HyperFetch caching, refetching and hooks in the browser after a server render.
+
+:::
+
+Runnable examples: [App Router](/examples/frameworks/nextjs-app-router),
+[streaming](/examples/frameworks/nextjs-streaming) and [Pages Router](/examples/frameworks/nextjs-pages-router).
+
+<LinkCard
+  type="guides"
+  title="Next.js data fetching"
+  description="Server and Client Components, hydration, cookies, Next.js fetch options and the limits."
+  to="/docs/guides/react/basics/nextjs-data-fetching"
+/>
+
+<LinkCard
+  type="docs"
+  title="Hydrate"
+  description="How server responses reach the client cache, with scopes and several clients."
+  to="/docs/react/hydrate"
+/>
+
+:::secondary Summary
+
+- Server Components fetch with `send()` and pass `dehydrate()` results to Client Components.
+- `Hydrate` puts them into the client cache, so `useFetch` renders the server data with no request.
+- In server mode only scoped requests are cached, so users never see each other's data.
+
+:::

@@ -6,9 +6,7 @@ import { isBrowser } from "./utils/is-browser";
 
 const AxiosIcon = isBrowser() ? require("../static/img/integration-axios.svg").default : () => null;
 // const ReactIcon = isBrowser() ? require("../static/img/integration-react.svg").default : () => null;
-// const NextIcon = isBrowser() ? require("../static/img/integration-next.svg").default : () => null;
 // const RemixIcon = isBrowser() ? require("../static/img/integration-remix.svg").default : () => null;
-// const AstroIcon = isBrowser() ? require("../static/img/integration-astro.svg").default : () => null;
 // const NestIcon = isBrowser() ? require("../static/img/integration-nest.svg").default : () => null;
 const GraphqlIcon = isBrowser() ? require("../static/img/integration-graphql.svg").default : () => null;
 // oxc icon, CC BY-NC-SA 4.0, see static/img/ATTRIBUTION.md
@@ -49,6 +47,12 @@ const CloudflareIcon = isBrowser() ? require("../static/img/integration-cloudfla
 const ReactIcon = isBrowser() ? require("../static/img/integration-react.svg").default : () => null;
 const ElectronIcon = isBrowser() ? require("../static/img/integration-electron.svg").default : () => null;
 const SentryIcon = isBrowser() ? require("../static/img/integration-sentry.svg").default : () => null;
+const TanstackQueryIcon = isBrowser() ? require("../static/img/integration-tanstack-query.svg").default : () => null;
+const SwrIcon = isBrowser() ? require("../static/img/integration-swr.svg").default : () => null;
+const ReactRouterIcon = isBrowser() ? require("../static/img/integration-react-router.svg").default : () => null;
+const TanstackIcon = isBrowser() ? require("../static/img/integration-tanstack.svg").default : () => null;
+const NextIcon = isBrowser() ? require("../static/img/integration-next.svg").default : () => null;
+const AstroIcon = isBrowser() ? require("../static/img/integration-astro.svg").default : () => null;
 
 /**
  * Colors of the sections that are not packages. The class names are written out in full so Tailwind finds them.
@@ -414,6 +418,54 @@ export const integrations: Section[] = [
     category: "Adapter",
     package: "firebase-admin",
   },
+  guideSection({
+    label: "Next.js",
+    description: "Fetch in Server Components and hydrate the responses into useFetch, with no second request.",
+    dir: "nextjs",
+    img: NextIcon,
+    category: "Frontend",
+    color: "zinc",
+  }),
+  guideSection({
+    label: "Astro",
+    description: "Fetch in the page frontmatter and hydrate the response into the hooks of a React island.",
+    dir: "astro",
+    img: AstroIcon,
+    category: "Frontend",
+    color: "orange",
+  }),
+  guideSection({
+    label: "TanStack Query",
+    description: "Call typed requests from useQuery and useMutation, with the query's signal and throwOnError.",
+    dir: "tanstack-query",
+    img: TanstackQueryIcon,
+    category: "Frontend",
+    color: "red",
+  }),
+  guideSection({
+    label: "SWR",
+    description: "Use typed requests as SWR fetchers and mutations, with failures rejected through throwOnError.",
+    dir: "swr",
+    img: SwrIcon,
+    category: "Frontend",
+    color: "zinc",
+  }),
+  guideSection({
+    label: "React Router",
+    description: "Load route data through the HyperFetch cache, cancelled with the loader's signal on navigation.",
+    dir: "react-router",
+    img: ReactRouterIcon,
+    category: "Frontend",
+    color: "zinc",
+  }),
+  guideSection({
+    label: "TanStack Router",
+    description: "Fill the HyperFetch cache from route loaders and preload the next page when a link is hovered.",
+    dir: "tanstack-router",
+    img: TanstackIcon,
+    category: "Frontend",
+    color: "zinc",
+  }),
   guideSection({
     label: "NestJS",
     description: "Generate a typed SDK from the OpenAPI document that @nestjs/swagger builds from your controllers.",

@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
+  AppWindow,
   Cpu,
   Database,
   Layers,
@@ -45,6 +46,14 @@ export const integrationGroups: IntegrationGroup[] = [
     line: "GraphQL, Firebase and Axios behind the same request API, cache and hooks.",
     icon: Database,
     match: (section) => section.category === "Adapter",
+  },
+  {
+    id: "frontend",
+    title: "Frontend libraries and frameworks",
+    short: "Frontend",
+    line: "Typed requests in TanStack Query, SWR, route loaders, Next.js and Astro, with server data hydrated into hooks.",
+    icon: AppWindow,
+    match: (section) => section.category === "Frontend",
   },
   {
     id: "frameworks",
