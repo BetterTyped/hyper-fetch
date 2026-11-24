@@ -117,6 +117,7 @@
       "docusaurus-utils-validation": "3.10.1",
       "@hyper-fetch/core": "workspace:*",
       "@hyper-fetch/sockets": "workspace:*",
+      "@hyper-fetch/db": "workspace:*",
       "@hyper-fetch/react": "workspace:*",
       "@hyper-fetch/firebase": "workspace:*",
       "@hyper-fetch/firebase-admin": "workspace:*",
