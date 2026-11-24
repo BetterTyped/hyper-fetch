@@ -201,7 +201,7 @@ const config: Config = {
             "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",
         },
         theme: {
-          customCss: "./src/css/custom.css",
+          customCss: ["./src/css/custom.css", "./src/css/docsearch.css"],
         },
       } satisfies Preset.Options,
     ],

@@ -1,0 +1,549 @@
+/*
+ * The search modal (DocSearch), drawn like the section pickers in the sidebar (`components/sidebar-menu/section-picker`):
+ * a #141416 panel with a gold hairline on top, a bare search row, uppercase group headings, rounded rows on a logo
+ * tile, amber for what matches and a footer of keycaps. Every rule is scoped to `.DocSearch-Container`, so it wins
+ * over the DocSearch stylesheet whatever order the two load in.
+ */
+
+html body {
+  --docsearch-primary-color: #fbbf24;
+  --docsearch-soft-primary-color: rgba(251, 191, 36, 0.1);
+  --docsearch-text-color: #e4e4e7;
+  --docsearch-secondary-text-color: #a1a1aa;
+  --docsearch-muted-color: #71717a;
+  --docsearch-muted-color-darker: rgba(255, 255, 255, 0.06);
+  --docsearch-subtle-color: rgba(255, 255, 255, 0.06);
+  --docsearch-icon-color: #a1a1aa;
+  --docsearch-highlight-color: #fcd34d;
+  --docsearch-focus-color: rgba(251, 191, 36, 0.4);
+  --docsearch-background-color: rgba(255, 255, 255, 0.06);
+  --docsearch-container-background: rgba(0, 0, 0, 0.4);
+  --docsearch-modal-width: 720px;
+  --docsearch-modal-height: 640px;
+  --docsearch-modal-background: #141416;
+  --docsearch-modal-shadow:
+    0 32px 80px -16px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(0, 0, 0, 0.4);
+  --docsearch-searchbox-height: 56px;
+  --docsearch-searchbox-background: transparent;
+  --docsearch-searchbox-focus-background: transparent;
+  --docsearch-hit-height: 52px;
+  --docsearch-hit-color: #e4e4e7;
+  --docsearch-hit-highlight-color: rgba(255, 255, 255, 0.07);
+  --docsearch-hit-background: transparent;
+  --docsearch-hit-shadow: none;
+  --docsearch-key-background: rgba(255, 255, 255, 0.06);
+  --docsearch-key-color: #a1a1aa;
+  --docsearch-footer-height: 44px;
+  --docsearch-footer-background: rgba(0, 0, 0, 0.2);
+  --docsearch-footer-shadow: none;
+  --docsearch-logo-color: #a1a1aa;
+  --docsearch-dropdown-menu-background: #1c1c1f;
+  --docsearch-dropdown-menu-item-hover-background: rgba(255, 255, 255, 0.06);
+}
+
+/* custom.css sets every p, span and div to 17px and zinc-300. The modal sizes its own text. */
+.DocSearch-Container p,
+.DocSearch-Container span,
+.DocSearch-Container div {
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
+/* Backdrop */
+.DocSearch-Container {
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  animation: hf-search-fade 0.15s ease-out;
+}
+
+/* Panel */
+.DocSearch-Container .DocSearch-Modal {
+  margin-top: max(60px, 12vh);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px !important;
+  color: #d4d4d8;
+  font-size: 14px;
+  animation: hf-search-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+/* The gold hairline along the top edge, as on the pickers */
+.DocSearch-Container .DocSearch-Modal::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 32px;
+  right: 32px;
+  z-index: 20;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(253, 230, 138, 0.3),
+    transparent
+  );
+  pointer-events: none;
+}
+
+@keyframes hf-search-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes hf-search-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .DocSearch-Container,
+  .DocSearch-Container .DocSearch-Modal {
+    animation: none;
+  }
+}
+
+/* Search row */
+.DocSearch-Container .DocSearch-SearchBar {
+  padding: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.DocSearch-Container .DocSearch-Form {
+  gap: 12px;
+  padding: 0 12px 0 16px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent;
+}
+.DocSearch-Container .DocSearch-MagnifierLabel svg,
+.DocSearch-Container .DocSearch-LoadingIndicator svg {
+  width: 18px;
+  height: 18px;
+  color: #71717a;
+}
+.DocSearch-Container
+  .DocSearch-Form:focus-within
+  .DocSearch-MagnifierLabel
+  svg {
+  color: #fbbf24;
+}
+.DocSearch-Container .DocSearch-Input,
+.DocSearch-Container .DocSearch-Modal-heading {
+  padding-left: 0;
+  color: #f4f4f5;
+  font-size: 15px !important;
+  font-weight: 500;
+}
+.DocSearch-Container .DocSearch-Input::placeholder {
+  color: #71717a;
+}
+.DocSearch-Container .DocSearch-Clear {
+  height: 24px;
+  margin: 0;
+  padding: 0 8px;
+  border-radius: 6px;
+  color: #a1a1aa;
+  font-size: 12px;
+  font-weight: 600;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+.DocSearch-Container .DocSearch-Clear:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f4f4f5;
+}
+.DocSearch-Container .DocSearch-Divider {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.DocSearch-Container .DocSearch-Action,
+.DocSearch-Container .DocSearch-AskAi-Return {
+  border-radius: 8px;
+  color: #a1a1aa;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+.DocSearch-Container .DocSearch-Action:hover,
+.DocSearch-Container .DocSearch-AskAi-Return:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f4f4f5;
+}
+.DocSearch-Container .DocSearch-Clear:focus-visible,
+.DocSearch-Container .DocSearch-Close:focus-visible,
+.DocSearch-Container .DocSearch-Action:focus-visible {
+  outline: 2px solid rgba(251, 191, 36, 0.4);
+  outline-offset: 1px;
+}
+
+/* Results */
+.DocSearch-Container .DocSearch-Dropdown {
+  padding: 6px;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+.DocSearch-Container .DocSearch-Dropdown::-webkit-scrollbar-thumb {
+  border-color: #141416;
+  background-color: rgba(255, 255, 255, 0.12);
+}
+.DocSearch-Container .DocSearch-Hits:last-of-type {
+  margin-bottom: 6px;
+}
+.DocSearch-Container .DocSearch-Hit-source {
+  margin: 0;
+  padding: 12px 10px 6px;
+  background: #141416;
+  color: #71717a;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+.DocSearch-Container .DocSearch-Hits:first-child .DocSearch-Hit-source {
+  padding-top: 6px;
+}
+.DocSearch-Container .DocSearch-Hit {
+  padding-bottom: 2px;
+}
+.DocSearch-Container .DocSearch-Hit:first-of-type {
+  margin-top: 0;
+}
+.DocSearch-Container .DocSearch-Hit a,
+.DocSearch-Container .DocSearch-Hit--AskAI {
+  padding-left: 10px;
+  border-radius: 12px;
+  background: transparent;
+  transition: background-color 0.1s ease;
+}
+.DocSearch-Container .DocSearch-Hit a:hover,
+.DocSearch-Container .DocSearch-Hit--AskAI:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.DocSearch-Container .DocSearch-Hit[aria-selected="true"] a,
+.DocSearch-Container
+  .DocSearch-Hit[aria-selected="true"]
+  .DocSearch-Hit--AskAI {
+  background: rgba(255, 255, 255, 0.07);
+}
+.DocSearch-Container .DocSearch-Hit-Container {
+  gap: 12px;
+  padding-right: 10px;
+  color: #e4e4e7;
+}
+/* The icon sits on the same tile as the logos in the picker */
+.DocSearch-Container .DocSearch-Hit-icon {
+  box-sizing: content-box;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  color: #a1a1aa;
+  stroke-width: 1.6;
+  transition: color 0.1s ease;
+}
+.DocSearch-Container .DocSearch-Hit-icon svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.DocSearch-Container .DocSearch-Hit-Tree {
+  width: 20px;
+  color: #52525b;
+  opacity: 1;
+}
+.DocSearch-Container .DocSearch-Hit-content-wrapper {
+  gap: 2px;
+  margin: 0;
+  line-height: 1.35;
+}
+.DocSearch-Container .DocSearch-Hit-title {
+  color: #e4e4e7;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+.DocSearch-Container .DocSearch-Hit-path,
+.DocSearch-Container .DocSearch-Hit-text {
+  color: #71717a;
+  font-size: 12px !important;
+}
+.DocSearch-Container .DocSearch-Hit mark,
+.DocSearch-Container .DocSearch-Hits mark {
+  background: none;
+  color: #fcd34d;
+  text-decoration: none;
+}
+.DocSearch-Container .DocSearch-Hit-action {
+  color: #71717a;
+}
+.DocSearch-Container .DocSearch-Hit-action svg {
+  width: 15px;
+  height: 15px;
+}
+.DocSearch-Container .DocSearch-Hit-action-button:hover,
+.DocSearch-Container .DocSearch-Hit-action-button:focus {
+  background: rgba(255, 255, 255, 0.08);
+}
+.DocSearch-Container .DocSearch-Hit-action-button:hover path,
+.DocSearch-Container .DocSearch-Hit-action-button:focus path {
+  fill: #f4f4f5;
+}
+.DocSearch-Container .DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-title,
+.DocSearch-Container
+  .DocSearch-Hit[aria-selected="true"]
+  .DocSearch-Hit-AskAIButton-title {
+  color: #fff;
+}
+.DocSearch-Container .DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-icon {
+  color: #fcd34d;
+}
+.DocSearch-Container .DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-path,
+.DocSearch-Container .DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-text {
+  color: #a1a1aa;
+}
+.DocSearch-Container
+  .DocSearch-Hit[aria-selected="true"]
+  .DocSearch-Hit-action {
+  color: #a1a1aa;
+}
+.DocSearch-Container .DocSearch-HitsFooter {
+  margin: 0;
+  padding: 10px;
+  color: #71717a;
+  font-size: 12px;
+}
+.DocSearch-Container .DocSearch-HitsFooter a {
+  border: 0;
+  color: #a1a1aa;
+  font-weight: 600;
+}
+.DocSearch-Container .DocSearch-HitsFooter a:hover {
+  color: #fcd34d;
+}
+
+/* Ask AI: a row like the others, with a gold tile */
+.DocSearch-Container .DocSearch-AskAi-Section {
+  gap: 2px;
+  padding: 0 0 6px;
+}
+.DocSearch-Container .DocSearch-Hit-AskAIButton {
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 10px 0 0;
+}
+.DocSearch-Container .DocSearch-Hit-AskAIButton-icon {
+  box-sizing: content-box;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(251, 191, 36, 0.12);
+  box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.25);
+  color: #fcd34d;
+}
+.DocSearch-Container .DocSearch-Hit-AskAIButton-title {
+  color: #e4e4e7;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+.DocSearch-Container .DocSearch-Hit-AskAIButton-title-query {
+  color: #fcd34d;
+}
+
+/* Empty, start and error screens */
+.DocSearch-Container .DocSearch-StartScreen,
+.DocSearch-Container .DocSearch-NoResults,
+.DocSearch-Container .DocSearch-ErrorScreen {
+  gap: 10px;
+  padding: 40px 0;
+  color: #71717a;
+  font-size: 14px;
+}
+.DocSearch-Container .DocSearch-NoResults--withAskAi {
+  padding-top: 0;
+}
+/* The empty-state icon on a tile, like the empty list of the pickers */
+.DocSearch-Container .DocSearch-StartScreen-Icon,
+.DocSearch-Container .DocSearch-Screen-Icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 4px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+  color: #71717a;
+}
+.DocSearch-Container .DocSearch-Screen-Icon svg,
+.DocSearch-Container .DocSearch-StartScreen-Icon svg {
+  width: 16px;
+  height: 16px;
+}
+.DocSearch-Container .DocSearch-Screen-Icon svg,
+.DocSearch-Container .DocSearch-Screen-Icon svg * {
+  stroke: #71717a;
+}
+.DocSearch-Container .DocSearch-Title {
+  color: #e4e4e7;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.4;
+}
+.DocSearch-Container .DocSearch-Title strong {
+  color: #fff;
+}
+.DocSearch-Container .DocSearch-Help,
+.DocSearch-Container .DocSearch-NoResults-Help,
+.DocSearch-Container .DocSearch-Label {
+  color: #71717a;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+.DocSearch-Container .DocSearch-Prefill {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #a1a1aa;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+.DocSearch-Container .DocSearch-Prefill:hover,
+.DocSearch-Container .DocSearch-Prefill:focus {
+  border-color: rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.12);
+  color: #fde68a;
+  text-decoration: none;
+}
+.DocSearch-Container .DocSearch-NewConversationScreen-SuggestedQuestion {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #d4d4d8;
+}
+.DocSearch-Container .DocSearch-NewConversationScreen-SuggestedQuestion:hover {
+  border-color: rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.08);
+  color: #fde68a;
+}
+
+/* Ask AI answers */
+.DocSearch-Container .DocSearch-AskAiScreen-Response,
+.DocSearch-Container .DocSearch-AskAiScreen-RelatedSources-Item-Link {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.DocSearch-Container .DocSearch-AskAiScreen-RelatedSources-Item-Link:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+}
+.DocSearch-Container .DocSearch-AskAiScreen-Query {
+  color: #fff;
+}
+.DocSearch-Container .DocSearch-AskAiScreen-ActionButton {
+  border-radius: 8px;
+}
+.DocSearch-Container .DocSearch-Markdown-Content code,
+.DocSearch-Container .DocSearch-Markdown-Content pre {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.3);
+}
+.DocSearch-Container .DocSearch-Markdown-Content pre code {
+  border: 0;
+  background: transparent;
+}
+
+/* Footer */
+.DocSearch-Container .DocSearch-Footer {
+  padding: 0 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0;
+}
+.DocSearch-Container .DocSearch-Commands {
+  gap: 12px;
+  color: #71717a;
+  font-size: 11px;
+  font-weight: 500;
+}
+.DocSearch-Container .DocSearch-Commands li {
+  gap: 4px;
+}
+.DocSearch-Container .DocSearch-Label {
+  font-size: 11px !important;
+  line-height: 1;
+}
+.DocSearch-Container .DocSearch-Logo {
+  color: #71717a;
+  font-size: 11px;
+}
+.DocSearch-Container .DocSearch-Logo a {
+  align-items: center;
+  gap: 6px;
+}
+.DocSearch-Container .DocSearch-Logo svg {
+  width: 64px;
+  margin: 0;
+  transition: opacity 0.15s ease;
+  opacity: 0.6;
+}
+/* The logo paints itself Algolia blue through an inline style tag, so it goes zinc here and back on hover */
+.DocSearch-Container .DocSearch-Logo svg path {
+  fill: #a1a1aa;
+  transition: fill 0.15s ease;
+}
+.DocSearch-Container .DocSearch-Logo a:hover svg {
+  opacity: 1;
+}
+.DocSearch-Container .DocSearch-Logo a:hover svg path {
+  fill: #e4e4e7;
+}
+
+/* Keycaps, like the `Kbd` of the pickers */
+.DocSearch-Container .DocSearch-Commands-Key,
+.DocSearch-Container .DocSearch-Escape-Key {
+  box-sizing: border-box;
+  width: auto;
+  min-width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06) !important;
+  color: #a1a1aa;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+.DocSearch-Container .DocSearch-Commands-Key:last-of-type {
+  margin-right: 2px;
+}
+.DocSearch-Container .DocSearch-Commands-Key svg {
+  width: 11px;
+  height: 11px;
+}
+
+/* Phones: a sheet from the top edge to the bottom */
+@media (max-width: 768px) {
+  .DocSearch-Container .DocSearch-Modal {
+    margin: 0;
+    border: 0;
+    border-radius: 0 !important;
+  }
+  .DocSearch-Container .DocSearch-Modal::before {
+    display: none;
+  }
+}
