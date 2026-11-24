@@ -143,8 +143,8 @@ export class Query<
    * are left out. With `{ on: "postId" }`, the join matches that field of the joined collection instead of its key and
    * holds an array of every matching row, loaded through a list loader that can send `inArray` on it. Options go in an
    * object with the field as `by`, as in `join("comments", db.comment, { by: (post) => post.id, on: "postId" })`. The db loads joined rows in batches through the joined
-   * collection's key loader, and a result updates whenever its joined row changes. Joined rows are loaded by key, so
-   * only syncs without `where` reach them.
+   * collection's key loader, and a result updates whenever its joined row changes. Syncs keep a joined row live too: a
+   * sync with `where` subscribes with the values of the joined row's own fields, such as its `teamId`.
    */
   join<Name extends string, Target extends JoinTarget, Field extends keyof Row & string, const On, const Type>(
     name: Name,

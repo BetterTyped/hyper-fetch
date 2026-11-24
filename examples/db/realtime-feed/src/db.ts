@@ -26,13 +26,9 @@ const PostSchema = z.object({
 });
 export type Post = z.infer<typeof PostSchema>;
 
-/**
- * Rows count as fresh while their syncs are live. Without a live socket they fall back to `staleTime`, so `0` makes the
- * feed report `stale` as soon as the socket drops, instead of minutes later.
- */
+/** Rows count as fresh while their syncs are live, and turn `stale` as soon as the socket drops */
 export const getTeamPosts = client.createRequest<{ response: Post[] }>()({
   endpoint: "/teams/:teamId/posts",
-  staleTime: 0,
 });
 
 export const updatePost = client.createRequest<{ response: Post; payload: Partial<Post> }>()({

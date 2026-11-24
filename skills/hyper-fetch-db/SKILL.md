@@ -88,8 +88,8 @@ const unsubscribe = query.subscribe(() => render(query.getSnapshot()));
 const state = await query.get(); // first state that is not loading
 ```
 
-State: `data`, `status` (`loading` | `ready` | `error` when a first load failed), `error`, `stale`, `isFetching`,
-`hasNextPage`. Actions: `refetch()`, `fetchNextPage()`.
+State: `data`, `status` (`loading` | `ready` | `error` when a first load failed), `error`, `stale` (past `staleTime`
+without full sync coverage, or while a sync's socket is disconnected), `isFetching`, `hasNextPage`. Actions: `refetch()`, `fetchNextPage()`.
 
 ### React
 
@@ -258,6 +258,7 @@ collection(PostSchema, { key: "id" }).load(getPosts, {
 - A request used by both `useFetch` and a collection keeps two copies that do not update each other.
 - `.local()` queries never load and never start syncs.
 - Without `orderBy`, a new row never joins a paginated list that has more pages.
+- In a paginated list, an insert (pending or saved) shows only when it sorts inside the loaded pages.
 - `insert` of a key the db holds and `update` that changes the key resolve with an error and send nothing.
 - Rows are frozen; copy before changing. `undefined` in an update leaves a field, `null` clears it.
 - `findOne(key)` takes no `where`, `orderBy` or `limit`. Inserts in a transaction need their key.

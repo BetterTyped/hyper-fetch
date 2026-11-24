@@ -105,6 +105,10 @@ export abstract class BaseSubset {
     if (this.isLive()) {
       return true;
     }
+    // A sync that is down may be missing events right now, however recent the load
+    if (this.subscriptions.some((subscription) => !subscription.isLive())) {
+      return false;
+    }
     return this.loadedAt > 0 && Date.now() - this.loadedAt < getStaleTime(this.loader);
   };
 

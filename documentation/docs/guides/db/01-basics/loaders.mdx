@@ -308,6 +308,7 @@ A loaded subset decides on its own when to load again:
   time passed. See [Real-time sync](/docs/guides/db/basics/realtime-sync).
 - Without full sync coverage, it is fresh for the request's `staleTime`: default five minutes, change it on the request
   as you would for `useFetch`.
+- While one of its syncs is disconnected, it is stale whatever the `staleTime`, because events may be missed.
 - Stale subsets of mounted queries refetch when a query mounts, the window regains focus or the connection returns.
 - A subset no query uses is kept for `gcTime`: default five minutes, change it in `createDb`. Rows that no other subset
   holds then leave the collection.

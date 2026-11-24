@@ -59,8 +59,8 @@ refetch. Open the page in a second tab, and a like or a simulated post in one ta
    as the socket URL. The topic is the listener topic with its params filled in, such as `teams/design/posts/created`.
 5. A like is an optimistic `update`. The server saves it and publishes a `changed` event, so other tabs get the new
    count. With **Make writes fail** on, the request fails and the db puts the old count back.
-6. `getTeamPosts` sets `staleTime: 0`. While its syncs are live the feed is fresh. When the socket drops, the feed
-   reports `stale` right away, and the reconnect refetches it.
+6. While its syncs are live the feed is fresh. When the socket drops, the feed reports `stale` right away, and the
+   reconnect refetches it.
 
 :::note When to use it
 

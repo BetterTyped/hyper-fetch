@@ -292,9 +292,9 @@ export class LiveQuery implements SubsetObserver {
     if (!Object.keys(fixed).every((field) => evaluate({ op: "eq", field, value: fixed[field] }, row))) {
       return false;
     }
-    // Pages and server-only operators hold exactly what the backend returned
+    // Pages and server-only operators hold exactly what the backend returned, plus pending inserts inside the pages
     if (source.ownsOnly) {
-      return source.holds(key);
+      return source.holds(key) || source.holdsPendingInsert(key);
     }
     return !source.excluded.has(key);
   };

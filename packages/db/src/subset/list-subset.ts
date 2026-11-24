@@ -83,19 +83,33 @@ export class ListSubset extends BaseSubset {
       }
       return;
     }
+    if (this.fitsLoadedRange(key)) {
+      this.inserted.add(key);
+    }
+  };
+
+  /**
+   * Whether a paginated subset shows a row only a pending write created. It does when the row matches what was sent
+   * and sorts inside the loaded range, so an optimistic insert shows at once, like in lists that are not paginated.
+   * Once the server confirms it, `noteInsert` keeps it.
+   */
+  holdsPendingInsert = (key: RowKey) => {
+    const { store } = this.collection;
+    return this.plan.paginated && store.hasLayer(key) && !store.getServerRow(key) && this.fitsLoadedRange(key);
+  };
+
+  /** Whether a row belongs between the loaded pages, rather than in a page not loaded yet */
+  private fitsLoadedRange = (key: RowKey) => {
     const row = this.collection.store.get(key);
     if (!row || !this.matchesSent(row)) {
-      return;
+      return false;
     }
     if (!this.hasMore) {
-      this.inserted.add(key);
-      return;
+      return true;
     }
     const compare = this.collection.createComparator(this.definition.orderBy, this);
     const last = [...this.owned].toSorted(compare).pop();
-    if (last !== undefined && compare(key, last) < 0) {
-      this.inserted.add(key);
-    }
+    return last !== undefined && compare(key, last) < 0;
   };
 
   /** Loads the page after the last loaded one */

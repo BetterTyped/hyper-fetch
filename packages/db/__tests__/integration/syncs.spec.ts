@@ -275,6 +275,17 @@ describe("db [ Syncs ]", () => {
     unsubscribe();
   });
 
+  it("goes stale when the socket disconnects, even while its last load is within staleTime", async () => {
+    const { requests, socket } = context;
+    requests.getTeamFullPosts.staleTime = 60_000;
+    const { query, unsubscribe } = await loadTeam(context);
+    expect(query.getSnapshot().stale).toBeFalse();
+
+    await socket.disconnect();
+    await vi.waitFor(() => expect(query.getSnapshot().stale).toBeTrue());
+    unsubscribe();
+  });
+
   it("does not refetch after a reconnect when the subscription resumes", async () => {
     context.db.destroy();
     context = await setup({ resumes: true });

@@ -179,6 +179,39 @@ describe("db [ Infinite queries ]", () => {
     expect(api.callsTo("/top")).toHaveLength(2);
   });
 
+  it("shows a pending insert inside the loaded range at once and removes it when the write fails", async () => {
+    const { api, db } = context;
+    serveFeed(api, () => [1, 2, 3, 4, 5, 6].map((id) => createPost(id)));
+    const response = deferred();
+    api.post("/posts", async () => {
+      await response.promise;
+      return { status: 500, data: { message: "Rejected" } };
+    });
+    const feed = db.feed.orderBy((post) => post.createdAt).infinite({ pageSize: 2 });
+    const list = db.feed.orderBy((post) => post.createdAt);
+    const unsubscribeFeed = feed.subscribe(() => {});
+    const unsubscribeList = list.subscribe(() => {});
+    await vi.waitFor(() => expect(feed.getSnapshot()).toMatchObject({ status: "ready", isFetchingNextPage: false }));
+    await vi.waitFor(() => expect(list.getSnapshot().status).toBe("ready"));
+    // Both read one subset, which holds the backend pages the window needed
+    const loaded = ids(list.getSnapshot().data)!;
+    expect(loaded).toStrictEqual([1, 2, 3, 4]);
+
+    const inRange = db.feed.insert(createPost(0, { createdAt: "2026-01-00" }));
+    // Sorts after the last loaded row, where the next backend page may hold rows before it
+    const pastRange = db.feed.insert(createPost(9, { createdAt: "2026-09-09" }));
+    expect(ids(feed.getSnapshot().data)).toStrictEqual([0, 1]);
+    expect(ids(list.getSnapshot().data)).toStrictEqual([0, ...loaded]);
+
+    response.resolve();
+    expect((await inRange).success).toBeFalse();
+    expect((await pastRange).success).toBeFalse();
+    expect(ids(feed.getSnapshot().data)).toStrictEqual([1, 2]);
+    expect(ids(list.getSnapshot().data)).toStrictEqual(loaded);
+    unsubscribeFeed();
+    unsubscribeList();
+  });
+
   it("keeps the window live: an insert shifts rows across pages and a delete pulls the next row in", async () => {
     const { api, db } = context;
     const rows = [1, 2, 3, 4, 5, 6].map((id) => createPost(id));
