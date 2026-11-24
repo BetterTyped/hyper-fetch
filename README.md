@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./.github/assets/readme.png" alt="Hyper Fetch. Fetch anything. Type everything. Cache, retries, dedupe, offline and realtime, built in. Works with OpenAPI, GraphQL, tRPC, oRPC, Hono, Elysia, NestJS, Express, Fastify, FastAPI, Django, Spring Boot, Node.js, Bun, Deno, Firebase, Axios, WebSockets, React and Electron." />
+  <img src="./.github/assets/readme.png" alt="Hyper Fetch. Fetch anything. Type everything. Cache, retries, dedupe, offline and realtime, built in. Works with OpenAPI, GraphQL, tRPC, oRPC, Hono, Elysia, NestJS, Express, Fastify, FastAPI, Django, Spring Boot, Node.js, Bun, Deno, Firebase, Axios, WebSockets, React, Next.js, Astro, TanStack Query, SWR, React Router, TanStack Start and Electron." />
 </p>
 
 <p align="center">
@@ -17,6 +17,12 @@
   <a href="https://github.com/BetterTyped/hyper-fetch"><img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript" /></a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md"><img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch?color=blue" alt="License" /></a>
   <a href="https://twitter.com/maciej_pyrc"><img src="https://img.shields.io/twitter/follow/maciej_pyrc" alt="Follow on Twitter" /></a>
+</p>
+
+<p align="center">
+  🆕 <a href="https://hyperfetch.bettertyped.com/blog/hyper-fetch-db"><b>Introducing HyperFetch DB</b></a>: a normalized
+  client database that stays live. Typed collections fed by your requests and sockets, live queries, optimistic writes
+  and an offline outbox. <a href="https://hyperfetch.bettertyped.com/blog/hyper-fetch-db">Read the release post →</a>
 </p>
 
 ## 🚀 Quick Start
