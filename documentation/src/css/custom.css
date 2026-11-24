@@ -1074,7 +1074,7 @@ body .theme-code-block pre *,
   transition: opacity 0.2s ease;
 }
 .blog-wrapper .theme-code-block:has(.theme-code-block-highlighted-line) .token-line:not(.theme-code-block-highlighted-line) {
-  opacity: 0.75;
+  opacity: 0.9;
 }
 .blog-wrapper .theme-code-block:has(.theme-code-block-highlighted-line):hover .token-line {
   opacity: 1;
