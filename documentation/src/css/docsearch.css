@@ -498,21 +498,26 @@ html body {
   transition: opacity 0.15s ease;
   opacity: 0.6;
 }
-/* The logo paints itself Algolia blue through an inline style tag, so it goes zinc here and back on hover */
-.DocSearch-Container .DocSearch-Logo svg path {
+/* The logo paints itself Algolia blue through an inline style tag, so it goes zinc here and back on hover. The
+   stem of the `i` is a `rect`, not a `path` */
+.DocSearch-Container .DocSearch-Logo svg :is(path, rect) {
   fill: #a1a1aa;
   transition: fill 0.15s ease;
 }
 .DocSearch-Container .DocSearch-Logo a:hover svg {
   opacity: 1;
 }
-.DocSearch-Container .DocSearch-Logo a:hover svg path {
+.DocSearch-Container .DocSearch-Logo a:hover svg :is(path, rect) {
   fill: #e4e4e7;
 }
 
-/* Keycaps, like the `Kbd` of the pickers */
-.DocSearch-Container .DocSearch-Commands-Key,
+/* Keycaps, like the `Kbd` of the pickers. The `ESC` label is a span inside one of them, so it stays plain text */
 .DocSearch-Container .DocSearch-Escape-Key {
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+.DocSearch-Container .DocSearch-Commands-Key {
   box-sizing: border-box;
   width: auto;
   min-width: 20px;

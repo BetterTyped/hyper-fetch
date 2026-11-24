@@ -168,7 +168,7 @@ export const ExamplesCatalog = () => {
         </label>
       </header>
 
-      <div className="sticky top-[var(--ifm-navbar-height)] z-20 -mx-3 mt-10 bg-[#1c1c1d]/90 px-3 py-3 backdrop-blur-xl">
+      <div className="sticky top-[var(--ifm-navbar-height)] z-20 -mx-3 mt-10 bg-[var(--background)] px-3 py-3">
         <nav
           aria-label="Categories"
           className="-mx-3 flex gap-1 overflow-x-auto px-3 [mask-image:linear-gradient(to_right,black_92%,transparent)] [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0 lg:[mask-image:none]"
