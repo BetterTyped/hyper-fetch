@@ -1,0 +1,12 @@
+{
+  "label": "DB: collections and live queries",
+  "position": 8,
+  "collapsible": true,
+  "collapsed": false,
+  "description": "Typed collections fed by requests and sockets, read with live queries that stay current.",
+  "link": {
+    "type": "generated-index",
+    "title": "DB examples",
+    "description": "Typed collections fed by requests and sockets, read with live queries that stay current."
+  }
+}

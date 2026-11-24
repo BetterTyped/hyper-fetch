@@ -1,0 +1,126 @@
+---
+title: Issue tracker with server and local filters
+sidebar_label: Issue tracker
+sidebar_position: 6
+description: An issue tracker on the db. Some filters go to the server and some run locally, assignees come from a join, the list and detail share rows, and explain() prints each query plan.
+sidebar_custom_props:
+  path: db/issue-tracker
+  level: advanced
+  tags: [useLiveQuery, joins, sync, realtime, optimistic, mocking]
+---
+
+import { Example } from "@site/src/components";
+import dbFile from "!!raw-loader!@examples/db/issue-tracker/src/db.ts";
+import issueList from "!!raw-loader!@examples/db/issue-tracker/src/IssueList.tsx";
+import issueDetail from "!!raw-loader!@examples/db/issue-tracker/src/IssueDetail.tsx";
+import app from "!!raw-loader!@examples/db/issue-tracker/src/App.tsx";
+import server from "!!raw-loader!@examples/db/issue-tracker/src/server.ts";
+
+An issue tracker with 40 issues in two projects. Pick a project and a status tab, and the db sends them to the server.
+Pick an assignee or type a search, and nothing is sent: the db filters the rows it already holds. The **Query plan**
+panel prints `explain()` for the current list, so you can see which conditions went to the server and which did not.
+
+Click an issue to open it. The header shows at once from the list row, and the description arrives with the full
+issue. Change its status, assignee or title: the list and the panel change together, and turn on **Make writes fail**
+to see both revert. Click **Simulate a teammate**, or open the page in a second tab and edit there, to watch issues move
+between tabs without a refetch.
+
+<Example
+  files={{
+    "src/db.ts": dbFile,
+    "src/IssueList.tsx": issueList,
+    "src/IssueDetail.tsx": issueDetail,
+    "src/App.tsx": app,
+    "src/server.ts": server,
+  }}
+/>
+
+:::tip What it shows
+
+1. **Server filters and local filters** in one query: the loader declares `projectId` and `status`, so those are sent.
+   The assignee is not declared, so the db filters it on the rows it holds.
+2. **`explain()`** returns the query plan: the loader, the conditions sent, the conditions run locally, whether held rows
+   answered the query, and the socket topics that keep it live.
+3. **A join**: `.join("assignee", db.user, ...)` adds each issue's assignee. The assignees of the whole list load in one
+   `GET /users?ids=...` request.
+4. **List and detail**: two collections for two shapes, linked so an edit of the full issue changes the list row too.
+5. **Optimistic writes** that update the list and the detail together, and revert both when the request fails.
+6. **Realtime sync**: socket events move issues in and out of filtered lists live, in every open tab.
+
+:::
+
+---
+
+## How it works
+
+### Collections and loaders
+
+1. `db.ts` defines three collections. `issueSummary` holds list rows, `issue` holds full issues with a `description`, and
+   `user` holds the team.
+2. The list loader maps `projectId` to the URL with `required: true`, and `status` to `?status=`. A query without a
+   `projectId` does not compile.
+3. `issue` has a `byKey` loader for `GET /issues/:issueId`. `user` has two loaders on the same request: a list loader for
+   the whole team, and a `byKeys` loader that reads several users by id in one request.
+4. `createDb(..., { links: [["issue", "issueSummary"]] })` says both collections hold the same records. Writes go
+   through `issue`, and the link carries them to the list row.
+
+### The list query
+
+1. `IssueList.tsx` builds one query from the filters: `eq` on `projectId`, `eq` on `status` unless the tab is "All", and
+   `eq` on `assigneeId` when an assignee is picked. Conditions in a top-level `and` that the loader declares are sent,
+   the rest run locally.
+2. Open "All", then "Done". The plan says the query was answered without a request: the loaded "All" list already holds
+   every issue of the project, so the db filters it. The server log shows no new `GET`.
+3. The text search is a plain `filter` over the live result in React. The db operators compare whole values, so a
+   substring match runs on the rows the query returned, also with no request.
+4. `explain()` reads the mounted query, so `IssueList` calls it in an effect after `useLiveQuery` subscribed, and again
+   when the rows change.
+
+### The detail panel
+
+1. `IssueDetail.tsx` reads `db.issueSummary.findOne(id).local()`. It only reads what the db holds, so the title, status
+   and assignee show the moment you click.
+2. `db.issue.findOne(id)` loads the full issue through the `byKey` loader. The panel shows "Loading description..."
+   until it arrives, and keeps the controls disabled, because edits go through `issue`.
+3. `db.issue.update(id, changes)` is an optimistic write. A status change moves the row out of the current tab at once.
+   It resolves with `{ success }` and never throws. When the server answers 500, the db has already reverted the panel
+   and the list.
+
+### Realtime
+
+1. The server publishes the whole issue on `projects/:projectId/issues/saved` after every change. The sync's `where`
+   fills `:projectId` from the query, so each list listens to its own project only.
+2. On `issueSummary` the sync has `type: "insert"`: each event is a complete row that creates or replaces the stored
+   one. A list only holds the rows of its filter, so an issue moved into "Todo" elsewhere has to arrive whole to join
+   it. An `update` event only changes rows the db already holds.
+3. On `issue` the same topic is an `update` sync. It changes the open issue and ignores the rest.
+4. `broadcast-adapter.ts` carries socket frames over a `BroadcastChannel`, and `server.ts` keeps the issues in
+   `localStorage`. Two tabs share one fake backend, and each hears the other's changes. With a real backend you pass no
+   adapter and get WebSockets.
+
+:::note When to use it
+
+- Lists with filters where some run on the server and some do not, such as a status in the URL and a search on screen.
+- Screens with a list and a detail view whose endpoints return different fields.
+- Apps where other people change the same records, such as trackers, boards and admin panels.
+
+:::
+
+---
+
+## Related
+
+- [DB overview](/docs/db/overview)
+- [Loaders](/docs/guides/db/basics/loaders)
+- [Real-time sync](/docs/guides/db/basics/realtime-sync)
+- [List and detail views](/docs/guides/db/patterns/list-and-detail)
+- [Related data and joins](/docs/guides/db/patterns/related-data)
+- [Debugging the db](/docs/guides/db/production/debugging)
+
+:::secondary Summary
+
+You split one query into conditions the server runs and conditions the db runs, and read the split with `explain()`.
+You joined assignees in one batched request, showed a detail header from the list row, saved edits optimistically
+through a link, and kept every filtered list live from one socket topic.
+
+:::

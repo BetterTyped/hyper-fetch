@@ -1,0 +1,56 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+  margin-block: 1rem;
+}
+
+.board h2 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.6rem;
+}
+
+.card [role="group"] {
+  width: auto;
+  margin: 0;
+}
+
+.card button {
+  padding: 0.1rem 0.5rem;
+}
+
+.log {
+  padding: 0;
+  margin: 0;
+}
+
+.log li {
+  list-style: none;
+  font-family: var(--pico-font-family-monospace);
+  font-size: 0.8rem;
+}
+
+pre {
+  padding: 0.75rem;
+  font-size: 0.75rem;
+  max-height: 20rem;
+  overflow: auto;
+}

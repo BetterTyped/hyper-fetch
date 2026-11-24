@@ -1,0 +1,72 @@
+---
+title: Todos with a live query
+sidebar_label: Todos
+sidebar_position: 1
+description: A todo list on a db collection. One live query, filters that run locally, and writes that show at once and revert on failure.
+sidebar_custom_props:
+  path: db/todos
+  level: beginner
+  tags: [useLiveQuery, optimistic, mocking, typescript]
+---
+
+import { Example } from "@site/src/components";
+import dbFile from "!!raw-loader!@examples/db/todos/src/db.ts";
+import app from "!!raw-loader!@examples/db/todos/src/App.tsx";
+import server from "!!raw-loader!@examples/db/todos/src/server.ts";
+
+A todo list built on one db collection. Add, check off and delete todos: each change shows at once, while the fake
+server takes almost a second to answer. Turn on **Make writes fail** and every change is reverted when the error
+arrives, without any rollback code.
+
+<Example files={{ "src/db.ts": dbFile, "src/App.tsx": app, "src/server.ts": server }} />
+
+:::tip What it shows
+
+1. **A collection** made from the requests you already have: `load` reads the rows, `mutate` saves the changes.
+2. **`useLiveQuery`** renders the rows and re-renders on every change, with no cache keys and no dependency array.
+3. **Local filters**: the loader sends no filters, so the All, Active and Done tabs filter the loaded rows without a
+   request.
+4. **Optimistic writes**: `db.todo.insert()`, `update()` and `delete()` change every query at once and revert on
+   failure.
+5. **No backend needed**: `server.ts` answers the requests with `setMock`, so the db sends exactly what it would send to
+   a real API.
+
+:::
+
+---
+
+## How it works
+
+1. `db.ts` defines `TodoSchema` with Zod. The schema is the row type, and a loader or write that returns other rows does
+   not compile.
+2. `collection(TodoSchema, { key: "id" }).load(getTodos)` says `GET /todos` returns complete rows. The loader declares
+   no `where`, so every query is served from that one list.
+3. `.mutate()` maps each write to its request. `update` gets the key and the changed fields, so `map` builds the
+   params and the payload of `PATCH /todos/:todoId`.
+4. `App.tsx` builds a query for the current tab, `db.todo.orderBy(...)` with an `eq(todo.completed, ...)` filter, and
+   passes it to `useLiveQuery`. A second query counts the todos left. Both update together after every write.
+5. A write resolves with `{ success }` and never throws. When the request fails, the db has already removed the change
+   from every query, and the log shows it.
+
+:::note When to use it
+
+- Any list that the user edits in place: todos, settings, labels, tags.
+- Screens where one change shows in several places, like a list and a counter.
+
+:::
+
+---
+
+## Related
+
+- [DB overview](/docs/db/overview)
+- [DB quick start](/docs/db/quick-start)
+- [Optimistic writes](/docs/guides/db/basics/optimistic-writes)
+- [Live queries](/docs/guides/db/basics/live-queries)
+
+:::secondary Summary
+
+You turned three requests into a collection, read it with one live query and wrote to it with optimistic writes that
+revert on their own.
+
+:::

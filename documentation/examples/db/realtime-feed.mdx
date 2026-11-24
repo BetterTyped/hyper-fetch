@@ -1,0 +1,88 @@
+---
+title: A team feed that stays live
+sidebar_label: Realtime feed
+sidebar_position: 2
+description: Posts load once over REST, and socket events insert, update and delete them in every open tab. Switch teams, like posts and watch another user's changes arrive.
+sidebar_custom_props:
+  path: db/realtime-feed
+  level: intermediate
+  tags: [useLiveQuery, realtime, sync, optimistic]
+---
+
+import { Example } from "@site/src/components";
+import dbFile from "!!raw-loader!@examples/db/realtime-feed/src/db.ts";
+import app from "!!raw-loader!@examples/db/realtime-feed/src/App.tsx";
+import server from "!!raw-loader!@examples/db/realtime-feed/src/server.ts";
+import adapter from "!!raw-loader!@examples/db/realtime-feed/src/broadcast-adapter.ts";
+
+A team feed on one db collection. The posts of a team load once, then three socket events keep them current. Use
+**Simulate another user** to create, rename and delete a post on the fake server: the list changes at once, with no
+refetch. Open the page in a second tab, and a like or a simulated post in one tab shows in the other.
+
+<Example
+  files={{
+    "src/db.ts": dbFile,
+    "src/App.tsx": app,
+    "src/server.ts": server,
+    "src/broadcast-adapter.ts": adapter,
+  }}
+/>
+
+:::tip What it shows
+
+1. **A loader with a required filter**: `where: { teamId: { eq, required: true } }` loads one team's posts, so a query
+   must name the team.
+2. **Three syncs**: `insert`, `update` and `delete` listeners add, change and remove rows in every query, with no
+   refetch.
+3. **Scoped topics**: each sync maps the query's `teamId` to the listener's `:teamId` param, so a team only receives its
+   own events. The **Syncs for this query** panel shows the topics.
+4. **Optimistic likes**: `db.post.update()` shows the new count at once and reverts it when the server fails.
+5. **`stale`**: disconnect the socket and the badge changes. Reconnect and the db refetches the feed, since it may have
+   missed events.
+6. **No backend needed**: requests use `setMock`, and the socket runs over a `BroadcastChannel`, so it works in the
+   browser alone and across tabs.
+
+:::
+
+---
+
+## How it works
+
+1. `db.ts` creates the client, a socket and three listeners: `teams/:teamId/posts/created`, `/changed` and `/deleted`.
+   In a real app the socket uses a WebSocket URL and the default adapter. Nothing else changes.
+2. `collection(PostSchema, { key: "id", version: "updatedAt" })` loads posts with `getTeamPosts` and declares one
+   `.sync()` per listener. `byTeam` maps the `teamId` filter to the listener param.
+3. `App.tsx` builds `db.post.where((post) => eq(post.teamId, teamId))` for the selected team and reads it with
+   `useLiveQuery`. Switching teams is a different query. The first team's rows stay in the db for a while, so
+   switching back shows them at once.
+4. `server.ts` keeps the posts in `localStorage` and publishes each change on a `BroadcastChannel` with the same name
+   as the socket URL. The topic is the listener topic with its params filled in, such as `teams/design/posts/created`.
+5. A like is an optimistic `update`. The server saves it and publishes a `changed` event, so other tabs get the new
+   count. With **Make writes fail** on, the request fails and the db puts the old count back.
+6. `getTeamPosts` sets `staleTime: 0`. While its syncs are live the feed is fresh. When the socket drops, the feed
+   reports `stale` right away, and the reconnect refetches it.
+
+:::note When to use it
+
+- Feeds, chats, dashboards and boards that several people change at once.
+- Any list a server pushes changes for, scoped per team, project or room.
+- Screens that should show when they may be out of date, with a badge instead of a spinner.
+
+:::
+
+---
+
+## Related
+
+- [Real-time sync](/docs/guides/db/basics/realtime-sync)
+- [Live queries](/docs/guides/db/basics/live-queries)
+- [Optimistic writes](/docs/guides/db/basics/optimistic-writes)
+- [WebSocket listeners](/docs/sockets/listener)
+- [useLiveQuery](/docs/react/db/use-live-query)
+
+:::secondary Summary
+
+You loaded one team's posts with a REST loader, kept them live with insert, update and delete syncs scoped to the team,
+liked posts with optimistic writes, and showed when the feed may be out of date with `stale`.
+
+:::

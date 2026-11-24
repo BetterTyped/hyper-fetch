@@ -1,0 +1,30 @@
+{
+  "name": "@hyper-fetch-examples/db-realtime-feed",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "A team feed whose rows stay live: REST loads them, socket events insert, update and delete them, in this tab and every other one.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/db": "latest",
+    "@hyper-fetch/react": "latest",
+    "@hyper-fetch/sockets": "latest",
+    "@picocss/pico": "^2.1.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "zod": "^4.4.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8"
+  }
+}

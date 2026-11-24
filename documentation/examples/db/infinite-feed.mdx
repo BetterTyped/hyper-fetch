@@ -1,0 +1,77 @@
+---
+title: An infinite feed that stays live
+sidebar_label: Infinite feed
+sidebar_position: 4
+description: A cursor-paginated feed read with useLiveInfiniteQuery. Pages load as you scroll, and new posts from a socket land at the top while the loaded pages stay.
+sidebar_custom_props:
+  path: db/infinite-feed
+  level: intermediate
+  tags: [useLiveInfiniteQuery, pagination, realtime, sync]
+---
+
+import { Example } from "@site/src/components";
+import dbFile from "!!raw-loader!@examples/db/infinite-feed/src/db.ts";
+import app from "!!raw-loader!@examples/db/infinite-feed/src/App.tsx";
+import server from "!!raw-loader!@examples/db/infinite-feed/src/server.ts";
+
+A feed of 60 posts that loads page by page. Scroll down or press **Load more**, and the server log shows each request.
+Press **Publish a post as another user**: the post arrives over the socket and lands at the top, and every loaded page
+stays on screen. Likes show at once and revert when the server fails.
+
+<Example files={{ "src/db.ts": dbFile, "src/App.tsx": app, "src/server.ts": server }} />
+
+:::tip What it shows
+
+1. **A cursor loader**: `cursor` reads the next page's cursor from a response, and `page` sends it with the next
+   request.
+2. **`useLiveInfiniteQuery`** shows the ordered query as pages of 10, with `pages`, `hasNextPage` and `fetchNextPage`.
+3. **UI pages are not backend pages**: the server sends 15 posts per request. Page 2 shows 5 posts at once, and the
+   loader fetches the rest.
+4. **Scroll to load**: an `IntersectionObserver` on an element after the list calls `fetchNextPage()`.
+5. **Live pages**: an `insert` sync adds new posts at the top and pushes the last row to the next page, with no
+   refetch. An `update` sync keeps likes in step across tabs.
+6. **Optimistic likes**: `db.post.update()` changes the count at once and reverts it when the server fails.
+
+:::
+
+---
+
+## How it works
+
+1. `db.ts` declares `getPosts`, which answers `{ items, next }`. The loader reads rows with `rows`, the next cursor with
+   `cursor`, and sends it with `page`.
+2. A paginated loader must send every order a query uses, so `orderBy` says how the endpoint sorts by `createdAt`. A
+   query that sorts by another field does not compile.
+3. `App.tsx` passes `db.post.orderBy((post) => post.createdAt, "desc")` to `useLiveInfiniteQuery` with
+   `{ pageSize: 10 }`. The query must have `orderBy`, so a page never shifts between renders.
+4. `fetchNextPage()` widens the window by one page. Rows the db holds show at once. When the window runs past them, the
+   loader requests the next backend page. A second call while a page loads does nothing, so a double scroll event is
+   harmless.
+5. `server.ts` publishes `posts/created` for a post by another user. The new post sorts before the last loaded row, so
+   it joins the first page and the loaded pages shift by one.
+6. Open the page in a second tab: the posts live in `localStorage` and the socket runs over a `BroadcastChannel`, so a
+   post or a like in one tab shows in the other.
+
+:::note When to use it
+
+- Social feeds, activity streams, comment threads and inboxes that receive new items while you scroll.
+- Long lists where items also change from sockets or writes, and refetching every page would be too slow.
+- Lists that load from a cursor or limit endpoint but should show pages of your own size.
+
+:::
+
+---
+
+## Related
+
+- [Pagination and infinite scroll](/docs/guides/db/basics/infinite-scroll)
+- [Real-time sync](/docs/guides/db/basics/realtime-sync)
+- [Loaders](/docs/guides/db/basics/loaders)
+- [useLiveInfiniteQuery](/docs/react/db/use-live-infinite-query)
+
+:::secondary Summary
+
+You paginated a feed with a cursor loader, showed it in pages of your own size with `useLiveInfiniteQuery`, loaded more
+on scroll, and kept every loaded page live with socket syncs.
+
+:::

@@ -1,0 +1,76 @@
+---
+title: Offline writes with the outbox
+sidebar_label: Offline outbox
+sidebar_position: 3
+description: Projects and tasks that keep working offline. Writes wait in a persisted outbox, replay in order, and a rejected write drops the writes built on it.
+sidebar_custom_props:
+  path: db/offline-outbox
+  level: intermediate
+  tags: [offline, persistence, optimistic, mocking]
+---
+
+import { Example } from "@site/src/components";
+import dbFile from "!!raw-loader!@examples/db/offline-outbox/src/db.ts";
+import app from "!!raw-loader!@examples/db/offline-outbox/src/App.tsx";
+import server from "!!raw-loader!@examples/db/offline-outbox/src/server.ts";
+
+A project list that keeps working without a connection. Switch to **Offline**, create a project with its first task and
+check off a few tasks: every change shows at once and waits in the outbox. Reload the page and it is all still there.
+Switch back to **Online** and the outbox sends the writes in the order you made them.
+
+<Example files={{ "src/db.ts": dbFile, "src/App.tsx": app, "src/server.ts": server }} />
+
+:::tip What it shows
+
+1. **An outbox**: `createDb(collections, { offline: true })` sends every write through a queue that waits for the
+   network and replays in order.
+2. **Persistence**: `persistence: { storage: localStorage, scope, version }` keeps the rows and the outbox, so a reload
+   keeps offline writes on screen and in the queue.
+3. **Idempotency keys**: `map` sends the write's id from `context.id`, and the fake server ignores an id it has seen.
+4. **Dependent writes**: the first task is inserted with `{ dependsOn: [project] }`, so a rejected project drops its
+   task without sending it.
+5. **Rejected and retried writes**: a 422 drops the write and reports it to `db.onError`. A 503 keeps it in the outbox
+   and retries it.
+
+:::
+
+---
+
+## How it works
+
+1. `db.ts` creates the db with `offline: true` and `persistence`. Every write goes through the outbox, online or not, so
+   there is one path for every write.
+2. Each `mutate` mapping adds `idempotencyKey: id` to the payload. The outbox marks a write as sent before its request
+   goes out and sends it again after a reload, so the server needs the key to apply it once.
+3. `App.tsx` turns the network off with `setOnline(false)` from `useAppManager(client)`. The outbox waits for the
+   client to come back online, then sends the writes one at a time.
+4. The outbox panel reads `db.inspect().outbox` and re-renders on `db.onChange`. Each record shows whether it was sent
+   and which write it depends on.
+5. Creating a project makes two writes. The task names the project's `Transaction` in `dependsOn`. When the server
+   rejects the project with a 422, the db reverts both rows and reports both writes to `db.onError`.
+6. `server.ts` keeps its rows and log in `localStorage` too. Reload the page while a write is in flight: the server
+   already applied it, the outbox sends it again with the same key, and the log shows it was ignored.
+
+:::note When to use it
+
+- Apps used where the connection drops: field work, travel, mobile.
+- Forms and notes where a lost write is expensive.
+- Writes that depend on each other, like a project and its tasks, and must reach the server in order.
+
+:::
+
+---
+
+## Related
+
+- [Offline-first apps with the outbox](/docs/guides/db/patterns/offline-first)
+- [Optimistic writes](/docs/guides/db/basics/optimistic-writes)
+- [Offline requests in core](/docs/guides/core/advanced/offline)
+- [DB overview](/docs/db/overview)
+
+:::secondary Summary
+
+You queued writes in a persisted outbox, replayed them in order when the network came back, sent an idempotency key
+with each one, and let a rejected write take its dependent writes with it.
+
+:::

@@ -30,6 +30,8 @@ const tags = [
   "useStream",
   "useListener",
   "useEmitter",
+  "useLiveQuery",
+  "useLiveInfiniteQuery",
   "send",
   "createSdk",
   // features
@@ -56,6 +58,8 @@ const tags = [
   "realtime",
   "streaming",
   "sync",
+  "transactions",
+  "joins",
   "ssr",
   "typescript",
   // integrations

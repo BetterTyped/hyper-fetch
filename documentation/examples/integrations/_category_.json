@@ -1,6 +1,6 @@
 {
   "label": "Adapters and integrations",
-  "position": 8,
+  "position": 9,
   "collapsible": true,
   "collapsed": false,
   "description": "GraphQL, Axios, server frameworks, devtools and other integrations.",

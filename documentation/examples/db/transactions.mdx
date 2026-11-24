@@ -1,0 +1,76 @@
+---
+title: Transactions on a board
+sidebar_label: Transactions
+sidebar_position: 5
+description: A board where moving a card also logs an activity. Both writes show at once and are kept or reverted together, sent as one request or in order.
+sidebar_custom_props:
+  path: db/transactions
+  level: intermediate
+  tags: [transactions, optimistic, mocking]
+---
+
+import { Example } from "@site/src/components";
+import dbFile from "!!raw-loader!@examples/db/transactions/src/db.ts";
+import app from "!!raw-loader!@examples/db/transactions/src/App.tsx";
+import server from "!!raw-loader!@examples/db/transactions/src/server.ts";
+
+A small board with three columns. Moving a card updates the card and adds an activity row, and both go to the server in
+one request. Turn on **Make the server reject every write** and move a card: the card and the activity row show at
+once, then both revert when the error arrives. **Clear done** deletes the Done cards one request at a time, and stops at
+the first write the server refuses.
+
+<Example files={{ "src/db.ts": dbFile, "src/App.tsx": app, "src/server.ts": server }} />
+
+:::tip What it shows
+
+1. **A named transaction**: `move` is declared in `createDb({ ... }, { transactions })`. Its `mutationFn` sends every
+   write as one `POST /board/transactions` request.
+2. **The writes the server receives**: the log shows the payload, an idempotency key and a list of `TransactionWrite`
+   objects with `collection`, `op`, `key` and `values`.
+3. **All or nothing**: when the request fails, the card update and the activity insert revert together.
+4. **An unnamed transaction**: `db.transaction((tx) => { ... })` sends each write through its collection's `mutate`, in
+   order. A failure reverts that write and drops the writes after it.
+5. **No rollback code**: a transaction resolves with `{ success, error }` and never throws.
+
+:::
+
+---
+
+## How it works
+
+1. `db.ts` defines two collections, `card` and `activity`. The card collection declares only `delete` and the activity
+   collection only `insert`, the writes that the unnamed transaction sends one by one.
+2. The named transaction `move` builds its own request with `applyWrites.setPayload({ idempotencyKey: id, mutations })`.
+   That is why it can update cards, although the card collection declares no `update`.
+3. `moveCard` in `App.tsx` calls `db.transaction("move", (tx) => { ... })` with a card update and an activity insert.
+   Both rows change on screen in one optimistic layer. The activity row gets its key from `crypto.randomUUID()`, because
+   an insert in a transaction needs its key.
+4. The fake server applies the list of writes in one go, or none of them. On success the db keeps the changes as the
+   server state. On failure it removes both.
+5. `clearDone` uses an unnamed transaction. The server refuses to delete the signed contract, so the first delete
+   succeeds and stays, the contract reverts, and the next delete and the activity insert are dropped without a request.
+   The card list refetches, so the board shows what the server really stored.
+
+:::note When to use it
+
+- Use a named transaction when the backend can apply several writes atomically, in one endpoint.
+- Use an unnamed transaction when each write has its own endpoint, and showing them together is what matters.
+- Use plain writes when the changes are independent of each other.
+
+:::
+
+---
+
+## Related
+
+- [Transactions reference](/docs/db/transactions)
+- [Multi-record writes with transactions](/docs/guides/db/patterns/transactions)
+- [Optimistic writes](/docs/guides/db/basics/optimistic-writes)
+- [DB overview](/docs/db/overview)
+
+:::secondary Summary
+
+You grouped a card move and its activity row into one named transaction sent as one request, and cleared a column with
+an unnamed transaction that stops at the first refused write.
+
+:::
