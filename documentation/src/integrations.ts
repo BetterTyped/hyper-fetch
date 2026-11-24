@@ -459,9 +459,9 @@ export const integrations: Section[] = [
     color: "zinc",
   }),
   guideSection({
-    label: "TanStack Router",
-    description: "Fill the HyperFetch cache from route loaders and preload the next page when a link is hovered.",
-    dir: "tanstack-router",
+    label: "TanStack Start",
+    description: "Typed loaders and server functions, with server responses hydrated into the HyperFetch cache.",
+    dir: "tanstack-start",
     img: TanstackIcon,
     category: "Frontend",
     color: "zinc",

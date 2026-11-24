@@ -1,0 +1,176 @@
+---
+sidebar_position: 1
+title: TanStack Start with HyperFetch, Typed Loaders, SSR and Hydration
+description: Use typed HyperFetch requests in TanStack Start route loaders and server functions, hydrate server responses into useFetch and preload routes on hover.
+sidebar_label: Overview
+---
+
+# TanStack Start
+
+TanStack Start is the full-stack framework built on TanStack Router. Its route loaders run on the server for the first
+request and in the browser on every navigation after it, and its server functions run only on the server. A typed
+HyperFetch request works in all of them: loaders send it with the router's abort signal, the response is hydrated into
+the HyperFetch cache, and components read it with `useFetch`. There is no package to install beyond `@hyper-fetch/core`
+and `@hyper-fetch/react`. The routing part works the same in a plain TanStack Router app.
+
+---
+
+:::tip Purpose
+
+1.  **Typed loaders**: Params, response and error types come from the request.
+2.  **Server rendering with hydration**: The loader's response reaches the HyperFetch cache in the browser.
+3.  **Cancelled when outdated**: `abortController.signal` aborts the call when the router drops the load.
+4.  **Prefetch on hover**: Preloading runs the loader, so the data is there before the click.
+
+:::
+
+---
+
+## Return data from a loader
+
+The simplest setup returns the data. Start serializes the loader result into the HTML on the first request:
+
+```tsx title="src/routes/products.$productId.tsx"
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/products/$productId")({
+  loader: async ({ params, abortController }) => {
+    const request = getProduct.setParams({
+      productId: Number(params.productId),
+    });
+    const { data } = await request.send({
+      // highlight-start
+      signal: abortController.signal,
+      throwOnError: true,
+      // highlight-end
+    });
+    return data;
+  },
+  component: () => <h1>{Route.useLoaderData().title}</h1>,
+});
+```
+
+`throwOnError` sends a failed response to the route's `errorComponent`. Narrow the `error` it gets before reading it,
+the router does not know its type.
+
+---
+
+## Hydrate the HyperFetch cache
+
+To keep caching, refetching and mutations in HyperFetch, return the dehydrated response and wrap the route component
+in `Hydrate`. `useFetch` then renders the server data with no request:
+
+```tsx title="src/routes/products.$productId.tsx"
+import { Hydrate, useFetch } from "@hyper-fetch/react";
+import { createFileRoute } from "@tanstack/react-router";
+
+const productDetails = (productId: number) =>
+  getProduct.setParams({ productId });
+
+export const Route = createFileRoute("/products/$productId")({
+  loader: async ({ params, abortController }) => {
+    const request = productDetails(Number(params.productId));
+    const response = await request.send({
+      cachePolicy: "cache-first",
+      signal: abortController.signal,
+    });
+    // highlight-next-line
+    return [response.success ? request.dehydrate({ response }) : null];
+  },
+  component: ProductPage,
+});
+
+function ProductPage() {
+  const { productId } = Route.useParams();
+  return (
+    // highlight-next-line
+    <Hydrate client={client} data={Route.useLoaderData()}>
+      <ProductDetails productId={Number(productId)} />
+    </Hydrate>
+  );
+}
+
+function ProductDetails({ productId }: { productId: number }) {
+  const { data } = useFetch(productDetails(productId), { revalidate: false });
+  return <h1>{data?.title}</h1>;
+}
+```
+
+On the server, HyperFetch caches only scoped requests, so one user's response never reaches another user's render. On
+a client navigation the loader runs in the browser, and `cache-first` returns cached data without a request.
+
+---
+
+## Server functions
+
+Requests that need a secret, or should not be visible in the browser, go in a server function. The browser calls it
+like an async function:
+
+```ts title="src/server/reports.ts"
+import { createServerFn } from "@tanstack/react-start";
+
+export const getReport = createServerFn({ method: "GET" }).handler(async () => {
+  const { data } = await reportsApi
+    .setHeaders({ Authorization: `Bearer ${process.env.REPORTS_TOKEN}` })
+    .send({ throwOnError: true });
+  return data;
+});
+```
+
+Call `getReport()` from a loader, or from TanStack Query when you use it for the cache.
+
+---
+
+## Preload on hover
+
+With `defaultPreload: "intent"`, hovering a link runs its loader, so the request goes out before the click. Set
+`defaultPreloadStaleTime: 0` when HyperFetch owns the cache, so the router runs the loader again instead of keeping its
+own copy:
+
+```ts title="src/router.tsx"
+import { createRouter } from "@tanstack/react-router";
+
+export const getRouter = () =>
+  createRouter({
+    routeTree,
+    // highlight-start
+    defaultPreload: "intent",
+    defaultPreloadStaleTime: 0,
+    // highlight-end
+  });
+```
+
+If you use TanStack Query, call `queryClient.ensureQueryData()` in the loader with the query function from the
+[TanStack Query integration](/docs/integrations/tanstack-query/overview) instead.
+
+:::note When it's helpful
+
+- Apps on TanStack Start or TanStack Router that want typed loaders with HyperFetch caching, retries and deduplication.
+- Server-rendered pages that should keep a live HyperFetch cache in the browser after hydration.
+- Lists of links to slow pages, where prefetching on hover hides the wait.
+
+:::
+
+Runnable example: [TanStack Router](/examples/frameworks/tanstack-router), the routing part without the server.
+
+<LinkCard
+  type="docs"
+  title="Hydrate"
+  description="How server responses reach the client cache, with scopes and several clients."
+  to="/docs/react/hydrate"
+/>
+
+<LinkCard
+  type="guides"
+  title="Cancellation"
+  description="Abort one call with a signal, or a group by abortKey."
+  to="/docs/guides/core/advanced/cancellation"
+/>
+
+:::secondary Summary
+
+- Loaders call `send()` with `abortController.signal` and return the data or a dehydrated response.
+- `Hydrate` puts server responses into the HyperFetch cache, so `useFetch` renders them with no request.
+- Server functions keep secret requests on the server, and preloading on intent fetches before the click.
+
+:::

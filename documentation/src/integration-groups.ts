@@ -51,7 +51,7 @@ export const integrationGroups: IntegrationGroup[] = [
     id: "frontend",
     title: "Frontend libraries and frameworks",
     short: "Frontend",
-    line: "Typed requests in TanStack Query, SWR, route loaders, Next.js and Astro, with server data hydrated into hooks.",
+    line: "Typed requests in TanStack Query, SWR, React Router, TanStack Start, Next.js and Astro.",
     icon: AppWindow,
     match: (section) => section.category === "Frontend",
   },

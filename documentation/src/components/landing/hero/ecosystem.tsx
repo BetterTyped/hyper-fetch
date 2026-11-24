@@ -133,8 +133,8 @@ export const backends: {
     src: "/img/integration-react-router-dark.svg",
   },
   {
-    name: "TanStack Router",
-    to: "/docs/integrations/tanstack-router/overview",
+    name: "TanStack Start",
+    to: "/docs/integrations/tanstack-start/overview",
     src: "/img/integration-tanstack-dark.svg",
   },
   {
