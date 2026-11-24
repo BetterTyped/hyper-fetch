@@ -20,6 +20,8 @@ export type ExampleEntry = {
   tags: string[];
   /** Whether the example runs in the page. Only browser apps do; examples with a server open in StackBlitz. */
   preview: boolean;
+  /** Names of the example's `dependencies`, which the sidebar filter uses to group examples by package */
+  dependencies: string[];
 };
 
 export type ExamplesPluginData = { examples: ExampleEntry[] };
@@ -160,6 +162,7 @@ const loadExamples = (): ExampleEntry[] =>
             level: props.level,
             tags: props.tags ?? [],
             preview: false,
+            dependencies: [],
           };
         });
     })
@@ -175,6 +178,7 @@ const loadContent = (): ExamplesContent => {
     const sandbox = sandboxes[example.path] ?? loadSandbox(example.path);
     if (sandbox) sandboxes[example.path] = sandbox;
     example.preview = !!sandbox;
+    example.dependencies = Object.keys(readPackageJson(path.join(examplesDir, example.path)).dependencies ?? {});
   });
   return { examples, sandboxes };
 };

@@ -44,6 +44,13 @@ export type SectionPickerProps = {
   groupIndexOf: (item: SidebarItem) => number;
   /** How the overview page shows in the button and the footer link */
   overview: { label: string; icon: LucideIcon };
+  /**
+   * Makes the picker choose instead of navigate: picking an entry calls it and the page stays. The examples use it to
+   * filter their sidebar by package.
+   */
+  onSelect?: (item: SidebarItem) => void;
+  /** The preview's link text, for the highlighted entry and for the current one */
+  actionLabel?: { open: string; current: string };
 };
 
 const PANEL_WIDTH = 720;
@@ -169,6 +176,7 @@ export const usePanelPosition = ({
   open,
   triggerRef,
   panelRef,
+  alignRef,
   width,
   align = "start",
   onOutside,
@@ -176,6 +184,11 @@ export const usePanelPosition = ({
   open: boolean;
   triggerRef: React.RefObject<HTMLElement | null>;
   panelRef: React.RefObject<HTMLElement | null>;
+  /**
+   * The element whose edge the panel lines up with, when it is not the trigger. The version picker passes its whole
+   * row, so its panel starts at the left edge of the sidebar like the section picker's panel.
+   */
+  alignRef?: React.RefObject<HTMLElement | null>;
   /** Fixed width, or the width of the trigger when left out */
   width?: number;
   /** Which edge of the trigger the panel lines up with */
@@ -207,11 +220,12 @@ export const usePanelPosition = ({
       if (!rect) {
         return;
       }
+      const edges = alignRef?.current?.getBoundingClientRect() ?? rect;
       const panelWidth = Math.min(
-        width ?? rect.width,
+        width ?? edges.width,
         window.innerWidth - EDGE * 2,
       );
-      const anchor = align === "end" ? rect.right - panelWidth : rect.left;
+      const anchor = align === "end" ? edges.right - panelWidth : edges.left;
       const left = Math.min(
         Math.max(EDGE, anchor),
         window.innerWidth - panelWidth - EDGE,
@@ -241,7 +255,7 @@ export const usePanelPosition = ({
       window.removeEventListener("resize", place);
       window.removeEventListener("scroll", place, true);
     };
-  }, [open, triggerRef, panelRef, width, align]);
+  }, [open, triggerRef, panelRef, alignRef, width, align]);
 
   useEffect(() => {
     if (!open) {
@@ -275,6 +289,8 @@ export const SectionPicker = ({
   groupOf: areaGroupOf,
   groupIndexOf,
   overview,
+  onSelect,
+  actionLabel = { open: "Open docs", current: "You are here" },
 }: SectionPickerProps) => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -338,6 +354,15 @@ export const SectionPicker = ({
     if (focusButton) {
       buttonRef.current?.focus();
     }
+  };
+
+  /** Follows the entry's link, or picks it when the picker selects instead of navigating */
+  const pick = (item: SidebarItem) => (event: React.MouseEvent) => {
+    if (onSelect) {
+      event.preventDefault();
+      onSelect(item);
+    }
+    close();
   };
 
   const position = usePanelPosition({
@@ -545,7 +570,7 @@ export const SectionPicker = ({
                       aria-selected={active}
                       tabIndex={-1}
                       onMouseMove={() => !active && setHighlighted(index)}
-                      onClick={() => close()}
+                      onClick={pick(item)}
                       className={cn(
                         "group flex items-center gap-3 rounded-xl px-2.5 py-2 !no-underline transition-colors duration-100",
                         active ? "bg-white/[0.07]" : "hover:bg-white/[0.04]",
@@ -639,7 +664,8 @@ export const SectionPicker = ({
                 ) : (
                   <span className="mt-3 inline-flex w-fit items-center gap-1 rounded-full bg-sky-400/10 px-2 py-0.5 text-[11px] font-semibold text-sky-300 ring-1 ring-inset ring-sky-400/20">
                     <BookOpen className="h-3 w-3" aria-hidden />
-                    Guide
+                    {/* In the examples filter these are frameworks, not guides */}
+                    {onSelect ? "Framework" : "Guide"}
                   </span>
                 )}
                 <div className="mt-3 text-[13px] leading-relaxed text-zinc-400">
@@ -654,10 +680,10 @@ export const SectionPicker = ({
                 <Link
                   to={preview.link.path}
                   tabIndex={-1}
-                  onClick={() => close()}
+                  onClick={pick(preview)}
                   className="group mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold !text-amber-300 !no-underline hover:!text-amber-200"
                 >
-                  {preview === activeItem ? "You are here" : "Open docs"}
+                  {preview === activeItem ? actionLabel.current : actionLabel.open}
                   <ArrowRight
                     className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
                     aria-hidden
@@ -687,7 +713,7 @@ export const SectionPicker = ({
             {overviewItem && (
               <Link
                 to={overviewItem.link.path}
-                onClick={() => close()}
+                onClick={pick(overviewItem)}
                 className="group ml-auto inline-flex items-center gap-1.5 text-xs font-semibold !text-zinc-400 !no-underline hover:!text-white"
               >
                 <OverviewIcon className="h-3.5 w-3.5" aria-hidden />

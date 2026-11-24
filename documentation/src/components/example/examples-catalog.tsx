@@ -21,6 +21,7 @@ import {
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import type { ExampleEntry, ExamplesPluginData } from "../../../plugins/examples";
+import { sectionDirsOf, setExamplesFilter, useExampleFilterItems } from "../../examples-filter";
 
 export const useExamples = () => (usePluginData("hyper-fetch-examples") as ExamplesPluginData).examples;
 
@@ -33,6 +34,7 @@ const categoryIcons: Record<string, LucideIcon> = {
   "Request control": SlidersHorizontal,
   "Offline and persistence": WifiOff,
   "Realtime and streaming": Radio,
+  "DB: collections and live queries": Boxes,
   "Adapters and integrations": Plug,
   Frameworks: Layers,
   Apps: AppWindow,
@@ -43,6 +45,7 @@ const pillLabels: Record<string, string> = {
   "Offline and persistence": "Offline",
   "Realtime and streaming": "Realtime",
   "Adapters and integrations": "Integrations",
+  "DB: collections and live queries": "DB",
 };
 
 const pill = (active: boolean) =>
@@ -91,9 +94,14 @@ export const ExamplesCatalog = () => {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
+  // The package picked in the sidebar narrows the catalog too
+  const { items: packages } = useExampleFilterItems();
+  const packageFilter = packages.find((item) => item.active);
+
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   // Search matches the title, description, category and tags, so "useListener" or "offline" find their examples
   const matching = examples.filter((example) => {
+    if (packageFilter && !sectionDirsOf(example).includes(packageFilter.section.dir)) return false;
     const text = [example.title, example.description, example.category, ...example.tags].join(" ").toLowerCase();
     return words.every((word) => text.includes(word));
   });
@@ -115,6 +123,23 @@ export const ExamplesCatalog = () => {
           <div className="mt-3 max-w-3xl text-lg leading-relaxed text-zinc-400">
             Runnable HyperFetch apps, from a first request to offline queues, realtime and server rendering.
           </div>
+          {packageFilter && (
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-zinc-400">
+              Showing the examples that use
+              <span className={cn("inline-flex items-center gap-1.5 font-semibold", packageFilter.section.text)}>
+                <packageFilter.img className="size-4" aria-hidden />
+                {packageFilter.name}
+              </span>
+              <button
+                type="button"
+                className="flex h-7 cursor-pointer items-center gap-1 rounded-full border-0 bg-white/[0.06] px-2.5 text-xs font-semibold text-zinc-300 hover:bg-white/[0.1] hover:text-white"
+                onClick={() => setExamplesFilter(null)}
+              >
+                <X className="size-3" aria-hidden />
+                Show all
+              </button>
+            </div>
+          )}
         </div>
         <label className="flex h-11 shrink-0 items-center gap-2.5 rounded-full bg-[#202022] px-4 ring-1 ring-inset ring-white/[0.08] transition-shadow focus-within:ring-[#fbc646]/60 w-full lg:w-80">
           <Search className="size-4 shrink-0 text-zinc-500" aria-hidden />

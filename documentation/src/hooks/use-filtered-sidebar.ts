@@ -1,3 +1,9 @@
+import type { PropSidebarItem } from "@docusaurus/plugin-content-docs";
+import { useLocation } from "@docusaurus/router";
+import { useMemo } from "react";
+
+import { keepsExampleLink, useFilteredExamplePaths } from "../examples-filter";
+
 // Filter out pages from menu
 const skipPages = ["props", "theming"];
 
@@ -38,6 +44,26 @@ const skipItems = (categories) => {
     });
 };
 
-export const useFilteredSidebar = (items) => {
-  return pickName(skipItems(items));
+/** Drops the example links the examples filter hides, and the categories it leaves empty */
+const filterExamples = (items: PropSidebarItem[], paths: Set<string> | null): PropSidebarItem[] => {
+  if (!paths) return items;
+  return items.flatMap((item): PropSidebarItem[] => {
+    if (item.type === "link") return keepsExampleLink(item.href, paths) ? [item] : [];
+    if (item.type === "category") {
+      const children = filterExamples(item.items ?? [], paths);
+      return children.length ? [{ ...item, items: children, collapsed: false }] : [];
+    }
+    return [item];
+  });
+};
+
+export const useFilteredSidebar = (items: PropSidebarItem[]) => {
+  const examplePaths = useFilteredExamplePaths();
+  const { pathname } = useLocation();
+  // The page being read stays in the list, even when the filter would hide it
+  const paths = useMemo(
+    () => examplePaths && new Set([...examplePaths, pathname.replace(/\/$/, "")]),
+    [examplePaths, pathname],
+  );
+  return pickName(skipItems(filterExamples(items, paths)));
 };

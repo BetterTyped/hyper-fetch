@@ -109,6 +109,7 @@ export function DocsVersionPicker(): React.JSX.Element | null {
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const rowRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -125,8 +126,9 @@ export function DocsVersionPicker(): React.JSX.Element | null {
     open,
     triggerRef: buttonRef,
     panelRef,
+    // Starts at the left edge of the sidebar, where the section picker's panel starts too
+    alignRef: rowRef,
     width: PANEL_WIDTH,
-    align: "end",
     onOutside: () => close(),
   });
 
@@ -182,7 +184,7 @@ export function DocsVersionPicker(): React.JSX.Element | null {
             top: position.top,
             left: position.left,
             width: position.width,
-            transformOrigin: "top right",
+            transformOrigin: "top left",
           }}
           className={pickerPanelClass}
         >
@@ -276,7 +278,10 @@ export function DocsVersionPicker(): React.JSX.Element | null {
 
   return (
     <div className="section-picker w-full min-w-0">
-      <div className="flex min-w-0 items-center justify-between gap-2">
+      <div
+        ref={rowRef}
+        className="flex min-w-0 items-center justify-between gap-2"
+      >
         <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
           <Layers className="h-3.5 w-3.5 text-amber-400/90" aria-hidden />
           Docs version
