@@ -1,0 +1,195 @@
+---
+sidebar_position: 1
+title: Clerk with HyperFetch, Session Tokens on Every Request
+description: Send Clerk session tokens to your API with getToken() in the browser and on the server, retry once with a fresh token on 401 and verify it with @clerk/backend.
+sidebar_label: Overview
+---
+
+# Clerk
+
+[Clerk](https://clerk.com) signs users in and issues a short-lived session token. Same-origin requests carry it in the
+`__session` cookie on their own. For an API on another origin, HyperFetch adds it as a bearer token: `getToken()` in the
+browser, `auth()` on the server.
+
+:::tip Purpose
+
+1. **Always a fresh token**: `getToken()` returns a cached token and renews it before it expires.
+2. **One interceptor**: `onAuth` adds the token to every browser request, generated SDKs included.
+3. **Server rendering**: Server Components send the signed-in user's token with `setHeaders`.
+4. **One retry on 401**: a skipped cache gets a new token when the API rejects the old one.
+
+:::
+
+---
+
+## Install
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core @clerk/nextjs
+```
+
+For React without Next.js, use `@clerk/react`. It replaced `@clerk/clerk-react`.
+
+---
+
+## Same origin: nothing to add
+
+When the API runs on the same origin, for example Next.js route handlers, the browser sends the `__session` cookie with
+every request and the route reads the user with `auth()`. No interceptor is needed.
+
+---
+
+## Send the token from the browser
+
+For an API on another origin, add the token in `onAuth`. The token getter comes from `useAuth()`, so a small component
+inside `ClerkProvider` hands it to the client module:
+
+```ts title="lib/api.ts"
+import { createClient } from "@hyper-fetch/core";
+
+type GetToken = (options?: { skipCache?: boolean }) => Promise<string | null>;
+
+let getToken: GetToken = async () => null;
+export const setTokenGetter = (getter: GetToken) => {
+  getToken = getter;
+};
+
+export const client = createClient({ url: "https://api.example.com" }).onAuth(
+  async (request) => {
+    const token = await getToken();
+    if (!token) return request;
+
+    return request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${token}`,
+    });
+  },
+);
+```
+
+```tsx title="components/clerk-token.tsx"
+"use client";
+
+import { useAuth } from "@clerk/nextjs";
+import { setTokenGetter } from "@/lib/api";
+
+export function ClerkToken() {
+  const { getToken } = useAuth();
+  // Set during render, so it is in place before any child sends a request
+  setTokenGetter(getToken);
+  return null;
+}
+```
+
+Render `<ClerkToken />` once, inside `ClerkProvider` and before the components that fetch. Call `getToken()` for every
+request instead of storing the token: it lives for about a minute, and Clerk caches and renews it in the background.
+
+---
+
+## Send the token from the server
+
+On the server, `auth()` from `@clerk/nextjs/server` returns the signed-in user's `getToken`:
+
+```tsx title="app/projects/page.tsx"
+import { auth } from "@clerk/nextjs/server";
+import { getProjects } from "@/lib/api";
+
+export default async function ProjectsPage() {
+  const { getToken } = await auth();
+  const token = await getToken();
+
+  // highlight-next-line
+  const { data } = await getProjects
+    .setHeaders({ Authorization: `Bearer ${token}` })
+    .send();
+
+  return (
+    <ul>
+      {data?.map((project) => (
+        <li key={project.id}>{project.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+In the Pages Router, `getAuth(req)` from `@clerk/nextjs/server` returns the same `getToken`. To get a token with custom
+claims, create a JWT template in the Clerk dashboard and call `getToken({ template: "your-template" })`.
+
+---
+
+## Retry once on 401
+
+If the API rejects a token, ask Clerk for a new one with `skipCache: true` and send the request once more. `setUsed(true)`
+marks the retry, so a second `401` returns instead of looping:
+
+```ts title="lib/api.ts"
+client.onError(async (response, request) => {
+  if (response.status !== 401 || request.used) return response;
+
+  const token = await getToken({ skipCache: true });
+  if (!token) return response;
+
+  return request.setUsed(true).send();
+});
+```
+
+---
+
+## Verify the token on your API
+
+Your backend checks the token with `@clerk/backend`:
+
+```ts title="api/verify.ts"
+import { verifyToken } from "@clerk/backend";
+
+const claims = await verifyToken(token, {
+  secretKey: process.env.CLERK_SECRET_KEY,
+  authorizedParties: ["https://app.example.com"],
+});
+```
+
+`authorizedParties` lists the origins your app runs on, so a token issued to another site is rejected. Call
+`client.clear()` after `signOut()` to drop the previous user's cached data.
+
+:::note When it's helpful
+
+- Apps that call an API on another origin, or several APIs, with the Clerk user.
+- Server Components that fetch on behalf of the signed-in user.
+- Backends in any language that verify Clerk tokens without calling Clerk on every request.
+
+:::
+
+---
+
+:::secondary Summary
+
+- Same-origin requests send the `__session` cookie on their own.
+- `onAuth` adds `getToken()` to browser requests, and `auth()` gives server code its token.
+- `getToken({ skipCache: true })` with `setUsed(true)` retries once after a `401`.
+- `verifyToken` from `@clerk/backend` checks the token on your API.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Authentication"
+  description="onAuth, auth: false, token refresh on 401, cookies and API keys."
+  to="/docs/guides/core/basics/authentication"
+/>
+<LinkCard
+  type="integrations"
+  title="Next.js"
+  description="Fetch in Server Components and hydrate the responses into useFetch."
+  to="/docs/integrations/nextjs/overview"
+/>
+<LinkCard
+  type="guides"
+  title="Intercepting"
+  description="onAuth, onError and the order interceptors run in."
+  to="/docs/guides/core/advanced/intercepting"
+/>

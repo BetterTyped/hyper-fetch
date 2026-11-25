@@ -1,0 +1,194 @@
+---
+sidebar_position: 1
+title: Better Auth with HyperFetch, Session Cookies and JWTs
+description: Call your API with Better Auth session cookies on the same origin, across origins and from the server, or send a short-lived JWT from the jwt plugin.
+sidebar_label: Overview
+---
+
+# Better Auth
+
+[Better Auth](https://www.better-auth.com) keeps the session in a cookie. When your API shares the cookie, HyperFetch
+only has to send it: on the same origin that happens on its own, on another origin you turn on `credentials`, and on
+the server you forward the incoming `cookie` header. An API that expects a bearer token gets a short-lived JWT from the
+`jwt` plugin instead.
+
+:::tip Purpose
+
+1. **Cookies first**: same-origin requests carry the session with no code at all.
+2. **Across origins**: one adapter default sends the cookie to an API on another origin.
+3. **Server rendering**: Server Components forward the user's cookie to the API.
+4. **JWT for other services**: `authClient.token()` gives a token that any backend checks against the JWKS endpoint.
+
+:::
+
+---
+
+## Install
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core better-auth
+```
+
+---
+
+## Same origin: nothing to add
+
+When the API runs on the same origin as the app, for example Next.js route handlers or a proxy under `/api`, the browser
+sends the Better Auth cookie with every `fetch`. Create the client and send requests as usual:
+
+```ts title="lib/api.ts"
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({ url: "/api" });
+
+export const getProjects = client.createRequest<{
+  response: { id: string; name: string }[];
+}>()({ endpoint: "/projects" });
+```
+
+On the API, read the session from the request headers with `auth.api.getSession({ headers })`.
+
+---
+
+## API on another origin
+
+Browsers send cookies to another origin only when the request asks for it. Turn on `credentials: "include"` for every
+request of the client:
+
+```ts title="lib/api.ts"
+export const client = createClient({ url: "https://api.example.com" });
+
+// highlight-next-line
+client.adapter.setAdapterDefaults(() => ({ credentials: "include" }));
+```
+
+Three settings on the other side make it work:
+
+- Add the app's origin to `trustedOrigins` in your Better Auth config, or Better Auth rejects its requests.
+- Answer with `Access-Control-Allow-Credentials: true` and the app's origin in `Access-Control-Allow-Origin`, not `*`.
+- Better Auth cookies are host-only with `SameSite=Lax`. For `app.example.com` and `api.example.com`, turn on
+  `crossSubDomainCookies`. Fully separate domains need the [JWT](#send-a-jwt-to-another-service) instead.
+
+---
+
+## Send requests from the server
+
+A Server Component has no browser cookies. Forward the ones from the incoming request:
+
+```tsx title="app/projects/page.tsx"
+import { headers } from "next/headers";
+import { getProjects } from "@/lib/api";
+
+export default async function ProjectsPage() {
+  const cookie = (await headers()).get("cookie") ?? "";
+  // highlight-next-line
+  const { data } = await getProjects.setHeaders({ cookie }).send();
+
+  return (
+    <ul>
+      {data?.map((project) => (
+        <li key={project.id}>{project.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+A server request needs a full URL, so give the client an absolute `url` on the server. To read the user without calling
+the API, use `await auth.api.getSession({ headers: await headers() })`.
+
+---
+
+## Send a JWT to another service
+
+Some backends can't read your cookie: a service on another domain, a Python API or a worker. Add the `jwt` plugin to
+the server and `jwtClient()` to the auth client, then send the token it issues as a bearer token:
+
+```ts title="lib/api.ts"
+import { createAuthClient } from "better-auth/react";
+import { jwtClient } from "better-auth/client/plugins";
+
+export const authClient = createAuthClient({ plugins: [jwtClient()] });
+
+client.onAuth(async (request) => {
+  const { data } = await authClient.token();
+  if (!data?.token) return request;
+
+  return request.setHeaders({
+    ...request.headers,
+    Authorization: `Bearer ${data.token}`,
+  });
+});
+```
+
+The token lasts 15 minutes by default, so cache it for a few minutes if you send many requests. The backend verifies it
+with the public keys at `/api/auth/jwks`, for example with `jose`:
+
+```ts title="api/verify.ts"
+import { createRemoteJWKSet, jwtVerify } from "jose";
+
+const jwks = createRemoteJWKSet(
+  new URL("https://app.example.com/api/auth/jwks"),
+);
+
+const { payload } = await jwtVerify(token, jwks, {
+  issuer: "https://app.example.com",
+  audience: "https://app.example.com",
+});
+```
+
+The issuer and the audience default to your Better Auth base URL. The `bearer` plugin also sends the session token in
+a header, but Better Auth recommends it only for clients that can't store cookies.
+
+---
+
+## Sign out
+
+Clear the HyperFetch client after Better Auth ends the session, so no cached data of the previous user stays behind:
+
+```ts title="components/sign-out-button.tsx"
+await authClient.signOut();
+client.clear();
+```
+
+:::note When it's helpful
+
+- Apps whose API runs on the same origin or the same site as the app.
+- Next.js pages that fetch with the user's cookie on the server.
+- Separate services that should trust Better Auth users without sharing a database.
+
+:::
+
+---
+
+:::secondary Summary
+
+- Same-origin requests send the Better Auth cookie with no extra code.
+- `setAdapterDefaults` with `credentials: "include"`, `trustedOrigins` and CORS cover another origin.
+- Server code forwards the `cookie` header with `setHeaders`.
+- The `jwt` plugin issues bearer tokens that any backend verifies against the JWKS endpoint.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Authentication"
+  description="onAuth, auth: false, token refresh on 401, cookies and API keys."
+  to="/docs/guides/core/basics/authentication"
+/>
+<LinkCard
+  type="guides"
+  title="Next.js data fetching"
+  description="Server and Client Components, hydration and forwarding cookies."
+  to="/docs/guides/react/basics/nextjs-data-fetching"
+/>
+<LinkCard
+  type="docs"
+  title="Client"
+  description="onAuth, adapter defaults and clear()."
+  to="/docs/core/client"
+/>

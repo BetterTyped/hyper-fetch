@@ -142,4 +142,34 @@ export const backends: {
     to: "/docs/integrations/electron/overview",
     src: "/img/integration-electron.svg",
   },
+  {
+    name: "Auth.js",
+    to: "/docs/integrations/authjs/overview",
+    src: "/img/integration-authjs.svg",
+  },
+  {
+    name: "Better Auth",
+    to: "/docs/integrations/better-auth/overview",
+    src: "/img/integration-better-auth-dark.svg",
+  },
+  {
+    name: "Clerk",
+    to: "/docs/integrations/clerk/overview",
+    src: "/img/integration-clerk.svg",
+  },
+  {
+    name: "Supabase",
+    to: "/docs/integrations/supabase-auth/overview",
+    src: "/img/integration-supabase.svg",
+  },
+  {
+    name: "Auth0",
+    to: "/docs/integrations/auth0/overview",
+    src: "/img/integration-auth0.svg",
+  },
+  {
+    name: "Firebase Auth",
+    to: "/docs/integrations/firebase-auth/overview",
+    src: "/img/integration-firebase.svg",
+  },
 ];

@@ -1,0 +1,284 @@
+---
+sidebar_position: 1
+title: Auth.js (NextAuth) with HyperFetch, Access Tokens on Every Request
+description: Send the Auth.js session's access token to your API from Server Components, route handlers and the browser, and call your login API from a Credentials provider.
+sidebar_label: Overview
+---
+
+# Auth.js
+
+[Auth.js](https://authjs.dev) (NextAuth) signs users in to your Next.js app. HyperFetch then calls your API on their
+behalf: the server reads the access token with `auth()`, and the browser reads it with `getSession()`. A Credentials
+provider can call your login endpoint with a HyperFetch request, too.
+
+:::tip Purpose
+
+1. **One token source**: the access token lives on the Auth.js session, so the server and the browser send the same one.
+2. **Explicit on the server**: Server Components add the token to the requests they send, one user at a time.
+3. **One interceptor in the browser**: `onAuth` adds the token to every request, generated SDKs included.
+4. **Login through your API**: `authorize()` sends a HyperFetch request and reads the result without `try/catch`.
+
+:::
+
+---
+
+## Install
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core next-auth@beta
+```
+
+The examples use Auth.js v5, which is published under the `beta` tag. `next-auth@latest` is still v4. The
+[Pages Router and v4](#pages-router-and-v4) section shows the v4 calls.
+
+---
+
+## Put the access token on the session
+
+Auth.js keeps the provider's tokens out of the session by default. Copy the access token into the JWT when the user
+signs in, then expose it on the session:
+
+```ts title="auth.ts"
+import NextAuth from "next-auth";
+import GitHub from "next-auth/providers/github";
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  providers: [GitHub],
+  callbacks: {
+    jwt({ token, account, user }) {
+      // `account` and `user` are only set on sign in
+      if (!account) return token;
+      return {
+        ...token,
+        accessToken: account.access_token ?? user.accessToken,
+      };
+    },
+    session({ session, token }) {
+      session.accessToken = token.accessToken as string | undefined;
+      return session;
+    },
+  },
+});
+
+declare module "next-auth" {
+  interface Session {
+    accessToken?: string;
+  }
+  interface User {
+    accessToken?: string;
+  }
+}
+```
+
+Auth.js does not refresh the provider's access token. If your API rejects expired tokens, refresh it in the `jwt`
+callback with the provider's refresh token, as the Auth.js
+[refresh token rotation guide](https://authjs.dev/guides/refresh-token-rotation) shows.
+
+---
+
+## Send requests from the server
+
+Keep the client and the requests in one module that both sides import. On the server, read the session and add the
+token to the request you send:
+
+```ts title="lib/api.server.ts"
+import "server-only";
+import { auth } from "@/auth";
+
+export async function authHeaders(): Promise<Record<string, string>> {
+  const session = await auth();
+  return session?.accessToken
+    ? { Authorization: `Bearer ${session.accessToken}` }
+    : {};
+}
+```
+
+```tsx title="app/projects/page.tsx"
+import { getProjects } from "@/lib/api";
+import { authHeaders } from "@/lib/api.server";
+
+export default async function ProjectsPage() {
+  // highlight-next-line
+  const { data } = await getProjects.setHeaders(await authHeaders()).send();
+
+  if (!data) return <p>Could not load projects.</p>;
+  return (
+    <ul>
+      {data.map((project) => (
+        <li key={project.id}>{project.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+`setHeaders` replaces the request's headers, so spread `request.headers` into it when the request sets its own. A
+Next.js server renders many users in one process, so this explicit call is safer than a global interceptor there: each
+render sends the token of its own user. In server mode HyperFetch also stores nothing in the cache for requests without
+a [scope](/docs/integrations/nextjs/overview#keep-users-data-apart).
+
+---
+
+## Send requests from the browser
+
+In the browser, add the token in `onAuth`. `getSession()` asks your app's `/api/auth/session` route, so keep its
+promise and share it between requests:
+
+```ts title="lib/api.ts"
+import { createClient } from "@hyper-fetch/core";
+import { getSession } from "next-auth/react";
+import type { Session } from "next-auth";
+
+export const client = createClient({ url: "https://api.example.com" });
+
+let session: Promise<Session | null> | null = null;
+export const resetSession = () => {
+  session = null;
+};
+
+client.onAuth(async (request) => {
+  // Server code sends its headers itself
+  if (typeof window === "undefined") return request;
+
+  session ??= getSession();
+  const token = (await session)?.accessToken;
+  if (!token) return request;
+
+  return request.setHeaders({
+    ...request.headers,
+    Authorization: `Bearer ${token}`,
+  });
+});
+```
+
+Call `resetSession()` after sign in, so the next request reads the new session. On a `401`, reset it and send the
+request once more, the same way the [token refresh guide](/docs/guides/core/basics/authentication#refresh-the-token-on-401)
+does it with `onError` and `setUsed(true)`.
+
+---
+
+## Call your login API from authorize()
+
+A Credentials provider can check the email and password against your own API. `authorize()` runs on the server, in the
+route that handles the sign in, so it calls the API directly. Mark the request with `auth: false`, since there is no
+session yet:
+
+```ts title="auth.ts"
+import Credentials from "next-auth/providers/credentials";
+import { signInRequest } from "@/lib/api";
+
+Credentials({
+  credentials: { email: {}, password: {} },
+  async authorize(credentials) {
+    const { data } = await signInRequest.send({
+      payload: {
+        email: String(credentials.email),
+        password: String(credentials.password),
+      },
+    });
+
+    // A failed request resolves with data: null, so no try/catch is needed
+    if (!data) return null;
+    return {
+      id: data.user.id,
+      email: data.user.email,
+      accessToken: data.token,
+    };
+  },
+});
+```
+
+```ts title="lib/api.ts"
+export const signInRequest = client.createRequest<{
+  response: { token: string; user: { id: string; email: string } };
+  payload: { email: string; password: string };
+}>()({ endpoint: "/auth/sign-in", method: "POST", auth: false });
+```
+
+`send()` never throws: a wrong password, a timeout or a network error all come back as a response with `data: null`
+and an `error`. The returned `accessToken` reaches the session through the `jwt` callback above, so later requests send
+your API's own token.
+
+---
+
+## Pages Router and v4
+
+With `next-auth` v4, read the session with `getServerSession` and the same `authOptions` you pass to `NextAuth`:
+
+```ts title="pages/api/projects.ts"
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getServerSession } from "next-auth/next";
+import { getProjects } from "@/lib/api";
+import { authOptions } from "./auth/[...nextauth]";
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  const session = await getServerSession(req, res, authOptions);
+  const headers = { Authorization: `Bearer ${session?.accessToken}` };
+
+  const { data, status } = await getProjects.setHeaders(headers).send();
+  res.status(data ? 200 : status || 500).json(data);
+}
+```
+
+In v5, `auth(req, res)` in API routes and `auth(context)` in `getServerSideProps` do the same.
+
+---
+
+## Sign out
+
+Call `client.clear()` when the user signs out. It aborts running requests and empties the cache and the queues, so the
+next user sees none of the previous user's data:
+
+```ts title="components/sign-out-button.tsx"
+await signOut({ redirect: false });
+resetSession();
+client.clear();
+```
+
+:::note When it's helpful
+
+- Next.js apps that sign in with Auth.js and call a separate API with the user's token.
+- Credentials sign in that checks the password against your own backend.
+- Pages that fetch on the server and keep refetching in the browser with the same token.
+
+:::
+
+Auth.js is now maintained by the Better Auth team, which recommends [Better Auth](/docs/integrations/better-auth/overview)
+for new projects.
+
+---
+
+:::secondary Summary
+
+- The `jwt` and `session` callbacks put the access token on the session.
+- Server code adds it with `setHeaders`, the browser adds it in `onAuth` with a shared `getSession()` promise.
+- `authorize()` can send a HyperFetch request and return `null` when `data` is empty.
+- `client.clear()` removes the previous user's data on sign out.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Authentication"
+  description="onAuth, auth: false, token refresh on 401, cookies and API keys."
+  to="/docs/guides/core/basics/authentication"
+/>
+<LinkCard
+  type="integrations"
+  title="Next.js"
+  description="Fetch in Server Components and hydrate the responses into useFetch."
+  to="/docs/integrations/nextjs/overview"
+/>
+<LinkCard
+  type="docs"
+  title="Client"
+  description="onAuth, the other interceptors and clear()."
+  to="/docs/core/client"
+/>

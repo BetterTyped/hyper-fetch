@@ -3,6 +3,7 @@ import {
   AppWindow,
   Cpu,
   Database,
+  KeyRound,
   Layers,
   Server,
   Smartphone,
@@ -78,6 +79,14 @@ export const integrationGroups: IntegrationGroup[] = [
     line: "Use HyperFetch and its React hooks outside the browser.",
     icon: Smartphone,
     match: (section) => section.category === "Native",
+  },
+  {
+    id: "auth",
+    title: "Authentication",
+    short: "Auth",
+    line: "Send the session or access token from your auth provider with every request.",
+    icon: KeyRound,
+    match: (section) => section.category === "Auth",
   },
   {
     id: "tooling",

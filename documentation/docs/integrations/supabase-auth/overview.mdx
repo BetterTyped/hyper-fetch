@@ -1,0 +1,202 @@
+---
+sidebar_position: 1
+title: Supabase Auth with HyperFetch, Call Your Own API as the User
+description: Send the Supabase access token to your own API from the browser and the server, retry once after a refresh on 401, clear data on sign out and verify the JWT with JWKS.
+sidebar_label: Overview
+---
+
+# Supabase Auth
+
+`supabase-js` already authenticates its own calls to Supabase. This page covers the next step: your own API, an edge
+function or another service that should trust Supabase users. HyperFetch sends the user's access token as a bearer token,
+and your API verifies it against the project's public keys.
+
+:::tip Purpose
+
+1. **The current token**: `getSession()` returns the access token and refreshes it when it is about to expire.
+2. **One interceptor**: `onAuth` adds the token to every browser request, generated SDKs included.
+3. **Server rendering**: the `@supabase/ssr` server client reads the session from cookies for Server Components.
+4. **Clean sign out**: `onAuthStateChange` clears the HyperFetch cache when the user signs out.
+
+:::
+
+---
+
+## Install
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core @supabase/supabase-js @supabase/ssr
+```
+
+---
+
+## Send the token from the browser
+
+Create the Supabase browser client once and read the session in `onAuth`. `getSession()` reads it from storage and
+refreshes the access token first when it has expired or is about to:
+
+```ts title="lib/api.ts"
+import { createClient } from "@hyper-fetch/core";
+import { createBrowserClient } from "@supabase/ssr";
+
+export const supabase = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+);
+
+export const client = createClient({ url: "https://api.example.com" }).onAuth(
+  async (request) => {
+    // Server code sends its headers itself
+    if (typeof window === "undefined") return request;
+
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) return request;
+
+    return request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${token}`,
+    });
+  },
+);
+```
+
+Send the access token, never the publishable key. The publishable (`sb_publishable_...`) and secret keys are not JWTs:
+they identify the project to Supabase in the `apikey` header and say nothing about the user.
+
+---
+
+## Send the token from the server
+
+On the server, `createServerClient` reads the session from the request cookies:
+
+```tsx title="app/projects/page.tsx"
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
+import { getProjects } from "@/lib/api";
+
+export default async function ProjectsPage() {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } },
+  );
+
+  const { data: auth } = await supabase.auth.getSession();
+  const headers = { Authorization: `Bearer ${auth.session?.access_token}` };
+  // highlight-next-line
+  const { data } = await getProjects.setHeaders(headers).send();
+
+  return (
+    <ul>
+      {data?.map((project) => (
+        <li key={project.id}>{project.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+On the server, `getSession()` reads the cookie without checking it, so don't use it to decide who may see a page.
+Forwarding the token is fine, because your API verifies it. To protect the page itself, use `getClaims()`, which
+validates the token. A Server Component can't write cookies, so let the Supabase proxy or middleware from the Supabase
+Next.js guide refresh the session.
+
+---
+
+## Retry once after a refresh
+
+If your API answers `401`, refresh the session and send the request once more. `setUsed(true)` marks the retry, so a
+second `401` comes back instead of looping:
+
+```ts title="lib/api.ts"
+client.onError(async (response, request) => {
+  if (response.status !== 401 || request.used) return response;
+
+  const { data } = await supabase.auth.refreshSession();
+  if (!data.session) return response;
+
+  // onAuth runs again and reads the new token
+  return request.setUsed(true).send();
+});
+```
+
+---
+
+## Clear data on sign out
+
+`onAuthStateChange` reports every sign in, sign out and token refresh. Clear the HyperFetch client when the user signs
+out, so the next user sees none of the previous user's data:
+
+```ts title="lib/api.ts"
+if (typeof window !== "undefined") {
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === "SIGNED_OUT") client.clear();
+  });
+}
+```
+
+---
+
+## Verify the token on your API
+
+Projects with asymmetric signing keys publish their public keys, so any backend can verify tokens without the JWT
+secret:
+
+```ts title="api/verify.ts"
+import { createRemoteJWKSet, jwtVerify } from "jose";
+
+const issuer = "https://<project-ref>.supabase.co/auth/v1";
+const jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`));
+
+const { payload } = await jwtVerify(token, jwks, {
+  issuer,
+  audience: "authenticated",
+});
+```
+
+`payload.sub` is the user's id. Projects still on the legacy HS256 secret verify with that secret instead; Supabase
+recommends moving to signing keys.
+
+:::note When it's helpful
+
+- A backend of your own next to Supabase that needs to know the user.
+- Edge functions or services in other languages that verify Supabase JWTs.
+- Next.js pages that call those APIs on the server with the user's token.
+
+:::
+
+---
+
+:::secondary Summary
+
+- `onAuth` sends `getSession()`'s access token, never the publishable key.
+- The `@supabase/ssr` server client gives Server Components the token from cookies.
+- `refreshSession()` with `setUsed(true)` retries once after a `401`.
+- `onAuthStateChange` clears HyperFetch data on sign out, and `jose` verifies tokens with the JWKS.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Authentication"
+  description="onAuth, auth: false, token refresh on 401, cookies and API keys."
+  to="/docs/guides/core/basics/authentication"
+/>
+<LinkCard
+  type="integrations"
+  title="Next.js"
+  description="Fetch in Server Components and hydrate the responses into useFetch."
+  to="/docs/integrations/nextjs/overview"
+/>
+<LinkCard
+  type="docs"
+  title="Client"
+  description="onAuth, the other interceptors and clear()."
+  to="/docs/core/client"
+/>

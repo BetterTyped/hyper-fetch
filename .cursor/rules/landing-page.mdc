@@ -16,7 +16,7 @@ alwaysApply: false
 3. **What is HyperFetch** (`what-is/`): "One framework, three parts", title left, Core / Sockets / DB tabs right,
    bento cards per tab
 4. **Platforms** (`platforms/`): "Runs on every platform", technical card titles (Frontend, Native, Runtime,
-   Realtime, Protocols, AI agents, TypeScript backends, Any backend, Tooling), logos only, no descriptions. Third-party
+   Realtime, Protocols, AI agents, TypeScript backends, Any backend, Auth, Tooling), logos only, no descriptions. Third-party
    logos with a dark mark use their `-dark` variant from `static/img`
 5. **SDK** (`sdk/`): "Your backend, as a typed SDK", three story cards (Get your SDK, Plug in any protocol,
    Ship it), then the six features

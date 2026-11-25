@@ -1,0 +1,158 @@
+---
+sidebar_position: 1
+title: Firebase Auth with HyperFetch, ID Tokens for Your Own API
+description: Send Firebase ID tokens to your own API with onAuth, wait for the restored session, retry once with a refreshed token on 401 and verify the token with the Admin SDK.
+sidebar_label: Overview
+---
+
+# Firebase Auth
+
+Firebase Auth signs users in to your app, and Firestore and Realtime Database already receive the user through the
+[Firebase adapter](/docs/integrations/adapter-firebase/overview). For your own REST API or Cloud Functions over HTTP,
+HyperFetch sends the user's ID token as a bearer token, and the backend checks it with the Firebase Admin SDK.
+
+:::tip Purpose
+
+1. **A valid token on every request**: `getIdToken()` returns a cached token and refreshes it before it expires.
+2. **No early requests without a user**: `authStateReady()` waits until Firebase restores the session on page load.
+3. **One retry on 401**: `getIdToken(true)` forces a new token and the request is sent once more.
+4. **Verified on the server**: `verifyIdToken` from `firebase-admin` checks the token and returns the user id.
+
+:::
+
+---
+
+## Install
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core firebase
+```
+
+Your backend needs `firebase-admin` to verify the tokens.
+
+---
+
+## Send the ID token
+
+Read the token in `onAuth`. On page load Firebase restores the session asynchronously, so wait for `authStateReady()`
+before reading `currentUser`, or the first requests go out without a token:
+
+```ts title="src/api.ts"
+import { createClient } from "@hyper-fetch/core";
+import { getAuth } from "firebase/auth";
+import { app } from "./firebase";
+
+const auth = getAuth(app);
+
+export const client = createClient({ url: "https://api.example.com" }).onAuth(
+  async (request) => {
+    await auth.authStateReady();
+    // Cached, and refreshed when it expires within 5 minutes
+    const token = await auth.currentUser?.getIdToken();
+    if (!token) return request;
+
+    return request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${token}`,
+    });
+  },
+);
+```
+
+ID tokens last one hour. Call `getIdToken()` for every request instead of storing the token, so you always send one
+Firebase has refreshed.
+
+---
+
+## Retry once on 401
+
+If the API rejects a token, for example after the user's claims changed, force a refresh and send the request once
+more. `setUsed(true)` marks the retry, so a second `401` comes back instead of looping:
+
+```ts title="src/api.ts"
+client.onError(async (response, request) => {
+  if (response.status !== 401 || request.used || !auth.currentUser)
+    return response;
+
+  // Skip the cache and get a new token
+  await auth.currentUser.getIdToken(true);
+
+  // onAuth runs again and reads the new token
+  return request.setUsed(true).send();
+});
+```
+
+---
+
+## Clear data on sign out
+
+`onIdTokenChanged` fires on sign in, sign out and every token refresh. Clear the HyperFetch client when the user is
+gone, so the next user sees none of the previous user's data:
+
+```ts title="src/api.ts"
+import { onIdTokenChanged } from "firebase/auth";
+
+onIdTokenChanged(auth, (user) => {
+  if (!user) client.clear();
+});
+```
+
+---
+
+## Verify the token on your API
+
+The backend verifies the token with the Admin SDK and gets the user's id from it:
+
+```ts title="api/verify.ts"
+import { getAuth } from "firebase-admin/auth";
+
+const header = req.headers.authorization ?? "";
+const decoded = await getAuth().verifyIdToken(header.replace("Bearer ", ""));
+
+const userId = decoded.uid;
+```
+
+`verifyIdToken` rejects expired tokens and tokens from other projects. Pass `true` as the second argument to also
+reject tokens of users whose sessions you revoked; it costs one call to Firebase.
+
+:::note When it's helpful
+
+- Apps on Firebase Auth with their own REST API, or Cloud Functions over HTTP.
+- APIs that should know the user without a session store of their own.
+- Moving parts of a Firebase app to another backend while keeping the same sign in.
+
+:::
+
+---
+
+:::secondary Summary
+
+- `onAuth` waits for `authStateReady()` and sends `getIdToken()`.
+- `getIdToken(true)` with `setUsed(true)` retries once after a `401`.
+- `onIdTokenChanged` clears HyperFetch data when the user signs out.
+- `verifyIdToken` from `firebase-admin/auth` checks the token on your API.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="integrations"
+  title="Firebase adapter"
+  description="Firestore and Realtime Database through the HyperFetch request API."
+  to="/docs/integrations/adapter-firebase/overview"
+/>
+<LinkCard
+  type="guides"
+  title="Authentication"
+  description="onAuth, auth: false, token refresh on 401, cookies and API keys."
+  to="/docs/guides/core/basics/authentication"
+/>
+<LinkCard
+  type="docs"
+  title="Client"
+  description="onAuth, the other interceptors and clear()."
+  to="/docs/core/client"
+/>

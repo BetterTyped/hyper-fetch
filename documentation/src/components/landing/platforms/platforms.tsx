@@ -6,6 +6,7 @@ import {
   Braces,
   Database,
   Globe,
+  KeyRound,
   Layers,
   Monitor,
   Plus,
@@ -110,6 +111,18 @@ const platforms: { title: string; icon: React.ElementType; items: Item[] }[] = [
       { name: ".NET", logo: "dotnet" },
       { name: "Laravel", logo: "laravel" },
       { name: "Rails", logo: "rails" },
+    ],
+  },
+  {
+    title: "Auth",
+    icon: KeyRound,
+    items: [
+      { name: "Auth.js", logo: "authjs" },
+      { name: "Better Auth", logo: "better-auth-dark" },
+      { name: "Clerk", logo: "clerk" },
+      { name: "Supabase", logo: "supabase" },
+      { name: "Auth0", logo: "auth0" },
+      { name: "Firebase", logo: "firebase" },
     ],
   },
   {

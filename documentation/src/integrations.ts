@@ -24,7 +24,6 @@ const TrpcIcon = isBrowser() ? require("../static/img/integration-trpc.svg").def
 const FirebaseIcon = isBrowser() ? require("../static/img/integration-firebase.svg").default : () => null;
 // const SocketsIcon = isBrowser() ? require("../static/img/integration-sockets.svg").default : () => null;
 // const KindeIcon = isBrowser() ? require("../static/img/integration-kinde.svg").default : () => null;
-// const ClerkIcon = isBrowser() ? require("../static/img/integration-clerk.svg").default : () => null;
 // const MapboxIcon = isBrowser() ? require("../static/img/integration-mapbox.svg").default : () => null;
 // const GoogleMapsIcon = isBrowser() ? require("../static/img/integration-google-maps.svg").default : () => null;
 const OpenApiIcon = isBrowser() ? require("../static/img/integration-openapi.svg").default : () => null;
@@ -53,6 +52,11 @@ const ReactRouterIcon = isBrowser() ? require("../static/img/integration-react-r
 const TanstackIcon = isBrowser() ? require("../static/img/integration-tanstack.svg").default : () => null;
 const NextIcon = isBrowser() ? require("../static/img/integration-next.svg").default : () => null;
 const AstroIcon = isBrowser() ? require("../static/img/integration-astro.svg").default : () => null;
+const ClerkIcon = isBrowser() ? require("../static/img/integration-clerk.svg").default : () => null;
+const Auth0Icon = isBrowser() ? require("../static/img/integration-auth0.svg").default : () => null;
+const AuthJsIcon = isBrowser() ? require("../static/img/integration-authjs.svg").default : () => null;
+const BetterAuthIcon = isBrowser() ? require("../static/img/integration-better-auth.svg").default : () => null;
+const SupabaseIcon = isBrowser() ? require("../static/img/integration-supabase.svg").default : () => null;
 
 /**
  * Colors of the sections that are not packages. The class names are written out in full so Tailwind finds them.
@@ -578,6 +582,54 @@ export const integrations: Section[] = [
     img: ElectronIcon,
     category: "Native",
     color: "cyan",
+  }),
+  guideSection({
+    label: "Auth.js",
+    description: "Put the session's access token on every request, in Server Components, route handlers and the browser.",
+    dir: "authjs",
+    img: AuthJsIcon,
+    category: "Auth",
+    color: "violet",
+  }),
+  guideSection({
+    label: "Better Auth",
+    description: "Send Better Auth session cookies, or a bearer or JWT token, to your own API from both sides.",
+    dir: "better-auth",
+    img: BetterAuthIcon,
+    category: "Auth",
+    color: "zinc",
+  }),
+  guideSection({
+    label: "Clerk",
+    description: "Attach Clerk session tokens with getToken() on the server and in the browser, refreshed for you.",
+    dir: "clerk",
+    img: ClerkIcon,
+    category: "Auth",
+    color: "violet",
+  }),
+  guideSection({
+    label: "Supabase Auth",
+    description: "Send the Supabase access token to your API and retry once after a refresh on 401.",
+    dir: "supabase-auth",
+    img: SupabaseIcon,
+    category: "Auth",
+    color: "emerald",
+  }),
+  guideSection({
+    label: "Auth0",
+    description: "Call your API with Auth0 access tokens for its audience, from Next.js or a single-page app.",
+    dir: "auth0",
+    img: Auth0Icon,
+    category: "Auth",
+    color: "orange",
+  }),
+  guideSection({
+    label: "Firebase Auth",
+    description: "Send Firebase ID tokens to your own API and verify them with the Admin SDK.",
+    dir: "firebase-auth",
+    img: FirebaseIcon,
+    category: "Auth",
+    color: "amber",
   }),
   guideSection({
     label: "Sentry",

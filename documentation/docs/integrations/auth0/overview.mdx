@@ -1,0 +1,248 @@
+---
+sidebar_position: 1
+title: Auth0 with HyperFetch, Access Tokens for Your API
+description: Call your API with Auth0 access tokens from Next.js and single-page apps, request a JWT for the right audience, retry once on 401 and verify the token on your backend.
+sidebar_label: Overview
+---
+
+# Auth0
+
+[Auth0](https://auth0.com) issues access tokens for the APIs you register with it. HyperFetch sends that token as a
+bearer token: `getAccessToken()` with the Next.js SDK, `getAccessTokenSilently()` in a single-page app. Your API checks
+it against your Auth0 tenant.
+
+:::tip Purpose
+
+1. **A token your API accepts**: requesting your API's `audience` returns a JWT instead of an opaque token.
+2. **Next.js on both sides**: Server Components and the browser get the token from the same SDK.
+3. **Single-page apps**: one interceptor adds the token from `@auth0/auth0-react`.
+4. **One retry on 401**: a refreshed token resends the request once.
+
+:::
+
+---
+
+## Install
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core @auth0/nextjs-auth0
+```
+
+For a React single-page app, install `@auth0/auth0-react` instead.
+
+---
+
+## Request a token for your API
+
+Register your API in the Auth0 dashboard and use its identifier as the `audience`. Without it, Auth0 returns an opaque
+token that only works with its `/userinfo` endpoint. Add `offline_access` to get a refresh token:
+
+```ts title="lib/auth0.ts"
+import { Auth0Client } from "@auth0/nextjs-auth0/server";
+
+export const auth0 = new Auth0Client({
+  authorizationParameters: {
+    audience: "https://api.example.com",
+    scope: "openid profile email offline_access",
+  },
+});
+```
+
+The SDK reads the domain, client id, secret and app URL from `AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`,
+`AUTH0_SECRET` and `APP_BASE_URL`.
+
+---
+
+## Send the token from the server
+
+`auth0.getAccessToken()` returns the session's access token and refreshes it with the refresh token when it has
+expired. It throws when there is no session:
+
+```tsx title="app/projects/page.tsx"
+import { auth0 } from "@/lib/auth0";
+import { getProjects } from "@/lib/api";
+
+export default async function ProjectsPage() {
+  const { token } = await auth0.getAccessToken();
+
+  // highlight-next-line
+  const { data } = await getProjects
+    .setHeaders({ Authorization: `Bearer ${token}` })
+    .send();
+
+  return (
+    <ul>
+      {data?.map((project) => (
+        <li key={project.id}>{project.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+A Server Component can't save a refreshed token in the session cookie. Let the Auth0 middleware (`proxy.ts` on
+Next.js 16) run on the route, so the refresh is stored.
+
+---
+
+## Send the token from the browser
+
+In Client Components, `getAccessToken()` from `@auth0/nextjs-auth0` asks the SDK's route for the token, so it never sits
+in browser storage:
+
+```ts title="lib/api.ts"
+import { createClient } from "@hyper-fetch/core";
+import { getAccessToken } from "@auth0/nextjs-auth0";
+
+export const client = createClient({ url: "https://api.example.com" }).onAuth(
+  async (request) => {
+    // Server code sends its headers itself
+    if (typeof window === "undefined") return request;
+
+    // Throws when the user is signed out
+    const token = await getAccessToken().catch(() => null);
+    if (!token) return request;
+
+    return request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${token}`,
+    });
+  },
+);
+```
+
+---
+
+## Single-page apps
+
+With `@auth0/auth0-react`, the token getter comes from `useAuth0()`. Keep a getter in the client module and call it in
+`onAuth`:
+
+```ts title="src/api.ts"
+import { createClient } from "@hyper-fetch/core";
+
+type GetToken = (options?: {
+  cacheMode?: "on" | "off";
+}) => Promise<string | undefined>;
+
+let getToken: GetToken = async () => undefined;
+export const setTokenGetter = (getter: GetToken) => {
+  getToken = getter;
+};
+
+export const client = createClient({ url: "https://api.example.com" }).onAuth(
+  async (request) => {
+    const token = await getToken();
+    if (!token) return request;
+
+    return request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${token}`,
+    });
+  },
+);
+```
+
+A small component inside `Auth0Provider` hands the getter over:
+
+```tsx title="src/auth0-token.tsx"
+import { useAuth0 } from "@auth0/auth0-react";
+import { setTokenGetter } from "./api";
+
+export function Auth0Token() {
+  const { getAccessTokenSilently } = useAuth0();
+  // Set during render, so it is in place before any child sends a request.
+  // Throws when the user is signed out, so fall back to no token.
+  setTokenGetter((options) =>
+    getAccessTokenSilently(options).catch(() => undefined),
+  );
+  return null;
+}
+```
+
+Pass `authorizationParams={{ audience: "https://api.example.com" }}` to `Auth0Provider`. Tokens are kept in memory by
+default; set `useRefreshTokens` to renew them with a refresh token instead of a hidden iframe.
+
+---
+
+## Retry once on 401
+
+When your API rejects a token, skip the cached one and send the request once more. `setUsed(true)` marks the retry, so a
+second `401` comes back instead of looping:
+
+```ts title="src/api.ts"
+client.onError(async (response, request) => {
+  if (response.status !== 401 || request.used) return response;
+
+  // Ask Auth0 for a new token instead of the cached one
+  const token = await getToken({ cacheMode: "off" });
+  if (!token) return response;
+
+  // onAuth runs again and reads the new token from the cache
+  return request.setUsed(true).send();
+});
+```
+
+In Next.js, `auth0.getAccessToken({ refresh: true })` forces the same refresh on the server.
+
+---
+
+## Verify the token on your API
+
+An Express API checks the token with `express-oauth2-jwt-bearer`:
+
+```ts title="api/server.ts"
+import { auth } from "express-oauth2-jwt-bearer";
+
+app.use(
+  auth({
+    issuerBaseURL: "https://your-tenant.us.auth0.com",
+    audience: "https://api.example.com",
+  }),
+);
+```
+
+Other backends verify it with any JWT library against `https://<your-tenant>/.well-known/jwks.json`. Call
+`client.clear()` when the user logs out, so no cached data of the previous user stays behind.
+
+:::note When it's helpful
+
+- Next.js apps that call a separate API as the signed-in user.
+- Single-page apps that talk to one or more APIs registered in Auth0.
+- Backends that check Auth0 tokens without calling Auth0 on every request.
+
+:::
+
+---
+
+:::secondary Summary
+
+- Request your API's `audience`, or Auth0 returns an opaque token your API can't verify.
+- Server code sends `auth0.getAccessToken()`'s token with `setHeaders`, the browser adds it in `onAuth`.
+- Single-page apps hand `getAccessTokenSilently` to the client module.
+- A forced refresh with `setUsed(true)` retries once after a `401`.
+
+:::
+
+---
+
+## Next steps
+
+<LinkCard
+  type="guides"
+  title="Authentication"
+  description="onAuth, auth: false, token refresh on 401, cookies and API keys."
+  to="/docs/guides/core/basics/authentication"
+/>
+<LinkCard
+  type="integrations"
+  title="Next.js"
+  description="Fetch in Server Components and hydrate the responses into useFetch."
+  to="/docs/integrations/nextjs/overview"
+/>
+<LinkCard
+  type="guides"
+  title="Intercepting"
+  description="onAuth, onError and the order interceptors run in."
+  to="/docs/guides/core/advanced/intercepting"
+/>
