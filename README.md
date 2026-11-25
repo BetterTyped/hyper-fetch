@@ -176,6 +176,8 @@ one brings its own types, its own retry logic and its own bugs. Hyper Fetch is o
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/react-native/overview"><img src="./documentation/static/img/integration-react.svg" width="40" height="40" alt="" /><br /><b>React Native</b></a></td>
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/electron/overview"><img src="./documentation/static/img/integration-electron.svg" width="40" height="40" alt="" /><br /><b>Electron</b></a></td>
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/sentry/overview"><img src="./documentation/static/img/integration-sentry.svg" width="40" height="40" alt="" /><br /><b>Sentry</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/nextjs/overview"><picture><source media="(prefers-color-scheme: dark)" srcset="./documentation/static/img/integration-next-dark.svg" /><img src="./documentation/static/img/integration-next.svg" width="40" height="40" alt="" /></picture><br /><b>Next.js</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/tanstack-start/overview"><picture><source media="(prefers-color-scheme: dark)" srcset="./documentation/static/img/integration-tanstack-dark.svg" /><img src="./documentation/static/img/integration-tanstack.svg" width="40" height="40" alt="" /></picture><br /><b>TanStack Start</b></a></td>
   </tr>
 </table>
 
