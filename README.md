@@ -187,7 +187,7 @@ Hyper Fetch is the data layer inside Hype Stack, the full-stack template I build
 
 <p align="center">
   <a href="https://hype-stack.dev">
-    <img width="600" src="./.github/assets/banner-hype-stack.png" alt="Build your SaaS on Hype Stack" />
+    <img width="100%" src="./.github/assets/banner-hype-stack.png" alt="Build your SaaS on Hype Stack" />
   </a>
 </p>
 

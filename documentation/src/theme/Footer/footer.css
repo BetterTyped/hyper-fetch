@@ -22,8 +22,6 @@ footer.hf-footer div {
 .hf-footer__inner {
   position: relative;
   z-index: 1;
-  max-width: 1240px;
-  margin: 0 auto;
 }
 
 /* The panel: one solid card with a gold glow in its corner and a lit top edge */
