@@ -956,7 +956,8 @@ strong {
   @apply !mb-0;
 }
 
-.docs-wrapper p {
+/* The search modal opens inside `.docs-wrapper`, and its Ask AI answers set their own paragraph spacing */
+.docs-wrapper p:not(:where(.DocSearch-Container p)) {
   @apply my-4 text-[17px];
   line-height: 1.8;
 }

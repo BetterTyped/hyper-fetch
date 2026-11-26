@@ -135,6 +135,12 @@ html body {
   font-size: 15px !important;
   font-weight: 500;
 }
+/* "Answering..." replaces the input while Ask AI streams. The form has no vertical padding, so the heading fills
+   the whole row: centre its text the way the input centres its own */
+.DocSearch-Container .DocSearch-Modal-heading {
+  display: flex;
+  align-items: center;
+}
 .DocSearch-Container .DocSearch-Input::placeholder {
   color: #71717a;
 }
