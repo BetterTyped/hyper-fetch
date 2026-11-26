@@ -1,0 +1,230 @@
+{
+  "theme": "bettertyped",
+  "width": 1600,
+  "footer": "hyperfetch.bettertyped.com",
+  "shots": [
+    {
+      "name": "core-optimistic",
+      "file": "todos.ts",
+      "lang": "ts",
+      "eyebrow": "Optimistic updates",
+      "title": "Describe the change. Core does the rest.",
+      "code": "import { optimistic } from \"@hyper-fetch/core\";\n\nconst toggleTodo = client\n  .createRequest<{ response: Todo; payload: { completed: boolean } }>()({\n    endpoint: \"/todos/:todoId\",\n    method: \"PATCH\",\n  })\n  // highlight-start\n  .setOptimistic(({ params, payload }) => [\n    optimistic(getTodos).patch(params.todoId, payload),\n  ]);\n// highlight-end"
+    },
+    {
+      "name": "core-optimistic-create",
+      "file": "create-todo.ts",
+      "lang": "ts",
+      "eyebrow": "Typed rollback and commit",
+      "title": "Every step typed from your requests.",
+      "code": "const createTodo = postTodo.setOptimistic(({ payload }) => {\n  const tempId = crypto.randomUUID();\n  return [\n    optimistic(getTodos)\n      .insert({ ...payload, id: tempId })\n      // highlight-start\n      .rollback(({ data }) => data.filter((todo) => todo.id !== tempId))\n      .commit(({ data, response }) =>\n        data.map((todo) => (todo.id === tempId ? response.data : todo)),\n      ),\n    // highlight-end\n  ];\n});"
+    },
+    {
+      "name": "core-infinite",
+      "file": "feed.tsx",
+      "lang": "tsx",
+      "eyebrow": "useInfiniteFetch",
+      "title": "Pages, cursors and the end of the list.",
+      "code": "const getFeed = client.createRequest<{\n  response: { data: Post[]; nextCursor: string | null };\n  queryParams: { cursor?: string; topic?: string };\n}>()({ endpoint: \"/feed\" });\n\nconst { items, hasNextPage, isFetchingNextPage, fetchNextPage } =\n  useInfiniteFetch(\n    getFeed.setQueryParams({ topic }),\n    // highlight-next-line\n    { pagination: { cursor: \"cursor\", next: \"nextCursor\", items: \"data\" } },\n  );"
+    },
+    {
+      "name": "backends-trpc",
+      "file": "api.ts",
+      "lang": "ts",
+      "eyebrow": "Typed clients from your backend",
+      "title": "Your server's types, straight into an SDK.",
+      "code": "import { TrpcAdapter, type TrpcSchema } from \"@hyper-fetch/trpc\";\nimport type { AppRouter } from \"./server\";\n\nconst client = createClient({ url: \"/trpc\" }).setAdapter(TrpcAdapter());\n\n// highlight-start\nconst api = createSdk<typeof client, TrpcSchema<AppRouter>>(client, {\n  camelCaseToKebabCase: false,\n});\n// highlight-end\n\nconst { data } = await api.user.byId.$query.setPayload({ id: 1 }).send();"
+    },
+    {
+      "name": "db-collection",
+      "file": "posts.tsx",
+      "lang": "tsx",
+      "eyebrow": "HyperFetch DB",
+      "title": "Store each record once. Every view stays live.",
+      "code": "const Post = collection(PostSchema, { key: \"id\", version: \"updatedAt\" })\n  .load(getTeamPosts, {\n    where: {\n      teamId: { eq: (teamId) => ({ params: { teamId } }), required: true },\n    },\n  })\n  .sync(onPostChanged, { type: \"update\" });\n\nconst db = createDb({ post: Post });\n// highlight-next-line\nconst { data } = useLiveQuery(db.post.where((p) => eq(p.teamId, 1)));"
+    },
+    {
+      "name": "sockets-delivery",
+      "file": "listeners.ts",
+      "lang": "ts",
+      "eyebrow": "Delivery strategies",
+      "title": "Hundreds of updates. One render.",
+      "code": "// State-like data: only the newest value matters\nexport const onPrice = socket.createListener<Price>()({\n  topic: \"prices\",\n  // highlight-next-line\n  delivery: { strategy: \"latest\", interval: 16 }, // about one animation frame\n});\n\n// Event-like data: every message must be processed\nexport const onTrade = socket.createListener<Trade>()({\n  topic: \"trades\",\n  // highlight-next-line\n  delivery: { strategy: \"batch\", interval: 100, maxSize: 500 },\n});"
+    },
+    {
+      "name": "sockets-payload",
+      "file": "jobs.ts",
+      "lang": "ts",
+      "eyebrow": "Subscription payloads",
+      "title": "Typed input starts the subscription.",
+      "code": "type JobInput = { jobId: string };\n\n// highlight-next-line\nexport const onJobProgress = socket.createListener<JobProgress, JobInput>()({\n  topic: \"jobs.onProgress\",\n});\n\nonJobProgress.listen(({ data }) => render(data), {\n  payload: { jobId: \"1\" },\n  // highlight-next-line\n  onEnd: ({ error }) => (error ? showError(error) : showDone()),\n});"
+    },
+    {
+      "name": "graphql-documents",
+      "file": "users.ts",
+      "lang": "ts",
+      "eyebrow": "GraphQL",
+      "title": "The document types the request.",
+      "code": "// GetUserDocument from graphql-codegen or gql.tada\nconst getUser = client.createRequest()({\n  endpoint: GetUserDocument,\n  // highlight-next-line\n  options: { persistedQueries: true },\n});\n\n// data and variables are typed from the document, no generics\nconst { data } = await getUser.send({ payload: { id: \"1\" } });"
+    },
+    {
+      "name": "firebase-typed",
+      "file": "teas.ts",
+      "lang": "ts",
+      "eyebrow": "Typed Firebase queries",
+      "title": "A misspelled field fails to compile.",
+      "code": "type Tea = { name: string; type: \"Green\" | \"Black\"; year: number };\n\nconst getTeas = client.createRequest<{\n  response: (Tea & { __key: string })[];\n  // highlight-next-line\n  queryParams?: FirestoreQueryParams<Tea>;\n}>()({ endpoint: \"teas\", method: \"getDocs\" });\n\ngetTeas.setQueryParams((c) => c.where(\"year\", \">=\", 2020));\ngetTeas.setQueryParams((c) => c.where(\"yaer\", \">=\", \"2020\"));",
+      "squiggles": [
+        {
+          "line": 9,
+          "match": "\"yaer\"",
+          "message": "unknown field, and year is a number"
+        }
+      ]
+    },
+    {
+      "name": "tooling-lint",
+      "file": "users.ts",
+      "lang": "ts",
+      "eyebrow": "Oxlint plugin",
+      "title": "A typo TypeScript lets through.",
+      "code": "// Every generic key is optional, so this compiles\n// and data is quietly typed as unknown\nconst getUser = client.createRequest<{ rsponse: User }>()({\n  endpoint: \"/users/:id\",\n});",
+      "squiggles": [
+        {
+          "line": 3,
+          "match": "rsponse",
+          "message": "Unexpected generic type(s) found: rsponse"
+        }
+      ]
+    },
+    {
+      "name": "sockets-trade-log",
+      "file": "trade-log.tsx",
+      "lang": "tsx",
+      "eyebrow": "batch delivery",
+      "title": "One render per window, not per message.",
+      "code": "const { onEvent } = useListener(onTrade);\n\nonEvent(({ data }) => {\n  // One render per 100ms window instead of one per trade\n  // highlight-next-line\n  setTrades((previous) => [...previous, ...data].slice(-1000));\n});"
+    },
+    {
+      "name": "graphql-persisted-get",
+      "file": "users.ts",
+      "lang": "ts",
+      "eyebrow": "Automatic persisted queries",
+      "title": "A hash instead of the query.",
+      "code": "const getUser = client.createRequest()({\n  endpoint: GetUserDocument,\n  method: GraphqlMethod.GET,\n  // highlight-next-line\n  options: { persistedQueries: true },\n});"
+    },
+    {
+      "name": "core-hydrate-server",
+      "file": "page.tsx",
+      "lang": "tsx",
+      "eyebrow": "Hydrate, on the server",
+      "title": "Fetch once, on the server.",
+      "code": "export default async function Page() {\n  const response = await getUsers.send();\n\n  // highlight-next-line\n  return <UsersList hydration={[getUsers.dehydrate({ response })]} />;\n}"
+    },
+    {
+      "name": "core-hydrate-client",
+      "file": "users-list.tsx",
+      "lang": "tsx",
+      "eyebrow": "Hydrate, in the browser",
+      "title": "The first render already has the data.",
+      "code": "\"use client\";\n\nexport const UsersList = ({ hydration }: { hydration: HydrateProps[\"data\"] }) => (\n  // highlight-next-line\n  <Hydrate client={client} data={hydration}>\n    <Users />\n  </Hydrate>\n);\n\nconst Users = () => {\n  // The server data, with no request while it is fresh\n  const { data } = useFetch(getUsers);\n  return <UserList users={data} />;\n};"
+    },
+    {
+      "name": "db-devtools",
+      "file": "client.ts",
+      "lang": "ts",
+      "eyebrow": "HyperFlow",
+      "title": "Watch the db work, live.",
+      "code": "client.addPlugin(\n  // highlight-next-line\n  DevtoolsPlugin({ appName: \"My App\", sockets: [socket], dbs: [db] }),\n);"
+    },
+    {
+      "name": "tooling-skills",
+      "file": "terminal",
+      "lang": "bash",
+      "eyebrow": "Agent skills",
+      "title": "Your agent writes current HyperFetch.",
+      "code": "npx skills add BetterTyped/hyper-fetch/skills"
+    },
+    {
+      "name": "docs-examples",
+      "file": "terminal",
+      "lang": "bash",
+      "eyebrow": "92 runnable examples",
+      "title": "Any example, on your machine.",
+      "code": "npx tiged BetterTyped/hyper-fetch/examples/react/basic my-app"
+    },
+    {
+      "name": "sockets-reconnect",
+      "file": "socket.ts",
+      "lang": "ts",
+      "eyebrow": "One reconnection engine",
+      "title": "Back off, spread out, come back.",
+      "code": "import { Socket, defaultShouldReconnect } from \"@hyper-fetch/sockets\";\n\nconst socket = new Socket({\n  url: \"wss://api.example.com\",\n  // The defaults, shown for reference\n  reconnectTime: 1000, // the first retry comes 1 to 2 seconds after the loss\n  maxReconnectTime: 30_000, // the backoff window stops growing here\n  minUptime: 5000, // uptime that resets the attempt counter\n  connectionTimeout: 5000, // one attempt, handshake included\n  // A rejected token won't get better by retrying\n  // highlight-start\n  shouldReconnect: (loss) =>\n    defaultShouldReconnect(loss) && loss.code !== 4401,\n  // highlight-end\n});"
+    },
+    {
+      "name": "tip-request-object",
+      "file": "reports.ts",
+      "lang": "ts",
+      "eyebrow": "HyperFetch tip",
+      "title": "Configure a request once.",
+      "code": "export const getReport = client.createRequest<{ response: Report }>()({\n  endpoint: \"/reports/:reportId\",\n  // highlight-start\n  retry: 3,\n  retryTime: 1000,\n  staleTime: 30_000,\n  deduplicate: true,\n  // highlight-end\n});\n\n// Every send, hook and component gets the same behavior\nconst { data, error } = await getReport.send({ params: { reportId: 7 } });"
+    },
+    {
+      "name": "tip-mock",
+      "file": "notes.ts",
+      "lang": "ts",
+      "eyebrow": "HyperFetch tip",
+      "title": "Mock a request, not a server.",
+      "code": "getNotes.setMock(\n  // highlight-next-line\n  () => ({ data: { items: [{ text: \"A mocked note\" }] }, status: 200 }),\n  // Timing and progress, so loading states look real\n  { requestTime: 500, responseTime: 500, totalDownloaded: 1000 },\n);\n\nconst { data } = await getNotes.send();"
+    },
+    {
+      "name": "tip-upload",
+      "file": "avatar.tsx",
+      "lang": "tsx",
+      "eyebrow": "HyperFetch tip",
+      "title": "Upload progress in a few lines.",
+      "code": "const { submit, onSubmitUploadProgress } = useSubmit(uploadAvatar);\n\n// highlight-start\nonSubmitUploadProgress(({ progress, timeLeft }) => {\n  setPercent(progress); // 0 to 100\n});\n// highlight-end"
+    },
+    {
+      "name": "tip-offline",
+      "file": "posts.ts",
+      "lang": "ts",
+      "eyebrow": "HyperFetch tip",
+      "title": "Writes made offline still arrive.",
+      "code": "const createPost = client.createRequest<{\n  response: Post;\n  payload: { title: string; content: string };\n}>()({\n  endpoint: \"/posts\",\n  method: \"POST\",\n  // highlight-next-line\n  offline: true, // the default, shown here for clarity\n});\n\n// Offline? The request waits and goes out when the connection is back\ncreatePost.send({ payload: { title: \"My Post\", content: \"Written offline\" } });"
+    },
+    {
+      "name": "tip-race",
+      "file": "search.tsx",
+      "lang": "tsx",
+      "eyebrow": "The search race",
+      "title": "The slow answer wins.",
+      "code": "useEffect(() => {\n  fetch(`/users?search=${search}`)\n    .then((response) => response.json())\n    // highlight-next-line\n    .then(setUsers); // \"ab\" can answer after \"abc\" and overwrite it\n}, [search]);",
+      "squiggles": []
+    },
+    {
+      "name": "tip-cancel",
+      "file": "users.ts",
+      "lang": "ts",
+      "eyebrow": "HyperFetch tip",
+      "title": "Only the newest search counts.",
+      "code": "export const searchUsers = client.createRequest<{\n  response: User[];\n  queryParams: { search: string };\n}>()({\n  endpoint: \"/users\",\n  // highlight-start\n  cancelable: true,\n  queryKey: \"users-search\", // one queue for every search term\n  // highlight-end\n});"
+    },
+    {
+      "name": "tip-cli",
+      "file": "terminal",
+      "lang": "bash",
+      "eyebrow": "HyperFetch CLI",
+      "title": "A typed SDK from any OpenAPI schema.",
+      "code": "npx @hyper-fetch/cli@latest generate --template openapi \\\n  --url ./openapi.json --fileName api.sdk.ts"
+    },
+    {
+      "name": "tip-dedupe",
+      "file": "me.tsx",
+      "lang": "tsx",
+      "eyebrow": "HyperFetch tip",
+      "title": "Three components, one request.",
+      "code": "export const getMe = client.createRequest<{ response: User }>()({\n  endpoint: \"/me\",\n  // highlight-next-line\n  deduplicate: true, // already the default for GET with the fetch adapter\n});\n\n// Header, sidebar and settings all call this on mount\nconst { data } = useFetch(getMe); // one request on the network"
+    }
+  ]
+}
