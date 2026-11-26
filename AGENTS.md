@@ -34,6 +34,9 @@ dependents.
 CodeSandbox open from GitHub, each with a page in `documentation/examples`. `examples/README.md` explains how to add
 one; `pnpm test:examples` and `pnpm examples` check them. The other folders in `examples/` are development apps.
 
+`videos/` holds the launch videos, one per release post, built with Remotion outside the pnpm workspace. The
+`launch-videos` skill has the format.
+
 ## Verification
 
 Work is finished when everything the branch affects is green. Run this from the repo root:
@@ -120,6 +123,8 @@ Workflows in `.claude/skills/`:
   check them rendered.
 - `docs-quality`: write, review or redesign docs pages, then prove them with the audit, a production build, render
   checks at desktop and phone width and a look at every page.
+- `launch-videos`: plan, build, review and render a launch video per release post in `videos/`, to the house format
+  (hook, brand on the drop, titles instead of text, logos, beat-synced music, centered closing).
 - `ship-change`: verify, pick the commit type by release impact, open the PR and merge it.
 - `publish-new-package`: first npm publish and trusted publishing for a package that is not on npm yet.
 

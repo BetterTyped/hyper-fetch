@@ -1,0 +1,582 @@
+{
+  "_note": "HyperFetch 10 launch posts. Personal account (Maciej Pyrc) unless account says HypeStack. Drafts only: dates are the plan, set them in Typefully. Media paths are relative to videos/.",
+  "threads": [
+    {
+      "id": "T1-request-object",
+      "when": "2026-11-26 15:00 UTC (Thu)",
+      "account": "Maciej Pyrc",
+      "angle": "Tip: requests are objects",
+      "media": null,
+      "posts": [
+        "A request in HyperFetch is an object, not a promise.\n\nYou configure it once, where it's defined:\n\n• Retries and the delay between them\n• How long its data stays fresh\n• Whether identical calls share one request\n\nEvery send, hook and component then behaves the same way.",
+        "Requests in detail:\nhyperfetch.bettertyped.com/docs/core/request"
+      ],
+      "post_media": {
+        "0": [
+          "launch/code-shots/tip-request-object.png"
+        ]
+      }
+    },
+    {
+      "id": "L1-overview",
+      "when": "2026-11-30 15:00 UTC (Mon)",
+      "account": "Maciej Pyrc",
+      "angle": "X is here + category sentence + number bullets",
+      "media": "out/HyperFetch10.mp4",
+      "posts": [
+        "HyperFetch 10 is out.\n\nHyperFetch is an open source TypeScript framework for everything your app sends and receives: REST, GraphQL, tRPC, Firebase, WebSockets and SSE, behind one typed API.\n\nThis release is about your backend, and keeping every screen live.",
+        "What it does well:\n\n✅ Requests typed from your backend\n✅ Cache, dedupe, retries and cancellation built in\n✅ Offline queues that survive a reload\n✅ Upload and download progress\n✅ React hooks with server rendering\n✅ Runs in the browser, Node.js, Bun and Deno",
+        "New: HyperFetch DB.\n\nEach record is stored once, in a typed collection your requests and socket listeners fill. Components query the collection, so a write or a socket event updates every view of that record at once.\n\nIt's in beta.",
+        "It takes care of the hard parts of live data: a slow response can't overwrite a newer socket event, a failed optimistic write reverts only what it changed, and writes made offline replay in order after a restart.",
+        "Typed clients from your backend.\n\nIf your server is tRPC, oRPC, Hono or Elysia, HyperFetch reads its types into a full SDK. No schema, no codegen. tRPC subscriptions and oRPC event iterators become typed socket listeners.",
+        "Optimistic updates: describe the change, and core does the rest. It shows before the request is sent, rolls back if the request fails and refetches once it settles.",
+        "Also in core and React:\n\n• useInfiniteFetch for page, offset and cursor lists\n• Hydrate, so server data renders with no second fetch\n• Retry backoff with jitter\n• Offline queues on IndexedDB or AsyncStorage\n• Images and files as Blob or ArrayBuffer",
+        "Sockets that recover.\n\nEvery adapter reconnects on one engine:\n\n• Jittered backoff\n• A timeout per attempt\n• A reset once the connection holds\n\nListeners take typed subscription payloads, and sockets run in Node.js, Bun and Deno too.",
+        "GraphQL, typed end to end.\n\nPass a graphql-codegen or gql.tada document as the endpoint, and the response and variables are typed with no generics. Automatic persisted queries are one option, and subscriptions run over graphql-ws.",
+        "Firebase: query constraints are checked against your document type, so a misspelled field fails to compile instead of quietly matching nothing. Listeners take the same typed query params as requests.",
+        "Tooling:\n\n• HyperFlow shows every socket and message\n• Devtools connect from Node.js, Bun and Deno servers\n• An Oxlint plugin, 16x faster than ESLint on our repo\n• 92 runnable examples\n• An agent skill for every package",
+        "Under all of it: 5,000+ new tests since v9. Line coverage is 99.5% in core, 99.3% in React and 100% in DB, and timing tests run on fake clocks so the suite doesn't flake.",
+        "Core, React, Firebase and the HTTP adapters upgrade with no code changes. Sockets and GraphQL have a short list in the post, each change with a before and after.",
+        "HyperFlow is the desktop devtools app for HyperFetch, on macOS, Windows and Linux. Every request, cache entry, queue, socket and db collection of your app, live.\nhyperfetch.bettertyped.com/docs/hyper-flow",
+        "Want it all wired up from day one?\n\nHype Stack is the starter built on HyperFetch:\n\n• A Hono backend with a typed SDK\n• Realtime over sockets\n• Auth and the screens around it\n• Web, desktop and mobile\n\nhype-stack.dev",
+        "Everything in v10, with code for each part:\nhyperfetch.bettertyped.com/blog/hyper-fetch-10-0\n\nIf it helps you, a star on GitHub helps me keep going:\ngithub.com/BetterTyped/hyper-fetch"
+      ],
+      "post_media": {
+        "2": [
+          "launch/code-shots/db-collection.png"
+        ],
+        "4": [
+          "launch/code-shots/backends-trpc.png"
+        ],
+        "5": [
+          "launch/code-shots/core-optimistic.png"
+        ],
+        "9": [
+          "launch/code-shots/firebase-typed.png"
+        ]
+      }
+    },
+    {
+      "id": "L2-db",
+      "when": "2026-12-01 15:00 UTC (Tue)",
+      "account": "Maciej Pyrc",
+      "angle": "Problem first",
+      "media": "out/HyperFetchDB.mp4",
+      "posts": [
+        "You rename a post in one component:\n\n❌ The feed still shows the old title\n❌ So does the post page\n❌ And the sidebar\n\nEvery cached response keeps its own copy. HyperFetch DB stores each record once:\n\n✅ Every view updates together",
+        "New to HyperFetch?\n\nIt's an open source TypeScript framework for everything your app sends and receives: REST, GraphQL, tRPC, Firebase, WebSockets and SSE, behind one typed API.\n\nHyperFetch DB is its new live layer.",
+        "Collections are filled by the requests you already have and kept live by your socket listeners. Components query the collection, not an endpoint, and the db picks which request to send.",
+        "A query names the data, and the db finds the request:\n\n• It answers from rows it holds when they cover the query\n• Otherwise it sends the loader with the most conditions\n• Then it subscribes to the syncs that keep the result live",
+        "useLiveQuery has no dependency array, and a query that misses a loader's required filter doesn't compile. Queries work outside React too, with subscribe and getSnapshot.",
+        "@theo put it well: fetching data takes 10 lines, handling race conditions is the hard part.\n\nIn HyperFetch DB a slow response can't undo a newer socket event, because writes are ordered per field, not per response.\nx.com/theo/status/1818769081832772006",
+        "How: with a version field, a write only changes fields whose stored version isn't newer. Order comes from a counter, never the clock, and a deleted row stays deleted until the requests sent before the delete settle.",
+        "Optimistic writes, with no rollback code:\n\n• A failed write reverts only what it changed\n• Edits made since then stay\n• Writes to one row go out in order\n• An insert keeps its render key when the server sets the id",
+        "Also in the package:\n\n• Links keep a summary list and a full detail in step\n• An offline outbox that replays writes after a reload\n• One call sets up a collection from a REST SDK or Firestore\n• useLiveInfiniteQuery for long lists\n• Server rendering with no loading state",
+        "How I tested it:\n\n• 90 seeded runs of 40 random steps\n• Every response released in random order\n• The hardest cases from other libraries' issue trackers\n\nWhatever the order, the client ends on exactly the server's rows. The trackers: Apollo, Dexie, RxDB, urql, Relay and Electric.",
+        "And you can watch it work: pass the db to the devtools plugin, and HyperFlow, the desktop devtools app, gets a DB page with every collection, query plan, loaded subset and pending write.",
+        "It's in beta. The post shows how the live part works and how I tested it:\nhyperfetch.bettertyped.com/blog/hyper-fetch-db"
+      ],
+      "mentions": {
+        "verified": [
+          "@theo (post verified: x.com/theo/status/1818769081832772006, 31 Jul 2024)"
+        ]
+      },
+      "post_media": {
+        "2": [
+          "launch/code-shots/db-collection.png"
+        ],
+        "10": [
+          "launch/code-shots/db-devtools.png"
+        ]
+      }
+    },
+    {
+      "id": "L3-backends",
+      "when": "2026-12-03 15:00 UTC (Thu)",
+      "account": "Maciej Pyrc",
+      "angle": "Contrarian / first",
+      "media": "out/TypedBackends.mp4",
+      "posts": [
+        "Your tRPC, oRPC, Hono or Elysia server already describes every endpoint. A typed client usually still means:\n\n❌ A client schema written again\n❌ A codegen step\n❌ Hand-written requests\n\n✅ HyperFetch 10 reads the server's types straight into a typed SDK",
+        "New to HyperFetch? It's an open source TypeScript framework for talking to your backend: requests, cache, retries, offline queues and sockets behind one typed API. In v10 your backend becomes the source of those types.",
+        "One type per backend: TrpcSchema, OrpcSchema, HonoSchema or ElysiaSchema goes into createSdk, and every procedure or route becomes a typed request. Elysia errors are typed per status code too.",
+        "tRPC: procedures run through the HyperFetch cache, loading states and retries, so there's no second data layer next to it. Subscriptions over WebSocket or SSE become typed listeners that resume after a reconnect.",
+        "oRPC.\n\nIt sends Date, BigInt, Map and files with its own serializer. @hyper-fetch/orpc encodes with the one from @orpc/client, so client and server always agree.\n\nEvent iterators become typed listeners, over HTTP or WebSocket.",
+        "Hono: the package exports types only, so it adds nothing to your bundle, and types a full SDK from your app type. WebSocket routes connect through the built in adapter, and the socket address is type checked too.",
+        "Elysia: responses are typed the way they actually arrive over HTTP, so a Date comes in as a string, and errors are typed per status code.",
+        "Every route is a regular HyperFetch request, so caching, retries, dedupe and offline queues behave the same whichever backend answers.\n\nThe types come from the work @trpcio, @elysiaJS, @honojs and @middleapi already did on the server side.",
+        "Thank you @alexdotjs, @yusukebe and @saltyAom for tRPC, Hono and Elysia, and the oRPC team at @middleapi. A typed client like this only works because your servers already know their types.",
+        "This is how Hype Stack works too: every app talks to its Hono backend through a typed HyperFetch SDK, with realtime over sockets, already wired when you start.\nhype-stack.dev",
+        "Each backend set up end to end:\nhyperfetch.bettertyped.com/blog/hyper-fetch-10-backends"
+      ],
+      "mentions": {
+        "verified": [
+          "@trpcio",
+          "@elysiaJS",
+          "@middleapi (oRPC, verified)",
+          "@honojs (confirmed by Maciej)"
+        ],
+        "creators": [
+          "@alexdotjs (tRPC)",
+          "@yusukebe (Hono, bio: Creator of @honojs)",
+          "@saltyAom (Elysia)",
+          "oRPC via @middleapi; @dinw unconfirmed"
+        ]
+      },
+      "post_media": {
+        "2": [
+          "launch/code-shots/backends-trpc.png"
+        ]
+      }
+    },
+    {
+      "id": "T2-mocking",
+      "when": "2026-12-07 15:00 UTC (Mon)",
+      "account": "Maciej Pyrc",
+      "angle": "Tip: mocking with setMock",
+      "media": null,
+      "posts": [
+        "Mock any HyperFetch request without a mock server.\n\nsetMock returns the response you want, with request and response times and even progress, so loading states and progress bars look real in tests and demos.",
+        "Mocking in detail:\nhyperfetch.bettertyped.com/docs/core/mocking"
+      ],
+      "post_media": {
+        "0": [
+          "launch/code-shots/tip-mock.png"
+        ]
+      }
+    },
+    {
+      "id": "L4-core-react",
+      "when": "2026-12-08 15:00 UTC (Tue)",
+      "account": "Maciej Pyrc",
+      "angle": "Demo first",
+      "media": "out/CoreAndReact.mp4",
+      "posts": [
+        "Optimistic UI usually means writing, for every mutation:\n\n❌ A snapshot of the cache\n❌ The cache write\n❌ The rollback\n\nIn HyperFetch 10 you describe the change:\n\n✅ Core applies it before the request\n✅ Rolls it back if it fails\n✅ Refetches once it settles",
+        "New to HyperFetch?\n\nIt's an open source TypeScript framework for everything your app sends and receives: REST, GraphQL, tRPC, Firebase, WebSockets and SSE, behind one typed API.",
+        "Every step is typed from the requests themselves. The rollback gets the cached list typed from getTodos, the commit gets the mutation's typed response. No snapshot types written by hand.",
+        "useInfiniteFetch keeps the pages, the next cursor, the end of the list and filter changes in sync from one pagination description. Page numbers, offsets and cursors all work, and each page stays a normal cached request.",
+        "Hydrate hands server data to the hooks before their first render, so the page skips both the loading state and the second fetch.",
+        "retryTime takes a function of the attempt now, so you can back off with jitter and clients that failed together stop retrying in lockstep.",
+        "Mutations made offline survive a reload on IndexedDB or AsyncStorage: the dispatcher takes a lazyStorage, so the queue lives in async storage.\n\nAnd responseType downloads images and files as a Blob or ArrayBuffer.",
+        "Sharper types: a typed document from graphql-codegen or gql.tada types a request with no generics, and adapters can accept a typed query builder as query params.",
+        "Core and React got most of the hardening: line coverage is 99.5% in core and 99.3% in React, and the infinite list specs were ported from TanStack Query and SWR.\n\nNo export was removed or renamed, so v9 code keeps compiling.",
+        "HyperFlow is the desktop devtools app for HyperFetch, on macOS, Windows and Linux. Every request, cache entry, queue, socket and db collection of your app, live.\nhyperfetch.bettertyped.com/docs/hyper-flow",
+        "Each one with code:\nhyperfetch.bettertyped.com/blog/hyper-fetch-10-core-react"
+      ],
+      "post_media": {
+        "2": [
+          "launch/code-shots/core-optimistic-create.png"
+        ],
+        "3": [
+          "launch/code-shots/core-infinite.png"
+        ]
+      }
+    },
+    {
+      "id": "L5-sockets",
+      "when": "2026-12-10 15:00 UTC (Thu)",
+      "account": "Maciej Pyrc",
+      "angle": "Mechanism first",
+      "media": "out/Sockets.mp4",
+      "posts": [
+        "A busy socket can push far more messages than a screen can draw. Rendering every one is how a live chart turns into a slideshow.\n\nHyperFetch 10 listeners take a delivery strategy: latest keeps one value per frame, batch groups a window of messages into one render.",
+        "New to HyperFetch? It's an open source TypeScript framework for requests and sockets behind one typed API. WebSocket, SSE, Firebase, GraphQL and tRPC subscriptions all use the same listeners.",
+        "Two strategies, for two kinds of data:\n\n• latest: state like a price, one value per animation frame\n• batch: events like trades, 100ms per render, none dropped",
+        "Listeners carry typed input now. tRPC, oRPC and GraphQL start one subscription per input, so the payload is the second generic of createListener and goes out when you listen.",
+        "Listeners also take onStart and onEnd, so you know when a job finishes, an input fails validation or a stream completes on the server.",
+        "Every adapter now reconnects on one engine: jittered backoff, a timeout per attempt, and a reset once the connection stays up. The built in adapters run in @nodejs, @bunjavascript and @deno_land without a window shim.",
+        "Also:\n\n• Server-sent events read named events\n• Listeners take query params\n• A typed GraphQL document types a subscription on its own\n• Sockets reconnect when the network comes back",
+        "To see it live: HyperFlow's Socket Inspector shows each connection, every message in and out, and errors.\nhyperfetch.bettertyped.com/docs/hyper-flow",
+        "Delivery strategies, payloads and the reconnection options:\nhyperfetch.bettertyped.com/blog/hyper-fetch-10-sockets"
+      ],
+      "mentions": {
+        "verified": [
+          "@nodejs",
+          "@deno_land"
+        ],
+        "exists_via_post": [
+          "@bunjavascript"
+        ]
+      },
+      "post_media": {
+        "2": [
+          "launch/code-shots/sockets-delivery.png"
+        ],
+        "3": [
+          "launch/code-shots/sockets-payload.png"
+        ]
+      }
+    },
+    {
+      "id": "T3-upload-progress",
+      "when": "2026-12-14 15:00 UTC (Mon)",
+      "account": "Maciej Pyrc",
+      "angle": "Tip: upload progress",
+      "media": null,
+      "posts": [
+        "Upload progress in React, without an XHR wrapper.\n\nuseSubmit gives you onSubmitUploadProgress: the percent done and the time left for every file you send. Downloads get the same with onSubmitDownloadProgress.",
+        "useSubmit in detail:\nhyperfetch.bettertyped.com/docs/react/hooks/use-submit"
+      ],
+      "post_media": {
+        "0": [
+          "launch/code-shots/tip-upload.png"
+        ]
+      }
+    },
+    {
+      "id": "L6-graphql",
+      "when": "2026-12-15 15:00 UTC (Tue)",
+      "account": "Maciej Pyrc",
+      "angle": "Before / after",
+      "media": "out/GraphQL.mp4",
+      "posts": [
+        "graphql-codegen from @TheGuildDev and gql.tada by @_philpl already give you a typed document. You shouldn't have to repeat its types as generics.\n\nIn HyperFetch 10 the document is the endpoint. Response and variables are typed from it.",
+        "New to HyperFetch?\n\nIt's an open source TypeScript framework for everything your app sends and receives: REST, GraphQL, tRPC, Firebase, WebSockets and SSE, behind one typed API.",
+        "No generics anywhere: the document types the response and the variables. And errorPolicy: \"all\" keeps partial data as a success, with the errors beside it.",
+        "Automatic persisted queries: the request sends a SHA-256 hash of the query instead of its text. Requests get lighter, and a hashed GET is short enough for a CDN to cache.",
+        "After UpdateUser, every GetUser in the cache may be stale, whatever its id. matchGqlOperation matches the cache keys of every variant of a document, like refetchQueries in Apollo.",
+        "Subscriptions: GraphqlWsAdapter speaks graphql-transport-ws, the protocol Apollo Server, GraphQL Yoga, Mercurius, Hot Chocolate and Hasura support, on the same reconnection engine as every other socket.",
+        "Each operation follows the GraphQL over HTTP format more closely, and every set of variables gets its own cache entry.",
+        "HyperFlow is the desktop devtools app for HyperFetch, on macOS, Windows and Linux. Every request, cache entry, queue, socket and db collection of your app, live.\nhyperfetch.bettertyped.com/docs/hyper-flow",
+        "Typed documents, persisted queries and subscriptions:\nhyperfetch.bettertyped.com/blog/hyper-fetch-10-graphql"
+      ],
+      "mentions": {
+        "verified": [
+          "@TheGuildDev",
+          "@_philpl"
+        ]
+      },
+      "post_media": {
+        "2": [
+          "launch/code-shots/graphql-documents.png"
+        ],
+        "3": [
+          "launch/code-shots/graphql-persisted-get.png"
+        ]
+      }
+    },
+    {
+      "id": "L7-firebase",
+      "when": "2026-12-17 15:00 UTC (Thu)",
+      "account": "Maciej Pyrc",
+      "angle": "Problem first",
+      "media": "out/Firebase.mp4",
+      "posts": [
+        "A typo in a Firestore where clause doesn't throw. It quietly matches nothing.\n\nIn HyperFetch 10 constraints are checked against your document type, so a misspelled field fails to compile.",
+        "New to HyperFetch?\n\nIt's an open source TypeScript framework for the data your app sends and receives. For Firebase it wraps Firestore and the Realtime Database, web and admin SDKs, with typed requests, cache and listeners.",
+        "Type queryParams with FirestoreQueryParams and every field name and value is checked against the document, nested fields included. Filters a user toggles on screen can be an array too, with the same checks.",
+        "Listeners take the same typed query params as requests, and groupByChangeType tells you what was added, modified or removed in each snapshot.",
+        "Both Firebase packages run their full emulator suites on every change, and the release waits for them.\n\nNothing breaks on upgrade: the old constraints still work and are marked deprecated, so your editor points at every place to update.",
+        "HyperFetch is free and open source. If it helps you, a star on GitHub helps me keep going:\ngithub.com/BetterTyped/hyper-fetch",
+        "Typed queries for Firestore and the Realtime Database:\nhyperfetch.bettertyped.com/blog/hyper-fetch-10-firebase"
+      ],
+      "mentions": {
+        "check_before_posting": [
+          "@Firebase (official account, confirm the handle before adding it to reply 1)"
+        ]
+      },
+      "post_media": {
+        "2": [
+          "launch/code-shots/firebase-typed.png"
+        ]
+      }
+    },
+    {
+      "id": "T4-sync-ladder",
+      "when": "2026-12-21 15:00 UTC (Mon)",
+      "account": "Maciej Pyrc",
+      "angle": "Contrarian: you probably don't need a sync engine",
+      "media": null,
+      "posts": [
+        "You probably don't need a sync engine.\n\nMost screens need one of three things:\n\n• useFetch: server data, cached and deduplicated\n• Optimistic updates: writes that show before the server answers\n• HyperFetch DB: one record shown live in many places",
+        "Start at the top and move down only when a screen needs it.\n\nThe same requests work at every step, so moving down is never a rewrite.",
+        "When to use the db instead of useFetch:\nhyperfetch.bettertyped.com/docs/db/overview"
+      ],
+      "post_media": {}
+    },
+    {
+      "id": "L8-tooling",
+      "when": "2026-12-22 15:00 UTC (Tue)",
+      "account": "Maciej Pyrc",
+      "angle": "Number first",
+      "media": "out/Tooling.mp4",
+      "posts": [
+        "Linting the 4,960 files of the HyperFetch repo, same rules, same findings:\n\n• ESLint: 17.8s\n• Oxlint: 1.09s\n\nHyperFetch 10 ships its lint rules as an Oxlint plugin, thanks to the speed @boshen_c and the Oxc team built.",
+        "New to HyperFetch?\n\nIt's an open source TypeScript framework for everything your app sends and receives: REST, GraphQL, tRPC, Firebase, WebSockets and SSE, behind one typed API.",
+        "The rules catch what TypeScript lets through.\n\nEvery generic key on createClient and createRequest is optional, so a typo like rsponse quietly types your data as unknown. The plugin flags it.\n\nThe ESLint plugin works with typescript-eslint 8 too.",
+        "HyperFlow now shows every socket: the connection, each message in and out, and errors. It connects from Node.js, Deno and Bun servers too.",
+        "HyperFlow also shows how many components subscribe to each cache key, and every flow runs end to end against each adapter: fetch, axios, GraphQL, tRPC, oRPC, Firebase, Firebase Admin and a custom one.",
+        "92 example apps that open in @stackblitz, and one agent skill per package, so coding agents write current HyperFetch. One command installs them all.",
+        "Each agent skill covers setup, golden rules, patterns, pitfalls and type safety, checked against the package source, so the agent writes current HyperFetch instead of what it remembers.",
+        "Want it all wired up from day one?\n\nHype Stack is the starter built on HyperFetch:\n\n• A Hono backend with a typed SDK\n• Realtime over sockets\n• Auth and the screens around it\n• Web, desktop and mobile\n\nhype-stack.dev",
+        "Linting, devtools and examples:\nhyperfetch.bettertyped.com/blog/hyper-fetch-10-tooling"
+      ],
+      "mentions": {
+        "verified": [
+          "@boshen_c",
+          "@stackblitz"
+        ],
+        "check_before_posting": [
+          "Oxc project account"
+        ]
+      },
+      "post_media": {
+        "2": [
+          "launch/code-shots/tooling-lint.png"
+        ],
+        "5": [
+          "launch/code-shots/tooling-skills.png"
+        ]
+      }
+    },
+    {
+      "id": "L9-recap",
+      "when": "2026-12-23 15:00 UTC (Wed)",
+      "account": "Maciej Pyrc",
+      "angle": "Index",
+      "media": null,
+      "posts": [
+        "Everything in HyperFetch 10, one post per part. A video for each 🧵",
+        "HyperFetch DB: each record stored once, every view live.\nhyperfetch.bettertyped.com/blog/hyper-fetch-db",
+        "Typed clients from tRPC, oRPC, Hono and Elysia.\nhyperfetch.bettertyped.com/blog/hyper-fetch-10-backends",
+        "Optimistic helpers, infinite lists, Hydrate.\nhyperfetch.bettertyped.com/blog/hyper-fetch-10-core-react",
+        "Sockets: delivery strategies and one reconnection engine.\nhyperfetch.bettertyped.com/blog/hyper-fetch-10-sockets",
+        "GraphQL: typed documents, persisted queries, graphql-ws.\nhyperfetch.bettertyped.com/blog/hyper-fetch-10-graphql",
+        "Firebase: typed constraints and grouped changes.\nhyperfetch.bettertyped.com/blog/hyper-fetch-10-firebase",
+        "Oxlint plugin, socket devtools, 92 examples.\nhyperfetch.bettertyped.com/blog/hyper-fetch-10-tooling",
+        "And thank you to the people and teams whose tools HyperFetch 10 builds on: @alexdotjs, @yusukebe, @saltyAom, @middleapi, @_philpl, @TheGuildDev, @boshen_c, @jarredsumner and @rough__sea."
+      ],
+      "mentions": {
+        "creators": [
+          "@alexdotjs",
+          "@yusukebe",
+          "@saltyAom",
+          "@middleapi",
+          "@_philpl",
+          "@TheGuildDev",
+          "@boshen_c",
+          "@jarredsumner",
+          "@rough__sea"
+        ]
+      }
+    },
+    {
+      "id": "T5-offline",
+      "when": "2027-01-04 15:00 UTC (Mon)",
+      "account": "Maciej Pyrc",
+      "angle": "Tip: offline writes",
+      "media": null,
+      "posts": [
+        "Writes made offline shouldn't be lost.\n\nIn HyperFetch a request sent without a connection waits, then goes out when the connection comes back. It's the default, and with a lazyStorage the queue survives a reload too.",
+        "Offline first, step by step:\nhyperfetch.bettertyped.com/docs/guides/core/advanced/offline"
+      ],
+      "post_media": {
+        "0": [
+          "launch/code-shots/tip-offline.png"
+        ]
+      }
+    },
+    {
+      "id": "D1-docs",
+      "when": "2027-01-05 15:00 UTC (Tue)",
+      "account": "Maciej Pyrc",
+      "angle": "Number first, first post after the holiday break: new docs, examples, integrations",
+      "media": null,
+      "posts": [
+        "HyperFetch has new docs.\n\n92 examples that run right on the page.\n39 integration guides, from Next.js and Bun to Django, Rails and Spring Boot.\nGuides for everything from your first request to offline-first apps.",
+        "Your backend does not have to be TypeScript.\n\nThe Django, FastAPI, Rails, Laravel, Spring Boot and ASP.NET Core guides export your OpenAPI schema and turn it into a typed HyperFetch SDK with the CLI. The frontend gets your server's models as types.",
+        "Every example is a real app in the repo. It runs live on its page, opens in @stackblitz or CodeSandbox in one click, or starts on your machine with one command.",
+        "Already on TanStack Query or SWR? There are guides for calling typed HyperFetch requests from inside them.\n\nStill choosing? There are side by side comparisons with TanStack Query, SWR, RTK Query and Apollo Client.",
+        "Auth guides for Clerk, Auth0, Better Auth, Auth.js, Supabase Auth and Firebase Auth. Runtime guides for Node.js, Bun, Deno, Cloudflare Workers, Electron and React Native.\n\nAnd for coding agents, the whole site is in llms.txt.",
+        "Docs: hyperfetch.bettertyped.com/docs\nExamples: hyperfetch.bettertyped.com/examples/"
+      ],
+      "mentions": {
+        "tagged": [
+          "@stackblitz"
+        ],
+        "plain": [
+          "CodeSandbox (handle not checked)"
+        ]
+      },
+      "facts": "Measured on origin/main 2026-11-25: 92 example pages under documentation/examples (excluding the index), 39 integration folders under documentation/docs/integrations (excluding getting-started), 92 guide pages. Every backend guide named uses OpenAPI and the CLI. Recount before posting: another session is still changing the integrations.",
+      "post_media": {
+        "2": [
+          "launch/code-shots/docs-examples.png"
+        ]
+      }
+    },
+    {
+      "id": "H1-hypestack",
+      "when": "2027-01-07 15:00 UTC (Thu)",
+      "account": "HypeStack",
+      "angle": "Product, team voice",
+      "media": null,
+      "posts": [
+        "Every Hype Stack app talks to its Hono backend through a typed HyperFetch SDK, with realtime over HyperFetch sockets. Requests, caching and reconnects are already wired when you start.",
+        "One command, and you own all of the code after:\nhype-stack.dev"
+      ]
+    },
+    {
+      "id": "T6-search-race",
+      "when": "2027-01-11 15:00 UTC (Mon)",
+      "account": "Maciej Pyrc",
+      "angle": "Problem first: the search race",
+      "media": null,
+      "posts": [
+        "The classic search race:\n\n• You type \"ab\", then \"abc\"\n• Both requests go out\n• \"ab\" answers last and replaces the right results\n\nA bare useEffect with fetch has this bug.",
+        "In HyperFetch, responses for one cache key apply in the order they were sent, so an older one never overwrites a newer one.\n\nAnd a cancelable request aborts the stale search before it even answers.",
+        "Cancellation in detail:\nhyperfetch.bettertyped.com/docs/guides/core/advanced/cancellation"
+      ],
+      "post_media": {
+        "0": [
+          "launch/code-shots/tip-race.png"
+        ],
+        "1": [
+          "launch/code-shots/tip-cancel.png"
+        ]
+      }
+    },
+    {
+      "id": "E1-late-responses",
+      "when": "2027-01-12 15:00 UTC (Tue)",
+      "account": "Maciej Pyrc",
+      "angle": "Explainer: race condition",
+      "media": "launch/clips/db-late.mp4",
+      "posts": [
+        "The race that breaks most realtime lists: you refetch, a socket event says the title is now \"Final\", then the refetch lands with \"Draft\" it read before the edit.\n\nA request cache shows \"Draft\". HyperFetch DB shows \"Final\".",
+        "It orders writes per field, not per response. With a version field, a write only changes fields whose stored version isn't newer. Without one, a response only changes fields last written before its request was sent.",
+        "Deletes count as writes too, so a late response can't bring a deleted row back.\nhyperfetch.bettertyped.com/blog/hyper-fetch-db"
+      ]
+    },
+    {
+      "id": "H2-hypestack",
+      "when": "2027-01-14 15:00 UTC (Thu)",
+      "account": "HypeStack",
+      "angle": "Problem first, team voice",
+      "media": null,
+      "posts": [
+        "Most new apps spend their first week on the same plumbing: auth, a typed API client, realtime, and the screens around them.\n\nHype Stack starts there. Web, desktop, mobile and browser apps from one typed codebase.",
+        "Start free and add modules as you need them:\nhype-stack.dev"
+      ]
+    },
+    {
+      "id": "T7-cli-openapi",
+      "when": "2027-01-18 15:00 UTC (Mon)",
+      "account": "Maciej Pyrc",
+      "angle": "Tip: typed SDK from OpenAPI",
+      "media": null,
+      "posts": [
+        "Your backend doesn't have to be TypeScript to get a typed client.\n\nPoint the HyperFetch CLI at the OpenAPI schema of a Django, FastAPI, Rails, Laravel or Spring Boot API, and it generates a typed SDK.",
+        "The generate command in detail:\nhyperfetch.bettertyped.com/docs/cli/commands/generate"
+      ],
+      "post_media": {
+        "0": [
+          "launch/code-shots/tip-cli.png"
+        ]
+      }
+    },
+    {
+      "id": "E2-delivery",
+      "when": "2027-01-19 15:00 UTC (Tue)",
+      "account": "Maciej Pyrc",
+      "angle": "Explainer: latest vs batch",
+      "media": "launch/clips/sockets-delivery.mp4",
+      "posts": [
+        "Two kinds of socket data need two delivery strategies:\n\n• State, like a price: latest keeps the newest value per frame\n• Events, like trades: batch renders a window of them at once",
+        "With batch, the listener gets every message of a 100ms window at once: one render per window instead of one per trade.",
+        "Timelines and custom strategies:\nhyperfetch.bettertyped.com/docs/guides/sockets/throttling"
+      ],
+      "post_media": {
+        "1": [
+          "launch/code-shots/sockets-trade-log.png"
+        ]
+      }
+    },
+    {
+      "id": "E3-optimistic",
+      "when": "2027-01-21 15:00 UTC (Thu)",
+      "account": "Maciej Pyrc",
+      "angle": "Explainer: optimistic create",
+      "media": "launch/clips/core-optimistic.mp4",
+      "posts": [
+        "Optimistic create is the hard case: the row needs an id before the server gives it one.\n\nIn HyperFetch 10 you insert with a temporary id, then say how to roll it back and how to swap in the real row. Both steps are typed from the requests.",
+        "Insert with a temporary id, roll it back by filtering it out, and commit by swapping in the server's row. The data and the response are typed at every step.",
+        "Rollback and commit in detail:\nhyperfetch.bettertyped.com/docs/guides/react/basics/optimistic-approach"
+      ],
+      "post_media": {
+        "1": [
+          "launch/code-shots/core-optimistic-create.png"
+        ]
+      }
+    },
+    {
+      "id": "T8-dedupe",
+      "when": "2027-01-25 15:00 UTC (Mon)",
+      "account": "Maciej Pyrc",
+      "angle": "Tip: deduplication",
+      "media": null,
+      "posts": [
+        "Three components fetch the current user on mount. One request goes out.\n\nHyperFetch deduplicates identical requests: the second and third calls join the one in flight and get the same response.",
+        "Deduplication in detail:\nhyperfetch.bettertyped.com/docs/guides/core/advanced/deduplication"
+      ],
+      "post_media": {
+        "0": [
+          "launch/code-shots/tip-dedupe.png"
+        ]
+      }
+    },
+    {
+      "id": "E4-persisted",
+      "when": "2027-01-26 15:00 UTC (Tue)",
+      "account": "Maciej Pyrc",
+      "angle": "Explainer: persisted queries",
+      "media": "launch/clips/graphql-persisted.mp4",
+      "posts": [
+        "Caching GraphQL at the edge:\n\n❌ A GraphQL POST can't be cached by a CDN\n✅ A GET with a hash can\n\nWith persistedQueries on, HyperFetch sends the SHA-256 of the query instead of its text. The server answers from its store, and a CDN can cache the response.",
+        "One option on the request. Send it as a GET and the hashed URL is short enough to cache.",
+        "Persisted queries and the rest of the adapter:\nhyperfetch.bettertyped.com/docs/integrations/adapter-graphql/overview"
+      ],
+      "post_media": {
+        "1": [
+          "launch/code-shots/graphql-persisted-get.png"
+        ]
+      }
+    },
+    {
+      "id": "E5-reconnect",
+      "when": "2027-01-28 15:00 UTC (Thu)",
+      "account": "Maciej Pyrc",
+      "angle": "Explainer: reconnection",
+      "media": "launch/clips/sockets-reconnect.mp4",
+      "posts": [
+        "When a server restarts, every client reconnects at once unless something spreads them out.\n\nHyperFetch 10 sockets back off with jitter, give each attempt its own timeout, and reset the counter once a connection stays up.",
+        "The defaults, for every adapter:\n\n• The first retry comes 1 to 2 seconds after the loss\n• The window grows up to 30 seconds\n• 5 seconds of uptime reset the counter\n\nshouldReconnect decides which losses are worth retrying, like skipping a rejected token.",
+        "Reconnection, timeouts and the options in detail:\nhyperfetch.bettertyped.com/docs/guides/sockets/connection"
+      ],
+      "post_media": {
+        "1": [
+          "launch/code-shots/sockets-reconnect.png"
+        ]
+      }
+    },
+    {
+      "id": "E6-hydrate",
+      "when": "2027-02-02 15:00 UTC (Tue)",
+      "account": "Maciej Pyrc",
+      "angle": "Explainer: SSR",
+      "media": "launch/clips/core-hydrate.mp4",
+      "posts": [
+        "Server rendering often fetches the same data twice:\n\n❌ Once on the server\n❌ Once again in the browser\n\nHyperFetch's Hydrate hands the server response to the hooks:\n\n✅ The first render has the data\n✅ No request goes out while it's fresh",
+        "The server sends the request and dehydrates the response. In the browser, Hydrate gives it to useFetch before the first render.",
+        "Hydrate in detail:\nhyperfetch.bettertyped.com/docs/react/hydrate"
+      ],
+      "post_media": {
+        "1": [
+          "launch/code-shots/core-hydrate-server.png",
+          "launch/code-shots/core-hydrate-client.png"
+        ]
+      }
+    }
+  ]
+}

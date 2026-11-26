@@ -1,0 +1,35 @@
+{
+  "name": "hyper-fetch-videos",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Launch videos for HyperFetch releases, rendered with Remotion",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "node scripts/render.mjs",
+    "still": "node scripts/render.mjs --still",
+    "typecheck": "tsc --noEmit",
+    "score": "node scripts/score.mjs",
+    "master": "node scripts/master.mjs",
+    "clips": "node scripts/clips.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.545",
+    "@remotion/cli": "4.0.545",
+    "@remotion/effects": "4.0.545",
+    "@remotion/google-fonts": "4.0.545",
+    "@remotion/layout-utils": "4.0.545",
+    "@remotion/media": "4.0.545",
+    "@remotion/motion-blur": "4.0.545",
+    "@remotion/renderer": "4.0.545",
+    "@remotion/transitions": "4.0.545",
+    "prism-react-renderer": "2.4.1",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "remotion": "4.0.545"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "typescript": "5.9.3"
+  }
+}
